@@ -8,8 +8,11 @@ import heapq
 MAX_LABEL_COST_IN_SHORTEST_PATH = 10000
 
 
+# note that the following path is the PATH at RUN TIME when imported as package
+# it is NOT the path when used as offline module.
+# see data_files in setup.py for details.
+_cdll = ctypes.cdll.LoadLibrary(r"./bin/libstalite.dll")
 # set up the argument types for the shortest path function in dll.
-_cdll = ctypes.cdll.LoadLibrary(r"../bin/libstalite.dll")
 _cdll.shortest_path.argtypes = [
     ctypes.c_int, ctypes.c_int, 
     numpy.ctypeslib.ndpointer(dtype=numpy.int32),

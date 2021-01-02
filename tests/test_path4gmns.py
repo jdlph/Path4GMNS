@@ -1,7 +1,3 @@
-import sys
-
-sys.path.append('../')
-
 import path4gmns as pg
 
 

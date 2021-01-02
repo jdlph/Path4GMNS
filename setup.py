@@ -13,6 +13,7 @@ setuptools.setup(
     # long_description_content_type="text/markdown",
     # url="https://github.com/",
     packages=['path4gmns'],
+    data_files=[('bin', ['./bin/libstalite.dll'])],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3.0",
