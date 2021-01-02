@@ -4,7 +4,7 @@ Two path engines are provided:
 1. C++ engine which is a special implementation of the deque implementation in
    CPP and built into libstalite.dll.
 2. Python engine which provides three implementations: FIFO, Deque, and 
-   Dijkstra. The default is deque.
+   heap-Dijkstra. The default is deque.
 
 The code is adopted and modified from 
 https://github.com/asu-trans-ai-lab/DTALite 
@@ -18,7 +18,8 @@ from .path import MAX_LABEL_COST_IN_SHORTEST_PATH
 
 
 class Node:         
-    """ external_node_id: the id of node
+    """ 
+    external_node_id: the id of node
     node_seq_no: the index of the node and we call the node by its index
     
     we use g_internal_node_seq_no_dict(id to index) and 
@@ -59,7 +60,9 @@ class Link:
         # length is mile or km
         self.length = float(length) 
         # length:km, free_speed: km/h
-        self.free_flow_travel_time_in_min = self.length / max(0.001,int(free_speed)) * 60  
+        self.free_flow_travel_time_in_min = (
+            self.length / max(0.001,int(free_speed)) * 60
+        )
         self.cost = self.free_flow_travel_time_in_min
 
 
@@ -105,13 +108,13 @@ class Network:
 
         # initialize from_node_no_array, to_node_no_array, and link_cost_array
         self.from_node_no_array = [
-            self.link_list[j].from_node_seq_no for j in range(self.link_size)
+            link.from_node_seq_no for link in self.link_list
         ]
         self.to_node_no_array = [
-            self.link_list[j].to_node_seq_no for j in range(self.link_size)
+            link.to_node_seq_no for link in self.link_list
         ]
         self.link_cost_array = [
-            self.link_list[j].cost for j in range(self.link_size)
+           link.cost for link in self.link_list
         ]
 
         # convert the above three into numpy array to be passed as 
@@ -130,13 +133,15 @@ class Network:
 
         # count the size of outgoing links for each node
         node_OutgoingLinkSize = [0] * self.node_size
-        for j in range(self.link_size):
-            node_OutgoingLinkSize[self.link_list[j].from_node_seq_no] += 1
+        for link in self.link_list:
+            node_OutgoingLinkSize[link.from_node_seq_no] += 1
 
         cumulative_count = 0
         for i in range(self.node_size):
             self.FirstLinkFrom[i] = cumulative_count
-            self.LastLinkFrom[i] = self.FirstLinkFrom[i] + node_OutgoingLinkSize[i]
+            self.LastLinkFrom[i] = (
+                self.FirstLinkFrom[i] + node_OutgoingLinkSize[i]
+            )
             cumulative_count += node_OutgoingLinkSize[i]
 
         # reset the counter # need to construct sorted_link_no_vector
@@ -146,14 +151,14 @@ class Network:
             node_OutgoingLinkSize[i] = 0
 
         # count again the current size of outgoing links for each node
-        for j in range(self.link_size):
+        for j, link in enumerate(self.link_list):
             # fetch the curent from node seq no of this link
-            from_node_seq_no = self.link_list[j].from_node_seq_no
+            from_node_seq_no = link.from_node_seq_no
             # j is the link sequence no in the original link block
             k = (self.FirstLinkFrom[from_node_seq_no] 
                  + node_OutgoingLinkSize[from_node_seq_no])
             self.sorted_link_no_vector[k] = j
             # continue to count, increase by 1
-            node_OutgoingLinkSize[self.link_list[j].from_node_seq_no] += 1
+            node_OutgoingLinkSize[link.from_node_seq_no] += 1
         
         self._count += 1 

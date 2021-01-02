@@ -16,9 +16,13 @@ def read_nodes(input_dir, node_list, internal_node_seq_no_dict,
             external_node_id_dict[node_seq_no] = node.external_node_id
             if node.zone_id not in zone_to_nodes_dict.keys():
                 zone_to_nodes_dict[int(node.zone_id)] = list()
-                zone_to_nodes_dict[int(node.zone_id)].append(node.external_node_id)
+                zone_to_nodes_dict[int(node.zone_id)].append(
+                    node.external_node_id
+                )
             else:
-                zone_to_nodes_dict[int(node.zone_id)].append(node.external_node_id)
+                zone_to_nodes_dict[int(node.zone_id)].append(
+                    node.external_node_id
+                )
             node_seq_no += 1
         print('the number of nodes is', node_seq_no)
     fp.close()
