@@ -1,6 +1,8 @@
 import csv
+import operator
+from random import choice
 
-from .classes import Node, Link, Network
+from .classes import Node, Link, Network, Agent
 
 
 def read_nodes(input_dir, node_list, internal_node_seq_no_dict,
@@ -56,6 +58,69 @@ def read_links(input_dir, link_list, node_list, internal_node_seq_no_dict):
     fp.close()
     
 
+def read_agents(input_dir,
+                agent_list,
+                agent_td_list_dict,
+                zone_to_nodes_dict):
+    """ step 3:read input_agent """
+    with open(input_dir+'/demand.csv', 'r', encoding='utf-8') as fp:
+        reader = csv.DictReader(fp)
+        agent_id = 1
+        agent_type = 'v'
+        agent_seq_no = 0
+        for line in reader:
+            volume = line['volume']
+            volume_agent_size = int(float(volume) + 1)
+    
+            # only test up to 10k
+            if agent_id >= 10000 :
+                break 
+    
+            for i in range(volume_agent_size):
+                agent = Agent(agent_id,
+                              agent_seq_no,
+                              agent_type,
+                              line['o_zone_id'], 
+                              line['d_zone_id'])
+
+                # step 3.1 generate o_node_id and d_node_id randomly according 
+                # to o_zone_id and d_zone_id 
+                if zone_to_nodes_dict.get(agent.o_zone_id, -1) == -1 : 
+                     continue
+                if zone_to_nodes_dict.get(agent.d_zone_id, -1) == -1 : 
+                     continue 
+                
+                agent.o_node_id = choice(zone_to_nodes_dict[agent.o_zone_id])
+                agent.d_node_id = choice(zone_to_nodes_dict[agent.d_zone_id])
+                
+                # step 3.2 update agent_id and agent_seq_no
+                agent_id += 1
+                agent_seq_no += 1 
+
+                # step 3.3: update the g_simulation_start_time_in_min and 
+                # g_simulation_end_time_in_min 
+                if agent.departure_time_in_min < g_simulation_start_time_in_min:
+                    g_simulation_start_time_in_min = agent.departure_time_in_min
+                if agent.departure_time_in_min > g_simulation_end_time_in_min:
+                    g_simulation_end_time_in_min = agent.departure_time_in_min
+
+                #step 3.4: add the agent to the time dependent agent list     
+                if agent.departure_time_in_simu_interval not in agent_td_list_dict.keys():
+                    agent_td_list_dict[agent.departure_time_in_simu_interval] = list()
+                    agent_td_list_dict[agent.departure_time_in_simu_interval].append(agent.agent_seq_no)
+                else:
+                    agent_td_list_dict[agent.departure_time_in_simu_interval].append(agent.agent_seq_no)
+                agent_list.append(agent)
+
+    print('the number of agents is', len(agent_list))
+
+    #step 3.6:sort agents by the departure time
+    sort_fun = operator.attrgetter("departure_time_in_min")
+    agent_list.sort(key=sort_fun)
+    for i, agent in enumerate(agent_list):
+        agent.agent_seq_no = i
+
+
 def read_network(input_dir='./'):
     network = Network()
 
@@ -69,6 +134,11 @@ def read_network(input_dir='./'):
                network.link_list,
                network.node_list,
                network.internal_node_seq_no_dict)
+
+    read_agents(input_dir,
+                network.agent_list,
+                network.agent_td_list_dict,
+                network.zone_to_nodes_dict)
 
     network.update()
 

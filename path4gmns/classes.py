@@ -4,6 +4,9 @@ import numpy
 from .path import MAX_LABEL_COST_IN_SHORTEST_PATH
 
 
+_NUMBER_OF_SECONDS_PER_SIMU_INTERVAL = 6 
+
+
 class Node:         
     """ 
     external_node_id: the id of node
@@ -148,4 +151,37 @@ class Network:
             # continue to count, increase by 1
             node_OutgoingLinkSize[link.from_node_seq_no] += 1
         
-        self._count += 1 
+        self._count += 1
+
+
+class Agent:
+    """ 
+    comments: agent_id: the id of agent
+    agent_seq_no: the index of the agent and we call the agent by its index
+    """
+    
+    def __init__(self, agent_id, agent_seq_no, agent_type, 
+                 o_zone_id, d_zone_id):
+        """ the attribute of agent """ 
+        self.agent_id = agent_id
+        self.agent_seq_no = agent_seq_no
+        # vehicle 
+        self.agent_type = agent_type  
+        self.o_zone_id = int(o_zone_id) 
+        self.d_zone_id = int(d_zone_id)
+        self.o_node_id = 0
+        self.d_node_id = 0
+        self.path_node_seq_no_list = list()
+        self.path_link_seq_no_list = list()
+        self.current_link_seq_no_in_path = 0 
+        self.departure_time_in_min = 0
+        # Passenger Car Equivalent (PCE) of the agent
+        self.PCE_factor = 1  
+        self.path_cost = 0
+        self.b_generated = False
+        self.b_complete_trip = False
+        self.departure_time_in_simu_interval = int(
+            self.departure_time_in_min 
+            * 60 /_NUMBER_OF_SECONDS_PER_SIMU_INTERVAL
+            + 0.5)
+        self.feasible_path_exist_flag = False
