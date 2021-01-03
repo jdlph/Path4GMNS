@@ -1,7 +1,28 @@
+""" Find shortest path given a from node and a to node
+
+Two path engines are provided:
+1. C++ engine which is a special implementation of the deque implementation in
+   CPP and built into libstalite.dll.
+2. Python engine which provides three implementations: FIFO, Deque, and 
+   heap-Dijkstra. The default is deque.
+
+The code is adopted and modified from 
+https://github.com/asu-trans-ai-lab/DTALite 
+"""
+
+
 import ctypes
 import numpy
 import collections
 import heapq
+
+
+__all__ = [
+    'MAX_LABEL_COST_IN_SHORTEST_PATH',
+    'single_source_shortest_path',
+    'output_path_sequence',
+    'find_shortest_path'
+]
 
 
 # for initialization in shortest path calculation

@@ -11,7 +11,7 @@ setuptools.setup(
     description="demo",
     # long_description=long_description,
     # long_description_content_type="text/markdown",
-    # url="https://github.com/",
+    url="https://github.com/",
     packages=['path4gmns'],
     data_files=[('bin', ['./bin/libstalite.dll'])],
     classifiers=[
