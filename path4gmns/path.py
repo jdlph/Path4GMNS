@@ -29,8 +29,9 @@ __all__ = [
 MAX_LABEL_COST_IN_SHORTEST_PATH = 10000
 
 
-# note that the following path is the PATH at RUN TIME when imported as package
-# it is NOT the path when used as offline module.
+# note that the following path is the relative PATH path within the installed 
+# package RUN TIME. it is NOT THE PATH to the dll in bin/ under the root 
+# project directory.
 # see data_files in setup.py for details.
 _cdll = ctypes.cdll.LoadLibrary(r"./bin/libstalite.dll")
 # set up the argument types for the shortest path function in dll.
@@ -304,9 +305,9 @@ def output_path_sequence(G, from_node_id, to_node_id, type='node'):
     
     Note that this function returns GENERATOR rather than list.
     """
-    path = [] 
+    path = []
     current_node_seq_no = G.internal_node_seq_no_dict[to_node_id]
-    
+   
     if type.lower() == 'node':
         # retrieve the sequence backwards
         while current_node_seq_no >= 0:  
@@ -327,6 +328,12 @@ def output_path_sequence(G, from_node_id, to_node_id, type='node'):
             yield link_seq_no
 
 
+def _get_path_cost(G, to_node_id):
+    to_node_no = G.internal_node_seq_no_dict[to_node_id]
+    
+    return G.node_label_cost[to_node_no]
+
+
 def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
     if from_node_id not in G.internal_node_seq_no_dict.keys():
         raise Exception(f"Node ID: {from_node_id} not in the network")
@@ -334,7 +341,50 @@ def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
         raise Exception(f"Node ID: {to_node_id} not in the network")
 
     single_source_shortest_path(G, from_node_id, engine_type='c')
+
     return list(output_path_sequence(G, from_node_id, to_node_id, seq_type))
+
+
+def find_path_for_agents(G):
+    """ find shortest path for each agent
+    
+    Note that we do not cache the predecessors and label cost even some agents 
+    may share the same origin and each call of the single-source path algorithm
+    will calculate the shortest path tree from the source node.
+    """
+    for agent in G.agent_list:
+        from_node_id = agent.o_node_id
+        to_node_id = agent.d_node_id
+
+        if from_node_id not in G.internal_node_seq_no_dict.keys():
+            raise Exception(f"Node ID: {from_node_id} not in the network")
+        if to_node_id not in G.internal_node_seq_no_dict.keys():
+            raise Exception(f"Node ID: {to_node_id} not in the network")
+
+        single_source_shortest_path(G, from_node_id, engine_type='c')
+
+        node_path = []
+        link_path = []
+
+        current_node_seq_no = G.internal_node_seq_no_dict[to_node_id]
+        # retrieve the sequence backwards
+        while current_node_seq_no >= 0:
+            node_path.append(current_node_seq_no)
+            current_link_seq_no = G.link_predecessor[current_node_seq_no]  
+            if current_link_seq_no >= 0:
+                link_path.append(current_link_seq_no)
+            current_node_seq_no = G.node_predecessor[current_node_seq_no]
+        
+        # reverse the sequence
+        agent.path_node_seq_no_list = [
+            node_seq_no for node_seq_no in reversed(node_path)
+        ]
+        agent.path_link_seq_no_list = [
+            link_seq_no for link_seq_no in reversed(link_path)
+        ]
+        # set up the cost
+        to_node_no = G.internal_node_seq_no_dict[to_node_id]
+        agent.path_cost = G.node_label_cost[to_node_no]
 
 
 # def all_pairs_shortest_paths(G, engine_type='c', sp_algm='deque'):
