@@ -301,8 +301,7 @@ def find_path_for_agents(G):
         
         # reverse the sequence
         agent.path_node_seq_no_list = [
-            G.external_node_id_dict[node_seq_no] 
-            for node_seq_no in reversed(node_path)
+            node_seq_no for node_seq_no in reversed(node_path)
         ]
         agent.path_link_seq_no_list = [
             link_seq_no for link_seq_no in reversed(link_path)
