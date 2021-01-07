@@ -1,7 +1,7 @@
 import ctypes
 import numpy 
 
-from .path import MAX_LABEL_COST_IN_SHORTEST_PATH
+from .path import MAX_LABEL_COST
 
 
 _NUMBER_OF_SECONDS_PER_SIMU_INTERVAL = 6 
@@ -93,7 +93,7 @@ class Network:
         self.node_predecessor = numpy.full(self.node_size, -1, numpy.int32)
         self.link_predecessor = numpy.full(self.node_size, -1, numpy.int32)
         self.node_label_cost = numpy.full(self.node_size, 
-                                          MAX_LABEL_COST_IN_SHORTEST_PATH,
+                                          MAX_LABEL_COST,
                                           numpy.float64)
 
         # initialize from_node_no_array, to_node_no_array, and link_cost_array

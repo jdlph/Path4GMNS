@@ -18,15 +18,16 @@ import heapq
 
 
 __all__ = [
-    'MAX_LABEL_COST_IN_SHORTEST_PATH',
+    'MAX_LABEL_COST',
     'single_source_shortest_path',
     'output_path_sequence',
-    'find_shortest_path'
+    'find_shortest_path',
+    'find_path_for_agents'
 ]
 
 
 # for initialization in shortest path calculation
-MAX_LABEL_COST_IN_SHORTEST_PATH = 10000
+MAX_LABEL_COST = 10000
 
 
 # note that the following path is the relative PATH path within the installed 
@@ -77,7 +78,7 @@ def _optimal_label_correcting_CAPI(G, origin_node, destination_node=1):
                         G.node_label_cost)
 
 
-def _single_source_shortest_path_fifo(G, origin_node):
+def _single_source_shortest_path_fifo(G, origin_node_no):
     """ FIFO implementation of MLC using built-in list and indicator array
     
     The caller is responsible for initializing node_label_cost, 
@@ -87,7 +88,7 @@ def _single_source_shortest_path_fifo(G, origin_node):
     status = [0] * G.node_size
     # scan eligible list
     SEList = []  
-    SEList.append(origin_node)
+    SEList.append(origin_node_no)
 
     while SEList:
         from_node = SEList.pop(0)
@@ -112,7 +113,7 @@ def _single_source_shortest_path_fifo(G, origin_node):
                     status[to_node] = 1
 
 
-def _single_source_shortest_path_deque(G, origin_node):
+def _single_source_shortest_path_deque(G, origin_node_no):
     """ Deque implementation of MLC using deque list and indicator array
     
     The caller is responsible for initializing node_label_cost, 
@@ -125,7 +126,7 @@ def _single_source_shortest_path_deque(G, origin_node):
     status = [0] * G.node_size
     # scan eligible list
     SEList = collections.deque()
-    SEList.append(origin_node)
+    SEList.append(origin_node_no)
 
     while SEList:
         from_node = SEList.popleft()
@@ -153,7 +154,7 @@ def _single_source_shortest_path_deque(G, origin_node):
                     status[to_node] = 1
 
 
-def _single_source_shortest_path_dijkstra(G, origin_node):
+def _single_source_shortest_path_dijkstra(G, origin_node_no):
     """ Simplified heap-Dijkstra's Algorithm using heapq
     
     The caller is responsible for initializing node_label_cost, 
@@ -165,7 +166,7 @@ def _single_source_shortest_path_dijkstra(G, origin_node):
     # scan eligible list
     SEList = []
     heapq.heapify(SEList)
-    heapq.heappush(SEList, (G.node_label_cost[origin_node], origin_node))
+    heapq.heappush(SEList, (G.node_label_cost[origin_node_no], origin_node_no))
 
     while SEList:
         (label_cost, from_node) = heapq.heappop(SEList)
@@ -198,102 +199,18 @@ def single_source_shortest_path(G, origin_node, engine_type='c',
             return
         
         # Initialization for all nodes
-        G.node_label_cost = [MAX_LABEL_COST_IN_SHORTEST_PATH] * G.node_size
+        G.node_label_cost = [MAX_LABEL_COST] * G.node_size
         # pointer to previous node index from the current label at current node
         G.node_predecessor = [-1] * G.node_size
         # pointer to previous node index from the current label at current node
         G.link_predecessor = [-1] * G.node_size
 
-        G.node_label_cost[origin_node_no] = 0
-        status = [0] * G.node_size
-
         if sp_algm.lower() == 'fifo':
-            # scan eligible list
-            SEList = []  
-            SEList.append(origin_node)
-
-            while SEList:
-                from_node = SEList.pop(0)
-                status[from_node] = 0
-                for link in G.node_list[from_node].outgoing_link_list:
-                    to_node = link.to_node_seq_no 
-                    new_to_node_cost = (G.node_label_cost[from_node] 
-                                        + G.link_cost_array[link.link_seq_no])
-                    # we only compare cost at the downstream node ToID 
-                    # at the new arrival time t
-                    if new_to_node_cost < G.node_label_cost[to_node]:
-                        # update cost label and node/time predecessor
-                        G.node_label_cost[to_node] = new_to_node_cost
-                        # pointer to previous physical node index 
-                        # from the current label at current node and time
-                        G.node_predecessor[to_node] = from_node 
-                        # pointer to previous physical node index
-                        # from the current label at current node and time
-                        G.link_predecessor[to_node] = link.link_seq_no 
-                        if not status[to_node]:
-                            SEList.append(to_node)
-                            status[to_node] = 1
-
+            _single_source_shortest_path_fifo(G, origin_node_no)
         elif sp_algm.lower() == 'deque':
-            SEList = collections.deque()
-            SEList.append(origin_node)
-
-            while SEList:
-                from_node = SEList.popleft()
-                status[from_node] = 2
-                for link in G.node_list[from_node].outgoing_link_list:
-                    to_node = link.to_node_seq_no  
-                    new_to_node_cost = (G.node_label_cost[from_node] 
-                                        + G.link_cost_array[link.link_seq_no])
-                    # we only compare cost at the downstream node ToID
-                    # at the new arrival time t
-                    if new_to_node_cost < G.node_label_cost[to_node]:
-                        # update cost label and node/time predecessor
-                        G.node_label_cost[to_node] = new_to_node_cost
-                        # pointer to previous physical node index 
-                        # from the current label at current node and time
-                        G.node_predecessor[to_node] = from_node
-                        # pointer to previous physical node index 
-                        # from the current label at current node and time
-                        G.link_predecessor[to_node] = link.link_seq_no
-                        if status[to_node] != 1:
-                            if status[to_node] == 2:
-                                SEList.appendleft(to_node)
-                            else:
-                                SEList.append(to_node)
-                            status[to_node] = 1
-
+            _single_source_shortest_path_deque(G, origin_node_no)
         elif sp_algm.lower() == 'dijkstra':
-            # scan eligible list
-            SEList = []
-            heapq.heapify(SEList)
-            heapq.heappush(
-                SEList, 
-                (G.node_label_cost[origin_node], origin_node)
-            )
-
-            while SEList:
-                (label_cost, from_node) = heapq.heappop(SEList)
-                for link in G.node_list[from_node].outgoing_link_list:
-                    to_node = link.to_node_seq_no
-                    new_to_node_cost = (label_cost 
-                                        + G.link_cost_array[link.link_seq_no])
-                    # we only compare cost at the downstream node ToID 
-                    # at the new arrival time t
-                    if new_to_node_cost < G.node_label_cost[to_node]:
-                        # update cost label and node/time predecessor
-                        G.node_label_cost[to_node] = new_to_node_cost
-                        # pointer to previous physical node index 
-                        # from the current label at current node and time
-                        G.node_predecessor[to_node] = from_node 
-                        # pointer to previous physical node index 
-                        # from the current label at current node and time
-                        G.link_predecessor[to_node] = link.link_seq_no
-                        heapq.heappush(
-                            SEList, 
-                            (G.node_label_cost[to_node], to_node)
-                        )
-        
+            _single_source_shortest_path_dijkstra(G, origin_node_no)
         else:
             raise Exception('Please choose correct shortest path algorithm: '
                             +'fifo or deque or dijkstra')
@@ -347,6 +264,9 @@ def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
 
 def find_path_for_agents(G):
     """ find shortest path for each agent
+
+    the internal node and links will be used to set up the node sequence and
+    link sequence respectively
     
     Note that we do not cache the predecessors and label cost even some agents 
     may share the same origin and each call of the single-source path algorithm
@@ -355,6 +275,10 @@ def find_path_for_agents(G):
     for agent in G.agent_list:
         from_node_id = agent.o_node_id
         to_node_id = agent.d_node_id
+
+        # just in case agent has the same origin and destination
+        if from_node_id == to_node_id:
+            return
 
         if from_node_id not in G.internal_node_seq_no_dict.keys():
             raise Exception(f"Node ID: {from_node_id} not in the network")
@@ -377,7 +301,8 @@ def find_path_for_agents(G):
         
         # reverse the sequence
         agent.path_node_seq_no_list = [
-            node_seq_no for node_seq_no in reversed(node_path)
+            G.external_node_id_dict[node_seq_no] 
+            for node_seq_no in reversed(node_path)
         ]
         agent.path_link_seq_no_list = [
             link_seq_no for link_seq_no in reversed(link_path)

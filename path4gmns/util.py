@@ -99,10 +99,10 @@ def read_agents(input_dir,
 
                 # step 3.3: update the g_simulation_start_time_in_min and 
                 # g_simulation_end_time_in_min 
-                if agent.departure_time_in_min < g_simulation_start_time_in_min:
-                    g_simulation_start_time_in_min = agent.departure_time_in_min
-                if agent.departure_time_in_min > g_simulation_end_time_in_min:
-                    g_simulation_end_time_in_min = agent.departure_time_in_min
+                # if agent.departure_time_in_min < g_simulation_start_time_in_min:
+                #     g_simulation_start_time_in_min = agent.departure_time_in_min
+                # if agent.departure_time_in_min > g_simulation_end_time_in_min:
+                #     g_simulation_end_time_in_min = agent.departure_time_in_min
 
                 #step 3.4: add the agent to the time dependent agent list     
                 if agent.departure_time_in_simu_interval not in agent_td_list_dict.keys():
