@@ -37,45 +37,42 @@ MAX_LABEL_COST = 10000
 _cdll = ctypes.cdll.LoadLibrary(r"./bin/libstalite.dll")
 # set up the argument types for the shortest path function in dll.
 _cdll.shortest_path.argtypes = [
-    ctypes.c_int, ctypes.c_int, 
-    numpy.ctypeslib.ndpointer(dtype=numpy.int32),
-    numpy.ctypeslib.ndpointer(dtype=numpy.int32),
-    numpy.ctypeslib.ndpointer(dtype=numpy.float64),
-    numpy.ctypeslib.ndpointer(dtype=numpy.int32),
-    numpy.ctypeslib.ndpointer(dtype=numpy.int32),
-    numpy.ctypeslib.ndpointer(dtype=numpy.int32),                                        
-    ctypes.c_int, ctypes.c_int, 
+    ctypes.c_int, 
+    ctypes.c_int, 
     numpy.ctypeslib.ndpointer(dtype=numpy.int32),
     numpy.ctypeslib.ndpointer(dtype=numpy.int32),
     numpy.ctypeslib.ndpointer(dtype=numpy.int32),
-    numpy.ctypeslib.ndpointer(dtype=numpy.float64)
+    numpy.ctypeslib.ndpointer(dtype=numpy.int32),
+    numpy.ctypeslib.ndpointer(dtype=numpy.int32), 
+    numpy.ctypeslib.ndpointer(dtype=numpy.float64),   
+    numpy.ctypeslib.ndpointer(dtype=numpy.float64),                                    
+    numpy.ctypeslib.ndpointer(dtype=numpy.int32),
+    numpy.ctypeslib.ndpointer(dtype=numpy.int32),
+    numpy.ctypeslib.ndpointer(dtype=numpy.int32),
 ]
 
 
-def _optimal_label_correcting_CAPI(G, origin_node, destination_node=1):
+def _optimal_label_correcting_CAPI(G, origin_node_id):
     """ input : origin_node,destination_node,departure_time
         output : the shortest path
     """
-    o_node_no = G.internal_node_seq_no_dict[origin_node]
-    d_node_no = G.internal_node_seq_no_dict[destination_node]
+    o_node_no = G.internal_node_seq_no_dict[origin_node_id]
 
     if not G.node_list[o_node_no].outgoing_link_list:
         return
     
-    _cdll.shortest_path(G.node_size, 
-                        G.link_size, 
+    _cdll.shortest_path(o_node_no,
+                        G.node_size,
                         G.from_node_no_array,
                         G.to_node_no_array,
+                        G.first_link_from,
+                        G.fast_link_from,
+                        G.sorted_link_no_array, 
                         G.link_cost_array,
-                        G.FirstLinkFrom,
-                        G.LastLinkFrom,
-                        G.sorted_link_no_vector, 
-                        o_node_no,
-                        d_node_no, 
+                        G.node_label_cos,
                         G.node_predecessor,
                         G.link_predecessor,
-                        G.queue_next,
-                        G.node_label_cost)
+                        G.queue_next)
 
 
 def _single_source_shortest_path_fifo(G, origin_node_no):
@@ -187,15 +184,15 @@ def _single_source_shortest_path_dijkstra(G, origin_node_no):
                 heapq.heappush(SEList, (G.node_label_cost[to_node], to_node))
 
 
-def single_source_shortest_path(G, origin_node, engine_type='c',
+def single_source_shortest_path(G, origin_node_id, engine_type='c',
                                 sp_algm='deque'):
     if engine_type.lower() == 'c':
         G.allocate_for_CAPI()
-        _optimal_label_correcting_CAPI(G, origin_node)
+        _optimal_label_correcting_CAPI(G, origin_node_id)
     else:
-        origin_node_no = G.internal_node_seq_no_dict[origin_node]
+        origin_node_no = G.internal_node_seq_no_dict[origin_node_id]
         
-        if not G.node_list[origin_node].outgoing_link_list:
+        if not G.node_list[origin_node_id].outgoing_link_list:
             return
         
         # Initialization for all nodes

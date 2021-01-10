@@ -116,10 +116,10 @@ class Network:
         
         # initialize others as numpy arrays directly
         self.queue_next = numpy.full(self.node_size, 0, numpy.int32)
-        self.FirstLinkFrom = numpy.full(self.node_size, -1, numpy.int32)
-        self.LastLinkFrom = numpy.full(self.node_size, -1, numpy.int32)
-        self.sorted_link_no_vector = numpy.full(self.link_size, -1, 
-                                                numpy.int32)
+        self.first_link_from = numpy.full(self.node_size, -1, numpy.int32)
+        self.last_link_from = numpy.full(self.node_size, -1, numpy.int32)
+        self.sorted_link_no_array = numpy.full(self.link_size, -1, 
+                                               numpy.int32)
 
         # count the size of outgoing links for each node
         node_OutgoingLinkSize = [0] * self.node_size
@@ -128,9 +128,9 @@ class Network:
 
         cumulative_count = 0
         for i in range(self.node_size):
-            self.FirstLinkFrom[i] = cumulative_count
-            self.LastLinkFrom[i] = (
-                self.FirstLinkFrom[i] + node_OutgoingLinkSize[i]
+            self.first_link_from[i] = cumulative_count
+            self.last_link_from[i] = (
+                self.first_link_from[i] + node_OutgoingLinkSize[i]
             )
             cumulative_count += node_OutgoingLinkSize[i]
 
@@ -145,9 +145,9 @@ class Network:
             # fetch the curent from node seq no of this link
             from_node_seq_no = link.from_node_seq_no
             # j is the link sequence no in the original link block
-            k = (self.FirstLinkFrom[from_node_seq_no] 
+            k = (self.first_link_from[from_node_seq_no] 
                  + node_OutgoingLinkSize[from_node_seq_no])
-            self.sorted_link_no_vector[k] = j
+            self.sorted_link_no_array[k] = j
             # continue to count, increase by 1
             node_OutgoingLinkSize[link.from_node_seq_no] += 1
         
