@@ -5,8 +5,10 @@ project ("path_engine")
 if(WIN32)
     message("Building dll file on Windows")
 elseif(UNIX)
-    message("Building dylib file on ${CMAKE_SYSTEM_NAME}")
+    message("Building so or dylib file on ${CMAKE_SYSTEM_NAME}")
 endif()
+
+set(CMAKE_CXX_STANDARD 11)
 
 # note CMAKE_BUILD_TYPE WILL BE INGNORED for IDE generators, like Visual Studio and Xcode
 # it only works for single-configuration generators, e.g., make and Ninja

@@ -5,10 +5,10 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="path4gmns", 
-    version="0.0.1",
+    version="0.1.0",
     author="Dr. Xuesong Zhou, Dr. Peiheng Li",
     author_email="Xuesong.Zhou@asu.edu, jdlph@hotmail.com",
-    description="demo",
+    description="dev",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/jdlph/PATH4GMNS",

@@ -20,8 +20,8 @@ class Node:
         """ the attribute of node  """ 
         self.node_seq_no = node_seq_no
         self.external_node_id = int(external_node_id)
-        self.outgoing_link_list = list()
-        self.incoming_link_list = list()
+        self.outgoing_link_list = []
+        self.incoming_link_list = []
         if len(zone_id) == 0:
             self.zone_id = -1
         else:    
@@ -74,9 +74,9 @@ class Network:
         self.agent_td_list_dict = {}
         # key: zone id, value: node id list
         self.zone_to_nodes_dict = {}
-        self.node_label_cost = []
-        self.node_predecessor = []
-        self.link_predecessor = []
+        self.node_label_cost = None
+        self.node_predecessor = None
+        self.link_predecessor = None
         self._count = 0
 
     def update(self):
@@ -122,23 +122,23 @@ class Network:
                                                numpy.int32)
 
         # count the size of outgoing links for each node
-        node_OutgoingLinkSize = [0] * self.node_size
+        outgoing_link_size = [0] * self.node_size
         for link in self.link_list:
-            node_OutgoingLinkSize[link.from_node_seq_no] += 1
+            outgoing_link_size[link.from_node_seq_no] += 1
 
         cumulative_count = 0
         for i in range(self.node_size):
             self.first_link_from[i] = cumulative_count
             self.last_link_from[i] = (
-                self.first_link_from[i] + node_OutgoingLinkSize[i]
+                self.first_link_from[i] + outgoing_link_size[i]
             )
-            cumulative_count += node_OutgoingLinkSize[i]
+            cumulative_count += outgoing_link_size[i]
 
         # reset the counter # need to construct sorted_link_no_vector
         # we are converting a 2 dimensional dynamic array to a fixed size 
         # one-dimisonal array, with the link size 
         for i in range(self.node_size):
-            node_OutgoingLinkSize[i] = 0
+            outgoing_link_size[i] = 0
 
         # count again the current size of outgoing links for each node
         for j, link in enumerate(self.link_list):
@@ -146,17 +146,17 @@ class Network:
             from_node_seq_no = link.from_node_seq_no
             # j is the link sequence no in the original link block
             k = (self.first_link_from[from_node_seq_no] 
-                 + node_OutgoingLinkSize[from_node_seq_no])
+                 + outgoing_link_size[from_node_seq_no])
             self.sorted_link_no_array[k] = j
             # continue to count, increase by 1
-            node_OutgoingLinkSize[link.from_node_seq_no] += 1
+            outgoing_link_size[link.from_node_seq_no] += 1
         
         self._count += 1
 
 
 class Agent:
     """ 
-    comments: agent_id: the id of agent
+    agent_id: the id of agent
     agent_seq_no: the index of the agent and we call the agent by its index
     """
     

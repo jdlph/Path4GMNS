@@ -2,7 +2,7 @@
 
 Two path engines are provided:
 1. C++ engine which is a special implementation of the deque implementation in
-   CPP and built into libstalite.dll.
+   C++ and built into path_engine.dll.
 2. Python engine which provides three implementations: FIFO, Deque, and 
    heap-Dijkstra. The default is deque.
 
@@ -67,12 +67,12 @@ def _optimal_label_correcting_CAPI(G, origin_node_id):
     """ input : origin_node,destination_node,departure_time
         output : the shortest path
     """
-    o_node_no = G.internal_node_seq_no_dict[origin_node_id]
+    origin_node_no = G.internal_node_seq_no_dict[origin_node_id]
 
-    if not G.node_list[o_node_no].outgoing_link_list:
+    if not G.node_list[origin_node_no].outgoing_link_list:
         return
     
-    _cdll.shortest_path(o_node_no,
+    _cdll.shortest_path(origin_node_no,
                         G.node_size,
                         G.from_node_no_array,
                         G.to_node_no_array,
@@ -98,6 +98,7 @@ def _single_source_shortest_path_fifo(G, origin_node_no):
     SEList = []  
     SEList.append(origin_node_no)
 
+    # label correcting
     while SEList:
         from_node = SEList.pop(0)
         status[from_node] = 0
@@ -136,6 +137,7 @@ def _single_source_shortest_path_deque(G, origin_node_no):
     SEList = collections.deque()
     SEList.append(origin_node_no)
 
+    # label correcting
     while SEList:
         from_node = SEList.popleft()
         status[from_node] = 2
@@ -178,6 +180,7 @@ def _single_source_shortest_path_dijkstra(G, origin_node_no):
     heapq.heapify(SEList)
     heapq.heappush(SEList, (G.node_label_cost[origin_node_no], origin_node_no))
 
+    # label setting
     while SEList:
         (label_cost, from_node) = heapq.heappop(SEList)
         # already scanned, pass it
@@ -228,7 +231,6 @@ def single_source_shortest_path(G, origin_node_id, engine_type='c',
         else:
             raise Exception('Please choose correct shortest path algorithm: '
                             +'fifo or deque or dijkstra')
-        # end of sp_algm == 'fifo':
 
 
 def output_path_sequence(G, from_node_id, to_node_id, type='node'):
