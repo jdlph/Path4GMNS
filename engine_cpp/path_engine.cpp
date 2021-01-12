@@ -1,8 +1,8 @@
-#include "sssp.h"
+#include "path_engine.h"
 
 // Folllow C++ coding style (++i rather than i++) and be consistent with that in AgentLite
 // even the following function can be consider as a pure C function.
-void shortest_path(const int o_node_no, const int node_size, 
+void shortest_path(int o_node_no, int node_size,
 				   const int* from_node_no_arr, const int* to_node_no_arr, 
 				   const int* first_link_from, const int* last_link_from, 
 				   const int* sorted_link_no_arr, const double* link_cost,
@@ -10,11 +10,11 @@ void shortest_path(const int o_node_no, const int node_size,
 				   int* link_pred, int* deque_next)
 {
     /*
-	The following deque based implementation is motivated and adpated by the efficient implementiation by Dr. Hillel Bar-Gera from
-		http://www.bgu.ac.il/~bargera/tntp/
-		http://www.bgu.ac.il/~bargera/tntp/FW.zip
+		The following deque based implementation is motivated and adpated by the efficient implementiation by Dr. Hillel Bar-Gera from
+			http://www.bgu.ac.il/~bargera/tntp/
+			http://www.bgu.ac.il/~bargera/tntp/FW.zip
 
-	Similar implementation can be also found at DYNASMART system design by Dr. Hani Mahmassani and original code in DTALite by Dr. Xuesong Zhou
+		Similar implementation can be also found at DYNASMART system design by Dr. Hani Mahmassani and original code in DTALite by Dr. Xuesong Zhou
 	*/
 
 	// construct and initialize the following three on the first call

@@ -15,6 +15,8 @@ import ctypes
 import numpy
 import collections
 import heapq
+import os.path
+from sys import platform
 
 
 __all__ = [
@@ -30,11 +32,20 @@ __all__ = [
 MAX_LABEL_COST = 10000
 
 
-# note that the following path is the relative PATH path within the installed 
-# package RUN TIME. it is NOT THE PATH to the dll in bin/ under the root 
-# project directory.
-# see data_files in setup.py for details.
-_cdll = ctypes.cdll.LoadLibrary(r"./bin/libstalite.dll")
+_pkg_path = os.path.abspath(__file__)
+
+if platform.startswith('win32'):
+    _dll_file = os.path.join(os.path.dirname(_pkg_path), './bin/path_engine.dll')
+elif platform.startswith('linux'):
+    _dll_file = os.path.join(os.path.dirname(_pkg_path), './bin/path_engine.so')
+elif platform.startswith('darwin'):
+    _dll_file = os.path.join(os.path.dirname(_pkg_path), './bin/path_engine.dylib')
+else:
+    raise Exception('Please build the shared library compatible to your OS\
+                    using source files in engine_cpp!')
+
+_cdll = ctypes.cdll.LoadLibrary(_dll_file)
+
 # set up the argument types for the shortest path function in dll.
 _cdll.shortest_path.argtypes = [
     ctypes.c_int, 
@@ -66,10 +77,10 @@ def _optimal_label_correcting_CAPI(G, origin_node_id):
                         G.from_node_no_array,
                         G.to_node_no_array,
                         G.first_link_from,
-                        G.fast_link_from,
+                        G.last_link_from,
                         G.sorted_link_no_array, 
                         G.link_cost_array,
-                        G.node_label_cos,
+                        G.node_label_cost,
                         G.node_predecessor,
                         G.link_predecessor,
                         G.queue_next)
@@ -160,6 +171,8 @@ def _single_source_shortest_path_dijkstra(G, origin_node_no):
     Adopted and modified from
     https://github.com/jdlph/shortest-path-algorithms
     """
+    # node status array
+    status = [0] * G.node_size
     # scan eligible list
     SEList = []
     heapq.heapify(SEList)
@@ -167,6 +180,10 @@ def _single_source_shortest_path_dijkstra(G, origin_node_no):
 
     while SEList:
         (label_cost, from_node) = heapq.heappop(SEList)
+        # already scanned, pass it
+        if status[from_node] == 1:
+            continue
+        status[from_node] = 1
         for link in G.node_list[from_node].outgoing_link_list:
             to_node = link.to_node_seq_no
             new_to_node_cost = label_cost + G.link_cost_array[link.link_seq_no]
@@ -230,7 +247,6 @@ def output_path_sequence(G, from_node_id, to_node_id, type='node'):
         # reverse the sequence
         for node_seq_no in reversed(path):
             yield G.external_node_id_dict[node_seq_no]
-
     elif type.lower() == 'node':
         # retrieve the sequence backwards
         current_link_seq_no = G.link_predecessor[current_node_seq_no]

@@ -4,7 +4,7 @@ import numpy
 from .path import MAX_LABEL_COST
 
 
-_NUMBER_OF_SECONDS_PER_SIMU_INTERVAL = 6 
+_NUM_OF_SECS_PER_SIMU_INTERVAL = 6 
 
 
 class Node:         
@@ -51,7 +51,7 @@ class Link:
         self.length = float(length) 
         # length:km, free_speed: km/h
         self.free_flow_travel_time_in_min = (
-            self.length / max(0.001,int(free_speed)) * 60
+            self.length / max(0.001, int(free_speed)) * 60
         )
         self.cost = self.free_flow_travel_time_in_min
 
@@ -171,8 +171,8 @@ class Agent:
         self.d_zone_id = int(d_zone_id)
         self.o_node_id = 0
         self.d_node_id = 0
-        self.path_node_seq_no_list = list()
-        self.path_link_seq_no_list = list()
+        self.path_node_seq_no_list = None
+        self.path_link_seq_no_list = None
         self.current_link_seq_no_in_path = 0 
         self.departure_time_in_min = 0
         # Passenger Car Equivalent (PCE) of the agent
@@ -182,6 +182,6 @@ class Agent:
         self.b_complete_trip = False
         self.departure_time_in_simu_interval = int(
             self.departure_time_in_min 
-            * 60 /_NUMBER_OF_SECONDS_PER_SIMU_INTERVAL
+            * 60 /_NUM_OF_SECS_PER_SIMU_INTERVAL
             + 0.5)
         self.feasible_path_exist_flag = False

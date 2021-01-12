@@ -3,3 +3,4 @@ dist/
 *egg-info/
 .vscode/
 __pycache__/
+engine_cpp/build/
