@@ -4,3 +4,4 @@ dist/
 .vscode/
 __pycache__/
 engine_cpp/build/
+.DS_Store
