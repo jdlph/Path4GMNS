@@ -291,7 +291,7 @@ def find_path_for_agents(G):
 
         # just in case agent has the same origin and destination
         if from_node_id == to_node_id:
-            return
+            continue
 
         if from_node_id not in G.internal_node_seq_no_dict.keys():
             raise Exception(f"Node ID: {from_node_id} not in the network")
