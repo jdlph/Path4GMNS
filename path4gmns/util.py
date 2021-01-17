@@ -1,5 +1,4 @@
 import csv
-# import operator
 from random import choice
 
 from .classes import Node, Link, Network, Agent
@@ -40,7 +39,7 @@ def read_nodes(input_dir, node_list, internal_node_seq_no_dict,
             
             node_seq_no += 1
         
-        print('the number of nodes is', node_seq_no)
+        print(f"the number of nodes is {node_seq_no}")
     fp.close()
 
 
@@ -97,8 +96,8 @@ def read_links(input_dir, link_list, node_list, internal_node_seq_no_dict):
                 from_node_no = internal_node_seq_no_dict[from_node_id]
                 to_node_no = internal_node_seq_no_dict[to_node_id]
             except KeyError:
-                print('EXCEPTION (NONE-EXISTING NODE): '+str(from_node_id)
-                      +' or/and '+str(to_node_id))
+                print(f"EXCEPTION: Node ID {from_node_no} "
+                      f"or/and Node ID {to_node_id} NOT IN THE NETWORK!!")
                 continue
             
             # construct link ojbect
@@ -122,7 +121,7 @@ def read_links(input_dir, link_list, node_list, internal_node_seq_no_dict):
             
             link_seq_no += 1
         
-        print('the number of links is', link_seq_no)
+        print(f"the number of links is {link_seq_no}")
     fp.close()
     
 
@@ -195,11 +194,9 @@ def read_agents(input_dir,
                 
                 agent_list.append(agent)
 
-    print('the number of agents is', len(agent_list))
+    print(f"the number of agents is {agent_seq_no}")
 
     #step 3.6:sort agents by the departure time
-    # sort_fun = operator.attrgetter("departure_time_in_min")
-    # agent_list.sort(key=sort_fun)
     agent_list.sort(key=lambda agent: agent.departure_time_in_min)
     for i, agent in enumerate(agent_list):
         agent.agent_seq_no = i
