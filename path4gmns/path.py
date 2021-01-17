@@ -59,14 +59,12 @@ _cdll.shortest_path.argtypes = [
     numpy.ctypeslib.ndpointer(dtype=numpy.float64),                                    
     numpy.ctypeslib.ndpointer(dtype=numpy.int32),
     numpy.ctypeslib.ndpointer(dtype=numpy.int32),
-    numpy.ctypeslib.ndpointer(dtype=numpy.int32),
+    numpy.ctypeslib.ndpointer(dtype=numpy.int32)
 ]
 
 
 def _optimal_label_correcting_CAPI(G, origin_node_id):
-    """ input : origin_node,destination_node,departure_time
-        output : the shortest path
-    """
+    """ call the deque implementation of MLC written in cpp """
     origin_node_no = G.internal_node_seq_no_dict[origin_node_id]
 
     if not G.node_list[origin_node_no].outgoing_link_list:

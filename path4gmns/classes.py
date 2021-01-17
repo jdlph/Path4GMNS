@@ -19,41 +19,47 @@ class Node:
     def __init__(self, node_seq_no, external_node_id, zone_id): 
         """ the attribute of node  """ 
         self.node_seq_no = node_seq_no
-        self.external_node_id = int(external_node_id)
+        self.external_node_id = external_node_id
         self.outgoing_link_list = []
         self.incoming_link_list = []
-        if len(zone_id) == 0:
-            self.zone_id = -1
-        else:    
-            self.zone_id = int(zone_id)
+        self.zone_id = zone_id
         
 
 class Link:
 
-    def __init__(self, link_seq_no, from_node_no, to_node_no, 
-                 from_node_id, to_node_id, length, lanes,
-                 free_speed, capacity, link_type, VDF_alpha, VDF_beta):   
+    def __init__(self, link_seq_no,
+                 from_node_no,
+                 to_node_no, 
+                 from_node_id,
+                 to_node_id,
+                 length,
+                 lanes=1,
+                 link_type=1,
+                 free_speed=60,
+                 capacity=49500,
+                 VDF_alpha=0.15,
+                 VDF_beta=4):   
         """ the attribute of link """
         self.link_seq_no = link_seq_no
         self.from_node_seq_no = from_node_no
         self.to_node_seq_no = to_node_no
-        self.external_from_node = int(from_node_id)
-        self.external_to_node = int(to_node_id)
-        # 1:one direction 2:two way
-        self.type = int(link_type)
-        self.lanes = int(lanes)
-        self.BPR_alpha = float(VDF_alpha)
-        self.BPR_beta = float(VDF_beta)
-        self.flow_volume = 0
-        # capacity is lane capacity per hour
-        self.link_capacity = float(capacity) * int(lanes)
+        self.external_from_node = from_node_id
+        self.external_to_node = to_node_id
         # length is mile or km
-        self.length = float(length) 
+        self.length = length
+        self.lanes = lanes
+        # 1:one direction 2:two way
+        self.type = link_type
         # length:km, free_speed: km/h
         self.free_flow_travel_time_in_min = (
-            self.length / max(0.001, int(free_speed)) * 60
+            length / max(0.001, free_speed) * 60
         )
+        # capacity is lane capacity per hour
+        self.link_capacity = capacity * lanes
+        self.BPR_alpha = VDF_alpha
+        self.BPR_beta = VDF_beta
         self.cost = self.free_flow_travel_time_in_min
+        self.flow_volume = 0
 
 
 class Network:
@@ -167,8 +173,8 @@ class Agent:
         self.agent_seq_no = agent_seq_no
         # vehicle 
         self.agent_type = agent_type  
-        self.o_zone_id = int(o_zone_id) 
-        self.d_zone_id = int(d_zone_id)
+        self.o_zone_id = o_zone_id
+        self.d_zone_id = d_zone_id
         self.o_node_id = 0
         self.d_node_id = 0
         self.path_node_seq_no_list = None
