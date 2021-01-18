@@ -128,34 +128,46 @@ class Network:
                                                numpy.int32)
 
         # count the size of outgoing links for each node
-        outgoing_link_size = [0] * self.node_size
-        for link in self.link_list:
-            outgoing_link_size[link.from_node_seq_no] += 1
+        # outgoing_link_size = [0] * self.node_size
+        # for link in self.link_list:
+        #     outgoing_link_size[link.from_node_seq_no] += 1
 
-        cumulative_count = 0
-        for i in range(self.node_size):
-            self.first_link_from[i] = cumulative_count
-            self.last_link_from[i] = (
-                self.first_link_from[i] + outgoing_link_size[i]
-            )
-            cumulative_count += outgoing_link_size[i]
+        # cumulative_count = 0
+        # for i in range(self.node_size):
+        #     self.first_link_from[i] = cumulative_count
+        #     self.last_link_from[i] = (
+        #         self.first_link_from[i] + outgoing_link_size[i]
+        #     )
+        #     cumulative_count += outgoing_link_size[i]
 
-        # reset the counter # need to construct sorted_link_no_vector
-        # we are converting a 2 dimensional dynamic array to a fixed size 
-        # one-dimisonal array, with the link size 
-        for i in range(self.node_size):
-            outgoing_link_size[i] = 0
+        # # reset the counter # need to construct sorted_link_no_vector
+        # # we are converting a 2 dimensional dynamic array to a fixed size 
+        # # one-dimisonal array, with the link size 
+        # for i in range(self.node_size):
+        #     outgoing_link_size[i] = 0
 
-        # count again the current size of outgoing links for each node
-        for j, link in enumerate(self.link_list):
-            # fetch the curent from node seq no of this link
-            from_node_seq_no = link.from_node_seq_no
-            # j is the link sequence no in the original link block
-            k = (self.first_link_from[from_node_seq_no] 
-                 + outgoing_link_size[from_node_seq_no])
-            self.sorted_link_no_array[k] = j
-            # continue to count, increase by 1
-            outgoing_link_size[link.from_node_seq_no] += 1
+        # # count again the current size of outgoing links for each node
+        # for j, link in enumerate(self.link_list):
+        #     # fetch the curent from node seq no of this link
+        #     from_node_seq_no = link.from_node_seq_no
+        #     # j is the link sequence no in the original link block
+        #     k = (self.first_link_from[from_node_seq_no] 
+        #          + outgoing_link_size[from_node_seq_no])
+        #     self.sorted_link_no_array[k] = j
+        #     # continue to count, increase by 1
+        #     outgoing_link_size[link.from_node_seq_no] += 1
+
+        # internal link index used for shortest path calculation only 
+        j = 0
+        for i, node in enumerate(self.node_list):
+            if not node.outgoing_link_list:
+                continue
+            self.first_link_from[i] = j
+            for link in node.outgoing_link_list:
+                # set up the mapping from j to the true link seq no
+                self.sorted_link_no_array[j] = link.link_seq_no
+                j += 1
+            self.last_link_from[i] = j - 1
         
         self._count += 1
 
@@ -184,10 +196,10 @@ class Agent:
         # Passenger Car Equivalent (PCE) of the agent
         self.PCE_factor = 1  
         self.path_cost = 0
-        self.b_generated = False
-        self.b_complete_trip = False
         self.departure_time_in_simu_interval = int(
             self.departure_time_in_min 
             * 60 /_NUM_OF_SECS_PER_SIMU_INTERVAL
             + 0.5)
+        self.b_generated = False
+        self.b_complete_trip = False
         self.feasible_path_exist_flag = False

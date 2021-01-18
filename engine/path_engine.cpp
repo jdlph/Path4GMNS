@@ -42,7 +42,7 @@ void shortest_path(int o_node_no, int node_size,
 	deque_head = deque_tail = invalid;
 
 	// label correcting
-	while ((current_node != invalid) && (current_node != was_in_deque))
+	while (current_node != invalid && current_node != was_in_deque)
 	{
 		if (current_node >= first_thru_node || current_node == o_node_no)
 		{
@@ -90,7 +90,7 @@ void shortest_path(int o_node_no, int node_size,
 
 		// Get the first node_indiex out of the queue, and use it as the current node_indiex.
 		current_node = deque_head;
-		if ((current_node == invalid) || (current_node == was_in_deque))
+		if (current_node == invalid || current_node == was_in_deque)
 			break;
 
 		deque_head = deque_next[current_node];
