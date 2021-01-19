@@ -63,6 +63,7 @@ class Link:
         self.flow_volume = 0
         # add for CG
         self.toll = 0
+        self.route_choice_cost = 0
         self.travel_time_by_period = [0] * MAX_TIME_PERIODS
         self.flow_vol_by_period = [0] * MAX_TIME_PERIODS
         self.vol_by_period_by_at = [[0]*MAX_TIME_PERIODS for i in range(MAX_AGNET_TYPES)]
@@ -104,6 +105,7 @@ class Network:
         self.link_predecessor = None
         # added for CG
         self.zones = None
+        self.link_genalized_cost_array = None
         self._count = 0
 
     def update(self):

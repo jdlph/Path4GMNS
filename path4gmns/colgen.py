@@ -6,6 +6,11 @@ MIN_OD_VOL = 0.000001
 MAX_TIME_PERIODS = 1
 MAX_AGNET_TYPES = 1
 
+# is this one duplicate with get_generalized_first_order_gradient_cost_of_second_order_loss_for_agent_type?
+def update_generalized_link_cost(link_list, link_genalized_cost_array, tau=0, value_of_time=1):
+    for link in link_list:
+        link_genalized_cost_array[link.link_seq_no] = link.travel_time_per_period[tau] + link.route_choice_cost + link.toll / value_of_time * 60
+	
 
 def update_link_travel_time_and_cost(link_list):
     for link in link_list:
@@ -193,6 +198,7 @@ def do_network_assignment(iter_num, assignment_mode, column_update_iter, G, A):
         reset_and_update_link_vol_based_on_columns(A.column_pool, link_size, G.zones, i, True)
 
         for j in range(node_size):
+            UpdateGeneralizedLinkCost(G.link_list, G.link_genalized_cost_array)
             single_source_shortest_path(G, j)
             backtrace_shortest_path_tree(G, A, iter_num, j)
 
