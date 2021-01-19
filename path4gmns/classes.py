@@ -2,6 +2,7 @@ import ctypes
 import numpy 
 
 from .path import MAX_LABEL_COST
+from .colgen import MAX_TIME_PERIODS, MAX_AGNET_TYPES
 
 
 _NUM_OF_SECS_PER_SIMU_INTERVAL = 6 
@@ -60,6 +61,24 @@ class Link:
         self.BPR_beta = VDF_beta
         self.cost = self.free_flow_travel_time_in_min
         self.flow_volume = 0
+        # add for CG
+        self.toll = 0
+        self.travel_time_by_period = [0] * MAX_TIME_PERIODS
+        self.flow_vol_by_period = [0] * MAX_TIME_PERIODS
+        self.vol_by_period_by_at = [[0]*MAX_TIME_PERIODS for i in range(MAX_AGNET_TYPES)]
+        # self.queue_length_by_slot = [0] * MAX_TIME_PERIODS
+        self.VDF_period = [VDFPeriod(i) for i in range(MAX_TIME_PERIODS)]
+        self.travel_marginal_cost_by_period = [[0]*MAX_TIME_PERIODS for i in range(MAX_AGNET_TYPES)]
+
+    def get_generalized_first_order_gradient_cost_of_second_order_loss_for_agent_type(self, tau, agent_type, value_of_time=1):
+        return self.travel_time_by_period[tau] + self.toll / value_of_time * 60
+
+    def calculate_TD_VDFunction(self):
+        for tau in range(MAX_TIME_PERIODS):
+            self.travel_time_by_period[tau] = self.VDF_period[tau].perform_BPR(self.flow_vol_by_period[tau])
+    
+    def calculate_marginal_cost_for_agent_type(self, tau, agent_type_no, PCE_agent_type):
+        self.travel_marginal_cost_by_period[tau][agent_type_no] = self.VDF_period[tau].marginal_base * PCE_agent_type
 
 
 class Network:
@@ -83,6 +102,8 @@ class Network:
         self.node_label_cost = None
         self.node_predecessor = None
         self.link_predecessor = None
+        # added for CG
+        self.zones = None
         self._count = 0
 
     def update(self):
@@ -203,3 +224,76 @@ class Agent:
         self.b_generated = False
         self.b_complete_trip = False
         self.feasible_path_exist_flag = False
+
+
+class Column:
+    def __init__(self, seq_no=-1):
+        self.seq_no = seq_no
+        self.vol = 0
+        self.dist = 0
+        self.toll = 0
+        self.travel_time = 0
+        self.switch_vol = 0
+        self.gradient_cost = 0
+        self.gradient_cost_abs_diff = 0
+        self.gradient_cost_rel_diff = 0
+        self.nodes = None
+        self.links = None
+
+    def increase_path_toll(self, t):
+        self.toll += t
+
+    def increase_path_vol(self, v):
+        self.vol += v
+
+    def get_link_num(self):
+        return len(self.links)
+
+    def get_node_num(self):
+        return len(self.nodes)
+
+class ColumnVec:
+    
+    def __init__(self):
+        self.cost = 0
+        self.time = 0
+        self.dist = 0
+        self.od_vol = 0
+        self.route_fixed = False
+        self.path_node_seq_map = {}
+
+    def is_route_fixed(self):
+        return self.route_fixed
+    
+    def get_od_volume(self):
+        return self.od_vol
+
+    def get_column_num(self):
+        return len(self.path_node_seq_map)
+
+class Assignment:
+    
+    def __init__(self):
+        # 4-d array
+        self.column_pool = None
+
+
+class VDFPeriod:
+    
+    def __init__(self, id):
+        self.id = id
+        self.marginal_base = 1
+        self.alpha = 0.15
+        self.beta = 4
+        self.capacity = 99999
+        self.FFTT = 0
+
+    def perform_BPR(self, volume):
+        volume = max(0, volume)
+
+        # VOC = volume / max(0.00001, self.capacity)
+        avg_travel_time = self.FFTT + self.FFTT * self.alpha * pow(volume / max(0.00001, self.capacity), self.beta)
+
+        self.marginal_base = self.FFTT * self.alpha * self.beta * pow(volume / max(0.00001, self.capacity), self.beta - 1)
+
+        return avg_travel_time
