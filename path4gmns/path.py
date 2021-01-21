@@ -63,10 +63,8 @@ _cdll.shortest_path.argtypes = [
 ]
 
 
-def _optimal_label_correcting_CAPI(G, origin_node_id):
+def _optimal_label_correcting_CAPI(G, origin_node_no):
     """ call the deque implementation of MLC written in cpp """
-    origin_node_no = G.internal_node_seq_no_dict[origin_node_id]
-
     if not G.node_list[origin_node_no].outgoing_link_list:
         return
     
@@ -204,13 +202,13 @@ def _single_source_shortest_path_dijkstra(G, origin_node_no):
 
 def single_source_shortest_path(G, origin_node_id, engine_type='c',
                                 sp_algm='deque'):
+    origin_node_no = G.internal_node_seq_no_dict[origin_node_id]
+    
     if engine_type.lower() == 'c':
         G.allocate_for_CAPI()
-        _optimal_label_correcting_CAPI(G, origin_node_id)
+        _optimal_label_correcting_CAPI(G, origin_node_no)
     else:
-        origin_node_no = G.internal_node_seq_no_dict[origin_node_id]
-        
-        if not G.node_list[origin_node_id].outgoing_link_list:
+        if not G.node_list[origin_node_no].outgoing_link_list:
             return
         
         # Initialization for all nodes
@@ -239,7 +237,7 @@ def output_path_sequence(G, from_node_id, to_node_id, type='node'):
     path = []
     current_node_seq_no = G.internal_node_seq_no_dict[to_node_id]
    
-    if type.lower() == 'node':
+    if type.startswith() == 'node':
         # retrieve the sequence backwards
         while current_node_seq_no >= 0:  
             path.append(current_node_seq_no)
@@ -247,7 +245,7 @@ def output_path_sequence(G, from_node_id, to_node_id, type='node'):
         # reverse the sequence
         for node_seq_no in reversed(path):
             yield G.external_node_id_dict[node_seq_no]
-    elif type.lower() == 'node':
+    else:
         # retrieve the sequence backwards
         current_link_seq_no = G.link_predecessor[current_node_seq_no]
         while current_link_seq_no >= 0:
