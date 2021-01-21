@@ -128,7 +128,8 @@ def read_links(input_dir, link_list, node_list, internal_node_seq_no_dict):
 def read_agents(input_dir,
                 agent_list,
                 agent_td_list_dict,
-                zone_to_nodes_dict):
+                zone_to_nodes_dict,
+                column_pool):
     """ step 3:read input_agent """
     with open(input_dir+'/demand.csv', 'r', encoding='utf-8') as fp:
         reader = csv.DictReader(fp)
@@ -143,26 +144,28 @@ def read_agents(input_dir,
             if agent_id >= 10000 :
                 break 
     
+            # invalid origin zone id, discard it
+            o_zone_id = line['o_zone_id']
+            if not o_zone_id:
+                continue
+            # invalid destinationzone id, discard it
+            d_zone_id = line['d_zone_id']
+            if not d_zone_id:
+                continue
+            
+            o_zone_id = int(o_zone_id)
+            # o_zone_id does not exist in node.csv, discard it
+            if o_zone_id not in zone_to_nodes_dict.keys():
+                continue
+            
+            d_zone_id = int(d_zone_id)
+            # d_zone_id does not exist in node.csv, discard it
+            if d_zone_id not in zone_to_nodes_dict.keys():
+                continue
+            
+            # set up volume for ColumnVec
+            column_pool[o_zone_id][d_zone_id].od_vol += float(volume)
             for i in range(volume_agent_size):
-                # invalid origin zone id, discard it
-                o_zone_id = line['o_zone_id']
-                if not o_zone_id:
-                    continue
-                # invalid destinationzone id, discard it
-                d_zone_id = line['d_zone_id']
-                if not d_zone_id:
-                    continue
-                
-                o_zone_id = int(o_zone_id)
-                # o_zone_id does not exist in node.csv, discard it
-                if o_zone_id not in zone_to_nodes_dict.keys():
-                    continue
-                
-                d_zone_id = int(d_zone_id)
-                # d_zone_id does not exist in node.csv, discard it
-                if d_zone_id not in zone_to_nodes_dict.keys():
-                    continue
-
                 # construct agent using valid record
                 agent = Agent(agent_id,
                               agent_seq_no,

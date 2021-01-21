@@ -273,6 +273,7 @@ class ColumnVec:
     def get_column_num(self):
         return len(self.path_node_seq_map)
 
+
 class Assignment:
     
     def __init__(self):

@@ -198,7 +198,7 @@ def do_network_assignment(iter_num, assignment_mode, column_update_iter, G, A):
         reset_and_update_link_vol_based_on_columns(A.column_pool, link_size, G.zones, i, True)
 
         for j in range(node_size):
-            UpdateGeneralizedLinkCost(G.link_list, G.link_genalized_cost_array)
+            update_generalized_link_cost(G.link_list, G.link_genalized_cost_array)
             single_source_shortest_path(G, j)
             backtrace_shortest_path_tree(G, A, iter_num, j)
 
