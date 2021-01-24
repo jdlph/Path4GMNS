@@ -1,5 +1,4 @@
 import ctypes
-import numpy 
 
 from .path import MAX_LABEL_COST
 
