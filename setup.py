@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="path4gmns", 
-    version="0.2.0",
+    version="0.3.0",
     author="Dr. Xuesong Zhou, Dr. Peiheng Li",
     author_email="Xuesong.Zhou@asu.edu, jdlph@hotmail.com",
     description="dev",

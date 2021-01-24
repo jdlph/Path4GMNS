@@ -2,10 +2,13 @@ import ctypes
 import numpy 
 
 from .path import MAX_LABEL_COST
-from .colgen import MAX_TIME_PERIODS, MAX_AGNET_TYPES
 
 
 _NUM_OF_SECS_PER_SIMU_INTERVAL = 6 
+
+MIN_OD_VOL = 0.000001
+MAX_TIME_PERIODS = 1
+MAX_AGNET_TYPES = 1
 
 
 class Node:         
@@ -66,21 +69,37 @@ class Link:
         self.route_choice_cost = 0
         self.travel_time_by_period = [0] * MAX_TIME_PERIODS
         self.flow_vol_by_period = [0] * MAX_TIME_PERIODS
-        self.vol_by_period_by_at = [[0]*MAX_TIME_PERIODS for i in range(MAX_AGNET_TYPES)]
+        self.vol_by_period_by_at = [
+            [0]*MAX_TIME_PERIODS for i in range(MAX_AGNET_TYPES)
+        ]
         # self.queue_length_by_slot = [0] * MAX_TIME_PERIODS
-        self.VDF_period = [VDFPeriod(i) for i in range(MAX_TIME_PERIODS)]
-        self.travel_marginal_cost_by_period = [[0]*MAX_TIME_PERIODS for i in range(MAX_AGNET_TYPES)]
+        self.vdfperiods = [VDFPeriod(i) for i in range(MAX_TIME_PERIODS)]
+        self.travel_marginal_cost_by_period = [
+            [0]*MAX_TIME_PERIODS for i in range(MAX_AGNET_TYPES)
+        ]
+        self._setup_vdf_period()
 
-    def get_generalized_first_order_gradient_cost_of_second_order_loss_for_agent_type(self, tau, agent_type, value_of_time=1):
+    def get_generalized_link_cost(self, tau, agent_type, value_of_time=1):
         return self.travel_time_by_period[tau] + self.toll / value_of_time * 60
 
     def calculate_TD_VDFunction(self):
         for tau in range(MAX_TIME_PERIODS):
-            self.travel_time_by_period[tau] = self.VDF_period[tau].perform_BPR(self.flow_vol_by_period[tau])
+            self.travel_time_by_period[tau] = (
+                self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau])
+            )
     
-    def calculate_marginal_cost_for_agent_type(self, tau, agent_type_no, PCE_agent_type):
-        self.travel_marginal_cost_by_period[tau][agent_type_no] = self.VDF_period[tau].marginal_base * PCE_agent_type
+    def calculate_marginal_cost_for_agent_type(self, tau, 
+                                               agent_type_no, PCE_agent_type):
+        self.travel_marginal_cost_by_period[tau][agent_type_no] = (
+            self.vdfperiods[tau].marginal_base * PCE_agent_type
+        )
 
+    def _setup_vdf_period(self):
+        for tau in range(MAX_TIME_PERIODS):
+            vp = self.vdfperiods[tau]
+            vp.capacity = self.link_capacity
+            vp.fftt = self.free_flow_travel_time_in_min
+            
 
 class Network:
     
@@ -106,12 +125,17 @@ class Network:
         # added for CG
         self.zones = None
         self.link_genalized_cost_array = None
+        self.tau = 0
+        self.agent_type = 0
+        self.column_pool = {}
         self._count = 0
 
     def update(self):
         self.node_size = len(self.node_list)
         self.link_size = len(self.link_list)
-        self.agenet_size = len(self.agent_list)   
+        self.agenet_size = len(self.agent_list)
+        self.link_genalized_cost_array = [0] * self.link_size
+        self.zones = self.zone_to_nodes_dict.keys()
 
     def allocate_for_CAPI(self):
         # execute only on the first call
@@ -150,36 +174,6 @@ class Network:
         self.sorted_link_no_array = numpy.full(self.link_size, -1, 
                                                numpy.int32)
 
-        # count the size of outgoing links for each node
-        # outgoing_link_size = [0] * self.node_size
-        # for link in self.link_list:
-        #     outgoing_link_size[link.from_node_seq_no] += 1
-
-        # cumulative_count = 0
-        # for i in range(self.node_size):
-        #     self.first_link_from[i] = cumulative_count
-        #     self.last_link_from[i] = (
-        #         self.first_link_from[i] + outgoing_link_size[i]
-        #     )
-        #     cumulative_count += outgoing_link_size[i]
-
-        # # reset the counter # need to construct sorted_link_no_vector
-        # # we are converting a 2 dimensional dynamic array to a fixed size 
-        # # one-dimisonal array, with the link size 
-        # for i in range(self.node_size):
-        #     outgoing_link_size[i] = 0
-
-        # # count again the current size of outgoing links for each node
-        # for j, link in enumerate(self.link_list):
-        #     # fetch the curent from node seq no of this link
-        #     from_node_seq_no = link.from_node_seq_no
-        #     # j is the link sequence no in the original link block
-        #     k = (self.first_link_from[from_node_seq_no] 
-        #          + outgoing_link_size[from_node_seq_no])
-        #     self.sorted_link_no_array[k] = j
-        #     # continue to count, increase by 1
-        #     outgoing_link_size[link.from_node_seq_no] += 1
-
         # internal link index used for shortest path calculation only 
         j = 0
         for i, node in enumerate(self.node_list):
@@ -190,7 +184,7 @@ class Network:
                 # set up the mapping from j to the true link seq no
                 self.sorted_link_no_array[j] = link.link_seq_no
                 j += 1
-            self.last_link_from[i] = j - 1
+            self.last_link_from[i] = j
         
         self._count += 1
 
@@ -257,6 +251,7 @@ class Column:
 class ColumnVec:
     
     def __init__(self):
+        # the following three are useless. consider remove them later
         self.cost = 0
         self.time = 0
         self.dist = 0
@@ -274,6 +269,7 @@ class ColumnVec:
         return len(self.path_node_seq_map)
 
 
+# not used in the current implementation
 class Assignment:
     
     def __init__(self):
@@ -286,17 +282,26 @@ class VDFPeriod:
     def __init__(self, id):
         self.id = id
         self.marginal_base = 1
+        # the following four have been defined in class Link
+        # they should be exactly the same with those in the corresponding link
         self.alpha = 0.15
         self.beta = 4
         self.capacity = 99999
-        self.FFTT = 0
+        # free flow travel time
+        self.fftt = 0
 
-    def perform_BPR(self, volume):
-        volume = max(0, volume)
+    def run_bpr(self, vol):
+        vol = max(0, vol)
+        avg_travel_time = (
+            self.fftt 
+            + self.fftt * self.alpha * pow(vol / max(0.00001, self.capacity), 
+                                           self.beta)
+        )
 
-        # VOC = volume / max(0.00001, self.capacity)
-        avg_travel_time = self.FFTT + self.FFTT * self.alpha * pow(volume / max(0.00001, self.capacity), self.beta)
-
-        self.marginal_base = self.FFTT * self.alpha * self.beta * pow(volume / max(0.00001, self.capacity), self.beta - 1)
+        self.marginal_base = (
+            self.fftt 
+            * self.alpha
+            * self.beta
+            * pow(vol / max(0.00001, self.capacity), self.beta - 1))
 
         return avg_travel_time

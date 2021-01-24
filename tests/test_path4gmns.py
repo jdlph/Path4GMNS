@@ -12,10 +12,13 @@ if __name__=="__main__":
     print('processing time of finding shortest paths for all agents:{0: .2f}'
           .format(time()-st)+ 's')
 
-    agent = network.agent_list[300]
-    print('origin node id of agent is '+str(agent.o_node_id))
-    print('destination node id of agent is '+str(agent.d_node_id))
+    agent_no = 300
+    agent = network.agent_list[agent_no]
+    print('orig node id of agent is '+str(agent.o_node_id))
+    print('dest node id of agent is '+str(agent.d_node_id))
     print('shortest path (internal node sequence) of agent is ' 
           + str(agent.path_node_seq_no_list))
     print('shortest path (internal link sequence) of agent is ' 
           + str(agent.path_link_seq_no_list))
+
+    pg.do_network_assignment(1, 1, 1, network)

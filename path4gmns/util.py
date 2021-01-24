@@ -1,7 +1,7 @@
 import csv
 from random import choice
 
-from .classes import Node, Link, Network, Agent
+from .classes import Node, Link, Network, Agent, ColumnVec
 
 
 def read_nodes(input_dir, node_list, internal_node_seq_no_dict,
@@ -164,7 +164,10 @@ def read_agents(input_dir,
                 continue
             
             # set up volume for ColumnVec
-            column_pool[o_zone_id][d_zone_id].od_vol += float(volume)
+            if (o_zone_id, d_zone_id) not in column_pool.keys():
+                column_pool[(o_zone_id, d_zone_id)] = ColumnVec()
+            column_pool[(o_zone_id, d_zone_id)].od_vol += float(volume)
+            
             for i in range(volume_agent_size):
                 # construct agent using valid record
                 agent = Agent(agent_id,
@@ -222,7 +225,8 @@ def read_network(input_dir='./'):
     read_agents(input_dir,
                 network.agent_list,
                 network.agent_td_list_dict,
-                network.zone_to_nodes_dict)
+                network.zone_to_nodes_dict,
+                network.column_pool)
 
     network.update()
 

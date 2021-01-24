@@ -88,6 +88,7 @@ def _single_source_shortest_path_fifo(G, origin_node_no):
     The caller is responsible for initializing node_label_cost, 
     node_predecessor, and link_predecessor.
     """
+    G.node_label_cost[origin_node_no] = 0
     # node status array
     status = [0] * G.node_size
     # scan eligible list
@@ -101,7 +102,7 @@ def _single_source_shortest_path_fifo(G, origin_node_no):
         for link in G.node_list[from_node].outgoing_link_list:
             to_node = link.to_node_seq_no 
             new_to_node_cost = (G.node_label_cost[from_node] 
-                                + G.link_cost_array[link.link_seq_no])
+                                + link.cost)
             # we only compare cost at the downstream node ToID 
             # at the new arrival time t
             if new_to_node_cost < G.node_label_cost[to_node]:
@@ -127,6 +128,7 @@ def _single_source_shortest_path_deque(G, origin_node_no):
     Adopted and modified from
     https://github.com/jdlph/shortest-path-algorithms
     """
+    G.node_label_cost[origin_node_no] = 0
     # node status array
     status = [0] * G.node_size
     # scan eligible list
@@ -140,7 +142,7 @@ def _single_source_shortest_path_deque(G, origin_node_no):
         for link in G.node_list[from_node].outgoing_link_list:
             to_node = link.to_node_seq_no  
             new_to_node_cost = (G.node_label_cost[from_node] 
-                                + G.link_cost_array[link.link_seq_no])
+                                + link.cost)
             # we only compare cost at the downstream node ToID
             # at the new arrival time t
             if new_to_node_cost < G.node_label_cost[to_node]:
@@ -169,6 +171,7 @@ def _single_source_shortest_path_dijkstra(G, origin_node_no):
     Adopted and modified from
     https://github.com/jdlph/shortest-path-algorithms
     """
+    G.node_label_cost[origin_node_no] = 0
     # node status array
     status = [0] * G.node_size
     # scan eligible list
@@ -185,7 +188,7 @@ def _single_source_shortest_path_dijkstra(G, origin_node_no):
         status[from_node] = 1
         for link in G.node_list[from_node].outgoing_link_list:
             to_node = link.to_node_seq_no
-            new_to_node_cost = label_cost + G.link_cost_array[link.link_seq_no]
+            new_to_node_cost = label_cost + link.cost
             # we only compare cost at the downstream node ToID 
             # at the new arrival time t
             if new_to_node_cost < G.node_label_cost[to_node]:
@@ -237,7 +240,7 @@ def output_path_sequence(G, from_node_id, to_node_id, type='node'):
     path = []
     current_node_seq_no = G.internal_node_seq_no_dict[to_node_id]
    
-    if type.startswith() == 'node':
+    if type.startswith('node'):
         # retrieve the sequence backwards
         while current_node_seq_no >= 0:  
             path.append(current_node_seq_no)
@@ -273,7 +276,7 @@ def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
     return list(output_path_sequence(G, from_node_id, to_node_id, seq_type))
 
 
-def find_path_for_agents(G):
+def find_path_for_agents(G, engine_type='c'):
     """ find shortest path for each agent
 
     the internal node and links will be used to set up the node sequence and
@@ -296,7 +299,7 @@ def find_path_for_agents(G):
         if to_node_id not in G.internal_node_seq_no_dict.keys():
             raise Exception(f"Node ID: {to_node_id} not in the network")
 
-        single_source_shortest_path(G, from_node_id, engine_type='c')
+        single_source_shortest_path(G, from_node_id, engine_type)
 
         node_path = []
         link_path = []
