@@ -70,12 +70,12 @@ class Link:
         self.travel_time_by_period = [0] * MAX_TIME_PERIODS
         self.flow_vol_by_period = [0] * MAX_TIME_PERIODS
         self.vol_by_period_by_at = [
-            [0]*MAX_TIME_PERIODS for i in range(MAX_AGNET_TYPES)
+            [0] * MAX_TIME_PERIODS for i in range(MAX_AGNET_TYPES)
         ]
         # self.queue_length_by_slot = [0] * MAX_TIME_PERIODS
         self.vdfperiods = [VDFPeriod(i) for i in range(MAX_TIME_PERIODS)]
         self.travel_marginal_cost_by_period = [
-            [0]*MAX_TIME_PERIODS for i in range(MAX_AGNET_TYPES)
+            [0] * MAX_TIME_PERIODS for i in range(MAX_AGNET_TYPES)
         ]
         self._setup_vdf_period()
 
@@ -88,8 +88,10 @@ class Link:
                 self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau])
             )
     
-    def calculate_marginal_cost_for_agent_type(self, tau, 
-                                               agent_type_no, PCE_agent_type):
+    def calculate_marginal_cost_for_agent_type(self, 
+                                               tau, 
+                                               agent_type_no,
+                                               PCE_agent_type):
         self.travel_marginal_cost_by_period[tau][agent_type_no] = (
             self.vdfperiods[tau].marginal_base * PCE_agent_type
         )

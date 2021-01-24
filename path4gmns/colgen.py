@@ -1,6 +1,6 @@
 from .path import single_source_shortest_path
 from .classes import Column, ColumnVec, MAX_TIME_PERIODS, MAX_AGNET_TYPES, \
-                    MIN_OD_VOL
+                     MIN_OD_VOL
 
 
 __all__ = ['do_network_assignment']
@@ -9,9 +9,9 @@ __all__ = ['do_network_assignment']
 # is this one duplicate with 
 # get_generalized_first_order_gradient_cost_of_second_order_loss_for_agent_type
 def _update_generalized_link_cost(link_list, 
-                                 link_genalized_cost_arr, 
-                                 tau=0,
-                                 value_of_time=1):
+                                  link_genalized_cost_arr, 
+                                  tau=0,
+                                  value_of_time=1):
     for link in link_list:
         link_genalized_cost_arr[link.link_seq_no] = (
             link.travel_time_by_period[tau] 
@@ -32,10 +32,10 @@ def _update_link_travel_time_and_cost(link_list):
 
 
 def _reset_and_update_link_vol_based_on_columns(column_pool, 
-                                               link_list,
-                                               zones,
-                                               iter_num,
-                                               is_path_vol_self_reducing):
+                                                link_list,
+                                                zones,
+                                                iter_num,
+                                                is_path_vol_self_reducing):
     # the original implementation is iter_num < 0, which does not make sense
     if iter_num <= 0:
         return
@@ -81,16 +81,16 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
 
 
 def _update_gradient_cost_and_assigned_flow_in_column_pool(column_pool,
-                                                          link_list,
-                                                          zones,
-                                                          iter_num):
+                                                           link_list,
+                                                           zones,
+                                                           iter_num):
     total_gap_count = 0
     
     _reset_and_update_link_vol_based_on_columns(column_pool, 
-                                               link_list,
-                                               zones,
-                                               iter_num,
-                                               False)
+                                                link_list,
+                                                zones,
+                                                iter_num,
+                                                False)
 
     _update_link_travel_time_and_cost(link_list)
 
@@ -181,19 +181,19 @@ def _optimize_column_pool(column_pool, link_list, zones, iter_num):
     for i in range(iter_num):
         print(f"current iteration number: {i}")
         _update_gradient_cost_and_assigned_flow_in_column_pool(column_pool,
-                                                              link_list,
-                                                              zones,
-                                                              i)
+                                                               link_list,
+                                                               zones,
+                                                               i)
 
 
 def _backtrace_shortest_path_tree(origin_node_id,
-                                 internal_node_seq_no_dict,
-                                 node_list,
-                                 node_predecessor,
-                                 link_predecessor,
-                                 node_label_cost,
-                                 column_pool,
-                                 iter_num):
+                                  internal_node_seq_no_dict,
+                                  node_list,
+                                  node_predecessor,
+                                  link_predecessor,
+                                  node_label_cost,
+                                  column_pool,
+                                  iter_num):
     orig_node_no = internal_node_seq_no_dict[origin_node_id]
     
     if not node_list[orig_node_no].outgoing_link_list:
@@ -212,10 +212,10 @@ def _backtrace_shortest_path_tree(origin_node_id,
         if dest_zone_id == -1:
             continue
         
-        if (orig_zone_id,dest_zone_id) not in column_pool.keys():
+        if (orig_zone_id, dest_zone_id) not in column_pool.keys():
             continue
 
-        cv = column_pool[(orig_zone_id,dest_zone_id)]
+        cv = column_pool[(orig_zone_id, dest_zone_id)]
         if cv.is_route_fixed():
             continue
 
@@ -242,7 +242,7 @@ def _backtrace_shortest_path_tree(origin_node_id,
             current_node_seq_no = node_predecessor[current_node_seq_no]
         
         if node_sum not in cv.path_node_seq_map.keys():
-            path_seq_no = len(cv.path_node_seq_map)
+            path_seq_no = cv.get_column_num()
             col = Column(path_seq_no)
             col.increase_path_toll(node_label_cost[i])
             col.nodes = [x for x in node_path]
@@ -259,14 +259,14 @@ def do_network_assignment(iter_num, assignment_mode, column_update_iter, G):
     for i in range(iter_num):
         _update_link_travel_time_and_cost(G.link_list)
         _reset_and_update_link_vol_based_on_columns(G.column_pool, 
-                                                   G.link_list,
-                                                   G.zones,
-                                                   i,
-                                                   True)
+                                                    G.link_list,
+                                                    G.zones,
+                                                    i,
+                                                    True)
 
         for node in G.node_list:
             _update_generalized_link_cost(G.link_list, 
-                                         G.link_genalized_cost_array)
+                                          G.link_genalized_cost_array)
             # single_source_shortest_path(G, 
             #                             node.external_node_id,
             #                             engine_type='python',
@@ -274,23 +274,23 @@ def do_network_assignment(iter_num, assignment_mode, column_update_iter, G):
             single_source_shortest_path(G, node.external_node_id)
                         
             _backtrace_shortest_path_tree(node.external_node_id,
-                                         G.internal_node_seq_no_dict,
-                                         G.node_list,
-                                         G.node_predecessor,
-                                         G.link_predecessor,
-                                         G.node_label_cost,
-                                         G.column_pool,
-                                         iter_num)
+                                          G.internal_node_seq_no_dict,
+                                          G.node_list,
+                                          G.node_predecessor,
+                                          G.link_predecessor,
+                                          G.node_label_cost,
+                                          G.column_pool,
+                                          iter_num)
 
     _optimize_column_pool(G.column_pool,
-                         G.link_list,
-                         G.zones,
-                         column_update_iter)
+                          G.link_list,
+                          G.zones,
+                          column_update_iter)
 
     _reset_and_update_link_vol_based_on_columns(G.column_pool, 
-                                               G.link_list,
-                                               G.zones,
-                                               iter_num,
-                                               False)
+                                                G.link_list,
+                                                G.zones,
+                                                iter_num,
+                                                False)
 
     _update_link_travel_time_and_cost(G.link_list)
