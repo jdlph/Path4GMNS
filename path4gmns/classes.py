@@ -144,49 +144,53 @@ class Network:
         if self._count >= 1:
             return
 
+        node_size = self.node_size
+        link_size = self.link_size
+
         # initialization for predecessors and label costs
-        self.node_predecessor = numpy.full(self.node_size, -1, numpy.int32)
-        self.link_predecessor = numpy.full(self.node_size, -1, numpy.int32)
-        self.node_label_cost = numpy.full(self.node_size, 
-                                          MAX_LABEL_COST,
-                                          numpy.float64)
+        node_predecessor = [-1] * node_size
+        link_predecessor = [-1] * node_size
+        node_label_cost = [MAX_LABEL_COST] * node_size
 
         # initialize from_node_no_array, to_node_no_array, and link_cost_array
-        self.from_node_no_array = [
-            link.from_node_seq_no for link in self.link_list
-        ]
-        self.to_node_no_array = [
-            link.to_node_seq_no for link in self.link_list
-        ]
-        self.link_cost_array = [
-           link.cost for link in self.link_list
-        ]
-
-        # convert the above three into numpy array to be passed as 
-        # pointers to dll
-        self.from_node_no_array = numpy.array(self.from_node_no_array, 
-                                              numpy.int32)
-        self.to_node_no_array = numpy.array(self.to_node_no_array, numpy.int32)
-        self.link_cost_array = numpy.array(self.link_cost_array, numpy.float64)
+        from_node_no_array = [link.from_node_seq_no for link in self.link_list]
+        to_node_no_array = [link.to_node_seq_no for link in self.link_list]
+        link_cost_array = [link.cost for link in self.link_list]
         
         # initialize others as numpy arrays directly
-        self.queue_next = numpy.full(self.node_size, 0, numpy.int32)
-        self.first_link_from = numpy.full(self.node_size, -1, numpy.int32)
-        self.last_link_from = numpy.full(self.node_size, -1, numpy.int32)
-        self.sorted_link_no_array = numpy.full(self.link_size, -1, 
-                                               numpy.int32)
+        queue_next = [0] * node_size
+        first_link_from = [-1] * node_size
+        last_link_from = [-1] * node_size
+        sorted_link_no_array = [-1] * link_size
 
         # internal link index used for shortest path calculation only 
         j = 0
         for i, node in enumerate(self.node_list):
             if not node.outgoing_link_list:
                 continue
-            self.first_link_from[i] = j
+            first_link_from[i] = j
             for link in node.outgoing_link_list:
                 # set up the mapping from j to the true link seq no
-                self.sorted_link_no_array[j] = link.link_seq_no
+                sorted_link_no_array[j] = link.link_seq_no
                 j += 1
-            self.last_link_from[i] = j
+            last_link_from[i] = j
+
+        # set up arrays using ctypes
+        int_arr_node = ctypes.c_int * node_size
+        int_arr_link = ctypes.c_int * link_size
+        double_arr_node = ctypes.c_double * node_size
+        double_arr_link = ctypes.c_double * link_size
+
+        self.from_node_no_array = int_arr_link(*from_node_no_array)
+        self.to_node_no_array = int_arr_link(*to_node_no_array)
+        self.first_link_from = int_arr_node(*first_link_from)
+        self.last_link_from = int_arr_node(*last_link_from)
+        self.sorted_link_no_array = int_arr_link(*sorted_link_no_array)
+        self.link_cost_array = double_arr_link(*link_cost_array)
+        self.node_label_cost = double_arr_node(*node_label_cost)
+        self.node_predecessor = int_arr_node(*node_predecessor)
+        self.link_predecessor = int_arr_node(*link_predecessor)
+        self.queue_next = int_arr_node(*queue_next)
         
         self._count += 1
 

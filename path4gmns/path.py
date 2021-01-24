@@ -12,7 +12,6 @@ https://github.com/asu-trans-ai-lab/DTALite
 
 
 import ctypes
-import numpy
 import collections
 import heapq
 import os.path
@@ -50,16 +49,16 @@ _cdll = ctypes.cdll.LoadLibrary(_dll_file)
 _cdll.shortest_path.argtypes = [
     ctypes.c_int, 
     ctypes.c_int, 
-    numpy.ctypeslib.ndpointer(dtype=numpy.int32),
-    numpy.ctypeslib.ndpointer(dtype=numpy.int32),
-    numpy.ctypeslib.ndpointer(dtype=numpy.int32),
-    numpy.ctypeslib.ndpointer(dtype=numpy.int32),
-    numpy.ctypeslib.ndpointer(dtype=numpy.int32), 
-    numpy.ctypeslib.ndpointer(dtype=numpy.float64),   
-    numpy.ctypeslib.ndpointer(dtype=numpy.float64),                                    
-    numpy.ctypeslib.ndpointer(dtype=numpy.int32),
-    numpy.ctypeslib.ndpointer(dtype=numpy.int32),
-    numpy.ctypeslib.ndpointer(dtype=numpy.int32)
+    ctypes.POINTER(ctypes.c_int),
+    ctypes.POINTER(ctypes.c_int),
+    ctypes.POINTER(ctypes.c_int),
+    ctypes.POINTER(ctypes.c_int),
+    ctypes.POINTER(ctypes.c_int),
+    ctypes.POINTER(ctypes.c_double), 
+    ctypes.POINTER(ctypes.c_double),                                  
+    ctypes.POINTER(ctypes.c_int),
+    ctypes.POINTER(ctypes.c_int),
+    ctypes.POINTER(ctypes.c_int),
 ]
 
 
@@ -67,14 +66,14 @@ def _optimal_label_correcting_CAPI(G, origin_node_no):
     """ call the deque implementation of MLC written in cpp """
     if not G.node_list[origin_node_no].outgoing_link_list:
         return
-    
+
     _cdll.shortest_path(origin_node_no,
                         G.node_size,
                         G.from_node_no_array,
                         G.to_node_no_array,
                         G.first_link_from,
                         G.last_link_from,
-                        G.sorted_link_no_array, 
+                        G.sorted_link_no_array,
                         G.link_cost_array,
                         G.node_label_cost,
                         G.node_predecessor,
