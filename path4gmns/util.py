@@ -4,8 +4,8 @@ from random import choice
 from .classes import Node, Link, Network, Agent, ColumnVec
 
 
-def read_nodes(input_dir, node_list, internal_node_seq_no_dict,
-               external_node_id_dict, zone_to_nodes_dict):
+def read_nodes(input_dir, nodes, id_to_no_dict,
+               no_to_id_dict, zone_to_node_dict):
     """ step 1: read input_node """
     with open(input_dir+'/node.csv', 'r', encoding='utf-8') as fp:
         reader = csv.DictReader(fp)
@@ -26,16 +26,16 @@ def read_nodes(input_dir, node_list, internal_node_seq_no_dict,
             
             # construct node object
             node = Node(node_seq_no, node_id, zone_id)
-            node_list.append(node)
+            nodes.append(node)
             
             # set up mapping between node_seq_no and node_id
-            internal_node_seq_no_dict[node_id] = node_seq_no
-            external_node_id_dict[node_seq_no] = node_id
+            id_to_no_dict[node_id] = node_seq_no
+            no_to_id_dict[node_seq_no] = node_id
             
             # associate node_id to corresponding zone
-            if zone_id not in zone_to_nodes_dict.keys():
-                zone_to_nodes_dict[zone_id] = []
-            zone_to_nodes_dict[zone_id].append(node_id)
+            if zone_id not in zone_to_node_dict.keys():
+                zone_to_node_dict[zone_id] = []
+            zone_to_node_dict[zone_id].append(node_id)
             
             node_seq_no += 1
         
@@ -43,7 +43,7 @@ def read_nodes(input_dir, node_list, internal_node_seq_no_dict,
     fp.close()
 
 
-def read_links(input_dir, link_list, node_list, internal_node_seq_no_dict):
+def read_links(input_dir, links, nodes, id_to_no_dict):
     """ step 2: read input_link """
     with open(input_dir+'/link.csv', 'r', encoding='utf-8') as fp:
         reader = csv.DictReader(fp)
@@ -93,8 +93,8 @@ def read_links(input_dir, link_list, node_list, internal_node_seq_no_dict):
                 VDF_beta = float(VDF_beta)
 
             try:
-                from_node_no = internal_node_seq_no_dict[from_node_id]
-                to_node_no = internal_node_seq_no_dict[to_node_id]
+                from_node_no = id_to_no_dict[from_node_id]
+                to_node_no = id_to_no_dict[to_node_id]
             except KeyError:
                 print(f"EXCEPTION: Node ID {from_node_no} "
                       f"or/and Node ID {to_node_id} NOT IN THE NETWORK!!")
@@ -115,9 +115,9 @@ def read_links(input_dir, link_list, node_list, internal_node_seq_no_dict):
                         VDF_beta)
             
             # set up outgoing links and incoming links
-            node_list[from_node_no].outgoing_link_list.append(link)
-            node_list[to_node_no].incoming_link_list.append(link)
-            link_list.append(link)
+            nodes[from_node_no].add_outgoing_link(link)
+            nodes[to_node_no].add_incoming_link(link)
+            links.append(link)
             
             link_seq_no += 1
         
@@ -126,9 +126,9 @@ def read_links(input_dir, link_list, node_list, internal_node_seq_no_dict):
     
 
 def read_agents(input_dir,
-                agent_list,
-                agent_td_list_dict,
-                zone_to_nodes_dict,
+                agents,
+                td_agents,
+                zone_to_node_dict,
                 column_pool):
     """ step 3:read input_agent """
     with open(input_dir+'/demand.csv', 'r', encoding='utf-8') as fp:
@@ -155,12 +155,12 @@ def read_agents(input_dir,
             
             o_zone_id = int(o_zone_id)
             # o_zone_id does not exist in node.csv, discard it
-            if o_zone_id not in zone_to_nodes_dict.keys():
+            if o_zone_id not in zone_to_node_dict.keys():
                 continue
             
             d_zone_id = int(d_zone_id)
             # d_zone_id does not exist in node.csv, discard it
-            if d_zone_id not in zone_to_nodes_dict.keys():
+            if d_zone_id not in zone_to_node_dict.keys():
                 continue
             
             # set up volume for ColumnVec
@@ -178,8 +178,8 @@ def read_agents(input_dir,
 
                 # step 3.1 generate o_node_id and d_node_id randomly according 
                 # to o_zone_id and d_zone_id 
-                agent.o_node_id = choice(zone_to_nodes_dict[o_zone_id])
-                agent.d_node_id = choice(zone_to_nodes_dict[d_zone_id])
+                agent.o_node_id = choice(zone_to_node_dict[o_zone_id])
+                agent.d_node_id = choice(zone_to_node_dict[d_zone_id])
                 
                 # step 3.2 update agent_id and agent_seq_no
                 agent_id += 1
@@ -194,17 +194,17 @@ def read_agents(input_dir,
 
                 #step 3.4: add the agent to the time dependent agent list
                 departure_time = agent.departure_time_in_simu_interval
-                if departure_time not in agent_td_list_dict.keys():
-                    agent_td_list_dict[departure_time] = []
-                agent_td_list_dict[departure_time].append(agent.agent_seq_no)
+                if departure_time not in td_agents.keys():
+                    td_agents[departure_time] = []
+                td_agents[departure_time].append(agent.agent_seq_no)
                 
-                agent_list.append(agent)
+                agents.append(agent)
 
     print(f"the number of agents is {agent_seq_no}")
 
     #step 3.6:sort agents by the departure time
-    agent_list.sort(key=lambda agent: agent.departure_time_in_min)
-    for i, agent in enumerate(agent_list):
+    agents.sort(key=lambda agent: agent.departure_time_in_min)
+    for i, agent in enumerate(agents):
         agent.agent_seq_no = i
 
 

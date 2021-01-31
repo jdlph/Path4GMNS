@@ -26,6 +26,18 @@ class Node:
         self.outgoing_link_list = []
         self.incoming_link_list = []
         self.zone_id = zone_id
+
+    def has_outgoing_links(self):
+        return len(self.outgoing_link_list) > 0
+
+    def get_zone_id(self):
+        return self.zone_id
+
+    def add_outgoing_link(self, link):
+        self.outgoing_link_list.append(link)
+    
+    def add_incoming_link(self, link):
+        self.incoming_link_list.append(link)
         
 
 class Link:
@@ -40,8 +52,8 @@ class Link:
                  link_type=1,
                  free_speed=60,
                  capacity=49500,
-                 VDF_alpha=0.15,
-                 VDF_beta=4):   
+                 vdf_alpha=0.15,
+                 vdf_beta=4):   
         """ the attribute of link """
         self.link_seq_no = link_seq_no
         self.from_node_seq_no = from_node_no
@@ -59,8 +71,8 @@ class Link:
         )
         # capacity is lane capacity per hour
         self.link_capacity = capacity * lanes
-        self.BPR_alpha = VDF_alpha
-        self.BPR_beta = VDF_beta
+        self.bpr_alpha = vdf_alpha
+        self.bpr_beta = vdf_beta
         self.cost = self.free_flow_travel_time_in_min
         self.flow_volume = 0
         # add for CG
@@ -76,26 +88,47 @@ class Link:
         self.travel_marginal_cost_by_period = [
             [0] * MAX_TIME_PERIODS for i in range(MAX_AGNET_TYPES)
         ]
-        self._setup_vdf_period()
+        self._setup_vdfperiod()
 
-    def get_generalized_link_cost(self, tau, agent_type, value_of_time=1):
+    def get_seq_no(self):
+        return self.link_seq_no
+
+    def get_toll(self):
+        return self.toll
+
+    def get_route_choice_cost(self):
+        return self.route_choice_cost
+
+    def get_period_travel_time(self, tau):
+        return self.travel_time_by_period[tau]
+
+    def get_generalized_cost(self, tau, agent_type, value_of_time=1):
         return self.travel_time_by_period[tau] + self.toll / value_of_time * 60
 
-    def calculate_TD_VDFunction(self):
+    def reset_period_flow_vol(self, tau):
+        self.flow_vol_by_period[tau] = 0
+
+    def reset_period_agent_vol(self, tau, agent_type):
+        self.vol_by_period_by_at[tau, agent_type] = 0
+
+    def increase_period_flow_vol(self, tau, fv):
+        self.flow_vol_by_period[tau] += fv
+
+    def increase_period_agent_vol(self, tau, agent_type, v):
+        self.vol_by_period_by_at[tau, agent_type] += v
+
+    def calculate_td_vdfunction(self):
         for tau in range(MAX_TIME_PERIODS):
             self.travel_time_by_period[tau] = (
                 self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau])
             )
     
-    def calculate_marginal_cost_for_agent_type(self, 
-                                               tau, 
-                                               agent_type_no,
-                                               PCE_agent_type):
-        self.travel_marginal_cost_by_period[tau][agent_type_no] = (
+    def calculate_agent_marginal_cost(self, tau, agent_type, PCE_agent_type=1):
+        self.travel_marginal_cost_by_period[tau][agent_type] = (
             self.vdfperiods[tau].marginal_base * PCE_agent_type
         )
 
-    def _setup_vdf_period(self):
+    def _setup_vdfperiod(self):
         for tau in range(MAX_TIME_PERIODS):
             vp = self.vdfperiods[tau]
             vp.capacity = self.link_capacity
@@ -228,6 +261,7 @@ class Agent:
 
 
 class Column:
+    
     def __init__(self, seq_no=-1):
         self.seq_no = seq_no
         self.vol = 0
@@ -241,10 +275,10 @@ class Column:
         self.nodes = None
         self.links = None
 
-    def increase_path_toll(self, t):
+    def increase_toll(self, t):
         self.toll += t
 
-    def increase_path_vol(self, v):
+    def increase_volume(self, v):
         self.vol += v
 
     def get_link_num(self):
@@ -252,6 +286,50 @@ class Column:
 
     def get_node_num(self):
         return len(self.nodes)
+
+    def get_seq_no(self):
+        return self.seq_no
+    
+    def get_volume(self):
+        return self.vol
+
+    def get_switch_volume(self):
+        return self.switch_vol
+
+    def get_gradient_cost(self):
+        return self.gradient_cost
+
+    def get_gradient_cost_abs_diff(self):
+        return self.gradient_cost_abs_diff
+
+    def get_gradient_cost_rel_diff(self):
+        return self.gradient_cost_rel_diff
+
+    def get_links(self):
+        """ return link seq no """
+        return self.links
+
+    def set_volume(self, v):
+        self.vol = v
+    
+    def set_toll(self, t):
+        self.toll = t
+
+    def set_travel_time(self, tt):
+        self.travel_time = tt
+
+    def set_switch_volume(self, sv):
+        self.switch_vol = sv
+
+    def set_gradient_cost(self, c):
+        self.gradient_cost = c
+
+    def set_gradient_cost_abs_diff(self, ad):
+        self.gradient_cost_abs_diff = ad
+
+    def set_gradient_cost_rel_diff(self, rd):
+        self.gradient_cost_rel_diff = rd
+
 
 class ColumnVec:
     
@@ -272,6 +350,12 @@ class ColumnVec:
 
     def get_column_num(self):
         return len(self.path_node_seq_map)
+
+    def get_columns(self):
+        return self.path_node_seq_map
+
+    def get_column(self, k):
+        return self.path_node_seq_map[k]
 
 
 # not used in the current implementation
@@ -299,14 +383,16 @@ class VDFPeriod:
         vol = max(0, vol)
         avg_travel_time = (
             self.fftt 
-            + self.fftt * self.alpha * pow(vol / max(0.00001, self.capacity), 
-                                           self.beta)
+            + self.fftt 
+            * self.alpha 
+            * pow(vol/max(0.00001, self.capacity), self.beta)
         )
 
         self.marginal_base = (
             self.fftt 
             * self.alpha
             * self.beta
-            * pow(vol / max(0.00001, self.capacity), self.beta - 1))
+            * pow(vol/max(0.00001, self.capacity), self.beta - 1)
+        )
 
         return avg_travel_time
