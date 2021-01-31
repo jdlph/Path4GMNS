@@ -251,12 +251,14 @@ def _backtrace_shortest_path_tree(orig_node_id,
         if node_sum not in cv.path_node_seq_map.keys():
             path_seq_no = cv.get_column_num()
             col = Column(path_seq_no)
-            col.increase_toll(node_label_costs[i])
+            # col.set_volume(0)
+            # col.increase_toll(node_label_costs[i])
+            col.set_toll(node_label_costs[i])
             col.nodes = [x for x in node_path]
             col.links = [x for x in link_path]
-            cv.get_column(node_sum).set_volume(vol)
+            cv.add_new_column(node_sum, col)
 
-        cv.get_column(node_sum).increase_vol(vol)
+        cv.get_column(node_sum).increase_volume(vol)
             
 
 def do_network_assignment(iter_num, assignment_mode, column_update_iter, G):

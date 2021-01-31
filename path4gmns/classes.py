@@ -357,6 +357,9 @@ class ColumnVec:
     def get_column(self, k):
         return self.path_node_seq_map[k]
 
+    def add_new_column(self, node_sum, column):
+        self.path_node_seq_map[node_sum] = column
+
 
 # not used in the current implementation
 class Assignment:
