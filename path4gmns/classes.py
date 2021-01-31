@@ -109,13 +109,13 @@ class Link:
         self.flow_vol_by_period[tau] = 0
 
     def reset_period_agent_vol(self, tau, agent_type):
-        self.vol_by_period_by_at[tau, agent_type] = 0
+        self.vol_by_period_by_at[tau][agent_type] = 0
 
     def increase_period_flow_vol(self, tau, fv):
         self.flow_vol_by_period[tau] += fv
 
     def increase_period_agent_vol(self, tau, agent_type, v):
-        self.vol_by_period_by_at[tau, agent_type] += v
+        self.vol_by_period_by_at[tau][agent_type] += v
 
     def calculate_td_vdfunction(self):
         for tau in range(MAX_TIME_PERIODS):
