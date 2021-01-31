@@ -4,7 +4,7 @@ from random import choice
 from .classes import Node, Link, Network, Agent, ColumnVec
 
 
-def read_nodes(input_dir, nodes, id_to_no_dict,
+def read_nodes(input_dir, nodes, id_to_no_dict, 
                no_to_id_dict, zone_to_node_dict):
     """ step 1: read input_node """
     with open(input_dir+'/node.csv', 'r', encoding='utf-8') as fp:
@@ -125,11 +125,7 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
     fp.close()
     
 
-def read_agents(input_dir,
-                agents,
-                td_agents,
-                zone_to_node_dict,
-                column_pool):
+def read_agents(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
     """ step 3:read input_agent """
     with open(input_dir+'/demand.csv', 'r', encoding='utf-8') as fp:
         reader = csv.DictReader(fp)

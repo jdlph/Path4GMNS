@@ -261,7 +261,7 @@ def _backtrace_shortest_path_tree(orig_node_id,
         cv.get_column(node_sum).increase_volume(vol)
             
 
-def do_network_assignment(iter_num, assignment_mode, column_update_iter, G):
+def do_network_assignment(assignment_mode, iter_num, column_update_iter, G):
     if assignment_mode == 0:
         raise Exception("not implemented yet")
 
