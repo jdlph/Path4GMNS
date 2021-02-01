@@ -28,5 +28,5 @@ if __name__=="__main__":
     pg.do_network_assignment(1, iter_num, colum_update_num, network)
     print('processing time of column generation:{0: .2f}'
           .format(time()-st)+ 's'
-          f' for {iter_num} assignment iterations, which has '
+          f' for {iter_num} assignment iterations and '
           f'{colum_update_num} iterations in column generation')

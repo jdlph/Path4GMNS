@@ -33,6 +33,12 @@ class Node:
     def get_zone_id(self):
         return self.zone_id
 
+    def get_node_id(self):
+        return self.external_node_id
+
+    def get_node_no(self):
+        return self.node_seq_no
+
     def add_outgoing_link(self, link):
         self.outgoing_link_list.append(link)
     
@@ -275,12 +281,6 @@ class Column:
         self.nodes = None
         self.links = None
 
-    def increase_toll(self, t):
-        self.toll += t
-
-    def increase_volume(self, v):
-        self.vol += v
-
     def get_link_num(self):
         return len(self.links)
 
@@ -330,6 +330,12 @@ class Column:
     def set_gradient_cost_rel_diff(self, rd):
         self.gradient_cost_rel_diff = rd
 
+    def increase_toll(self, t):
+        self.toll += t
+
+    def increase_volume(self, v):
+        self.vol += v
+
 
 class ColumnVec:
     
@@ -357,8 +363,8 @@ class ColumnVec:
     def get_column(self, k):
         return self.path_node_seq_map[k]
 
-    def add_new_column(self, node_sum, column):
-        self.path_node_seq_map[node_sum] = column
+    def add_new_column(self, node_sum, col):
+        self.path_node_seq_map[node_sum] = col
 
 
 # not used in the current implementation
