@@ -204,7 +204,7 @@ def read_agents(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
         agent.agent_seq_no = i
 
 
-def read_network(input_dir='./'):
+def read_network(input_dir='.'):
     network = Network()
 
     read_nodes(input_dir,

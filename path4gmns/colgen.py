@@ -192,16 +192,13 @@ def _optimize_column_pool(column_pool, links, zones, iter_num):
         _update_column_gradient_cost_and_flow(column_pool, links, zones, i)
 
 
-def _backtrace_shortest_path_tree(orig_node_id,
-                                  id_to_no_dict,
+def _backtrace_shortest_path_tree(orig_node_no,
                                   nodes,
                                   node_preds,
                                   link_preds,
                                   node_label_costs,
                                   column_pool,
                                   iter_num):
-    
-    orig_node_no = id_to_no_dict[orig_node_id]
     
     if not nodes[orig_node_no].has_outgoing_links():
         return
@@ -280,10 +277,9 @@ def do_network_assignment(assignment_mode, iter_num, column_update_iter, G):
             #                             node.external_node_id,
             #                             engine_type='python',
             #                             sp_algm='dijkstra')
-            single_source_shortest_path(G, node.external_node_id)
+            single_source_shortest_path(G, node.get_node_id())
                         
-            _backtrace_shortest_path_tree(node.external_node_id,
-                                          G.internal_node_seq_no_dict,
+            _backtrace_shortest_path_tree(node.get_node_no(),
                                           G.node_list,
                                           G.node_predecessor,
                                           G.link_predecessor,
