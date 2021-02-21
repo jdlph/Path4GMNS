@@ -1,7 +1,8 @@
 import csv
 from random import choice
 
-from .classes import Node, Link, Network, Agent, ColumnVec
+from .classes import Node, Link, Network, Agent, ColumnVec, \
+                     MAX_TIME_PERIODS, MAX_AGNET_TYPES
 
 
 def read_nodes(input_dir, nodes, id_to_no_dict, 
@@ -203,6 +204,59 @@ def read_agents(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
     for i, agent in enumerate(agents):
         agent.agent_seq_no = i
 
+
+def output_columns(zones, column_pool, output_dir='.'):
+    with open(output_dir+'/agent.csv', 'w',  newline='') as fp:
+        writer = csv.writer(fp)
+
+        line = ['agent_id', 
+                'o_zone_id',
+                'd_zone_id',
+                'path_id',
+                'agent_type',
+                'demand_period',
+                'volume',
+                'toll',
+                'travel_time',
+                'distance',
+                'node_sequence',
+                'link_sequence']
+
+        writer.writerow(line)
+
+        path_sep = ';'
+
+        i = 0
+        for orig_zone in zones:
+            for dest_zone in zones:
+                for at in range(MAX_AGNET_TYPES):
+                    for tau in range(MAX_TIME_PERIODS):
+                        if (orig_zone, dest_zone) not in column_pool.keys():
+                            continue
+                        
+                        cv = column_pool[(orig_zone, dest_zone)]
+                            
+                        for col in cv.get_columns().values():
+                            node_seq = path_sep.join(str(x) for x in col.nodes)
+                            link_seq = path_sep.join(str(x) for x in col.links)
+
+                            line = [
+                                '',
+                                orig_zone,
+                                dest_zone,
+                                col.get_seq_no(),
+                                at,
+                                tau,
+                                col.get_volume(),
+                                col.toll,
+                                col.travel_time,
+                                col.dist,
+                                node_seq,
+                                link_seq
+                            ]
+
+                            writer.writerow(line)
+                            
 
 def read_network(input_dir='.'):
     network = Network()

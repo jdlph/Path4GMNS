@@ -30,3 +30,5 @@ if __name__=="__main__":
           .format(time()-st)+ 's'
           f' for {iter_num} assignment iterations and '
           f'{colum_update_num} iterations in column generation')
+
+    pg.output_columns(network.zones, network.column_pool)

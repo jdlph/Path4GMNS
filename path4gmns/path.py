@@ -57,6 +57,8 @@ _cdll.shortest_path.argtypes = [
     ctypes.POINTER(ctypes.c_int),
     ctypes.POINTER(ctypes.c_int),
     ctypes.POINTER(ctypes.c_int),
+    ctypes.c_int, 
+    ctypes.c_int
 ]
 
 
@@ -76,7 +78,9 @@ def _optimal_label_correcting_CAPI(G, origin_node_no):
                         G.node_label_cost,
                         G.node_predecessor,
                         G.link_predecessor,
-                        G.queue_next)
+                        G.queue_next,
+                        0,
+                        0)
 
 
 def _single_source_shortest_path_fifo(G, origin_node_no):
@@ -310,6 +314,10 @@ def find_path_for_agents(G, engine_type='c'):
                 link_path.append(current_link_seq_no)
             current_node_seq_no = G.node_predecessor[current_node_seq_no]
         
+        # make sure it is a valid path
+        if not link_path:
+            continue
+
         # reverse the sequence
         agent.path_node_seq_no_list = [
             node_seq_no for node_seq_no in reversed(node_path)

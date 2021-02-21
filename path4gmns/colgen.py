@@ -1,3 +1,4 @@
+import ctypes
 from .path import single_source_shortest_path
 from .classes import Column, ColumnVec, MAX_TIME_PERIODS, MAX_AGNET_TYPES, \
                      MIN_OD_VOL
@@ -16,9 +17,13 @@ def _update_generalized_link_cost(links, link_genalized_costs,
             + link.get_route_choice_cost() 
             + link.get_toll() / value_of_time * 60
         )
+
+    link_cost_array = [gc for gc in link_genalized_costs]
+    double_arr_link = ctypes.c_double * len(links)
+    link_cost_array = double_arr_link(*link_cost_array)
 	
 
-def _update_link_travel_time_and_cost(links):
+def _update_link_travel_time_and_cost(links, link_cost_array):
     for link in links:
         link.calculate_td_vdfunction()
         for tau in range(MAX_TIME_PERIODS):
@@ -78,7 +83,7 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
     # end of for at in range ...
 
 
-def _update_column_gradient_cost_and_flow(column_pool, links, zones, iter_num):
+def _update_column_gradient_cost_and_flow(column_pool, links, link_cost_array, zones, iter_num):
     total_gap_count = 0
     
     _reset_and_update_link_vol_based_on_columns(column_pool, 
@@ -87,7 +92,7 @@ def _update_column_gradient_cost_and_flow(column_pool, links, zones, iter_num):
                                                 iter_num,
                                                 False)
 
-    _update_link_travel_time_and_cost(links)
+    _update_link_travel_time_and_cost(links, link_cost_array)
 
     for orig_zone_id in zones:
         for dest_zone_id in zones:
@@ -139,7 +144,7 @@ def _update_column_gradient_cost_and_flow(column_pool, links, zones, iter_num):
                         total_switched_out_path_vol = 0
 
                         for node_sum, col in cv.get_columns().items():
-                            if col.path_no != least_gradient_cost_path_seq_no:
+                            if col.get_seq_no() != least_gradient_cost_path_seq_no:
                                 col.set_gradient_cost_abs_diff(
                                     col.get_gradient_cost() 
                                     - least_gradient_cost
@@ -149,10 +154,10 @@ def _update_column_gradient_cost_and_flow(column_pool, links, zones, iter_num):
                                     / max(0.00001, least_gradient_cost)
                                 )
 
-                                total_gap += (
-                                    col.get_gradient_cost_abs_diff() 
-                                    * col.get_volume()
-                                )
+                                # total_gap += (
+                                #     col.get_gradient_cost_abs_diff() 
+                                #     * col.get_volume()
+                                # )
                                 total_gap_count += (
                                     col.get_gradient_cost() * col.get_volume()
                                 )
@@ -186,10 +191,10 @@ def _update_column_gradient_cost_and_flow(column_pool, links, zones, iter_num):
                         )                    
 
 
-def _optimize_column_pool(column_pool, links, zones, iter_num):
+def _optimize_column_pool(column_pool, links, link_cost_array, zones, iter_num):
     for i in range(iter_num):
         print(f"current iteration number: {i}")
-        _update_column_gradient_cost_and_flow(column_pool, links, zones, i)
+        _update_column_gradient_cost_and_flow(column_pool, links, link_cost_array, zones, i)
 
 
 def _backtrace_shortest_path_tree(orig_node_no,
@@ -245,6 +250,10 @@ def _backtrace_shortest_path_tree(orig_node_no,
             
             current_node_seq_no = node_preds[current_node_seq_no]
         
+        # make sure this is a valid path
+        if not link_path:
+            continue
+
         if node_sum not in cv.path_node_seq_map.keys():
             path_seq_no = cv.get_column_num()
             col = Column(path_seq_no)
@@ -263,7 +272,7 @@ def do_network_assignment(assignment_mode, iter_num, column_update_iter, G):
         raise Exception("not implemented yet")
 
     for i in range(iter_num):
-        _update_link_travel_time_and_cost(G.link_list)
+        _update_link_travel_time_and_cost(G.link_list, G.link_cost_array)
         _reset_and_update_link_vol_based_on_columns(G.column_pool, 
                                                     G.link_list,
                                                     G.zones,
@@ -285,9 +294,9 @@ def do_network_assignment(assignment_mode, iter_num, column_update_iter, G):
                                           G.link_predecessor,
                                           G.node_label_cost,
                                           G.column_pool,
-                                          iter_num)
+                                          i)
 
-    _optimize_column_pool(G.column_pool, G.link_list,
+    _optimize_column_pool(G.column_pool, G.link_list, G.link_cost_array,
                           G.zones, column_update_iter)
 
     _reset_and_update_link_vol_based_on_columns(G.column_pool, 
@@ -296,4 +305,4 @@ def do_network_assignment(assignment_mode, iter_num, column_update_iter, G):
                                                 iter_num,
                                                 False)
 
-    _update_link_travel_time_and_cost(G.link_list)
+    _update_link_travel_time_and_cost(G.link_list, G.link_cost_array)
