@@ -108,7 +108,7 @@ class Link:
     def get_period_travel_time(self, tau):
         return self.travel_time_by_period[tau]
 
-    def get_generalized_cost(self, tau, agent_type, value_of_time=1):
+    def get_generalized_cost(self, tau, agent_type, value_of_time=10):
         return self.travel_time_by_period[tau] + self.toll / value_of_time * 60
 
     def reset_period_flow_vol(self, tau):
@@ -387,10 +387,11 @@ class VDFPeriod:
         self.capacity = 99999
         # free flow travel time
         self.fftt = 0
+        self.avg_travel_time = 0
 
     def run_bpr(self, vol):
         vol = max(0, vol)
-        avg_travel_time = (
+        self.avg_travel_time = (
             self.fftt 
             + self.fftt 
             * self.alpha 
@@ -404,4 +405,4 @@ class VDFPeriod:
             * pow(vol/max(0.00001, self.capacity), self.beta - 1)
         )
 
-        return avg_travel_time
+        return self.avg_travel_time

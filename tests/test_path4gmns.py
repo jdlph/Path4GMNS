@@ -23,8 +23,8 @@ if __name__=="__main__":
 
     print('\nstart column generation')
     st = time()
-    iter_num = 5
-    colum_update_num = 5
+    iter_num = 20
+    colum_update_num = 20
     pg.do_network_assignment(1, iter_num, colum_update_num, network)
     print('processing time of column generation:{0: .2f}'
           .format(time()-st)+ 's'
@@ -32,3 +32,4 @@ if __name__=="__main__":
           f'{colum_update_num} iterations in column generation')
 
     pg.output_columns(network.zones, network.column_pool)
+    pg.output_link_performance(network.link_list)

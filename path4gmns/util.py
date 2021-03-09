@@ -137,10 +137,6 @@ def read_agents(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
             volume = line['volume']
             volume_agent_size = int(float(volume) + 1)
     
-            # only test up to 10k
-            if agent_id >= 10000 :
-                break 
-    
             # invalid origin zone id, discard it
             o_zone_id = line['o_zone_id']
             if not o_zone_id:
@@ -235,13 +231,14 @@ def output_columns(zones, column_pool, output_dir='.'):
                             continue
                         
                         cv = column_pool[(orig_zone, dest_zone)]
-                            
+
                         for col in cv.get_columns().values():
-                            node_seq = path_sep.join(str(x) for x in col.nodes)
-                            link_seq = path_sep.join(str(x) for x in col.links)
+                            i += 1
+                            node_seq = path_sep.join(str(x) for x in reversed(col.nodes))
+                            link_seq = path_sep.join(str(x) for x in reversed(col.links))
 
                             line = [
-                                '',
+                                i,
                                 orig_zone,
                                 dest_zone,
                                 col.get_seq_no(),
@@ -256,6 +253,47 @@ def output_columns(zones, column_pool, output_dir='.'):
                             ]
 
                             writer.writerow(line)
+
+
+def output_link_performance(links, output_dir='.'):
+    with open(output_dir+'/link_performance.csv', 'w',  newline='') as fp:
+        writer = csv.writer(fp)
+
+        line = ['link_id', 
+                'from_node_id',
+                'to_node_id',
+                'time_period',
+                'volume',
+                'travel_time',
+                'speed',
+                'VOC',
+                'queue',
+                'density',
+                'geometry',
+                'notes']
+                    
+        writer.writerow(line)
+
+        for link in links:
+            for tau in range(MAX_TIME_PERIODS):
+                avg_travel_time = link.vdfperiods[tau].avg_travel_time
+                speed = link.length / (max(0.001, avg_travel_time) / 60)
+                
+                line = [
+                        '',
+                        link.external_from_node,
+                        link.external_to_node,
+                        tau,
+                        link.flow_vol_by_period[tau],
+                        avg_travel_time,
+                        speed,
+                        '',
+                        '',
+                        '',
+                        ''
+                    ]
+
+                writer.writerow(line)
                             
 
 def read_network(input_dir='.'):
