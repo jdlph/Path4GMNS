@@ -386,21 +386,24 @@ class VDFPeriod:
         # free flow travel time
         self.fftt = 0
         self.avg_travel_time = 0
+        self.voc = 0
 
     def run_bpr(self, vol):
         vol = max(0, vol)
+        self.voc = vol / max(0.00001, self.capacity)
+
         self.avg_travel_time = (
             self.fftt 
             + self.fftt 
             * self.alpha 
-            * pow(vol/max(0.00001, self.capacity), self.beta)
+            * pow(self.voc, self.beta)
         )
 
         self.marginal_base = (
             self.fftt 
             * self.alpha
             * self.beta
-            * pow(vol/max(0.00001, self.capacity), self.beta - 1)
+            * pow(self.voc, self.beta - 1)
         )
-
+        
         return self.avg_travel_time

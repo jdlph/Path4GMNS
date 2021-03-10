@@ -295,7 +295,7 @@ def output_link_performance(links, output_dir='.'):
                         link.flow_vol_by_period[tau],
                         avg_travel_time,
                         speed,
-                        '',
+                        link.vdfperiods[tau].voc,
                         '',
                         '',
                         '']
