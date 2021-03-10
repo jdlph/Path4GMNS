@@ -11,11 +11,11 @@ void shortest_path(int o_node_no, int node_size,
                    int depature_time, int first_thru_node)
 {
     /*
-        The following deque based implementation is motivated and adpated by the efficient implementiation by Dr. Hillel Bar-Gera from
-            http://www.bgu.ac.il/~bargera/tntp/
-            http://www.bgu.ac.il/~bargera/tntp/FW.zip
-     
-        Similar implementation can be also found in DYNASMART system designed by Dr. Hani Mahmassani and the original code of DTALite by Dr. Xuesong Zhou
+     *   The following deque based implementation is motivated and adpated by the efficient implementiation by Dr. Hillel Bar-Gera from
+     *       http://www.bgu.ac.il/~bargera/tntp/
+     *       http://www.bgu.ac.il/~bargera/tntp/FW.zip
+     * 
+     *   Similar implementation can be also found in DYNASMART system designed by Dr. Hani Mahmassani and the original code of DTALite by Dr. Xuesong Zhou
      */
 
     // construct and initialize the following three on the first call only

@@ -48,7 +48,9 @@ class Node:
 
 class Link:
 
-    def __init__(self, link_seq_no,
+    def __init__(self,
+                 id,
+                 link_seq_no,
                  from_node_no,
                  to_node_no, 
                  from_node_id,
@@ -61,6 +63,7 @@ class Link:
                  vdf_alpha=0.15,
                  vdf_beta=4):   
         """ the attribute of link """
+        self.id = id
         self.link_seq_no = link_seq_no
         self.from_node_seq_no = from_node_no
         self.to_node_seq_no = to_node_no
@@ -164,22 +167,20 @@ class Network:
         self.link_predecessor = None
         # added for CG
         self.zones = None
-        self.link_genalized_cost_array = None
         self.tau = 0
         self.agent_type = 0
         self.column_pool = {}
-        self._count = 0
+        self.has_capi_allocated = False
 
     def update(self):
         self.node_size = len(self.node_list)
         self.link_size = len(self.link_list)
         self.agenet_size = len(self.agent_list)
-        self.link_genalized_cost_array = [0] * self.link_size
         self.zones = self.zone_to_nodes_dict.keys()
 
     def allocate_for_CAPI(self):
         # execute only on the first call
-        if self._count >= 1:
+        if self.has_capi_allocated:
             return
 
         node_size = self.node_size
@@ -230,7 +231,7 @@ class Network:
         self.link_predecessor = int_arr_node(*link_predecessor)
         self.queue_next = int_arr_node(*queue_next)
         
-        self._count += 1
+        self.has_capi_allocated = True
 
 
 class Agent:
@@ -340,10 +341,6 @@ class Column:
 class ColumnVec:
     
     def __init__(self):
-        # the following three are useless. consider remove them later
-        self.cost = 0
-        self.time = 0
-        self.dist = 0
         self.od_vol = 0
         self.route_fixed = False
         self.path_node_seq_map = {}
@@ -368,6 +365,7 @@ class ColumnVec:
 
 
 # not used in the current implementation
+# this is for future multi-demand-period and multi-agent-type implementation
 class Assignment:
     
     def __init__(self):

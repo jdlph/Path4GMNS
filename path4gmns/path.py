@@ -215,6 +215,9 @@ def single_source_shortest_path(G, origin_node_id, engine_type='c',
         if not G.node_list[origin_node_no].outgoing_link_list:
             return
         
+        # just in case user uses C++ and Python path engines in a mixed way
+        G.has_capi_allocated = False
+
         # Initialization for all nodes
         G.node_label_cost = [MAX_LABEL_COST] * G.node_size
         # pointer to previous node index from the current label at current node
@@ -328,8 +331,3 @@ def find_path_for_agents(G, engine_type='c'):
         # set up the cost
         to_node_no = G.internal_node_seq_no_dict[to_node_id]
         agent.path_cost = G.node_label_cost[to_node_no]
-
-
-# def all_pairs_shortest_paths(G, engine_type='c', sp_algm='deque'):
-#     for i in G.internal_node_seq_no_dict.keys():
-#         single_source_shortest_path(G, i, engine_type, sp_algm)

@@ -50,13 +50,18 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
         reader = csv.DictReader(fp)
         link_seq_no = 0
         for line in reader:
+            # it can be an empty string
+            link_id = line['link_id']
+
             # check the validility 
             from_node_id = line['from_node_id']
             if not from_node_id:
                 continue
+
             to_node_id = line['to_node_id']
             if not to_node_id:
                 continue
+            
             length = line['length']
             if not length:
                 continue
@@ -102,7 +107,8 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
                 continue
             
             # construct link ojbect
-            link = Link(link_seq_no, 
+            link = Link(link_id,
+                        link_seq_no, 
                         from_node_no, 
                         to_node_no,
                         from_node_id,
@@ -141,6 +147,7 @@ def read_agents(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
             o_zone_id = line['o_zone_id']
             if not o_zone_id:
                 continue
+
             # invalid destinationzone id, discard it
             d_zone_id = line['d_zone_id']
             if not d_zone_id:
@@ -234,23 +241,25 @@ def output_columns(zones, column_pool, output_dir='.'):
 
                         for col in cv.get_columns().values():
                             i += 1
-                            node_seq = path_sep.join(str(x) for x in reversed(col.nodes))
-                            link_seq = path_sep.join(str(x) for x in reversed(col.links))
+                            node_seq = path_sep.join(
+                                str(x) for x in reversed(col.nodes)
+                            )
+                            link_seq = path_sep.join(
+                                str(x) for x in reversed(col.links)
+                            )
 
-                            line = [
-                                i,
-                                orig_zone,
-                                dest_zone,
-                                col.get_seq_no(),
-                                at,
-                                tau,
-                                col.get_volume(),
-                                col.toll,
-                                col.travel_time,
-                                col.dist,
-                                node_seq,
-                                link_seq
-                            ]
+                            line = [i,
+                                    orig_zone,
+                                    dest_zone,
+                                    col.get_seq_no(),
+                                    at,
+                                    tau,
+                                    col.get_volume(),
+                                    col.toll,
+                                    col.travel_time,
+                                    col.dist,
+                                    node_seq,
+                                    link_seq]
 
                             writer.writerow(line)
 
@@ -279,8 +288,7 @@ def output_link_performance(links, output_dir='.'):
                 avg_travel_time = link.vdfperiods[tau].avg_travel_time
                 speed = link.length / (max(0.001, avg_travel_time) / 60)
                 
-                line = [
-                        '',
+                line = [link.id,
                         link.external_from_node,
                         link.external_to_node,
                         tau,
@@ -290,8 +298,7 @@ def output_link_performance(links, output_dir='.'):
                         '',
                         '',
                         '',
-                        ''
-                    ]
+                        '']
 
                 writer.writerow(line)
                             
