@@ -63,10 +63,11 @@ _cdll.shortest_path.argtypes = [
 
 
 def _optimal_label_correcting_CAPI(G, origin_node_no):
-    """ call the deque implementation of MLC written in cpp """
-    if not G.node_list[origin_node_no].outgoing_link_list:
-        return
-
+    """ call the deque implementation of MLC written in cpp
+    
+    node_label_cost, node_predecessor, and link_predecessor are still 
+    initialized in shortest_path() even the source node has no outgoing links.
+    """
     _cdll.shortest_path(origin_node_no,
                         G.node_size,
                         G.from_node_no_array,
@@ -212,9 +213,6 @@ def single_source_shortest_path(G, origin_node_id, engine_type='c',
         G.allocate_for_CAPI()
         _optimal_label_correcting_CAPI(G, origin_node_no)
     else:
-        if not G.node_list[origin_node_no].outgoing_link_list:
-            return
-        
         # just in case user uses C++ and Python path engines in a mixed way
         G.has_capi_allocated = False
 
@@ -224,6 +222,11 @@ def single_source_shortest_path(G, origin_node_id, engine_type='c',
         G.node_predecessor = [-1] * G.node_size
         # pointer to previous node index from the current label at current node
         G.link_predecessor = [-1] * G.node_size
+
+        # make sure node_label_cost, node_predecessor, and link_predecessor
+        # are initialized even the source node has no outgoing links
+        if not G.node_list[origin_node_no].outgoing_link_list:
+            return
 
         if sp_algm.lower() == 'fifo':
             _single_source_shortest_path_fifo(G, origin_node_no)

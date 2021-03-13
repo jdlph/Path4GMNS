@@ -78,7 +78,6 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
 
 
 def _update_column_gradient_cost_and_flow(column_pool, links, zones, iter_num):
-    total_gap_count = 0
     
     _reset_and_update_link_vol_based_on_columns(column_pool, 
                                                 links,
