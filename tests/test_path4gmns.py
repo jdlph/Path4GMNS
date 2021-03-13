@@ -3,6 +3,9 @@ from time import time
 
 
 if __name__=="__main__":
+    network_sf = pg.read_network('Sioux_Falls')
+    print('read included Sioux_Falls network\n')
+    
     network = pg.read_network()
     print('\nshortest path (external node sequence) from node 1 to node 2 is '
           +str(pg.find_shortest_path(network, 1, 2)))

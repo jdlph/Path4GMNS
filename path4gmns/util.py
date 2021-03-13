@@ -1,4 +1,5 @@
 import csv
+import os.path
 from random import choice
 
 from .classes import Node, Link, Network, Agent, ColumnVec, \
@@ -41,7 +42,6 @@ def read_nodes(input_dir, nodes, id_to_no_dict,
             node_seq_no += 1
         
         print(f"the number of nodes is {node_seq_no}")
-    fp.close()
 
 
 def read_links(input_dir, links, nodes, id_to_no_dict):
@@ -84,7 +84,7 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
             
             capacity = line['capacity']
             if capacity:
-                capacity = int(capacity)
+                capacity = int(float(capacity))
             
             link_type = line['link_type']
             if link_type:
@@ -129,7 +129,6 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
             link_seq_no += 1
         
         print(f"the number of links is {link_seq_no}")
-    fp.close()
     
 
 def read_agents(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
@@ -305,6 +304,13 @@ def output_link_performance(links, output_dir='.'):
 
 def read_network(input_dir='.'):
     network = Network()
+
+    # first search input_dir and then built-in data directory
+    if not os.path.isdir(input_dir):
+        target_input_dir = input_dir
+        input_dir = os.path.join(os.path.dirname(__file__), 'data/', input_dir)
+        if not os.path.isdir(input_dir):
+            raise Exception('No such directory: '+target_input_dir)
 
     read_nodes(input_dir,
                network.node_list,
