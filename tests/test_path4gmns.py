@@ -2,18 +2,16 @@ import path4gmns as pg
 from time import time
 
 
-def test_included_network():
-    print('\nread included Sioux_Falls network\n')
-    network_sf = pg.read_network(False, 'Sioux_Falls')
-    
-
 def test_find_shortest_path():
-    network = pg.read_network(False)
+    load_demand = False
+    network = pg.read_network(load_demand)
     print('\nshortest path (external node sequence) from node 1 to node 2 is '
           +str(pg.find_shortest_path(network, 1, 2)))
 
 
 def test_find_shortest_path_for_agents():
+    # read_network() will load demand by default
+    # if there is no any other specification
     network = pg.read_network()
 
     st = time()
@@ -34,11 +32,12 @@ def test_find_shortest_path_for_agents():
 
 def test_column_generation_py():
     network = pg.read_network()
+    
+    print('\nstart column generation')
+    
     st = time()
-
     iter_num = 2
     colum_update_num = 2
-    print('\nstart column generation')
     pg.perform_network_assignment(1, iter_num, colum_update_num, network)
     print('processing time of column generation:{0: .2f}'
           .format(time()-st)+ 's'
@@ -51,19 +50,17 @@ def test_column_generation_py():
 
 def test_column_generation_dtalite():
     """ validation using DTALite """ 
+    print('\nstart column generation')
+
     iter_num = 2
     colum_update_num = 2
-    print('\nstart column generation')
     pg.perform_network_assignment_DTALite(1, iter_num, colum_update_num)
 
 
 def demo_mode(mode):
     print(f'the selected mode is {mode}\n')
 
-    if mode == 0:
-        # option 0: read built-in network (Sioux_Falls)
-        test_included_network()
-    elif mode == 1:
+    if mode == 1:
         # option 1: find shortest path between O and D on Chicago network
         test_find_shortest_path()
     elif mode == 2:
