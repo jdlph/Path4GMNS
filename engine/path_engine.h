@@ -1,4 +1,4 @@
-#pragma once
+#ifndef GUARD_PATH_ENGINE_H
 
 #ifdef _WIN32
 #define PATH_ENGINE_API __declspec(dllexport)
@@ -13,3 +13,5 @@ extern "C" PATH_ENGINE_API void shortest_path(const int o_node_no, const int nod
                                               double* label_cost, int* node_pred, 
                                               int* link_pred, int* deque_next,
                                               int depature_time = 0, int first_thru_node = 0);
+
+#endif
