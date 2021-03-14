@@ -8,16 +8,17 @@ setuptools.setup(
     version="0.5.0",
     author="Dr. Xuesong Zhou, Dr. Peiheng Li",
     author_email="xzhou74@asu.edu, jdlph@hotmail.com",
-    description="dev",
+    description="an open-source, lightweight, and fast Python path engine for \
+                 networks encoded in GMNS",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/jdlph/PATH4GMNS",
     packages=['path4gmns'],
     package_dir={'path4gmns': 'path4gmns'},
-    package_data={'path4gmns': ['bin/*', 'data/*/*.csv']},
+    package_data={'path4gmns': ['bin/*']},
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GNU General Public License v3.0",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
     ],
 )
