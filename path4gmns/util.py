@@ -131,7 +131,7 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
         print(f"the number of links is {link_seq_no}")
     
 
-def read_agents(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
+def read_demand(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
     """ step 3:read input_agent """
     with open(input_dir+'/demand.csv', 'r', encoding='utf-8') as fp:
         reader = csv.DictReader(fp)
@@ -302,7 +302,7 @@ def output_link_performance(links, output_dir='.'):
                 writer.writerow(line)
                             
 
-def read_network(input_dir='.'):
+def read_network(load_demand='true', input_dir='.'):
     network = Network()
 
     # first search input_dir and then built-in data directory
@@ -323,11 +323,12 @@ def read_network(input_dir='.'):
                network.node_list,
                network.internal_node_seq_no_dict)
 
-    read_agents(input_dir,
-                network.agent_list,
-                network.agent_td_list_dict,
-                network.zone_to_nodes_dict,
-                network.column_pool)
+    if load_demand:
+        read_demand(input_dir,
+                    network.agent_list,
+                    network.agent_td_list_dict,
+                    network.zone_to_nodes_dict,
+                    network.column_pool)
 
     network.update()
 

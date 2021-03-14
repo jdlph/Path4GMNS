@@ -4,7 +4,7 @@ from .classes import Column, ColumnVec, MAX_TIME_PERIODS, MAX_AGNET_TYPES, \
                      MIN_OD_VOL
 
 
-__all__ = ['do_network_assignment']
+__all__ = ['perform_network_assignment']
 
 
 def _update_generalized_link_cost(links, link_cost_array, 
@@ -78,6 +78,7 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
 
 
 def _update_column_gradient_cost_and_flow(column_pool, links, zones, iter_num):
+    total_gap_count = 0
     
     _reset_and_update_link_vol_based_on_columns(column_pool, 
                                                 links,
@@ -268,7 +269,7 @@ def _update_column_travel_time(links, zones, column_pool):
                         col.set_travel_time(travel_time)
             
 
-def do_network_assignment(assignment_mode, iter_num, column_update_iter, G):
+def perform_network_assignment(assignment_mode, iter_num, column_update_iter, G):
     if assignment_mode != 1:
         raise Exception("not implemented yet")
 

@@ -32,11 +32,11 @@ MAX_LABEL_COST = 10000
 
 
 if platform.startswith('win32'):
-    _dll_file = os.path.join(os.path.dirname(__file__), './bin/path_engine.dll')
+    _dll_file = os.path.join(os.path.dirname(__file__), 'bin/path_engine.dll')
 elif platform.startswith('linux'):
-    _dll_file = os.path.join(os.path.dirname(__file__), './bin/path_engine.so')
+    _dll_file = os.path.join(os.path.dirname(__file__), 'bin/path_engine.so')
 elif platform.startswith('darwin'):
-    _dll_file = os.path.join(os.path.dirname(__file__), './bin/path_engine.dylib')
+    _dll_file = os.path.join(os.path.dirname(__file__), 'bin/path_engine.dylib')
 else:
     raise Exception('Please build the shared library compatible to your OS\
                     using source files in engine_cpp!')

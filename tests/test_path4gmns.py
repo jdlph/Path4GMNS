@@ -2,15 +2,22 @@ import path4gmns as pg
 from time import time
 
 
-if __name__=="__main__":
-    network_sf = pg.read_network('Sioux_Falls')
-    print('read included Sioux_Falls network\n')
+def test_included_network():
+    print('\nread included Sioux_Falls network\n')
+    network_sf = pg.read_network(False, 'Sioux_Falls')
     
-    network = pg.read_network()
+
+def test_find_shortest_path():
+    network = pg.read_network(False)
     print('\nshortest path (external node sequence) from node 1 to node 2 is '
           +str(pg.find_shortest_path(network, 1, 2)))
-    
+
+
+def test_find_shortest_path_for_agents():
+    network = pg.read_network()
+
     st = time()
+
     pg.find_path_for_agents(network)
     print('\nprocessing time of finding shortest paths for all agents:{0: .2f}'
           .format(time()-st)+ 's')
@@ -24,11 +31,15 @@ if __name__=="__main__":
     print('shortest path (internal link sequence) of agent is ' 
           + str(agent.path_link_seq_no_list))
 
-    print('\nstart column generation')
+
+def test_column_generation_py():
+    network = pg.read_network()
     st = time()
-    iter_num = 20
-    colum_update_num = 20
-    pg.do_network_assignment(1, iter_num, colum_update_num, network)
+
+    iter_num = 2
+    colum_update_num = 2
+    print('\nstart column generation')
+    pg.perform_network_assignment(1, iter_num, colum_update_num, network)
     print('processing time of column generation:{0: .2f}'
           .format(time()-st)+ 's'
           f' for {iter_num} assignment iterations and '
@@ -36,3 +47,37 @@ if __name__=="__main__":
 
     pg.output_columns(network.zones, network.column_pool)
     pg.output_link_performance(network.link_list)
+
+
+def test_column_generation_dtalite():
+    """ validation using DTALite """ 
+    iter_num = 2
+    colum_update_num = 2
+    print('\nstart column generation')
+    pg.perform_network_assignment_DTALite(1, iter_num, colum_update_num)
+
+
+def demo_mode(mode):
+    print(f'the selected mode is {mode}\n')
+
+    if mode == 0:
+        # option 0: read built-in network (Sioux_Falls)
+        test_included_network()
+    elif mode == 1:
+        # option 1: find shortest path between O and D on Chicago network
+        test_find_shortest_path()
+    elif mode == 2:
+        # option 2: find shortest paths for all agents on Chicago network
+        test_find_shortest_path_for_agents()
+    elif mode == 3:
+        # option 3: perform column generation using Python engine 
+        # on Chicago network
+        test_column_generation_py()
+    else:
+        # option 4: perform column generation using DTALite on Chicago network
+        test_column_generation_dtalite()
+
+
+if __name__=="__main__":
+    
+    demo_mode(3)
