@@ -5,6 +5,6 @@ dist/
 __pycache__/
 engine_cpp/build/
 .DS_Store
-tests/log.csv
+tests/log*
 tests/agent.csv
 tests/link_performance.csv
