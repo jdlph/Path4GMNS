@@ -22,8 +22,8 @@ def test_find_shortest_path_for_agents():
 
     agent_no = 300
     agent = network.agent_list[agent_no]
-    print('orig node id of agent is '+str(agent.o_node_id))
-    print('dest node id of agent is '+str(agent.d_node_id))
+    print('origin node id of agent is '+str(agent.o_node_id))
+    print('destination node id of agent is '+str(agent.d_node_id))
     print('shortest path (internal node sequence) of agent is ' 
           + str(agent.path_node_seq_no_list))
     print('shortest path (internal link sequence) of agent is ' 
@@ -46,6 +46,8 @@ def test_column_generation_py():
 
     pg.output_columns(network.zones, network.column_pool)
     pg.output_link_performance(network.link_list)
+
+    print('\npath finding results can be found in agent.csv')
 
 
 def test_column_generation_dtalite():
