@@ -26,6 +26,8 @@ class Node:
         self.outgoing_link_list = []
         self.incoming_link_list = []
         self.zone_id = zone_id
+        self.coord_x = 0
+        self.coord_y = 0
 
     def has_outgoing_links(self):
         return len(self.outgoing_link_list) > 0
@@ -101,6 +103,9 @@ class Link:
 
     def get_seq_no(self):
         return self.link_seq_no
+
+    def get_link_id(self):
+        return self.id
 
     def get_toll(self):
         return self.toll
@@ -233,6 +238,10 @@ class Network:
         
         self.has_capi_allocated = True
 
+    def get_agent(self, agent_no):
+        """ retrieve agent using agent_no """
+        return self.agent_list[agent_no]
+
 
 class Agent:
     """ 
@@ -265,6 +274,18 @@ class Agent:
         self.b_generated = False
         self.b_complete_trip = False
         self.feasible_path_exist_flag = False
+
+    def get_orig_node_id(self):
+        return self.o_node_id
+
+    def get_dest_node_id(self):
+        return self.d_node_id
+
+    def get_node_path(self):
+        return self.path_node_seq_no_list
+
+    def get_link_path(self):
+        return self.path_link_seq_no_list
 
 
 class Column:
@@ -392,13 +413,6 @@ class VDFPeriod:
         vol = max(0, vol)
         self.voc = vol / max(0.00001, self.capacity)
 
-        self.avg_travel_time = (
-            self.fftt 
-            + self.fftt 
-            * self.alpha 
-            * pow(self.voc, self.beta)
-        )
-
         self.marginal_base = (
             self.fftt 
             * self.alpha
@@ -406,4 +420,11 @@ class VDFPeriod:
             * pow(self.voc, self.beta - 1)
         )
         
+        self.avg_travel_time = (
+            self.fftt 
+            + self.fftt 
+            * self.alpha 
+            * pow(self.voc, self.beta)
+        )
+
         return self.avg_travel_time

@@ -78,7 +78,7 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
 
 
 def _update_column_gradient_cost_and_flow(column_pool, links, zones, iter_num):
-    total_gap_count = 0
+    # total_gap_count = 0
     
     _reset_and_update_link_vol_based_on_columns(column_pool, 
                                                 links,
@@ -111,10 +111,9 @@ def _update_column_gradient_cost_and_flow(column_pool, links, zones, iter_num):
                         path_travel_time = 0
                         for i in col.get_links():
                             path_toll += links[i].get_toll()
-                            link_travel_time = (
+                            path_travel_time += (
                                 links[i].travel_time_by_period[tau]
                             )
-                            path_travel_time += link_travel_time
                             path_gradient_cost += (
                                 links[i].get_generalized_cost(tau, at)
                             )
@@ -124,9 +123,9 @@ def _update_column_gradient_cost_and_flow(column_pool, links, zones, iter_num):
                         col.set_gradient_cost(path_gradient_cost)
 
                         if column_num == 1:
-                            total_gap_count += (
-                                path_gradient_cost * col.get_volume()
-                            )
+                            # total_gap_count += (
+                            #     path_gradient_cost * col.get_volume()
+                            # )
                             break
 
                         if path_gradient_cost < least_gradient_cost:
@@ -174,8 +173,8 @@ def _update_column_gradient_cost_and_flow(column_pool, links, zones, iter_num):
                         col.increase_volume(total_switched_out_path_vol)                 
 
 
-def _optimize_column_pool(column_pool, links, zones, iter_num):
-    for i in range(iter_num):
+def _optimize_column_pool(column_pool, links, zones, colum_update_num):
+    for i in range(colum_update_num):
         print(f"current iteration number in column generation: {i}")
         _update_column_gradient_cost_and_flow(column_pool, links, zones, i)
 
@@ -269,7 +268,37 @@ def _update_column_travel_time(links, zones, column_pool):
                         col.set_travel_time(travel_time)
             
 
-def perform_network_assignment(assignment_mode, iter_num, column_update_iter, G):
+def perform_network_assignment(assignment_mode, iter_num, column_update_num, G):
+    """ perform network assignemnt using the selected assignment mode
+    
+    WARNING
+    -------
+        Only Path/Column-based User Equilibrium (UE) is implemented in Python.
+        If you need other assignment modes or dynamic traffic assignment (DTA),
+        please use perform_network_assignment_DTALite()
+    
+    Parameters
+    ----------
+    assignment_mode
+        0: Link-based UE
+        1: Path-based UE 
+        2: UE + dynamic traffic assignment and simulation
+        3: ODME
+    iter_num
+        number of assignment iterations to be performed before optimizing
+        column pool
+    column_update_iter
+        number of iterations to be performed on optimizing column pool
+
+    Outputs
+    -------
+        None
+
+        You will need to call output_columns() and output_link_performance() to
+        get the assignment results, i.e., paths/columns (in agent.csv) and 
+        assigned volumes and other link attributes on each link (in l
+        ink_performance.csv)
+    """
     if assignment_mode != 1:
         raise Exception("not implemented yet")
 
@@ -305,7 +334,7 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_iter, G)
     _optimize_column_pool(G.column_pool,
                           G.link_list,
                           G.zones,
-                          column_update_iter)
+                          column_update_num)
 
     _reset_and_update_link_vol_based_on_columns(G.column_pool, 
                                                 G.link_list,

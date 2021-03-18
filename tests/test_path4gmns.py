@@ -36,13 +36,13 @@ def test_column_generation_py():
     print('\nstart column generation')
     
     st = time()
-    iter_num = 2
-    colum_update_num = 2
-    pg.perform_network_assignment(1, iter_num, colum_update_num, network)
+    iter_num = 1
+    column_update_num = 1
+    pg.perform_network_assignment(1, iter_num, column_update_num, network)
     print('processing time of column generation:{0: .2f}'
           .format(time()-st)+ 's'
           f' for {iter_num} assignment iterations and '
-          f'{colum_update_num} iterations in column generation')
+          f'{column_update_num} iterations in column generation')
 
     pg.output_columns(network.zones, network.column_pool)
     pg.output_link_performance(network.link_list)
@@ -55,8 +55,8 @@ def test_column_generation_dtalite():
     print('\nstart column generation')
 
     iter_num = 2
-    colum_update_num = 2
-    pg.perform_network_assignment_DTALite(1, iter_num, colum_update_num)
+    column_update_num = 2
+    pg.perform_network_assignment_DTALite(1, iter_num, column_update_num)
 
 
 def demo_mode(mode):

@@ -293,6 +293,8 @@ def find_path_for_agents(G, engine_type='c'):
     may share the same origin and each call of the single-source path algorithm
     will calculate the shortest path tree from the source node.
     """
+    from_node_id_prev = -1 
+
     for agent in G.agent_list:
         from_node_id = agent.o_node_id
         to_node_id = agent.d_node_id
@@ -306,12 +308,20 @@ def find_path_for_agents(G, engine_type='c'):
         if to_node_id not in G.internal_node_seq_no_dict.keys():
             raise Exception(f"Node ID: {to_node_id} not in the network")
 
-        single_source_shortest_path(G, from_node_id, engine_type)
+        # simple caching strategy
+        # if the current from_node_id is the same as from_node_id_prev,
+        # then there is no need to redo shortest path calculation.
+        if from_node_id != from_node_id_prev:
+            from_node_id_prev = from_node_id
+            single_source_shortest_path(G, from_node_id, engine_type)
 
         node_path = []
         link_path = []
 
         current_node_seq_no = G.internal_node_seq_no_dict[to_node_id]
+        # set up the cost       
+        agent.path_cost = G.node_label_cost[current_node_seq_no]
+        
         # retrieve the sequence backwards
         while current_node_seq_no >= 0:
             node_path.append(current_node_seq_no)
@@ -331,6 +341,3 @@ def find_path_for_agents(G, engine_type='c'):
         agent.path_link_seq_no_list = [
             link_seq_no for link_seq_no in reversed(link_path)
         ]
-        # set up the cost
-        to_node_no = G.internal_node_seq_no_dict[to_node_id]
-        agent.path_cost = G.node_label_cost[to_node_no]

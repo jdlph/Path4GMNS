@@ -1,5 +1,4 @@
 import csv
-import os.path
 from random import choice
 
 from .classes import Node, Link, Network, Agent, ColumnVec, \
@@ -10,6 +9,8 @@ def read_nodes(input_dir, nodes, id_to_no_dict,
                no_to_id_dict, zone_to_node_dict):
     """ step 1: read input_node """
     with open(input_dir+'/node.csv', 'r', encoding='utf-8') as fp:
+        print('read node.csv')
+        
         reader = csv.DictReader(fp)
         node_seq_no = 0
         for line in reader:
@@ -47,6 +48,8 @@ def read_nodes(input_dir, nodes, id_to_no_dict,
 def read_links(input_dir, links, nodes, id_to_no_dict):
     """ step 2: read input_link """
     with open(input_dir+'/link.csv', 'r', encoding='utf-8') as fp:
+        print('read link.csv')
+        
         reader = csv.DictReader(fp)
         link_seq_no = 0
         for line in reader:
@@ -134,6 +137,8 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
 def read_demand(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
     """ step 3:read input_agent """
     with open(input_dir+'/demand.csv', 'r', encoding='utf-8') as fp:
+        print('read demand.csv')
+        
         reader = csv.DictReader(fp)
         agent_id = 1
         agent_type = 'v'
@@ -304,13 +309,6 @@ def output_link_performance(links, output_dir='.'):
 
 def read_network(load_demand='true', input_dir='.'):
     network = Network()
-
-    # first search input_dir and then built-in data directory
-    if not os.path.isdir(input_dir):
-        target_input_dir = input_dir
-        input_dir = os.path.join(os.path.dirname(__file__), 'data/', input_dir)
-        if not os.path.isdir(input_dir):
-            raise Exception('No such directory: '+target_input_dir)
 
     read_nodes(input_dir,
                network.node_list,

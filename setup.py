@@ -5,10 +5,10 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="path4gmns", 
-    version="0.5.1",
+    version="0.5.2",
     author="Dr. Xuesong Zhou, Dr. Peiheng Li",
     author_email="xzhou74@asu.edu, jdlph@hotmail.com",
-    description="an open-source, lightweight, and fast Python path engine for \
+    description="an open-source, lightweight, and fast Python path engine for\
                  networks encoded in GMNS",
     long_description=long_description,
     long_description_content_type="text/markdown",
