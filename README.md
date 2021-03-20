@@ -23,7 +23,7 @@ The shared libraries of [DTALite](https://github.com/jdlph/DTALite/tree/main/DTA
 # from the root directory of engine
 $ mkdir build
 $ cd build
-$ cmake .
+$ cmake ..
 $ cmake --build .
 ```
 You can replace the last command with $ make if your target system has Make installed.
@@ -34,7 +34,7 @@ As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Envi
 ### *Download the test data set*
 A simple test data set (the Chicago Sketch Network) along with the test script can be downloaded from [here](https://github.com/jdlph/Path4GMNS/tree/master/tests). We will provide more data sets later.
 ### *Get the shortest path between two nodes*
-The (static) shortest path based on the distance will be outputed in the format of a sequence of node/link IDs.
+Find the (static) shortest path (based on distance) and output it in the format of a sequence of node/link IDs.
 ```python
 import path4gmns as pg
 
@@ -130,6 +130,14 @@ pg.perform_network_assignment_DTALite(1, assignment_num,
 
 print('\npath finding results can be found in agent.csv')
 ```
+
+## Upcoming Features
+- [ ] Load columns/paths from existing runs and continue path-base UE
+- [ ] Download the predefined GMNS test data sets to usrs' local machines to improve the use experience when needed
+- [ ] Offer functionality to let users modify the network topology in a simple way by adding/remove nodes and links
+- [ ] Enable manipulations on the overall travel demand and the demand between an OD pair
+- [ ] Support for multi-demand-period and multi-agent-type
+- [ ] Adopt parallel computing to boost the performance
 
 ##  Implementation Notes
 
