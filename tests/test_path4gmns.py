@@ -5,47 +5,51 @@ from time import time
 def test_find_shortest_path():
     load_demand = False
     network = pg.read_network(load_demand)
+
     print('\nshortest path (node id) from node 1 to node 2 is '
           +pg.find_shortest_path(network, 1, 2))
+    print('\nshortest path (link id) from node 1 to node 2 is '
+          +pg.find_shortest_path(network, 1, 2, 'link'))
 
 
 def test_find_shortest_path_for_agents():
     network = pg.read_network()
 
     st = time()
-
     pg.find_path_for_agents(network)
     print('\nprocessing time of finding shortest paths for all agents:{0: .2f}'
           .format(time()-st)+ 's')
 
-    agent_no = 300
-    agent1 = network.get_agent(agent_no)
-    agent_no = 1000
-    agent2 = network.get_agent(agent_no)
+    agent_id = 300
+    
+    print('\norigin node id of agent is '
+          +str(network.get_agent_orig_node_id(agent_id)))
+    print('destination node id of agent is '
+          +str(network.get_agent_dest_node_id(agent_id)))
+    print('shortest path (node id) of agent is ' 
+          + str(network.get_agent_node_path(agent_id)))
+    print('shortest path (link id) of agent is ' 
+          + str(network.get_agent_link_path(agent_id)))
 
-    print('\norigin node id of agent1 is '+str(agent1.get_orig_node_id()))
-    print('destination node id of agent1 is '+str(agent1.get_dest_node_id()))
-    print('shortest path (node id) of agent1 is ' 
-          + str(agent1.get_node_path()))
-    print('shortest path (link id) of agent1 is ' 
-          + str(agent1.get_link_path()))
-
-    print('\norigin node id of agent2 is '+str(agent2.get_orig_node_id()))
-    print('destination node id of agent2 is '+str(agent2.get_dest_node_id()))
-    print('shortest path (node id) of agent2 is ' 
-          + str(agent2.get_node_path()))
-    print('shortest path (link id) of agent2 is ' 
-          + str(agent2.get_link_path()))
+    agent_id = 1000
+    print('\norigin node id of agent is '
+          +str(network.get_agent_orig_node_id(agent_id)))
+    print('destination node id of agent is '
+          +str(network.get_agent_dest_node_id(agent_id)))
+    print('shortest path (node id) of agent is ' 
+          + str(network.get_agent_node_path(agent_id)))
+    print('shortest path (link id) of agent is ' 
+          + str(network.get_agent_link_path(agent_id)))
 
 
 def test_column_generation_py():
     network = pg.read_network()
     
-    print('\nstart column generation')
+    print('start column generation')
     
     st = time()
-    iter_num = 1
-    column_update_num = 1
+    iter_num = 10
+    column_update_num = 10
     pg.perform_network_assignment(1, iter_num, column_update_num, network)
     print('processing time of column generation:{0: .2f}'
           .format(time()-st)+ 's'
@@ -60,7 +64,7 @@ def test_column_generation_py():
 
 def test_column_generation_dtalite():
     """ validation using DTALite """ 
-    print('\nstart column generation')
+    print('start column generation')
 
     iter_num = 2
     column_update_num = 2
@@ -87,4 +91,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
     
-    demo_mode(2)
+    demo_mode(4)

@@ -256,14 +256,50 @@ class Network:
         
         self.has_capi_allocated = True
 
-    def get_agent(self, agent_no):
+    def _get_agent(self, agent_no):
         """ retrieve agent using agent_no """
-        return self.agent_list[agent_no]
+        try:
+            return self.agent_list[agent_no]
+        except KeyError:
+            print('Please provide a valid agent id, which shall be a\
+                  positive integer!')
+
+    def get_agent_node_path(self, agent_id):
+        """ return the sequence of node IDs along the agent path """
+        agent_no = agent_id - 1
+        agent = self._get_agent(agent_no)
+        
+        return ';'.join(
+            str(self.external_node_id_dict[x]) for x in agent.node_path
+        )
+
+    def get_agent_link_path(self, agent_id):
+        """ return the sequence of link IDs along the agent path """
+        agent_no = agent_id - 1
+        agent = self._get_agent(agent_no)
+            
+        return ';'.join(
+            self.link_list[x].get_link_id() for x in agent.link_path
+        )
+
+    def get_agent_orig_node_id(self, agent_id):
+        """ return the origin node id of agent """
+        agent_no = agent_id - 1
+        agent = self._get_agent(agent_no)
+
+        return agent.get_orig_node_id()      
+
+    def get_agent_dest_node_id(self, agent_id):
+        """ return the origin node id of agent """
+        agent_no = agent_id - 1
+        agent = self._get_agent(agent_no)
+        
+        return agent.get_dest_node_id()    
 
 
 class Agent:
     """ individual agent derived from aggragted demand between an OD pair
-    
+
     agent_id: the id of agent
     agent_seq_no: the index of the agent and we call the agent by its index
     """
@@ -279,10 +315,8 @@ class Agent:
         self.d_zone_id = d_zone_id
         self.o_node_id = 0
         self.d_node_id = 0
-        self.path_node_seq_no_list = None
-        self.path_link_seq_no_list = None 
         self.node_path = None
-        self.link_path = None
+        self.link_path = None 
         self.current_link_seq_no_in_path = 0 
         self.departure_time_in_min = 0
         # Passenger Car Equivalent (PCE) of the agent
@@ -301,14 +335,6 @@ class Agent:
 
     def get_dest_node_id(self):
         return self.d_node_id
-
-    def get_node_path(self):
-        """ return the sequence of node IDs along the agent path """
-        return self.node_path
-
-    def get_link_path(self):
-        """ return the sequence of link IDs along the agent path """
-        return self.link_path
 
 
 class Column:

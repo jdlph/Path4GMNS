@@ -39,8 +39,12 @@ import path4gmns as pg
 
 load_demand = False
 network = pg.read_network(load_demand)
+
 print('\nshortest path (node id) from node 1 to node 2 is '
       +pg.find_shortest_path(network, 1, 2))
+
+print('\nshortest path (link id) from node 1 to node 2 is '
+      +pg.find_shortest_path(network, 1, 2, 'link'))
 ```
 
 *Find shortest paths for all individual agents*
@@ -50,6 +54,31 @@ import path4gmns as pg
 network = pg.read_network()
 pg.find_path_for_agents(network)
 
+agent_id = 300
+print('\norigin node id of agent is '
+      +str(network.get_agent_orig_node_id(agent_id)))
+
+print('destination node id of agent is '
+      +str(network.get_agent_dest_node_id(agent_id)))
+
+print('shortest path (node id) of agent is ' 
+      + str(network.get_agent_node_path(agent_id)))
+
+print('shortest path (link id) of agent is ' 
+      + str(network.get_agent_link_path(agent_id)))
+
+agent_id = 300
+print('\norigin node id of agent is '
+      +str(network.get_agent_orig_node_id(agent_id)))
+
+print('destination node id of agent is '
+      +str(network.get_agent_dest_node_id(agent_id)))
+
+print('shortest path (node id) of agent is ' 
+      + str(network.get_agent_node_path(agent_id)))
+      
+print('shortest path (link id) of agent is ' 
+      + str(network.get_agent_link_path(agent_id)))
 ```
 
 *Perform path-based user-equilibrium (UE) traffic assignment using the python column-generation module*
