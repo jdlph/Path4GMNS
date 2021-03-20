@@ -46,11 +46,12 @@ def test_column_generation_py():
     network = pg.read_network()
     
     print('start column generation')
-    
     st = time()
+
     iter_num = 10
     column_update_num = 10
     pg.perform_network_assignment(1, iter_num, column_update_num, network)
+    
     print('processing time of column generation:{0: .2f}'
           .format(time()-st)+ 's'
           f' for {iter_num} assignment iterations and '
@@ -65,10 +66,18 @@ def test_column_generation_py():
 def test_column_generation_dtalite():
     """ validation using DTALite """ 
     print('start column generation')
+    st = time()
 
-    iter_num = 2
-    column_update_num = 2
+    iter_num = 10
+    column_update_num = 10
     pg.perform_network_assignment_DTALite(1, iter_num, column_update_num)
+    
+    print('processing time of column generation:{0: .2f}'
+          .format(time()-st)+ 's'
+          f' for {iter_num} assignment iterations and '
+          f'{column_update_num} iterations in column generation')
+
+    print('\npath finding results can be found in agent.csv')
 
 
 def demo_mode(mode):
