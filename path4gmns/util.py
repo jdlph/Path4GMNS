@@ -259,9 +259,9 @@ def output_columns(zones, column_pool, output_dir='.'):
                                     at,
                                     tau,
                                     col.get_volume(),
-                                    col.toll,
-                                    col.travel_time,
-                                    col.dist,
+                                    col.get_toll(),
+                                    col.get_travel_time(),
+                                    col.get_distance(),
                                     node_seq,
                                     link_seq]
 
@@ -289,17 +289,17 @@ def output_link_performance(links, output_dir='.'):
 
         for link in links:
             for tau in range(MAX_TIME_PERIODS):
-                avg_travel_time = link.vdfperiods[tau].avg_travel_time
-                speed = link.length / (max(0.001, avg_travel_time) / 60)
+                avg_travel_time = link.get_period_avg_travel_time(tau)
+                speed = link.get_length() / (max(0.001, avg_travel_time) / 60)
                 
-                line = [link.id,
-                        link.external_from_node,
-                        link.external_to_node,
+                line = [link.get_link_id(),
+                        link.get_from_node_id(),
+                        link.get_to_node_id(),
                         tau,
-                        link.flow_vol_by_period[tau],
+                        link.get_period_flow_vol(tau),
                         avg_travel_time,
                         speed,
-                        link.vdfperiods[tau].voc,
+                        link.get_period_voc(tau),
                         '',
                         '',
                         '']

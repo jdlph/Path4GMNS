@@ -1,7 +1,16 @@
 #include "path_engine.h"
 
-// Follow C++ coding style (++i rather than i++) and the {} style in AgentLite
-// With constexpr, it is a C++ function (which requires C++11 or higher) rather than a pure C function
+/**
+ * The following deque implementation is motivated by and modified from the efficient implementiation by Dr. Hillel Bar-Gera
+ *     
+ *     http://www.bgu.ac.il/~bargera/tntp/
+ *     http://www.bgu.ac.il/~bargera/tntp/FW.zip
+ * 
+ * Similar implementations can be also found in DYNASMART system designed by Dr. Hani Mahmassani and the original code of DTALite by Dr. Xuesong Zhou
+ * 
+ * With constexpr, it is a C++ function (which requires C++11 or higher) rather than a pure C function
+ * Follow C++ coding style (++i rather than i++) and the {} style in AgentLite
+ */
 void shortest_path(int o_node_no, int node_size,
                    const int* from_node_no_arr, const int* to_node_no_arr, 
                    const int* first_link_from, const int* last_link_from, 
@@ -10,14 +19,6 @@ void shortest_path(int o_node_no, int node_size,
                    int* link_pred, int* deque_next,
                    int depature_time, int first_thru_node)
 {
-    /*
-     *   The following deque based implementation is motivated and adpated by the efficient implementiation by Dr. Hillel Bar-Gera from
-     *       http://www.bgu.ac.il/~bargera/tntp/
-     *       http://www.bgu.ac.il/~bargera/tntp/FW.zip
-     * 
-     *   Similar implementation can be also found in DYNASMART system designed by Dr. Hani Mahmassani and the original code of DTALite by Dr. Xuesong Zhou
-     */
-
     // construct and initialize the following three on the first call only
     static constexpr int invalid = -1, was_in_deque = -7;
     // used t filter out the TAZ based centriods

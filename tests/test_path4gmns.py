@@ -5,13 +5,11 @@ from time import time
 def test_find_shortest_path():
     load_demand = False
     network = pg.read_network(load_demand)
-    print('\nshortest path (external node sequence) from node 1 to node 2 is '
-          +str(pg.find_shortest_path(network, 1, 2)))
+    print('\nshortest path (node id) from node 1 to node 2 is '
+          +pg.find_shortest_path(network, 1, 2))
 
 
 def test_find_shortest_path_for_agents():
-    # read_network() will load demand by default
-    # if there is no any other specification
     network = pg.read_network()
 
     st = time()
@@ -21,13 +19,23 @@ def test_find_shortest_path_for_agents():
           .format(time()-st)+ 's')
 
     agent_no = 300
-    agent = network.agent_list[agent_no]
-    print('origin node id of agent is '+str(agent.o_node_id))
-    print('destination node id of agent is '+str(agent.d_node_id))
-    print('shortest path (internal node sequence) of agent is ' 
-          + str(agent.path_node_seq_no_list))
-    print('shortest path (internal link sequence) of agent is ' 
-          + str(agent.path_link_seq_no_list))
+    agent1 = network.get_agent(agent_no)
+    agent_no = 1000
+    agent2 = network.get_agent(agent_no)
+
+    print('\norigin node id of agent1 is '+str(agent1.get_orig_node_id()))
+    print('destination node id of agent1 is '+str(agent1.get_dest_node_id()))
+    print('shortest path (node id) of agent1 is ' 
+          + str(agent1.get_node_path()))
+    print('shortest path (link id) of agent1 is ' 
+          + str(agent1.get_link_path()))
+
+    print('\norigin node id of agent2 is '+str(agent2.get_orig_node_id()))
+    print('destination node id of agent2 is '+str(agent2.get_dest_node_id()))
+    print('shortest path (node id) of agent2 is ' 
+          + str(agent2.get_node_path()))
+    print('shortest path (link id) of agent2 is ' 
+          + str(agent2.get_link_path()))
 
 
 def test_column_generation_py():
@@ -79,4 +87,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
     
-    demo_mode(3)
+    demo_mode(2)

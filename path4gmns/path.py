@@ -29,6 +29,7 @@ __all__ = [
 
 # for initialization in shortest path calculation
 MAX_LABEL_COST = 10000
+path_sep = ';'
 
 
 if platform.startswith('win32'):
@@ -280,7 +281,10 @@ def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
 
     single_source_shortest_path(G, from_node_id, engine_type='c')
 
-    return list(output_path_sequence(G, from_node_id, to_node_id, seq_type))
+    # return list(output_path_sequence(G, from_node_id, to_node_id, seq_type))
+    return path_sep.join(
+        str(x) for x in output_path_sequence(G, from_node_id, to_node_id, seq_type)
+    )
 
 
 def find_path_for_agents(G, engine_type='c'):
@@ -334,10 +338,20 @@ def find_path_for_agents(G, engine_type='c'):
         if not link_path:
             continue
 
+        # comment out for now as we do not need the following two for any
+        # computations in the current release
+        
+        # agent.path_node_seq_no_list = [
+        #     node_seq_no for node_seq_no in reversed(node_path)
+        # ]
+        # agent.path_link_seq_no_list = [
+        #     link_seq_no for link_seq_no in reversed(link_path)
+        # ]
+
         # reverse the sequence
-        agent.path_node_seq_no_list = [
-            node_seq_no for node_seq_no in reversed(node_path)
+        agent.node_path = [
+            G.external_node_id_dict[x] for x in reversed(node_path)
         ]
-        agent.path_link_seq_no_list = [
-            link_seq_no for link_seq_no in reversed(link_path)
+        agent.link_path = [
+            G.link_list[x].get_link_id() for x in reversed(link_path)
         ]

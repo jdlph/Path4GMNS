@@ -101,11 +101,20 @@ class Link:
         ]
         self._setup_vdfperiod()
 
+    def get_link_id(self):
+        return self.id
+
     def get_seq_no(self):
         return self.link_seq_no
 
-    def get_link_id(self):
-        return self.id
+    def get_from_node_id(self):
+        return self.external_from_node
+
+    def get_to_node_id(self):
+        return self.external_to_node
+
+    def get_length(self):
+        return self.length
 
     def get_toll(self):
         return self.toll
@@ -115,6 +124,15 @@ class Link:
 
     def get_period_travel_time(self, tau):
         return self.travel_time_by_period[tau]
+
+    def get_period_flow_vol(self, tau):
+        return self.flow_vol_by_period[tau]
+
+    def get_period_voc(self, tau):
+        return self.vdfperiods[tau].get_voc()
+
+    def get_period_avg_travel_time(self, tau):
+        return self.vdfperiods[tau].get_avg_travel_time()
 
     def get_generalized_cost(self, tau, agent_type, value_of_time=10):
         return self.travel_time_by_period[tau] + self.toll / value_of_time * 60
@@ -244,7 +262,8 @@ class Network:
 
 
 class Agent:
-    """ 
+    """ individual agent derived from aggragted demand between an OD pair
+    
     agent_id: the id of agent
     agent_seq_no: the index of the agent and we call the agent by its index
     """
@@ -261,7 +280,9 @@ class Agent:
         self.o_node_id = 0
         self.d_node_id = 0
         self.path_node_seq_no_list = None
-        self.path_link_seq_no_list = None
+        self.path_link_seq_no_list = None 
+        self.node_path = None
+        self.link_path = None
         self.current_link_seq_no_in_path = 0 
         self.departure_time_in_min = 0
         # Passenger Car Equivalent (PCE) of the agent
@@ -282,10 +303,12 @@ class Agent:
         return self.d_node_id
 
     def get_node_path(self):
-        return self.path_node_seq_no_list
+        """ return the sequence of node IDs along the agent path """
+        return self.node_path
 
     def get_link_path(self):
-        return self.path_link_seq_no_list
+        """ return the sequence of link IDs along the agent path """
+        return self.link_path
 
 
 class Column:
@@ -311,9 +334,18 @@ class Column:
 
     def get_seq_no(self):
         return self.seq_no
+
+    def get_distance(self):
+        return self.dist
     
     def get_volume(self):
         return self.vol
+
+    def get_toll(self):
+        return self.toll
+
+    def get_travel_time(self):
+        return self.travel_time
 
     def get_switch_volume(self):
         return self.switch_vol
@@ -408,6 +440,12 @@ class VDFPeriod:
         self.fftt = 0
         self.avg_travel_time = 0
         self.voc = 0
+
+    def get_avg_travel_time(self):
+        return self.avg_travel_time
+
+    def get_voc(self):
+        return self.voc
 
     def run_bpr(self, vol):
         vol = max(0, vol)
