@@ -163,6 +163,8 @@ class Link:
     def _setup_vdfperiod(self):
         for tau in range(MAX_TIME_PERIODS):
             vp = self.vdfperiods[tau]
+            vp.alpha = self.bpr_alpha
+            vp.beta = self.bpr_beta
             vp.capacity = self.link_capacity
             vp.fftt = self.free_flow_travel_time_in_min
             

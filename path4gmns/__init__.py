@@ -5,4 +5,4 @@ from .colgen import *
 from .dtaapi import *
 
 # print out the current version
-print('path4gmns, version 0.5.2')
+print('path4gmns, version 0.5.3')

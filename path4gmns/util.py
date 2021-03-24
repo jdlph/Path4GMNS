@@ -206,10 +206,13 @@ def read_demand(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
 
     print(f"the number of agents is {agent_seq_no}")
 
+    # 03/22/21, comment out until departure time is enabled 
+    # in the future release
+    
     #step 3.6:sort agents by the departure time
-    agents.sort(key=lambda agent: agent.departure_time_in_min)
-    for i, agent in enumerate(agents):
-        agent.agent_seq_no = i
+    # agents.sort(key=lambda agent: agent.departure_time_in_min)
+    # for i, agent in enumerate(agents):
+    #     agent.agent_seq_no = i
 
 
 def output_columns(zones, column_pool, output_dir='.'):

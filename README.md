@@ -28,7 +28,7 @@ $ cmake --build .
 ```
 You can replace the last command with $ make if your target system has Make installed.
 ### Caveat
-As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Environment) generators, e.g., Visual Studio and Xcode, you will need to manually update the build type from debug to release in your IDE.
+As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Environment) generators, e.g., Visual Studio and Xcode, you will need to manually update the build type from debug to release in your IDE and build your target from there.
 
 ## Getting Started
 ### *Download the test data set*
@@ -132,12 +132,16 @@ print('\npath finding results can be found in agent.csv')
 ```
 
 ## Upcoming Features
+- [ ] read and output node and link geometries
 - [ ] Load columns/paths from existing runs and continue path-base UE
 - [ ] Download the predefined GMNS test data sets to usrs' local machines to improve the use experience when needed
 - [ ] Offer functionality to let users modify the network topology in a simple way by adding/remove nodes and links
 - [ ] Enable manipulations on the overall travel demand and the demand between an OD pair
 - [ ] Support for multi-demand-period and multi-agent-type
-- [ ] Adopt parallel computing to boost the performance
+- [ ] Add allowed use in terms of agent type for links 
+- [ ] Adopt parallel computing to further boost the performance
+
+## Known Issues
 
 ##  Implementation Notes
 
