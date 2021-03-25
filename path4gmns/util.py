@@ -26,9 +26,13 @@ def read_nodes(input_dir, nodes, id_to_no_dict,
                 zone_id = -1
             else:
                 zone_id = int(zone_id)
+
+            # treat them as string
+            coord_x = line['x_coord']
+            coord_y = line['y_coord']
             
             # construct node object
-            node = Node(node_seq_no, node_id, zone_id)
+            node = Node(node_seq_no, node_id, zone_id, coord_x, coord_y)
             nodes.append(node)
             
             # set up mapping between node_seq_no and node_id
@@ -108,6 +112,13 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
                 print(f"EXCEPTION: Node ID {from_node_no} "
                       f"or/and Node ID {to_node_id} NOT IN THE NETWORK!!")
                 continue
+
+            # if link.csv does not have no column 'geometry', 
+            # set geometry to ''
+            try:
+                geometry = line['geometry']
+            except KeyError:
+                geometry = ''
             
             # construct link ojbect
             link = Link(link_id,
@@ -122,7 +133,8 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
                         free_speed,
                         capacity,
                         VDF_alpha,
-                        VDF_beta)
+                        VDF_beta,
+                        geometry)
             
             # set up outgoing links and incoming links
             nodes[from_node_no].add_outgoing_link(link)
@@ -215,7 +227,7 @@ def read_demand(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
     #     agent.agent_seq_no = i
 
 
-def output_columns(zones, column_pool, output_dir='.'):
+def output_columns(nodes, zones, column_pool, output_dir='.'):
     with open(output_dir+'/agent.csv', 'w',  newline='') as fp:
         writer = csv.writer(fp)
 
@@ -230,7 +242,8 @@ def output_columns(zones, column_pool, output_dir='.'):
                 'travel_time',
                 'distance',
                 'node_sequence',
-                'link_sequence']
+                'link_sequence',
+                'geometry']
 
         writer.writerow(line)
 
@@ -254,6 +267,10 @@ def output_columns(zones, column_pool, output_dir='.'):
                             link_seq = path_sep.join(
                                 str(x) for x in reversed(col.links)
                             )
+                            geometry = ', '.join(
+                                nodes[x].get_coordinate() for x in reversed(col.nodes)
+                            )
+                            geometry = 'LINESTRING (' + geometry + ')'
 
                             line = [i,
                                     orig_zone,
@@ -266,7 +283,8 @@ def output_columns(zones, column_pool, output_dir='.'):
                                     col.get_travel_time(),
                                     col.get_distance(),
                                     node_seq,
-                                    link_seq]
+                                    link_seq,
+                                    geometry]
 
                             writer.writerow(line)
 
@@ -305,6 +323,7 @@ def output_link_performance(links, output_dir='.'):
                         link.get_period_voc(tau),
                         '',
                         '',
+                        link.get_geometry(),
                         '']
 
                 writer.writerow(line)

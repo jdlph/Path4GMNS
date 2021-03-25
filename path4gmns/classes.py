@@ -19,15 +19,15 @@ class Node:
     g_external_node_id_dict(index to id) to map them
     """
 
-    def __init__(self, node_seq_no, external_node_id, zone_id): 
+    def __init__(self, node_seq_no, external_node_id, zone_id, x='', y=''): 
         """ the attribute of node  """ 
         self.node_seq_no = node_seq_no
         self.external_node_id = external_node_id
         self.outgoing_link_list = []
         self.incoming_link_list = []
         self.zone_id = zone_id
-        self.coord_x = 0
-        self.coord_y = 0
+        self.coord_x = x
+        self.coord_y = y
 
     def has_outgoing_links(self):
         return len(self.outgoing_link_list) > 0
@@ -40,6 +40,9 @@ class Node:
 
     def get_node_no(self):
         return self.node_seq_no
+
+    def get_coordinate(self):
+        return self.coord_x + ' ' + self.coord_y
 
     def add_outgoing_link(self, link):
         self.outgoing_link_list.append(link)
@@ -63,7 +66,8 @@ class Link:
                  free_speed=60,
                  capacity=49500,
                  vdf_alpha=0.15,
-                 vdf_beta=4):   
+                 vdf_beta=4,
+                 geometry=''):   
         """ the attribute of link """
         self.id = id
         self.link_seq_no = link_seq_no
@@ -86,6 +90,7 @@ class Link:
         self.bpr_beta = vdf_beta
         self.cost = self.free_flow_travel_time_in_min
         self.flow_volume = 0
+        self.geometry = geometry
         # add for CG
         self.toll = 0
         self.route_choice_cost = 0
@@ -115,6 +120,9 @@ class Link:
 
     def get_length(self):
         return self.length
+
+    def get_geometry(self):
+        return self.geometry
 
     def get_toll(self):
         return self.toll

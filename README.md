@@ -132,21 +132,21 @@ print('\npath finding results can be found in agent.csv')
 ```
 
 ## Upcoming Features
-- [ ] read and output node and link geometries
+- [x] Read and output node and link geometries
+- [ ] Set up individual agents from aggregated OD demand only when it is needed
 - [ ] Load columns/paths from existing runs and continue path-base UE
 - [ ] Download the predefined GMNS test data sets to usrs' local machines to improve the use experience when needed
 - [ ] Offer functionality to let users modify the network topology in a simple way by adding/remove nodes and links
 - [ ] Enable manipulations on the overall travel demand and the demand between an OD pair
 - [ ] Support for multi-demand-period and multi-agent-type
 - [ ] Add allowed use in terms of agent type for links 
+- [ ] Provide a setting file in yaml to let users control key parameters
 - [ ] Adopt parallel computing to further boost the performance
 
 ## Known Issues
-- [x] OSError: GLIBC_2.29 not found (required by DTALite.so) when importing Path4GMNS. You might encounter this issue if you are running Ubuntu 18.04LTS or lower without updating your OS (e.g., Google Colab) as DTALite.so shipped with v0.5.2 was built on Ubuntu 20.04LTS. [v0.5.2a1](https://pypi.org/project/path4gmns/0.5.2a1/) built on Ubuntu 18.04LTS with GLIBC_2.27 is published on PyPI and open for download as a remedy.
+- [x] OSError: GLIBC_2.29 not found (required by DTALite.so) when importing Path4GMNS. You might encounter this issue if you are running Ubuntu 18.04LTS or lower (e.g., Google Colab) as DTALite.so shipped with v0.5.2 was built on Ubuntu 20.04LTS. [v0.5.2a1](https://pypi.org/project/path4gmns/0.5.2a1/) built on Ubuntu 18.04LTS with GLIBC_2.27 is published on PyPI and open for download as a remedy.
 
-      ```
       $ pip install path4gmns==0.5.2a1
-      ```
 
 - [x] Get same assignment results after changing values of VDF_alpha1 and VDF_beta1. The bug has been fixed in the source code, and will be embedded in the next release.
 
