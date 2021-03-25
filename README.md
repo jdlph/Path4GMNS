@@ -18,7 +18,7 @@ $ python setup.py sdist bdist_wheel
 $ cd dist
 $ python -m pip install path4gmns-version.tar.gz
 ``` 
-The shared libraries of [DTALite](https://github.com/jdlph/DTALite/tree/main/DTALite/v2/dll/DP) and [path_engine](https://github.com/jdlph/Path4GMNS/tree/master/engine) for Path4GMNS can be built with a C++ compiler supporting C++11 and higher, where we use CMake to define the building process. Take path_engine for example,
+The shared libraries of [DTALite](https://github.com/jdlph/DTALite/tree/main/src_cpp) and [path_engine](https://github.com/jdlph/Path4GMNS/tree/master/engine) for Path4GMNS can be built with a C++ compiler supporting C++11 and higher, where we use CMake to define the building process. Take path_engine for example,
 ```
 # from the root directory of engine
 $ mkdir build
@@ -142,10 +142,17 @@ print('\npath finding results can be found in agent.csv')
 - [ ] Adopt parallel computing to further boost the performance
 
 ## Known Issues
+- [x] OSError: GLIBC_2.29 not found (required by DTALite.so) when importing Path4GMNS. You might encounter this issue if you are running Ubuntu 18.04LTS or lower without updating your OS (e.g., Google Colab) as DTALite.so shipped with v0.5.2 was built on Ubuntu 20.04LTS. [v0.5.2a1](https://pypi.org/project/path4gmns/0.5.2a1/) built on Ubuntu 18.04LTS with GLIBC_2.27 is published on PyPI and open for download as a remedy.
+
+      ```
+      $ pip install path4gmns==0.5.2a1
+      ```
+
+- [x] Get same assignment results after changing values of VDF_alpha1 and VDF_beta1. The bug has been fixed in the source code, and will be embedded in the next release.
 
 ##  Implementation Notes
 
-The column generation scheme in Path4GMNS is an equivalent **single-processing implementation** as its [DTALite](https://github.com/asu-trans-ai-lab/PythonDTALite) multiprocessing counterpart. Support for the multi-demand-period and multi-agent-type is reserved for the future implementation. Note that the results (i.e., column pool and trajectory for an agent) from Path4GMNS and DTALite are comparable but likely not identical as the shortest paths are usually not unique and subjected to implementations. This subtle difference should be gone and the link performances should be consistent if the iterations on both assignment and column generation are large enough. You can always compare the results (i.e., link_performance.csv) from Path4GMNS and DTALite given the same network and demand.
+The column generation scheme in Path4GMNS is an equivalent **single-processing implementation** as its [DTALite](https://github.com/jdlph/DTALite/tree/main/src_cpp) multiprocessing counterpart. Support for the multi-demand-period and multi-agent-type is reserved for the future implementation. Note that the results (i.e., column pool and trajectory for an agent) from Path4GMNS and DTALite are comparable but likely not identical as the shortest paths are usually not unique and subjected to implementations. This subtle difference should be gone and the link performances should be consistent if the iterations on both assignment and column generation are large enough. You can always compare the results (i.e., link_performance.csv) from Path4GMNS and DTALite given the same network and demand.
 
 The whole package is implemented towards **high performance**. The core shortest-path engine is implemented in C++ (deque implementation of the modified label correcting algorithm) along with the equivalent Python implementations for demonstrations. To achieve the maximum efficiency, we use a fixed-length array as the deque (rather than the STL deque) and combine the scan eligible list (represented as deque) with the node presence statutes. Along with the minimum and fast argument interfacing between the underlying C++ path engine and the upper Python modules, its running time is comparable to the pure C++-based DTALite. If you have an extremely large network and/or have requirement on CPU time, we recommend using DTALite to fully utilze its parallel computing feature.
 
