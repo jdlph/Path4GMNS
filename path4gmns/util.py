@@ -174,17 +174,17 @@ def read_demand(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
             # d_zone_id does not exist in node.csv, discard it
             if d_zone_id not in zone_to_node_dict.keys():
                 continue
-            
+
+            volume = float(volume)
             # set up volume for ColumnVec
             if (o_zone_id, d_zone_id) not in column_pool.keys():
                 column_pool[(o_zone_id, d_zone_id)] = ColumnVec()
             column_pool[(o_zone_id, d_zone_id)].od_vol += float(volume)
 
-            volume_agent = float(volume)
-            if volume_agent == 0:
+            if volume == 0:
                 continue
 
-            total_agents += int(volume_agent + 1)
+            total_agents += int(volume + 1)
             
     print(f"the number of agents is {total_agents}")
 

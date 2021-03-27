@@ -298,8 +298,8 @@ def find_path_for_agents(G, engine_type='c'):
     may share the same origin and each call of the single-source path algorithm
     will calculate the shortest path tree from the source node.
     """
-    if G.agenet_size == 0:
-        print('setting up individual agent')
+    if G.get_agent_count() == 0:
+        print('setting up individual agents')
         G.setup_agents()
 
     from_node_id_prev = -1

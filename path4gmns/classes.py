@@ -186,7 +186,7 @@ class Network:
         self.agent_list = []
         self.node_size = 0
         self.link_size = 0
-        self.agenet_size = 0
+        self.agent_size = 0
         # key: external node id, value:internal node id
         self.internal_node_seq_no_dict = {}
         # key: internal node id, value:external node id
@@ -209,7 +209,7 @@ class Network:
     def update(self):
         self.node_size = len(self.node_list)
         self.link_size = len(self.link_list)
-        self.agenet_size = len(self.agent_list)
+        self.agent_size = len(self.agent_list)
         self.zones = self.zone_to_nodes_dict.keys()
 
     def allocate_for_CAPI(self):
@@ -370,9 +370,11 @@ class Network:
         # for i, agent in enumerate(agents):
         #     agent.agent_seq_no = i
 
-        self.agenet_size = len(self.agent_list)
-        print(f"the number of agents is {self.agenet_size}")
+        self.agent_size = len(self.agent_list)
+        print(f"the number of agents is {self.agent_size}")
 
+    def get_agent_count(self):
+        return self.agent_size
 
 class Agent:
     """ individual agent derived from aggragted demand between an OD pair

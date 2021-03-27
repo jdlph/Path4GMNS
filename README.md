@@ -133,7 +133,7 @@ print('\npath finding results can be found in agent.csv')
 
 ## Upcoming Features
 - [x] Read and output node and link geometries
-- [ ] Set up individual agents from aggregated OD demand only when it is needed
+- [x] Set up individual agents from aggregated OD demand only when it is needed
 - [ ] Load columns/paths from existing runs and continue path-base UE
 - [ ] Download the predefined GMNS test data sets to usrs' local machines to improve the use experience when needed
 - [ ] Calculate and show up accessibility 
