@@ -1,5 +1,4 @@
 import csv
-from random import choice
 
 from .classes import Node, Link, Network, Agent, ColumnVec, \
                      MAX_TIME_PERIODS, MAX_AGNET_TYPES
@@ -152,13 +151,9 @@ def read_demand(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
         print('read demand.csv')
         
         reader = csv.DictReader(fp)
-        agent_id = 1
-        agent_type = 'v'
-        agent_seq_no = 0
         total_agents = 0
         for line in reader:
             volume = line['volume']
-            volume_agent = float(volume)
             
             # invalid origin zone id, discard it
             o_zone_id = line['o_zone_id']
@@ -185,43 +180,12 @@ def read_demand(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
                 column_pool[(o_zone_id, d_zone_id)] = ColumnVec()
             column_pool[(o_zone_id, d_zone_id)].od_vol += float(volume)
 
+            volume_agent = float(volume)
             if volume_agent == 0:
                 continue
 
             total_agents += int(volume_agent + 1)
             
-            # for i in range(volume_agent_size):
-                # construct agent using valid record
-                # agent = Agent(agent_id,
-                #               agent_seq_no,
-                #               agent_type,
-                #               o_zone_id, 
-                #               d_zone_id)
-
-                # step 3.1 generate o_node_id and d_node_id randomly according 
-                # to o_zone_id and d_zone_id 
-                # agent.o_node_id = choice(zone_to_node_dict[o_zone_id])
-                # agent.d_node_id = choice(zone_to_node_dict[d_zone_id])
-                
-                # step 3.2 update agent_id and agent_seq_no
-                # agent_id += 1
-                # agent_seq_no += 1 
-
-                # step 3.3: update the g_simulation_start_time_in_min and 
-                # g_simulation_end_time_in_min 
-                # if agent.departure_time_in_min < g_simulation_start_time_in_min:
-                #     g_simulation_start_time_in_min = agent.departure_time_in_min
-                # if agent.departure_time_in_min > g_simulation_end_time_in_min:
-                #     g_simulation_end_time_in_min = agent.departure_time_in_min
-
-                #step 3.4: add the agent to the time dependent agent list
-                # departure_time = agent.departure_time_in_simu_interval
-                # if departure_time not in td_agents.keys():
-                #     td_agents[departure_time] = []
-                # td_agents[departure_time].append(agent.agent_seq_no)
-                
-                # agents.append(agent)
-
     print(f"the number of agents is {total_agents}")
 
 
