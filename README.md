@@ -138,7 +138,7 @@ print('\npath finding results can be found in agent.csv')
 - [ ] Download the predefined GMNS test data sets to usrs' local machines to improve the use experience when needed
 - [ ] Calculate and show up accessibility 
 - [ ] Visualize individual column/paths on user's call
-- [ ] Offer functionality to let users modify the network topology in a simple way by adding/remove nodes and links
+- [ ] Let users modify the network topology in a simple way by adding/remove nodes and links
 - [ ] Enable manipulations on the overall travel demand and the demand between an OD pair
 - [ ] Support for multi-demand-period and multi-agent-type
 - [ ] Add allowed use in terms of agent type for links 

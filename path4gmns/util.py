@@ -90,6 +90,7 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
             
             capacity = line['capacity']
             if capacity:
+                # issue: int??
                 capacity = int(float(capacity))
             
             link_type = line['link_type']
@@ -103,6 +104,22 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
             VDF_beta = line['VDF_beta1']
             if VDF_beta:
                 VDF_beta = float(VDF_beta)
+
+            VDF_phf = line['VDF_PHF1']
+            if VDF_phf:
+                VDF_phf = float(VDF_phf)    
+            
+            VDF_mu = line['VDF_mu1']
+            if VDF_mu:
+                VDF_mu = float(VDF_mu)
+
+            VDF_fftt = line['VDF_fftt1']
+            if VDF_fftt:
+                VDF_fftt = float(VDF_fftt)    
+            
+            VDF_cap = line['VDF_cap1']
+            if VDF_mu:
+                VDF_cap = float(VDF_cap)
 
             try:
                 from_node_no = id_to_no_dict[from_node_id]
@@ -133,6 +150,10 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
                         capacity,
                         VDF_alpha,
                         VDF_beta,
+                        VDF_phf,
+                        VDF_mu,
+                        VDF_fftt,
+                        VDF_cap,
                         geometry)
             
             # set up outgoing links and incoming links
@@ -189,7 +210,7 @@ def read_demand(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
     print(f"the number of agents is {total_agents}")
 
 
-def output_columns(nodes, zones, column_pool, output_dir='.'):
+def output_columns(nodes, links, zones, column_pool, output_dir='.'):
     with open(output_dir+'/agent.csv', 'w',  newline='') as fp:
         writer = csv.writer(fp)
 
@@ -224,10 +245,10 @@ def output_columns(nodes, zones, column_pool, output_dir='.'):
                         for col in cv.get_columns().values():
                             i += 1
                             node_seq = path_sep.join(
-                                str(x) for x in reversed(col.nodes)
+                                str(nodes[x].get_node_id()) for x in reversed(col.nodes)
                             )
                             link_seq = path_sep.join(
-                                str(x) for x in reversed(col.links)
+                                str(links[x].get_link_id()) for x in reversed(col.links)
                             )
                             geometry = ', '.join(
                                 nodes[x].get_coordinate() for x in reversed(col.nodes)

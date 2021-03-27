@@ -68,6 +68,10 @@ class Link:
                  capacity=49500,
                  vdf_alpha=0.15,
                  vdf_beta=4,
+                 vdf_phf=3,
+                 vdf_mu=1000,
+                 vdf_fftt=0,
+                 vdf_cap=99999,
                  geometry=''):   
         """ the attribute of link """
         self.id = id
@@ -87,8 +91,12 @@ class Link:
         )
         # capacity is lane capacity per hour
         self.link_capacity = capacity * lanes
-        self.bpr_alpha = vdf_alpha
-        self.bpr_beta = vdf_beta
+        self.vdf_alpha = vdf_alpha
+        self.vdf_beta = vdf_beta
+        self.vdf_phf = vdf_phf
+        self.vdf_mu = vdf_mu
+        self.vdf_fftt = vdf_fftt
+        self.vdf_cap = vdf_cap
         self.cost = self.free_flow_travel_time_in_min
         self.flow_volume = 0
         self.geometry = geometry
@@ -172,10 +180,12 @@ class Link:
     def _setup_vdfperiod(self):
         for tau in range(MAX_TIME_PERIODS):
             vp = self.vdfperiods[tau]
-            vp.alpha = self.bpr_alpha
-            vp.beta = self.bpr_beta
-            vp.capacity = self.link_capacity
-            vp.fftt = self.free_flow_travel_time_in_min
+            vp.alpha = self.vdf_alpha
+            vp.beta = self.vdf_beta
+            vp.phf = self.vdf_phf
+            vp.mu = self.vdf_mu
+            vp.fftt = self.vdf_fftt
+            vp.capacity = self.vdf_cap
             
 
 class Network:

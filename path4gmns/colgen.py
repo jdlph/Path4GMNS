@@ -79,7 +79,7 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
 
 def _update_column_gradient_cost_and_flow(column_pool, links, zones, iter_num):
     total_gap = 0
-    total_gap_count = 0
+    # total_gap_count = 0
     
     _reset_and_update_link_vol_based_on_columns(column_pool, 
                                                 links,
@@ -124,9 +124,9 @@ def _update_column_gradient_cost_and_flow(column_pool, links, zones, iter_num):
                         col.set_gradient_cost(path_gradient_cost)
 
                         if column_num == 1:
-                            total_gap_count += (
-                                path_gradient_cost * col.get_volume()
-                            )
+                            # total_gap_count += (
+                            #     path_gradient_cost * col.get_volume()
+                            # )
                             break
 
                         if path_gradient_cost < least_gradient_cost:
@@ -153,9 +153,9 @@ def _update_column_gradient_cost_and_flow(column_pool, links, zones, iter_num):
                                     * col.get_volume()
                                 )
 
-                                total_gap_count += (
-                                    col.get_gradient_cost() * col.get_volume()
-                                )
+                                # total_gap_count += (
+                                #     col.get_gradient_cost() * col.get_volume()
+                                # )
 
                                 step_size = (
                                     1 / (iter_num + 2) * cv.get_od_volume()
@@ -182,7 +182,7 @@ def _update_column_gradient_cost_and_flow(column_pool, links, zones, iter_num):
                         )
                         col.increase_volume(total_switched_out_path_vol)
 
-    print(f'total gap is: {total_gap:.2f}')
+    print(f'total gap: {total_gap:.2f}')
     # print(f'total gap count is: {total_gap_count:.2f}')
 
 
