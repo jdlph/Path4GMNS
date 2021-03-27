@@ -146,11 +146,11 @@ print('\npath finding results can be found in agent.csv')
 - [ ] Adopt parallel computing to further boost the performance
 
 ## Known Issues
-- [x] OSError: GLIBC_2.29 not found (required by DTALite.so) when importing Path4GMNS. You might encounter this issue if you are running Ubuntu 18.04LTS or lower (e.g., Google Colab) as DTALite.so shipped with v0.5.2 was built on Ubuntu 20.04LTS. [v0.5.2a1](https://pypi.org/project/path4gmns/0.5.2a1/) built on Ubuntu 18.04LTS with GLIBC_2.27 is published on PyPI and open for download as a remedy.
+- [x] OSError: GLIBC_2.29 not found (required by DTALite.so) when importing Path4GMNS. You might encounter this issue if you are running Ubuntu 18.04LTS or lower (e.g., Google Colab) as DTALite.so shipped with v0.5.2 and prior was built on Ubuntu 20.04LTS. [v0.5.3](https://pypi.org/project/path4gmns/0.5.3/) built on Ubuntu 18.04LTS with GLIBC_2.27 is published on PyPI and open for download.
 
-      $ pip install path4gmns==0.5.2a1
+      $ pip install path4gmns==0.5.3
 
-- [x] Get same assignment results after changing values of VDF_alpha1 and VDF_beta1. The bug has been fixed in the source code, and will be embedded in the next release.
+- [x] Get same assignment results after changing values of VDF parameters in link.csv. The bug has been fixed in the source code in v0.5.3. Please use the latest release.
 
 ##  Implementation Notes
 
