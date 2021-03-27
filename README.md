@@ -1,6 +1,6 @@
 # Path4GMNS
 
-Path4GMNS is an open-source, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding the static and time-dependent shortest path for simple analyses, its main functionality is to provide an efficient and flexible framework for column(path)-based modeling/application frameworks in transportations (e.g., activity-based demand modeling).
+Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding the static and time-dependent shortest path for simple analyses, its main functionality is to provide an efficient and flexible framework for column(path)-based modeling/application frameworks in transportations (e.g., activity-based demand modeling).
 
 ## Installation
 Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/), and can be installed using
@@ -63,10 +63,10 @@ print('destination node id of agent is '
       +str(network.get_agent_dest_node_id(agent_id)))
 
 print('shortest path (node id) of agent is ' 
-      + str(network.get_agent_node_path(agent_id)))
+      +str(network.get_agent_node_path(agent_id)))
 
 print('shortest path (link id) of agent is ' 
-      + str(network.get_agent_link_path(agent_id)))
+      +str(network.get_agent_link_path(agent_id)))
 
 agent_id = 1000
 print('\norigin node id of agent is '
@@ -76,10 +76,10 @@ print('destination node id of agent is '
       +str(network.get_agent_dest_node_id(agent_id)))
 
 print('shortest path (node id) of agent is ' 
-      + str(network.get_agent_node_path(agent_id)))
+      +str(network.get_agent_node_path(agent_id)))
       
 print('shortest path (link id) of agent is ' 
-      + str(network.get_agent_link_path(agent_id)))
+      +str(network.get_agent_link_path(agent_id)))
 ```
 
 ### *Perform path-based user-equilibrium (UE) traffic assignment using the python column-generation module*
@@ -136,6 +136,8 @@ print('\npath finding results can be found in agent.csv')
 - [ ] Set up individual agents from aggregated OD demand only when it is needed
 - [ ] Load columns/paths from existing runs and continue path-base UE
 - [ ] Download the predefined GMNS test data sets to usrs' local machines to improve the use experience when needed
+- [ ] Calculate and show up accessibility 
+- [ ] Visualize individual column/paths on user's call
 - [ ] Offer functionality to let users modify the network topology in a simple way by adding/remove nodes and links
 - [ ] Enable manipulations on the overall travel demand and the demand between an OD pair
 - [ ] Support for multi-demand-period and multi-agent-type
@@ -152,7 +154,7 @@ print('\npath finding results can be found in agent.csv')
 
 ##  Implementation Notes
 
-The column generation scheme in Path4GMNS is an equivalent **single-processing implementation** as its [DTALite](https://github.com/jdlph/DTALite/tree/main/src_cpp) multiprocessing counterpart. Support for the multi-demand-period and multi-agent-type is reserved for the future implementation. Note that the results (i.e., column pool and trajectory for an agent) from Path4GMNS and DTALite are comparable but likely not identical as the shortest paths are usually not unique and subjected to implementations. This subtle difference should be gone and the link performances should be consistent if the iterations on both assignment and column generation are large enough. You can always compare the results (i.e., link_performance.csv) from Path4GMNS and DTALite given the same network and demand.
+The column generation scheme in Path4GMNS is an equivalent **single-processing implementation** as its [DTALite](https://github.com/jdlph/DTALite/tree/main/src_cpp) multiprocessing counterpart. Support for the multi-demand-period and multi-agent-type is reserved for the future implementation. **Note that the results (i.e., column pool and trajectory for an agent) from Path4GMNS and DTALite are comparable but likely not identical as the shortest paths are usually not unique and subjected to implementations**. This subtle difference should be gone and the link performances should be consistent if the iterations on both assignment and column generation are large enough. You can always compare the results (i.e., link_performance.csv) from Path4GMNS and DTALite given the same network and demand.
 
 The whole package is implemented towards **high performance**. The core shortest-path engine is implemented in C++ (deque implementation of the modified label correcting algorithm) along with the equivalent Python implementations for demonstrations. To achieve the maximum efficiency, we use a fixed-length array as the deque (rather than the STL deque) and combine the scan eligible list (represented as deque) with the node presence statutes. Along with the minimum and fast argument interfacing between the underlying C++ path engine and the upper Python modules, its running time is comparable to the pure C++-based DTALite. If you have an extremely large network and/or have requirement on CPU time, we recommend using DTALite to fully utilze its parallel computing feature.
 

@@ -1,4 +1,5 @@
 import ctypes
+from random import choice
 
 from .path import MAX_LABEL_COST
 
@@ -306,6 +307,72 @@ class Network:
         
         return agent.get_dest_node_id()    
 
+    def setup_agents(self):
+        agent_id = 1
+        agent_no = 0
+        # update it after multi-agent-type is implemented
+        agent_type = 'v'
+        for orig_zone_id in self.zones:
+            for dest_zone_id in self.zones:
+                if (orig_zone_id, dest_zone_id) not in self.column_pool.keys():
+                        continue
+
+                cv = self.column_pool[(orig_zone_id, dest_zone_id)]
+
+                if cv.get_od_volume() <= 0:
+                    continue
+
+                vol = int(cv.get_od_volume()+1)
+
+                for i in range(vol):
+                    # construct agent using valid record
+                    agent = Agent(agent_id,
+                                  agent_no,
+                                  agent_type,
+                                  orig_zone_id, 
+                                  dest_zone_id)
+
+                    # step 1 generate o_node_id and d_node_id randomly 
+                    # according to o_zone_id and d_zone_id 
+                    agent.o_node_id = choice(
+                        self.zone_to_nodes_dict[orig_zone_id]
+                    )
+                    agent.d_node_id = choice(
+                        self.zone_to_nodes_dict[dest_zone_id]
+                    )
+                    
+                    # step 2 update agent_id and agent_seq_no
+                    agent_id += 1
+                    agent_no += 1 
+
+                    # step 3: update the g_simulation_start_time_in_min and 
+                    # g_simulation_end_time_in_min 
+                    # if agent.departure_time_in_min < g_simulation_start_time_in_min:
+                    #     g_simulation_start_time_in_min = agent.departure_time_in_min
+                    # if agent.departure_time_in_min > g_simulation_end_time_in_min:
+                    #     g_simulation_end_time_in_min = agent.departure_time_in_min
+
+                    #step 4: add the agent to the time dependent agent list
+                    departure_time = agent.get_dep_simu_intvl()
+                    if departure_time not in self.agent_td_list_dict.keys():
+                        self.agent_td_list_dict[departure_time] = []
+                    self.agent_td_list_dict[departure_time].append(
+                        agent.get_seq_no()
+                    )
+                    
+                    self.agent_list.append(agent)
+
+        # 03/22/21, comment out until departure time is enabled 
+        # in the future release
+        
+        #step 3.6:sort agents by the departure time
+        # agents.sort(key=lambda agent: agent.departure_time_in_min)
+        # for i, agent in enumerate(agents):
+        #     agent.agent_seq_no = i
+
+        self.agenet_size = len(self.agent_list)
+        print(f"the number of agents is {self.agenet_size}")
+
 
 class Agent:
     """ individual agent derived from aggragted demand between an OD pair
@@ -345,6 +412,12 @@ class Agent:
 
     def get_dest_node_id(self):
         return self.d_node_id
+
+    def get_seq_no(self):
+        return self.agent_seq_no
+
+    def get_dep_simu_intvl(self):
+        return self.departure_time_in_simu_interval
 
 
 class Column:

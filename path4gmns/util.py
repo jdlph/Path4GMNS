@@ -155,10 +155,11 @@ def read_demand(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
         agent_id = 1
         agent_type = 'v'
         agent_seq_no = 0
+        total_agents = 0
         for line in reader:
             volume = line['volume']
-            volume_agent_size = int(float(volume) + 1)
-    
+            volume_agent = float(volume)
+            
             # invalid origin zone id, discard it
             o_zone_id = line['o_zone_id']
             if not o_zone_id:
@@ -183,23 +184,28 @@ def read_demand(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
             if (o_zone_id, d_zone_id) not in column_pool.keys():
                 column_pool[(o_zone_id, d_zone_id)] = ColumnVec()
             column_pool[(o_zone_id, d_zone_id)].od_vol += float(volume)
+
+            if volume_agent == 0:
+                continue
+
+            total_agents += int(volume_agent + 1)
             
-            for i in range(volume_agent_size):
+            # for i in range(volume_agent_size):
                 # construct agent using valid record
-                agent = Agent(agent_id,
-                              agent_seq_no,
-                              agent_type,
-                              o_zone_id, 
-                              d_zone_id)
+                # agent = Agent(agent_id,
+                #               agent_seq_no,
+                #               agent_type,
+                #               o_zone_id, 
+                #               d_zone_id)
 
                 # step 3.1 generate o_node_id and d_node_id randomly according 
                 # to o_zone_id and d_zone_id 
-                agent.o_node_id = choice(zone_to_node_dict[o_zone_id])
-                agent.d_node_id = choice(zone_to_node_dict[d_zone_id])
+                # agent.o_node_id = choice(zone_to_node_dict[o_zone_id])
+                # agent.d_node_id = choice(zone_to_node_dict[d_zone_id])
                 
                 # step 3.2 update agent_id and agent_seq_no
-                agent_id += 1
-                agent_seq_no += 1 
+                # agent_id += 1
+                # agent_seq_no += 1 
 
                 # step 3.3: update the g_simulation_start_time_in_min and 
                 # g_simulation_end_time_in_min 
@@ -209,22 +215,14 @@ def read_demand(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
                 #     g_simulation_end_time_in_min = agent.departure_time_in_min
 
                 #step 3.4: add the agent to the time dependent agent list
-                departure_time = agent.departure_time_in_simu_interval
-                if departure_time not in td_agents.keys():
-                    td_agents[departure_time] = []
-                td_agents[departure_time].append(agent.agent_seq_no)
+                # departure_time = agent.departure_time_in_simu_interval
+                # if departure_time not in td_agents.keys():
+                #     td_agents[departure_time] = []
+                # td_agents[departure_time].append(agent.agent_seq_no)
                 
-                agents.append(agent)
+                # agents.append(agent)
 
-    print(f"the number of agents is {agent_seq_no}")
-
-    # 03/22/21, comment out until departure time is enabled 
-    # in the future release
-    
-    #step 3.6:sort agents by the departure time
-    # agents.sort(key=lambda agent: agent.departure_time_in_min)
-    # for i, agent in enumerate(agents):
-    #     agent.agent_seq_no = i
+    print(f"the number of agents is {total_agents}")
 
 
 def output_columns(nodes, zones, column_pool, output_dir='.'):

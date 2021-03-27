@@ -37,9 +37,9 @@ def test_find_shortest_path_for_agents():
     print('destination node id of agent is '
           +str(network.get_agent_dest_node_id(agent_id)))
     print('shortest path (node id) of agent is ' 
-          + str(network.get_agent_node_path(agent_id)))
+          +str(network.get_agent_node_path(agent_id)))
     print('shortest path (link id) of agent is ' 
-          + str(network.get_agent_link_path(agent_id)))
+          +str(network.get_agent_link_path(agent_id)))
 
 
 def test_column_generation_py():
@@ -68,8 +68,8 @@ def test_column_generation_dtalite():
     print('start column generation')
     st = time()
 
-    iter_num = 10
-    column_update_num = 10
+    iter_num = 20
+    column_update_num = 20
     pg.perform_network_assignment_DTALite(1, iter_num, column_update_num)
     
     print('processing time of column generation:{0: .2f}'
@@ -100,4 +100,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
     
-    demo_mode(3)
+    demo_mode(2)
