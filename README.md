@@ -140,7 +140,7 @@ print('\npath finding results can be found in agent.csv')
 - [ ] Visualize individual column/paths on user's call
 - [ ] Let users modify the network topology in a simple way by adding/remove nodes and links
 - [ ] Enable manipulations on the overall travel demand and the demand between an OD pair
-- [ ] Support for multi-demand-period and multi-agent-type
+- [x] Support for multi-demand-period and multi-agent-type
 - [ ] Add allowed use in terms of agent type for links 
 - [ ] Provide a setting file in yaml to let users control key parameters
 - [ ] Adopt parallel computing to further boost the performance

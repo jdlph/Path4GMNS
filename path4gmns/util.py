@@ -3,7 +3,8 @@ import yaml as ym
 
 
 from .classes import Node, Link, Network, Agent, ColumnVec, VDFPeriod, \
-                     AgentType, DemandPeriod, MAX_TIME_PERIODS, MAX_AGNET_TYPES
+                     AgentType, DemandPeriod, Assignment, \
+                     MAX_TIME_PERIODS, MAX_AGNET_TYPES
 
 
 def read_nodes(input_dir, nodes, id_to_no_dict, 
@@ -206,9 +207,9 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
         print(f"the number of links is {link_seq_no}")
     
 
-def read_demand(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
+def read_demand(input_dir, file, agent_type, demand_period, zone_to_node_dict, demands, column_pool):
     """ step 3:read input_agent """
-    with open(input_dir+'/demand.csv', 'r', encoding='utf-8') as fp:
+    with open(input_dir+'/'+file, 'r', encoding='utf-8') as fp:
         print('read demand.csv')
         
         reader = csv.DictReader(fp)
@@ -237,10 +238,15 @@ def read_demand(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
                 continue
 
             volume = float(volume)
+
+            # set up total demand volume for an OD pair
+            if (o_zone_id, d_zone_id) not in demands.keys():
+                demands[(o_zone_id, d_zone_id)] = 0
+            demands[(o_zone_id, d_zone_id)] += volume
             # set up volume for ColumnVec
-            if (o_zone_id, d_zone_id) not in column_pool.keys():
-                column_pool[(o_zone_id, d_zone_id)] = ColumnVec()
-            column_pool[(o_zone_id, d_zone_id)].od_vol += float(volume)
+            if (agent_type, demand_period, o_zone_id, d_zone_id) not in column_pool.keys():
+                column_pool[(agent_type, demand_period, o_zone_id, d_zone_id)] = ColumnVec()
+            column_pool[(agent_type, demand_period, o_zone_id, d_zone_id)].od_vol += volume
 
             if volume == 0:
                 continue
@@ -250,7 +256,7 @@ def read_demand(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
     print(f"the number of agents is {total_agents}")
 
 
-def read_settings(input_dir):
+def read_settings(input_dir, assignment):
     with open(input_dir+'/settings.yml') as file:
         settings = ym.full_load(file)
 
@@ -262,17 +268,19 @@ def read_settings(input_dir):
             demand_time_period = d['time_period']
             demand_agent_type = d['agent_type']
 
-            dp = DemandPeriod(i, demand_period, demand_time_period, demand_agent_type)
-            
+            dp = DemandPeriod(i, demand_period, demand_time_period, demand_agent_type, demand_file)
+            assignment.demand_periods.append(dp)
+
         agents = settings['agent_types']
         for i, a in enumerate(agents):
-            agent_type = agents['type']
-            agent_name = agents['name']
-            agent_vot = agents['vot']
-            agent_flow_type = agents['flow_type']
-            agent_pce = agents['pce']
+            agent_type = a['type']
+            agent_name = a['name']
+            agent_vot = a['vot']
+            agent_flow_type = a['flow_type']
+            agent_pce = a['pce']
 
             at = AgentType(i, agent_type, agent_name, agent_vot, agent_flow_type, agent_pce)
+            assignment.agent_types.append(at)
 
 
 def output_columns(nodes, links, zones, column_pool, output_dir='.'):
@@ -378,6 +386,7 @@ def output_link_performance(links, output_dir='.'):
                             
 
 def read_network(load_demand='true', input_dir='.'):
+    assignm = Assignment()
     network = Network()
 
     read_nodes(input_dir,
@@ -392,12 +401,20 @@ def read_network(load_demand='true', input_dir='.'):
                network.internal_node_seq_no_dict)
 
     if load_demand:
-        read_demand(input_dir,
-                    network.agent_list,
-                    network.agent_td_list_dict,
-                    network.zone_to_nodes_dict,
-                    network.column_pool)
+        read_settings(input_dir, assignm)
 
-    network.update()
+        for at in assignm.get_agent_types():
+            for dp in assignm.get_demand_periods():
+                read_demand(input_dir,
+                            dp.get_file_name(),
+                            at.get_id(),
+                            dp.get_id(),
+                            network.zone_to_nodes_dict,
+                            assignm.demands,
+                            assignm.column_pool)
 
-    return network
+    network.update(assignm.get_agent_type_count(), 
+                   assignm.get_demand_period_count())
+    assignm.network = network
+
+    return assignm

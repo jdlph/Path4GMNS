@@ -93,10 +93,10 @@ def _update_column_gradient_cost_and_flow(column_pool, links, zones, iter_num):
         for dest_zone_id in zones:
             for at in range(MAX_AGNET_TYPES):
                 for tau in range(MAX_TIME_PERIODS):
-                    if (orig_zone_id, dest_zone_id) not in column_pool.keys():
+                    if (at, tau, orig_zone_id, dest_zone_id) not in column_pool.keys():
                         continue
                     
-                    cv = column_pool[(orig_zone_id, dest_zone_id)]
+                    cv = column_pool[(at, tau, orig_zone_id, dest_zone_id)]
                     
                     if cv.get_od_volume() <= 0:
                         continue
@@ -269,10 +269,10 @@ def _update_column_travel_time(links, zones, column_pool):
         for dest_zone in zones:
             for at in range(MAX_AGNET_TYPES):
                 for tau in range(MAX_TIME_PERIODS):
-                    if (orig_zone, dest_zone) not in column_pool.keys():
+                    if (at, tau, orig_zone, dest_zone) not in column_pool.keys():
                         continue
                     
-                    cv = column_pool[(orig_zone, dest_zone)]
+                    cv = column_pool[(at, tau, orig_zone, dest_zone)]
 
                     for col in cv.get_columns().values():
                         travel_time = sum(
@@ -281,7 +281,7 @@ def _update_column_travel_time(links, zones, column_pool):
                         col.set_travel_time(travel_time)
             
 
-def perform_network_assignment(assignment_mode, iter_num, column_update_num, G):
+def perform_network_assignment(assignment_mode, iter_num, column_update_num, A):
     """ perform network assignemnt using the selected assignment mode
     
     WARNING
@@ -315,6 +315,8 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, G):
     if assignment_mode != 1:
         raise Exception("not implemented yet")
 
+    G = A.get_network()
+
     # this is important. 
     # otherwise, at iteration 0, _update_generalized_link_cost() is useless
     # link_cost_array may not be correctly set up
@@ -324,7 +326,7 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, G):
     for i in range(iter_num):
         print(f"current iteration number in assignment: {i}")
         _update_link_travel_time_and_cost(G.link_list)
-        _reset_and_update_link_vol_based_on_columns(G.column_pool, 
+        _reset_and_update_link_vol_based_on_columns(A.column_pool, 
                                                     G.link_list,
                                                     G.zones,
                                                     i,
@@ -341,15 +343,15 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, G):
                                           G.node_predecessor,
                                           G.link_predecessor,
                                           G.node_label_cost,
-                                          G.column_pool,
+                                          A.column_pool,
                                           i)
 
-    _optimize_column_pool(G.column_pool,
+    _optimize_column_pool(A.column_pool,
                           G.link_list,
                           G.zones,
                           column_update_num)
 
-    _reset_and_update_link_vol_based_on_columns(G.column_pool, 
+    _reset_and_update_link_vol_based_on_columns(A.column_pool, 
                                                 G.link_list,
                                                 G.zones,
                                                 iter_num,
@@ -357,4 +359,4 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, G):
 
     _update_link_travel_time_and_cost(G.link_list)
 
-    _update_column_travel_time(G.link_list, G.zones, G.column_pool)
+    _update_column_travel_time(G.link_list, G.zones, A.column_pool)

@@ -1,7 +1,7 @@
 import ctypes
 from random import choice
 
-from .path import MAX_LABEL_COST
+from .path import MAX_LABEL_COST, find_path_for_agents
 
 
 _NUM_OF_SECS_PER_SIMU_INTERVAL = 6 
@@ -205,12 +205,17 @@ class Network:
         self.agent_type = 0
         self.column_pool = {}
         self.has_capi_allocated = False
+        # the following two are IDs rather than objects
+        self._agent_types = 0
+        self._demand_periods = 0
 
-    def update(self):
+    def update(self, agent_types=0, demand_periods=0):
         self.node_size = len(self.node_list)
         self.link_size = len(self.link_list)
         self.agent_size = len(self.agent_list)
         self.zones = self.zone_to_nodes_dict.keys()
+        self._agent_types = agent_types
+        self._demand_periods = demand_periods
 
     def allocate_for_CAPI(self):
         # execute only on the first call
@@ -310,57 +315,58 @@ class Network:
     def setup_agents(self):
         agent_id = 1
         agent_no = 0
-        # update it after multi-agent-type is implemented
-        agent_type = 'v'
-        for orig_zone_id in self.zones:
-            for dest_zone_id in self.zones:
-                if (orig_zone_id, dest_zone_id) not in self.column_pool.keys():
-                        continue
+        
+        for orig in self.zones:
+            for dest in self.zones:
+                for at in range(self._agent_types):
+                    for dp in range(self._demand_periods):
+                        if (at, dp, orig, dest) not in self.column_pool.keys():
+                                continue
 
-                cv = self.column_pool[(orig_zone_id, dest_zone_id)]
+                        cv = self.column_pool[(at, dp, orig, dest)]
 
-                if cv.get_od_volume() <= 0:
-                    continue
+                        if cv.get_od_volume() <= 0:
+                            continue
 
-                vol = int(cv.get_od_volume()+1)
+                        vol = int(cv.get_od_volume()+1)
 
-                for i in range(vol):
-                    # construct agent using valid record
-                    agent = Agent(agent_id,
-                                  agent_no,
-                                  agent_type,
-                                  orig_zone_id, 
-                                  dest_zone_id)
+                        for i in range(vol):
+                            # construct agent using valid record
+                            agent = Agent(agent_id,
+                                          agent_no,
+                                          at,
+                                          orig, 
+                                          dest)
 
-                    # step 1 generate o_node_id and d_node_id randomly 
-                    # according to o_zone_id and d_zone_id 
-                    agent.o_node_id = choice(
-                        self.zone_to_nodes_dict[orig_zone_id]
-                    )
-                    agent.d_node_id = choice(
-                        self.zone_to_nodes_dict[dest_zone_id]
-                    )
-                    
-                    # step 2 update agent_id and agent_seq_no
-                    agent_id += 1
-                    agent_no += 1 
+                            # step 1 generate o_node_id and d_node_id randomly 
+                            # according to o_zone_id and d_zone_id 
+                            agent.o_node_id = choice(
+                                self.zone_to_nodes_dict[orig]
+                            )
+                            agent.d_node_id = choice(
+                                self.zone_to_nodes_dict[dest]
+                            )
+                            
+                            # step 2 update agent_id and agent_seq_no
+                            agent_id += 1
+                            agent_no += 1 
 
-                    # step 3: update the g_simulation_start_time_in_min and 
-                    # g_simulation_end_time_in_min 
-                    # if agent.departure_time_in_min < g_simulation_start_time_in_min:
-                    #     g_simulation_start_time_in_min = agent.departure_time_in_min
-                    # if agent.departure_time_in_min > g_simulation_end_time_in_min:
-                    #     g_simulation_end_time_in_min = agent.departure_time_in_min
+                            # step 3: update the g_simulation_start_time_in_min and 
+                            # g_simulation_end_time_in_min 
+                            # if agent.departure_time_in_min < g_simulation_start_time_in_min:
+                            #     g_simulation_start_time_in_min = agent.departure_time_in_min
+                            # if agent.departure_time_in_min > g_simulation_end_time_in_min:
+                            #     g_simulation_end_time_in_min = agent.departure_time_in_min
 
-                    #step 4: add the agent to the time dependent agent list
-                    departure_time = agent.get_dep_simu_intvl()
-                    if departure_time not in self.agent_td_list_dict.keys():
-                        self.agent_td_list_dict[departure_time] = []
-                    self.agent_td_list_dict[departure_time].append(
-                        agent.get_seq_no()
-                    )
-                    
-                    self.agent_list.append(agent)
+                            #step 4: add the agent to the time dependent agent list
+                            departure_time = agent.get_dep_simu_intvl()
+                            if departure_time not in self.agent_td_list_dict.keys():
+                                self.agent_td_list_dict[departure_time] = []
+                            self.agent_td_list_dict[departure_time].append(
+                                agent.get_seq_no()
+                            )
+                            
+                            self.agent_list.append(agent)
 
         # 03/22/21, comment out until departure time is enabled 
         # in the future release
@@ -375,6 +381,7 @@ class Network:
 
     def get_agent_count(self):
         return self.agent_size
+
 
 class Agent:
     """ individual agent derived from aggragted demand between an OD pair
@@ -528,6 +535,8 @@ class ColumnVec:
         self.path_node_seq_map[node_sum] = col
 
 
+# not used in the current implementation
+# this is for future multi-demand-period and multi-agent-type implementation
 class AgentType:
 
     def __init__(self, id=0, type='p', name='passenger', vot=10, flow_type=0, pce=1):
@@ -538,27 +547,79 @@ class AgentType:
         self.flow_type = flow_type
         self.pce = pce
 
+    def get_id(self):
+        return self.id
+
 
 class DemandPeriod:
 
-    def __init__(self, id=0, period='AM', time_period='0700_0800', agent_type='p'):
+    def __init__(self, id=0, period='AM', time_period='0700_0800', agent_type='p', file='demand.csv'):
         self.id = id
         self.period = period
         self.time_period = time_period
         self.agent_type = agent_type
-        
+        self.file = file
 
-# not used in the current implementation
-# this is for future multi-demand-period and multi-agent-type implementation
+    def get_id(self):
+        return self.id
+
+    def get_file_name(self):
+        return self.file
+
+        
 class Assignment:
     
     def __init__(self):
-        
         self.agent_types = []
         self.demand_periods = []
         # 4-d array
         self.column_pool = {}
-        self.demands = []
+        self.demands = {}
+        self.network = None
+    
+    def get_agent_type_count(self):
+        return len(self.agent_types)
+
+    def get_demand_period_count(self):
+        return len(self.demand_periods)
+
+    def get_agent_types(self):
+        for at in self.agent_types:
+            yield at
+
+    def get_demand_periods(self):
+        for dp in self.demand_periods:
+            yield dp
+
+    def get_network(self):
+        return self.network
+
+    def get_nodes(self):
+        return self.network.node_list
+
+    def get_links(self):
+        return self.network.link_list
+
+    def get_zones(self):
+        return self.network.zones
+
+    def get_column_pool(self):
+        return self.column_pool
+
+    def get_agent_orig_node_id(self, agent_id):
+        return self.network.get_agent_orig_node_id(agent_id)
+
+    def get_agent_dest_node_id(self, agent_id):
+        return self.network.get_agent_dest_node_id(agent_id)
+
+    def get_agent_node_path(self, agent_id):
+        return self.network.get_agent_node_path(agent_id)
+
+    def get_agent_link_path(self, agent_id):
+        return self.network.get_agent_link_path(agent_id)
+
+    def find_path_for_agents(self):
+        find_path_for_agents(self.network)
 
 
 class VDFPeriod:
