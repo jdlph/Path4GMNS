@@ -8,3 +8,4 @@ engine_cpp/build/
 tests/log*
 tests/agent.csv
 tests/link_performance.csv
+**log*

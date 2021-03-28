@@ -283,6 +283,23 @@ def _update_column_travel_time(links, zones, column_pool):
                         col.set_travel_time(travel_time)
             
 
+def _assignment(A, iter_num):
+    for spn in A.spnetworks:
+        for node_id in spn.orig_nodes:
+            _update_generalized_link_cost(spn.link_list, spn.link_cost_array)
+
+            single_source_shortest_path(spn, node_id)
+                        
+            _backtrace_shortest_path_tree(spn.get_node_no(node_id),
+                                          spn.node_list,
+                                          spn.link_list,
+                                          spn.node_predecessor,
+                                          spn.link_predecessor,
+                                          spn.node_label_cost,
+                                          A.column_pool,
+                                          iter_num)
+
+
 def perform_network_assignment(assignment_mode, iter_num, column_update_num, A):
     """ perform network assignemnt using the selected assignment mode
     
@@ -335,20 +352,7 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, A):
                                                     True)
 
         # for node in G.node_list:
-        for spn in A.spnetworks:
-            for node_id in spn.orig_nodes:
-                _update_generalized_link_cost(spn.link_list, spn.link_cost_array)
-
-                single_source_shortest_path(spn, node_id)
-                            
-                _backtrace_shortest_path_tree(spn.get_node_no(node_id),
-                                              spn.node_list,
-                                              spn.link_list,
-                                              spn.node_predecessor,
-                                              spn.link_predecessor,
-                                              spn.node_label_cost,
-                                              A.column_pool,
-                                              i)
+        _assignment(A, i)
 
     _optimize_column_pool(A.column_pool,
                           G.link_list,
