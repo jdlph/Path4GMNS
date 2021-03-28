@@ -1,7 +1,7 @@
 import ctypes
 from random import choice
 
-from .path import MAX_LABEL_COST, find_path_for_agents
+from .path import MAX_LABEL_COST, find_path_for_agents, find_shortest_path
 
 
 _NUM_OF_SECS_PER_SIMU_INTERVAL = 6 
@@ -312,7 +312,7 @@ class Network:
         
         return agent.get_dest_node_id()    
 
-    def setup_agents(self):
+    def setup_agents(self, column_pool):
         agent_id = 1
         agent_no = 0
         
@@ -320,10 +320,10 @@ class Network:
             for dest in self.zones:
                 for at in range(self._agent_types):
                     for dp in range(self._demand_periods):
-                        if (at, dp, orig, dest) not in self.column_pool.keys():
+                        if (at, dp, orig, dest) not in column_pool.keys():
                                 continue
 
-                        cv = self.column_pool[(at, dp, orig, dest)]
+                        cv = column_pool[(at, dp, orig, dest)]
 
                         if cv.get_od_volume() <= 0:
                             continue
@@ -619,7 +619,11 @@ class Assignment:
         return self.network.get_agent_link_path(agent_id)
 
     def find_path_for_agents(self):
-        find_path_for_agents(self.network)
+        find_path_for_agents(self.network, self.column_pool)
+
+    def find_shortest_path(self, from_node_id, to_node_id, seq_type='node'):
+        return find_shortest_path(self.network, from_node_id, 
+                                  to_node_id, seq_type='node')
 
 
 class VDFPeriod:

@@ -7,16 +7,16 @@ def test_find_shortest_path():
     network = pg.read_network(load_demand)
 
     print('\nshortest path (node id) from node 1 to node 2 is '
-          +pg.find_shortest_path(network, 1, 2))
+          +network.find_shortest_path(1, 2))
     print('\nshortest path (link id) from node 1 to node 2 is '
-          +pg.find_shortest_path(network, 1, 2, 'link'))
+          +network.find_shortest_path(1, 2, 'link'))
 
 
 def test_find_shortest_path_for_agents():
     network = pg.read_network()
 
     st = time()
-    pg.find_path_for_agents(network)
+    network.find_path_for_agents()
     print('\nprocessing time of finding shortest paths for all agents:{0: .2f}'
           .format(time()-st)+ 's')
 
@@ -57,9 +57,9 @@ def test_column_generation_py():
           f' for {iter_num} assignment iterations and '
           f'{column_update_num} iterations in column generation')
 
-    pg.output_columns(network.node_list, network.link_list, 
-                      network.zones, network.column_pool)
-    pg.output_link_performance(network.link_list)
+    pg.output_columns(network.get_nodes(), network.get_links(), 
+                      network.get_zones(), network.get_column_pool())
+    pg.output_link_performance(network.get_links())
 
     print('\npath finding results can be found in agent.csv')
 

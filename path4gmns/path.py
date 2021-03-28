@@ -288,7 +288,7 @@ def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
     )
 
 
-def find_path_for_agents(G, engine_type='c'):
+def find_path_for_agents(G, column_pool, engine_type='c'):
     """ find shortest path for each agent
 
     the internal node and links will be used to set up the node sequence and
@@ -300,7 +300,7 @@ def find_path_for_agents(G, engine_type='c'):
     """
     if G.get_agent_count() == 0:
         print('setting up individual agents')
-        G.setup_agents()
+        G.setup_agents(column_pool)
 
     from_node_id_prev = -1
     for agent in G.agent_list:

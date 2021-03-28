@@ -45,10 +45,10 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
         for orig_zone_id in zones:
             for dest_zone_id in zones:
                 for tau in range(MAX_TIME_PERIODS):
-                    if (orig_zone_id, dest_zone_id) not in column_pool.keys():
+                    if (at, tau, orig_zone_id, dest_zone_id) not in column_pool.keys():
                         continue
 
-                    cv = column_pool[(orig_zone_id, dest_zone_id)]
+                    cv = column_pool[(at, tau, orig_zone_id, dest_zone_id)]
             
                     if cv.get_od_volume() <= 0:
                         continue
@@ -217,10 +217,10 @@ def _backtrace_shortest_path_tree(orig_node_no,
         if dest_zone_id == -1:
             continue
         
-        if (orig_zone_id, dest_zone_id) not in column_pool.keys():
+        if (0, 0, orig_zone_id, dest_zone_id) not in column_pool.keys():
             continue
 
-        cv = column_pool[(orig_zone_id, dest_zone_id)]
+        cv = column_pool[(0, 0, orig_zone_id, dest_zone_id)]
         if cv.is_route_fixed():
             continue
 

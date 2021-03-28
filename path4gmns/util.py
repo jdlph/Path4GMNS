@@ -195,8 +195,6 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
     
                 link.vdfperiods.append(vdf)
 
-                print(header_vdf_alpha)
-
             # set up outgoing links and incoming links
             nodes[from_node_no].add_outgoing_link(link)
             nodes[to_node_no].add_incoming_link(link)
@@ -271,7 +269,7 @@ def read_settings(input_dir, assignment):
             dp = DemandPeriod(i, demand_period, demand_time_period, demand_agent_type, demand_file)
             assignment.demand_periods.append(dp)
 
-        agents = settings['agent_types']
+        agents = settings['agents']
         for i, a in enumerate(agents):
             agent_type = a['type']
             agent_name = a['name']
