@@ -255,32 +255,40 @@ def read_demand(input_dir, file, agent_type, demand_period, zone_to_node_dict, d
 
 
 def read_settings(input_dir, assignment):
-    with open(input_dir+'/settings.yml') as file:
-        settings = ym.full_load(file)
+    try:
+        with open(input_dir+'/settings.yml') as file:
+            settings = ym.full_load(file)
+            # demand files
+            demands = settings['demand_files']
+            for i, d in enumerate(demands):
+                demand_file = d['file_name']
+                demand_format_tpye = d['format_type']
+                demand_period = d['period']
+                demand_time_period = d['time_period']
+                demand_agent_type = d['agent_type']
 
-        demands = settings['demand_files']
-        for i, d in enumerate(demands):
-            demand_file = d['file_name']
-            demand_format_tpye = d['format_type']
-            demand_period = d['period']
-            demand_time_period = d['time_period']
-            demand_agent_type = d['agent_type']
+                dp = DemandPeriod(i, demand_period, demand_time_period, demand_agent_type, demand_file)
+                assignment.demand_periods.append(dp)
+            # agent types
+            agents = settings['agents']
+            for i, a in enumerate(agents):
+                agent_type = a['type']
+                agent_name = a['name']
+                agent_vot = a['vot']
+                agent_flow_type = a['flow_type']
+                agent_pce = a['pce']
 
-            dp = DemandPeriod(i, demand_period, demand_time_period, demand_agent_type, demand_file)
-            assignment.demand_periods.append(dp)
+                at = AgentType(i, agent_type, agent_name, agent_vot, agent_flow_type, agent_pce)
+                assignment.agent_types.append(at)          
+    except FileNotFoundError:
+        # just in case user does not provide setting.yml
+        dp = DemandPeriod()
+        at = AgentType()
 
-        agents = settings['agents']
-        for i, a in enumerate(agents):
-            agent_type = a['type']
-            agent_name = a['name']
-            agent_vot = a['vot']
-            agent_flow_type = a['flow_type']
-            agent_pce = a['pce']
+        assignment.demand_periods.append(dp)
+        assignment.agent_types.append(at)
 
-            at = AgentType(i, agent_type, agent_name, agent_vot, agent_flow_type, agent_pce)
-            assignment.agent_types.append(at)
-
-
+    
 def output_columns(nodes, links, zones, column_pool, output_dir='.'):
     with open(output_dir+'/agent.csv', 'w',  newline='') as fp:
         writer = csv.writer(fp)
@@ -414,5 +422,6 @@ def read_network(load_demand='true', input_dir='.'):
     network.update(assignm.get_agent_type_count(), 
                    assignm.get_demand_period_count())
     assignm.network = network
+    assignm.setup_spnetwork()
 
     return assignm

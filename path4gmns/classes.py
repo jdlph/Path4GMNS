@@ -382,6 +382,12 @@ class Network:
     def get_agent_count(self):
         return self.agent_size
 
+    def get_nodes_from_zone(self, zone_id):
+        return self.zone_to_nodes_dict[zone_id]
+
+    def get_node_no(self, node_id):
+        return self.internal_node_seq_no_dict[node_id]
+
 
 class Agent:
     """ individual agent derived from aggragted demand between an OD pair
@@ -576,6 +582,8 @@ class Assignment:
         self.column_pool = {}
         self.demands = {}
         self.network = None
+        self.spnetworks = []
+        self.memory_blocks = 4
     
     def get_agent_type_count(self):
         return len(self.agent_types)
@@ -625,6 +633,33 @@ class Assignment:
         return find_shortest_path(self.network, from_node_id, 
                                   to_node_id, seq_type='node')
 
+    def setup_spnetwork(self):
+        spbase = SPNetworkBase(self.network)
+        spvec = {}
+
+        for at in range(self.get_agent_type_count()):
+            for dp in range(self.get_demand_period_count()):
+                # z is zone id starting from 1
+                for z in self.network.zones:
+                    if z - 1 < self.memory_blocks:
+                        sp = SPNetwork(spbase, at, dp)
+                        spvec[(at, dp, z-1)] = sp
+                        sp.orig_zones.append(z)
+                        sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
+                        for node_id in self.network.get_nodes_from_zone(z):
+                            sp.node_id_to_no[node_id] = self.network.get_node_no(node_id)
+                        self.spnetworks.append(sp)
+                    else:
+                        m = (z - 1) % self.memory_blocks
+                        if (at, dp, m) not in spvec.keys():
+                            spvec[(at, dp, m)] = SPNetwork(spbase, at, dp)
+                        else:
+                            sp = spvec[(at, dp, m)]
+                        sp.orig_zones.append(z)
+                        sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
+                        for node_id in self.network.get_nodes_from_zone(z):
+                            sp.node_id_to_no[node_id] = self.network.get_node_no(node_id)
+                    
 
 class VDFPeriod:
     
@@ -669,3 +704,99 @@ class VDFPeriod:
         )
 
         return self.avg_travel_time
+
+
+class SPNetworkBase(Network):
+    """ network topology and link costs shared by all derived networks """
+    def __init__(self, network=None):
+        # copy attributes from network
+        self.node_list = network.node_list
+        self.link_list = network.link_list
+
+        self.node_size = network.node_size
+        self.link_size = network.link_size
+
+        # initialize from_node_no_array, to_node_no_array, and link_cost_array
+        from_node_no_array = [link.from_node_seq_no for link in self.link_list]
+        to_node_no_array = [link.to_node_seq_no for link in self.link_list]
+        link_cost_array = [link.cost for link in self.link_list]
+        
+        # initialize others as numpy arrays directly
+        first_link_from = [-1] * self.node_size
+        last_link_from = [-1] * self.node_size
+        sorted_link_no_array = [-1] * self.link_size
+
+        # internal link index used for shortest path calculation only 
+        j = 0
+        for i, node in enumerate(self.node_list):
+            if not node.outgoing_link_list:
+                continue
+            first_link_from[i] = j
+            for link in node.outgoing_link_list:
+                # set up the mapping from j to the true link seq no
+                sorted_link_no_array[j] = link.link_seq_no
+                j += 1
+            last_link_from[i] = j
+
+        # set up arrays using ctypes
+        int_arr_node = ctypes.c_int * self.node_size
+        int_arr_link = ctypes.c_int * self.link_size
+        double_arr_link = ctypes.c_double * self.link_size
+    
+        self.from_node_no_array = int_arr_link(*from_node_no_array)
+        self.to_node_no_array = int_arr_link(*to_node_no_array)
+        self.first_link_from = int_arr_node(*first_link_from)
+        self.last_link_from = int_arr_node(*last_link_from)
+        self.sorted_link_no_array = int_arr_link(*sorted_link_no_array)
+        self.link_cost_array = double_arr_link(*link_cost_array)
+
+
+class SPNetwork(SPNetworkBase):
+    """ attributes related to outputs from shortest path calculations """
+    def __init__(self, spbase, at, dp):
+        self.agent_type = at
+        self.demand_period = dp
+        # copy attributes from SPNetworkBase
+        self.node_list = spbase.node_list
+        self.link_list = spbase.link_list
+
+        self.from_node_no_array = spbase.from_node_no_array
+        self.to_node_no_array = spbase.to_node_no_array
+        self.first_link_from = spbase.first_link_from
+        self.last_link_from = spbase.last_link_from
+        self.sorted_link_no_array = spbase.sorted_link_no_array
+        self.link_cost_array = spbase.link_cost_array
+
+        self.node_size = spbase.node_size
+        self.link_size = spbase.link_size
+        
+        # set up attributes unique to each instance
+        node_preds = [-1] * self.node_size
+        link_preds = [-1] * self.node_size
+        node_lables = [MAX_LABEL_COST] * self.node_size
+        queue_next = [0] * self.node_size
+
+        int_arr_node = ctypes.c_int * self.node_size
+        double_arr_node = ctypes.c_double * self.node_size
+
+        self.node_predecessor = int_arr_node(*node_preds)
+        self.link_predecessor = int_arr_node(*link_preds)
+        self.node_label_cost = double_arr_node(*node_lables)
+        self.queue_next = int_arr_node(*queue_next)
+        # node id
+        self.orig_nodes = []
+        # zone sequence no
+        self.orig_zones = []
+        self.node_id_to_no = {}
+
+    def add_orig_nodes(self, nodes):
+        self.orig_nodes.extend(nodes)
+
+    def allocate_for_CAPI(self):
+        pass
+
+    def get_node_no(self, node_id):
+        try:
+            return self.node_id_to_no[node_id]
+        except KeyError:
+            raise(f"EXCEPTION: Node ID {node_id} NOT IN THE NETWORK!!")

@@ -207,7 +207,7 @@ def _single_source_shortest_path_dijkstra(G, origin_node_no):
 
 def single_source_shortest_path(G, origin_node_id, engine_type='c',
                                 sp_algm='deque'):
-    origin_node_no = G.internal_node_seq_no_dict[origin_node_id]
+    origin_node_no = G.get_node_no(origin_node_id)
     
     if engine_type.lower() == 'c':
         G.allocate_for_CAPI()

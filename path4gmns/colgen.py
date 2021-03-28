@@ -1,4 +1,6 @@
 import ctypes
+import multiprocessing as mp
+
 from .path import single_source_shortest_path
 from .classes import Column, ColumnVec, MAX_TIME_PERIODS, MAX_AGNET_TYPES, \
                      MIN_OD_VOL
@@ -320,8 +322,8 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, A):
     # this is important. 
     # otherwise, at iteration 0, _update_generalized_link_cost() is useless
     # link_cost_array may not be correctly set up
-    if not G.has_capi_allocated:
-        G.allocate_for_CAPI()
+    # if not G.has_capi_allocated:
+    #     G.allocate_for_CAPI()
 
     for i in range(iter_num):
         print(f"current iteration number in assignment: {i}")
@@ -332,19 +334,21 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, A):
                                                     i,
                                                     True)
 
-        for node in G.node_list:
-            _update_generalized_link_cost(G.link_list, G.link_cost_array)
+        # for node in G.node_list:
+        for spn in A.spnetworks:
+            for node_id in spn.orig_nodes:
+                _update_generalized_link_cost(spn.link_list, spn.link_cost_array)
 
-            single_source_shortest_path(G, node.get_node_id())
-                        
-            _backtrace_shortest_path_tree(node.get_node_no(),
-                                          G.node_list,
-                                          G.link_list,
-                                          G.node_predecessor,
-                                          G.link_predecessor,
-                                          G.node_label_cost,
-                                          A.column_pool,
-                                          i)
+                single_source_shortest_path(spn, node_id)
+                            
+                _backtrace_shortest_path_tree(spn.get_node_no(node_id),
+                                              spn.node_list,
+                                              spn.link_list,
+                                              spn.node_predecessor,
+                                              spn.link_predecessor,
+                                              spn.node_label_cost,
+                                              A.column_pool,
+                                              i)
 
     _optimize_column_pool(A.column_pool,
                           G.link_list,
