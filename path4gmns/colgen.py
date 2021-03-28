@@ -1,5 +1,6 @@
 import ctypes
 import multiprocessing as mp
+import threading
 
 from .path import single_source_shortest_path
 from .classes import Column, ColumnVec, MAX_TIME_PERIODS, MAX_AGNET_TYPES, \
@@ -283,21 +284,42 @@ def _update_column_travel_time(links, zones, column_pool):
                         col.set_travel_time(travel_time)
             
 
-def _assignment(A, iter_num):
-    for spn in A.spnetworks:
-        for node_id in spn.orig_nodes:
-            _update_generalized_link_cost(spn.link_list, spn.link_cost_array)
+def _assginment_core(spn, column_pool, iter_num):
+    for node_id in spn.orig_nodes:
+        _update_generalized_link_cost(spn.link_list, spn.link_cost_array)
 
-            single_source_shortest_path(spn, node_id)
-                        
-            _backtrace_shortest_path_tree(spn.get_node_no(node_id),
-                                          spn.node_list,
-                                          spn.link_list,
-                                          spn.node_predecessor,
-                                          spn.link_predecessor,
-                                          spn.node_label_cost,
-                                          A.column_pool,
-                                          iter_num)
+        single_source_shortest_path(spn, node_id)
+                    
+        _backtrace_shortest_path_tree(spn.get_node_no(node_id),
+                                        spn.node_list,
+                                        spn.link_list,
+                                        spn.node_predecessor,
+                                        spn.link_predecessor,
+                                        spn.node_label_cost,
+                                        column_pool,
+                                        iter_num)
+
+
+def _assignment(A, iter_num):
+    # pool = mp.Pool(mp.cpu_count())
+    # pool.starmap(_assginment_core, [(spn, A.column_pool, iter_num) for spn in A.spnetworks])
+    # pool.close()
+    # q = mp.Queue()
+    # processes = [mp.Process(target=_assginment_core, args=(spn, A.column_pool, iter_num, q)) for spn in A.spnetworks]
+    
+    # for p in processes:
+    #     p.start()
+    
+    # for p in processes:
+    #     p.join()
+    threads = []
+    for spn in A.spnetworks:
+        t = threading.Thread(target=_assginment_core, args=(spn, A.column_pool, iter_num,))
+        threads.append(t)
+        t.start()
+    
+    for t in threads:
+        t.join()
 
 
 def perform_network_assignment(assignment_mode, iter_num, column_update_num, A):
