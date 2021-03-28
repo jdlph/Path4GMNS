@@ -1,6 +1,6 @@
 import csv
 
-from .classes import Node, Link, Network, Agent, ColumnVec, \
+from .classes import Node, Link, Network, Agent, ColumnVec, VDFPeriod,\
                      MAX_TIME_PERIODS, MAX_AGNET_TYPES
 
 
@@ -77,12 +77,24 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
             to_node_id = int(to_node_id)
             length = float(length)
 
+            try:
+                from_node_no = id_to_no_dict[from_node_id]
+                to_node_no = id_to_no_dict[to_node_id]
+            except KeyError:
+                print(f"EXCEPTION: Node ID {from_node_no} "
+                      f"or/and Node ID {to_node_id} NOT IN THE NETWORK!!")
+                continue
+
             # for the following attributes, 
             # if they are not None, convert them to the corresponding types
             # leave None's to the default constructor
             lanes = line['lanes']
             if lanes:
                 lanes = int(lanes)
+
+            link_type = line['link_type']
+            if link_type:
+                link_type = int(link_type)
             
             free_speed = line['free_speed']
             if free_speed:
@@ -93,49 +105,13 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
                 # issue: int??
                 capacity = int(float(capacity))
             
-            link_type = line['link_type']
-            if link_type:
-                link_type = int(link_type)
-            
-            VDF_alpha = line['VDF_alpha1']
-            if VDF_alpha:
-                VDF_alpha = float(VDF_alpha)    
-            
-            VDF_beta = line['VDF_beta1']
-            if VDF_beta:
-                VDF_beta = float(VDF_beta)
-
-            VDF_phf = line['VDF_PHF1']
-            if VDF_phf:
-                VDF_phf = float(VDF_phf)    
-            
-            VDF_mu = line['VDF_mu1']
-            if VDF_mu:
-                VDF_mu = float(VDF_mu)
-
-            VDF_fftt = line['VDF_fftt1']
-            if VDF_fftt:
-                VDF_fftt = float(VDF_fftt)    
-            
-            VDF_cap = line['VDF_cap1']
-            if VDF_mu:
-                VDF_cap = float(VDF_cap)
-
-            try:
-                from_node_no = id_to_no_dict[from_node_id]
-                to_node_no = id_to_no_dict[to_node_id]
-            except KeyError:
-                print(f"EXCEPTION: Node ID {from_node_no} "
-                      f"or/and Node ID {to_node_id} NOT IN THE NETWORK!!")
-                continue
-
             # if link.csv does not have no column 'geometry', 
             # set geometry to ''
             try:
                 geometry = line['geometry']
             except KeyError:
                 geometry = ''
-            
+
             # construct link ojbect
             link = Link(link_id,
                         link_seq_no, 
@@ -148,14 +124,68 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
                         link_type,
                         free_speed,
                         capacity,
-                        VDF_alpha,
-                        VDF_beta,
-                        VDF_phf,
-                        VDF_mu,
-                        VDF_fftt,
-                        VDF_cap,
                         geometry)
             
+            # VDF Attributes
+            for i in range(MAX_TIME_PERIODS):
+                header_vdf_alpha = 'VDF_alpha' + str(i+1)
+                header_vdf_beta = 'VDF_beta' + str(i+1)
+                header_vdf_mu = 'VDF_mu' + str(i+1)
+                header_vdf_fftt = 'VDF_fftt' + str(i+1)
+                header_vdf_cap = 'VDF_cap' + str(i+1)
+                header_vdf_phf = 'VDF_phf' + str(i+1)
+
+                try:
+                    VDF_alpha = line[header_vdf_alpha]
+                    if VDF_alpha:
+                        VDF_alpha = float(VDF_alpha)
+                except KeyError:
+                    break  
+                
+                try:
+                    VDF_beta = line[header_vdf_beta]
+                    if VDF_beta:
+                        VDF_beta = float(VDF_beta)
+                except KeyError:
+                    break  
+                
+                try:
+                    VDF_mu = line[header_vdf_mu]
+                    if VDF_mu:
+                        VDF_mu = float(VDF_mu)
+                except KeyError:
+                    break  
+                
+                try:
+                    VDF_fftt = line[header_vdf_fftt]
+                    if VDF_fftt:
+                        VDF_fftt = float(VDF_fftt)    
+                except KeyError:
+                    break  
+
+                try:    
+                    VDF_cap = line[header_vdf_cap]
+                    if VDF_cap:
+                        VDF_cap = float(VDF_cap)
+                except KeyError:
+                    break  
+                
+                # not a mandatory column
+                try:
+                    VDF_phf = line[header_vdf_phf]
+                    if VDF_phf:
+                        VDF_phf = float(VDF_phf)
+                except KeyError:
+                    VDF_phf = -1
+
+                # construct VDFPeriod object
+                vdf = VDFPeriod(i, VDF_alpha, VDF_beta, VDF_mu, 
+                                VDF_fftt, VDF_cap, VDF_phf)
+    
+                link.vdfperiods.append(vdf)
+
+                print(header_vdf_alpha)
+
             # set up outgoing links and incoming links
             nodes[from_node_no].add_outgoing_link(link)
             nodes[to_node_no].add_incoming_link(link)

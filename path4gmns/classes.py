@@ -66,12 +66,6 @@ class Link:
                  link_type=1,
                  free_speed=60,
                  capacity=49500,
-                 vdf_alpha=0.15,
-                 vdf_beta=4,
-                 vdf_phf=3,
-                 vdf_mu=1000,
-                 vdf_fftt=0,
-                 vdf_cap=99999,
                  geometry=''):   
         """ the attribute of link """
         self.id = id
@@ -91,15 +85,9 @@ class Link:
         )
         # capacity is lane capacity per hour
         self.link_capacity = capacity * lanes
-        self.vdf_alpha = vdf_alpha
-        self.vdf_beta = vdf_beta
-        self.vdf_phf = vdf_phf
-        self.vdf_mu = vdf_mu
-        self.vdf_fftt = vdf_fftt
-        self.vdf_cap = vdf_cap
+        self.geometry = geometry
         self.cost = self.free_flow_travel_time_in_min
         self.flow_volume = 0
-        self.geometry = geometry
         # add for CG
         self.toll = 0
         self.route_choice_cost = 0
@@ -109,11 +97,11 @@ class Link:
             [0] * MAX_TIME_PERIODS for i in range(MAX_AGNET_TYPES)
         ]
         # self.queue_length_by_slot = [0] * MAX_TIME_PERIODS
-        self.vdfperiods = [VDFPeriod(i) for i in range(MAX_TIME_PERIODS)]
+        self.vdfperiods = []
         self.travel_marginal_cost_by_period = [
             [0] * MAX_TIME_PERIODS for i in range(MAX_AGNET_TYPES)
         ]
-        self._setup_vdfperiod()
+        # self._setup_vdfperiod()
 
     def get_link_id(self):
         return self.id
@@ -177,15 +165,15 @@ class Link:
             self.vdfperiods[tau].marginal_base * PCE_agent_type
         )
 
-    def _setup_vdfperiod(self):
-        for tau in range(MAX_TIME_PERIODS):
-            vp = self.vdfperiods[tau]
-            vp.alpha = self.vdf_alpha
-            vp.beta = self.vdf_beta
-            vp.phf = self.vdf_phf
-            vp.mu = self.vdf_mu
-            vp.fftt = self.vdf_fftt
-            vp.capacity = self.vdf_cap
+    # def _setup_vdfperiod(self):
+    #     for tau in range(MAX_TIME_PERIODS):
+    #         vp = self.vdfperiods[tau]
+    #         vp.alpha = self.vdf_alpha
+    #         vp.beta = self.vdf_beta
+    #         vp.phf = self.vdf_phf
+    #         vp.mu = self.vdf_mu
+    #         vp.fftt = self.vdf_fftt
+    #         vp.capacity = self.vdf_cap
             
 
 class Network:
@@ -549,16 +537,19 @@ class Assignment:
 
 class VDFPeriod:
     
-    def __init__(self, id):
+    def __init__(self, id, alpha=0.15, beta=4, mu=1000,
+                 fftt=0, cap=99999, phf=-1):
         self.id = id
         self.marginal_base = 1
         # the following four have been defined in class Link
         # they should be exactly the same with those in the corresponding link
-        self.alpha = 0.15
-        self.beta = 4
-        self.capacity = 99999
+        self.alpha = alpha
+        self.beta = beta
+        self.mu = mu
         # free flow travel time
-        self.fftt = 0
+        self.fftt = fftt
+        self.capacity = cap
+        self.phf = phf
         self.avg_travel_time = 0
         self.voc = 0
 

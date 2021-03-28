@@ -48,8 +48,8 @@ def test_column_generation_py():
     print('start column generation')
     st = time()
 
-    iter_num = 40
-    column_update_num = 40
+    iter_num = 20
+    column_update_num = 20
     pg.perform_network_assignment(1, iter_num, column_update_num, network)
     
     print('processing time of column generation:{0: .2f}'
