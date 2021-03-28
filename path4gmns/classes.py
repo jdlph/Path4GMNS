@@ -66,6 +66,7 @@ class Link:
                  link_type=1,
                  free_speed=60,
                  capacity=49500,
+                 allowed_uses='auto',
                  geometry=''):   
         """ the attribute of link """
         self.id = id
@@ -85,6 +86,7 @@ class Link:
         )
         # capacity is lane capacity per hour
         self.link_capacity = capacity * lanes
+        self.allowed_uses = allowed_uses
         self.geometry = geometry
         self.cost = self.free_flow_travel_time_in_min
         self.flow_volume = 0
@@ -526,13 +528,37 @@ class ColumnVec:
         self.path_node_seq_map[node_sum] = col
 
 
+class AgentType:
+
+    def __init__(self, id=0, type='p', name='passenger', vot=10, flow_type=0, pce=1):
+        self.id = id
+        self.type = type
+        self.name = name
+        self.vot = vot
+        self.flow_type = flow_type
+        self.pce = pce
+
+
+class DemandPeriod:
+
+    def __init__(self, id=0, period='AM', time_period='0700_0800', agent_type='p'):
+        self.id = id
+        self.period = period
+        self.time_period = time_period
+        self.agent_type = agent_type
+        
+
 # not used in the current implementation
 # this is for future multi-demand-period and multi-agent-type implementation
 class Assignment:
     
     def __init__(self):
+        
+        self.agent_types = []
+        self.demand_periods = []
         # 4-d array
-        self.column_pool = None
+        self.column_pool = {}
+        self.demands = []
 
 
 class VDFPeriod:

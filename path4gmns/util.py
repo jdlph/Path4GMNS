@@ -1,7 +1,9 @@
 import csv
+import yaml as ym
 
-from .classes import Node, Link, Network, Agent, ColumnVec, VDFPeriod,\
-                     MAX_TIME_PERIODS, MAX_AGNET_TYPES
+
+from .classes import Node, Link, Network, Agent, ColumnVec, VDFPeriod, \
+                     AgentType, DemandPeriod, MAX_TIME_PERIODS, MAX_AGNET_TYPES
 
 
 def read_nodes(input_dir, nodes, id_to_no_dict, 
@@ -104,6 +106,13 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
             if capacity:
                 # issue: int??
                 capacity = int(float(capacity))
+
+            # if link.csv does not have no column 'allowed_uses', 
+            # set allowed_uses to 'auto'
+            try:
+                allowed_uses = line['allowed_uses']
+            except KeyError:
+                allowed_uses = 'auto'
             
             # if link.csv does not have no column 'geometry', 
             # set geometry to ''
@@ -124,6 +133,7 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
                         link_type,
                         free_speed,
                         capacity,
+                        allowed_uses,
                         geometry)
             
             # VDF Attributes
@@ -238,6 +248,31 @@ def read_demand(input_dir, agents, td_agents, zone_to_node_dict, column_pool):
             total_agents += int(volume + 1)
             
     print(f"the number of agents is {total_agents}")
+
+
+def read_settings(input_dir):
+    with open(input_dir+'/settings.yml') as file:
+        settings = ym.full_load(file)
+
+        demands = settings['demand_files']
+        for i, d in enumerate(demands):
+            demand_file = d['file_name']
+            demand_format_tpye = d['format_type']
+            demand_period = d['period']
+            demand_time_period = d['time_period']
+            demand_agent_type = d['agent_type']
+
+            dp = DemandPeriod(i, demand_period, demand_time_period, demand_agent_type)
+            
+        agents = settings['agent_types']
+        for i, a in enumerate(agents):
+            agent_type = agents['type']
+            agent_name = agents['name']
+            agent_vot = agents['vot']
+            agent_flow_type = agents['flow_type']
+            agent_pce = agents['pce']
+
+            at = AgentType(i, agent_type, agent_name, agent_vot, agent_flow_type, agent_pce)
 
 
 def output_columns(nodes, links, zones, column_pool, output_dir='.'):
