@@ -7,9 +7,9 @@ Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/), and
 ```
 $ pip install path4gmns
 ```
-If you need a specific version of Path4GMNS, say, 0.5.1,
+If you need a specific version of Path4GMNS, say, 0.6.0,
 ```
-$ pip install path4gmns==0.5.1
+$ pip install path4gmns==0.6.0
 ```
 If you want to test the latest features of Path4GMNS, you can build the package from sources and install it offline, where **Python 3.x** is required.
 ```
@@ -42,10 +42,9 @@ load_demand = False
 network = pg.read_network(load_demand)
 
 print('\nshortest path (node id) from node 1 to node 2 is '
-      +pg.find_shortest_path(network, 1, 2))
-
+      +network.find_shortest_path(1, 2))
 print('\nshortest path (link id) from node 1 to node 2 is '
-      +pg.find_shortest_path(network, 1, 2, 'link'))
+      +network.find_shortest_path(1, 2, 'link'))
 ```
 
 ### *Find shortest paths for all individual agents*
@@ -77,7 +76,7 @@ print('destination node id of agent is '
 
 print('shortest path (node id) of agent is ' 
       +str(network.get_agent_node_path(agent_id)))
-      
+
 print('shortest path (link id) of agent is ' 
       +str(network.get_agent_link_path(agent_id)))
 ```
@@ -97,8 +96,10 @@ column_update_num = 10
 
 pg.perform_network_assignment(mode, assignment_num, column_update_num, network)
 
-pg.output_columns(network.zones, network.column_pool)
-pg.output_link_performance(network.link_list)
+pg.output_columns(network.get_nodes(), network.get_links(), 
+                  network.get_zones(), network.get_column_pool())
+
+pg.output_link_performance(network.get_links())
 
 print('\npath finding results can be found in agent.csv')
 ```
@@ -142,13 +143,13 @@ print('\npath finding results can be found in agent.csv')
 - [ ] Enable manipulations on the overall travel demand and the demand between an OD pair
 - [x] Support for multi-demand-period and multi-agent-type
 - [ ] Add allowed use in terms of agent type for links 
-- [ ] Provide a setting file in yaml to let users control key parameters
+- [x] Provide a setting file in yaml to let users control key parameters
 - [ ] Adopt parallel computing to further boost the performance
 
 ## Known Issues
-- [x] OSError: GLIBC_2.29 not found (required by DTALite.so) when importing Path4GMNS. You might encounter this issue if you are running Ubuntu 18.04LTS or lower (e.g., Google Colab) as DTALite.so shipped with v0.5.2 and prior was built on Ubuntu 20.04LTS. [v0.5.3](https://pypi.org/project/path4gmns/0.5.3/) built on Ubuntu 18.04LTS with GLIBC_2.27 is published on PyPI and open for download.
+- [x] OSError: GLIBC_2.29 not found (required by DTALite.so) when importing Path4GMNS. You might encounter this issue if you are running Ubuntu 18.04LTS or lower (e.g., Google Colab) as DTALite.so shipped with v0.5.2 and prior was built on Ubuntu 20.04LTS. [v0.6.0](https://pypi.org/project/path4gmns/0.6.0/) built on Ubuntu 18.04LTS with GLIBC_2.27 is published on PyPI and open for download.
 
-      $ pip install path4gmns==0.5.3
+      $ pip install path4gmns==0.6.0
 
 - [x] Get same assignment results after changing values of VDF parameters in link.csv. The bug has been fixed in the source code in v0.5.3. Please use the latest release.
 

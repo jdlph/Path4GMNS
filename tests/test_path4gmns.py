@@ -21,7 +21,6 @@ def test_find_shortest_path_for_agents():
           .format(time()-st)+ 's')
 
     agent_id = 300
-    
     print('\norigin node id of agent is '
           +str(network.get_agent_orig_node_id(agent_id)))
     print('destination node id of agent is '
