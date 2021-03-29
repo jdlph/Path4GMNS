@@ -56,9 +56,15 @@ def test_column_generation_py():
           f' for {iter_num} assignment iterations and '
           f'{column_update_num} iterations in column generation')
 
-    pg.output_columns(network.get_nodes(), network.get_links(), 
-                      network.get_zones(), network.get_column_pool())
-    pg.output_link_performance(network.get_links())
+    pg.output_columns(network.get_nodes(), 
+                      network.get_links(), 
+                      network.get_zones(),
+                      network.get_column_pool(),
+                      network.get_agent_type_count(),
+                      network.get_demand_period_count())
+
+    pg.output_link_performance(network.get_links(),
+                               network.get_demand_period_count())
 
     print('\npath finding results can be found in agent.csv')
 
@@ -100,4 +106,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
     
-    demo_mode(4)
+    demo_mode(3)

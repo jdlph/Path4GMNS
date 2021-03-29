@@ -8,7 +8,7 @@ _NUM_OF_SECS_PER_SIMU_INTERVAL = 6
 
 MIN_OD_VOL = 0.000001
 MAX_TIME_PERIODS = 1
-MAX_AGNET_TYPES = 1
+MAX_AGENT_TYPES = 1
 
 
 class Node:         
@@ -96,12 +96,12 @@ class Link:
         self.travel_time_by_period = [0] * MAX_TIME_PERIODS
         self.flow_vol_by_period = [0] * MAX_TIME_PERIODS
         self.vol_by_period_by_at = [
-            [0] * MAX_TIME_PERIODS for i in range(MAX_AGNET_TYPES)
+            [0] * MAX_TIME_PERIODS for i in range(MAX_AGENT_TYPES)
         ]
         # self.queue_length_by_slot = [0] * MAX_TIME_PERIODS
         self.vdfperiods = []
         self.travel_marginal_cost_by_period = [
-            [0] * MAX_TIME_PERIODS for i in range(MAX_AGNET_TYPES)
+            [0] * MAX_TIME_PERIODS for i in range(MAX_AGENT_TYPES)
         ]
 
     def get_link_id(self):
@@ -165,7 +165,53 @@ class Link:
         self.travel_marginal_cost_by_period[tau][agent_type] = (
             self.vdfperiods[tau].marginal_base * PCE_agent_type
         )
-           
+
+
+class Agent:
+    """ individual agent derived from aggragted demand between an OD pair
+
+    agent_id: the id of agent
+    agent_seq_no: the index of the agent and we call the agent by its index
+    """
+    
+    def __init__(self, agent_id, agent_seq_no, agent_type, 
+                 o_zone_id, d_zone_id):
+        """ the attribute of agent """ 
+        self.agent_id = agent_id
+        self.agent_seq_no = agent_seq_no
+        # vehicle 
+        self.agent_type = agent_type  
+        self.o_zone_id = o_zone_id
+        self.d_zone_id = d_zone_id
+        self.o_node_id = 0
+        self.d_node_id = 0
+        self.node_path = None
+        self.link_path = None 
+        self.current_link_seq_no_in_path = 0 
+        self.departure_time_in_min = 0
+        # Passenger Car Equivalent (PCE) of the agent
+        self.PCE_factor = 1  
+        self.path_cost = 0
+        self.departure_time_in_simu_interval = int(
+            self.departure_time_in_min 
+            * 60 /_NUM_OF_SECS_PER_SIMU_INTERVAL
+            + 0.5)
+        self.b_generated = False
+        self.b_complete_trip = False
+        self.feasible_path_exist_flag = False
+
+    def get_orig_node_id(self):
+        return self.o_node_id
+
+    def get_dest_node_id(self):
+        return self.d_node_id
+
+    def get_seq_no(self):
+        return self.agent_seq_no
+
+    def get_dep_simu_intvl(self):
+        return self.departure_time_in_simu_interval
+ 
 
 class Network:
     
@@ -375,52 +421,6 @@ class Network:
         return self.internal_node_seq_no_dict[node_id]
 
 
-class Agent:
-    """ individual agent derived from aggragted demand between an OD pair
-
-    agent_id: the id of agent
-    agent_seq_no: the index of the agent and we call the agent by its index
-    """
-    
-    def __init__(self, agent_id, agent_seq_no, agent_type, 
-                 o_zone_id, d_zone_id):
-        """ the attribute of agent """ 
-        self.agent_id = agent_id
-        self.agent_seq_no = agent_seq_no
-        # vehicle 
-        self.agent_type = agent_type  
-        self.o_zone_id = o_zone_id
-        self.d_zone_id = d_zone_id
-        self.o_node_id = 0
-        self.d_node_id = 0
-        self.node_path = None
-        self.link_path = None 
-        self.current_link_seq_no_in_path = 0 
-        self.departure_time_in_min = 0
-        # Passenger Car Equivalent (PCE) of the agent
-        self.PCE_factor = 1  
-        self.path_cost = 0
-        self.departure_time_in_simu_interval = int(
-            self.departure_time_in_min 
-            * 60 /_NUM_OF_SECS_PER_SIMU_INTERVAL
-            + 0.5)
-        self.b_generated = False
-        self.b_complete_trip = False
-        self.feasible_path_exist_flag = False
-
-    def get_orig_node_id(self):
-        return self.o_node_id
-
-    def get_dest_node_id(self):
-        return self.d_node_id
-
-    def get_seq_no(self):
-        return self.agent_seq_no
-
-    def get_dep_simu_intvl(self):
-        return self.departure_time_in_simu_interval
-
-
 class Column:
     
     def __init__(self, seq_no=-1):
@@ -527,11 +527,11 @@ class ColumnVec:
         self.path_node_seq_map[node_sum] = col
 
 
-# not used in the current implementation
-# this is for future multi-demand-period and multi-agent-type implementation
 class AgentType:
 
-    def __init__(self, id=0, type='p', name='passenger', vot=10, flow_type=0, pce=1):
+    def __init__(self, id=0, type='p', name='passenger', 
+                 vot=10, flow_type=0, pce=1):
+                 
         self.id = id
         self.type = type
         self.name = name
@@ -548,7 +548,9 @@ class AgentType:
 
 class DemandPeriod:
 
-    def __init__(self, id=0, period='AM', time_period='0700_0800', agent_type='p', file='demand.csv'):
+    def __init__(self, id=0, period='AM', time_period='0700_0800', 
+                 agent_type='p', file='demand.csv'):
+
         self.id = id
         self.period = period
         self.time_period = time_period
@@ -567,7 +569,6 @@ class VDFPeriod:
     def __init__(self, id, alpha=0.15, beta=4, mu=1000,
                  fftt=0, cap=99999, phf=-1):
         self.id = id
-        self.marginal_base = 1
         # the following four have been defined in class Link
         # they should be exactly the same with those in the corresponding link
         self.alpha = alpha
@@ -577,6 +578,7 @@ class VDFPeriod:
         self.fftt = fftt
         self.capacity = cap
         self.phf = phf
+        self.marginal_base = 1
         self.avg_travel_time = 0
         self.voc = 0
 
@@ -611,25 +613,25 @@ class SPNetworkBase(Network):
     """ network topology and link costs shared by all derived networks """
     def __init__(self, network=None):
         # copy attributes from network
-        self.node_list = network.node_list
-        self.link_list = network.link_list
+        # self.node_list = network.node_list
+        # self.link_list = network.link_list
 
         self.node_size = network.node_size
         self.link_size = network.link_size
 
         # initialize from_node_no_array, to_node_no_array, and link_cost_array
-        from_node_no_array = [link.from_node_seq_no for link in self.link_list]
-        to_node_no_array = [link.to_node_seq_no for link in self.link_list]
-        link_cost_array = [link.cost for link in self.link_list]
+        from_node_no_array = [link.from_node_seq_no for link in network.link_list]
+        to_node_no_array = [link.to_node_seq_no for link in network.link_list]
+        link_cost_array = [link.cost for link in network.link_list]
         
         # initialize others as numpy arrays directly
-        first_link_from = [-1] * self.node_size
-        last_link_from = [-1] * self.node_size
-        sorted_link_no_array = [-1] * self.link_size
+        first_link_from = [-1] * network.node_size
+        last_link_from = [-1] * network.node_size
+        sorted_link_no_array = [-1] * network.link_size
 
         # internal link index used for shortest path calculation only 
         j = 0
-        for i, node in enumerate(self.node_list):
+        for i, node in enumerate(network.node_list):
             if not node.outgoing_link_list:
                 continue
             first_link_from[i] = j
@@ -640,9 +642,9 @@ class SPNetworkBase(Network):
             last_link_from[i] = j
 
         # set up arrays using ctypes
-        int_arr_node = ctypes.c_int * self.node_size
-        int_arr_link = ctypes.c_int * self.link_size
-        double_arr_link = ctypes.c_double * self.link_size
+        int_arr_node = ctypes.c_int * network.node_size
+        int_arr_link = ctypes.c_int * network.link_size
+        double_arr_link = ctypes.c_double * network.link_size
     
         self.from_node_no_array = int_arr_link(*from_node_no_array)
         self.to_node_no_array = int_arr_link(*to_node_no_array)
@@ -658,8 +660,8 @@ class SPNetwork(SPNetworkBase):
         self.agent_type = at
         self.demand_period = dp
         # copy attributes from SPNetworkBase
-        self.node_list = spbase.node_list
-        self.link_list = spbase.link_list
+        # self.node_list = spbase.node_list
+        # self.link_list = spbase.link_list
 
         self.from_node_no_array = spbase.from_node_no_array
         self.to_node_no_array = spbase.to_node_no_array
@@ -672,13 +674,13 @@ class SPNetwork(SPNetworkBase):
         self.link_size = spbase.link_size
         
         # set up attributes unique to each instance
-        node_preds = [-1] * self.node_size
-        link_preds = [-1] * self.node_size
-        node_lables = [MAX_LABEL_COST] * self.node_size
-        queue_next = [0] * self.node_size
+        node_preds = [-1] * spbase.node_size
+        link_preds = [-1] * spbase.node_size
+        node_lables = [MAX_LABEL_COST] * spbase.node_size
+        queue_next = [0] * spbase.node_size
 
-        int_arr_node = ctypes.c_int * self.node_size
-        double_arr_node = ctypes.c_double * self.node_size
+        int_arr_node = ctypes.c_int * spbase.node_size
+        double_arr_node = ctypes.c_double * spbase.node_size
 
         self.node_predecessor = int_arr_node(*node_preds)
         self.link_predecessor = int_arr_node(*link_preds)

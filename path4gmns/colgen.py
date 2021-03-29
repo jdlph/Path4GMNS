@@ -1,9 +1,14 @@
 import ctypes
-import multiprocessing as mp
-import threading
+# import ray
+# import multiprocessing as mp
+# import threading
+# import pathos.multiprocessing as mp
+# import dill
+# import dispy
+from time import time
 
 from .path import single_source_shortest_path
-from .classes import Column, ColumnVec, MIN_OD_VOL
+from .classes import Column, ColumnVec, MIN_OD_VOL, SPNetwork
 
 
 __all__ = ['perform_network_assignment']
@@ -267,7 +272,7 @@ def _backtrace_shortest_path_tree(orig_node_no,
                 dist += links[current_link_seq_no].length
             
             current_node_seq_no = node_preds[current_node_seq_no]
-        
+
         # make sure this is a valid path
         if not link_path:
             continue
@@ -302,18 +307,18 @@ def _update_column_travel_time(links, zones, column_pool,
                         )
                         col.set_travel_time(travel_time)
             
-
-def _assginment_core(spn, column_pool, vot, demand_period, agent_type, iter_num):
+# @ray.remote
+def _assginment_core(spn, node_list, link_list, column_pool, vot, demand_period, agent_type, iter_num):
 
     for node_id in spn.orig_nodes:
-        _update_generalized_link_cost(spn.link_list, spn.link_cost_array,
-                                      spn.get_demand_period(), vot)
+
+        _update_generalized_link_cost(link_list, spn.link_cost_array, demand_period, vot)
 
         single_source_shortest_path(spn, node_id)
                     
         _backtrace_shortest_path_tree(spn.get_node_no(node_id),
-                                      spn.node_list,
-                                      spn.link_list,
+                                      node_list,
+                                      link_list,
                                       spn.node_predecessor,
                                       spn.link_predecessor,
                                       spn.node_label_cost,
@@ -323,7 +328,7 @@ def _assginment_core(spn, column_pool, vot, demand_period, agent_type, iter_num)
                                       iter_num)
 
 
-def _assignment(spnetworks, column_pool, agent_types, iter_num):
+def _assignment(spnetworks, node_list, link_list, column_pool, agent_types, iter_num):
     # multiprocessing
 
     # pool = mp.Pool(mp.cpu_count())
@@ -341,19 +346,46 @@ def _assignment(spnetworks, column_pool, agent_types, iter_num):
 
     # multi-threading
     # threads = []
-    # for spn in A.spnetworks:
-    #     t = threading.Thread(target=_assginment_core, args=(spn, A.column_pool, iter_num,))
+    # for spn in spnetworks:
+    #     t = threading.Thread(target=_assginment_core, args=(spn, node_list, link_list, column_pool, 10, 0, 0, iter_num,))
     #     threads.append(t)
     #     t.start()
     
     # for t in threads:
     #     t.join()
 
+    # [_assginment_core.remote(spn, column_pool, 10, 0, 0, iter_num) for spn in spnetworks]
+
+    # p = mp.Pool(4)
+    # p.map(dill.dumps(_assginment_core), [(dill.dumps(spn), column_pool, 10, 0, 0, iter_num) for spn in spnetworks])
+
+    # using dispy
+    # cluster = dispy.JobCluster(_assginment_core, depends=[SPNetwork, _update_generalized_link_cost, single_source_shortest_path, _backtrace_shortest_path_tree])
+    # jobs = []
+    # for spn in spnetworks:
+    #     vot = agent_types[spn.get_agent_type()].get_vot()
+    #     at = spn.get_agent_type()
+    #     dp = spn.get_demand_period()
+    #     job = cluster.submit(spn, node_list, link_list, column_pool, vot, dp, at, iter_num)
+    #     jobs.append(job)
+    
+    # for job in jobs:
+    #     job()
+
+    # cluster.print_status()
+
+    flag = False
+ 
+    # single processing
     for spn in spnetworks:
         vot = agent_types[spn.get_agent_type()].get_vot()
         at = spn.get_agent_type()
         dp = spn.get_demand_period()
-        _assginment_core(spn, column_pool, vot, dp, at, iter_num)
+        # if not flag:
+        #     _update_generalized_link_cost(link_list, spn.link_cost_array, dp, vot)
+        #     flag = True
+
+        _assginment_core(spn, node_list, link_list, column_pool, vot, dp, at, iter_num)
 
 
 def perform_network_assignment(assignment_mode, iter_num, column_update_num, A):
@@ -390,6 +422,8 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, A):
     if assignment_mode != 1:
         raise Exception("not implemented yet")
 
+    # ray.init()
+
     G = A.get_network()
 
     # this is important. 
@@ -397,6 +431,8 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, A):
     # link_cost_array may not be correctly set up
     # if not G.has_capi_allocated:
     #     G.allocate_for_CAPI()
+
+    st = time()
 
     for i in range(iter_num):
         print(f"current iteration number in assignment: {i}")
@@ -413,7 +449,9 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, A):
                                                     True)
 
         # for node in G.node_list:
-        _assignment(A.spnetworks, A.column_pool, A.agent_types, i)
+        _assignment(A.spnetworks, G.node_list, G.link_list, A.column_pool, A.agent_types, i)
+
+    print('\nprocessing time of assignment:{0: .2f}'.format(time()-st)+ 's')
 
     _optimize_column_pool(A.column_pool,
                           G.link_list,

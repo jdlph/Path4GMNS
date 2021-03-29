@@ -4,7 +4,7 @@ import yaml as ym
 
 from .classes import Node, Link, Network, Agent, ColumnVec, VDFPeriod, \
                      AgentType, DemandPeriod, Assignment, \
-                     MAX_TIME_PERIODS, MAX_AGNET_TYPES
+                     MAX_TIME_PERIODS, MAX_AGENT_TYPES
 
 
 def read_nodes(input_dir, nodes, id_to_no_dict, 
@@ -290,7 +290,9 @@ def read_settings(input_dir, assignment):
         assignment.agent_types.append(at)
 
     
-def output_columns(nodes, links, zones, column_pool, output_dir='.'):
+def output_columns(nodes, links, zones, column_pool, 
+                   agent_type_count, demand_period_count, output_dir='.'):
+                   
     with open(output_dir+'/agent.csv', 'w',  newline='') as fp:
         writer = csv.writer(fp)
 
@@ -315,12 +317,12 @@ def output_columns(nodes, links, zones, column_pool, output_dir='.'):
         i = 0
         for orig_zone in zones:
             for dest_zone in zones:
-                for at in range(MAX_AGNET_TYPES):
+                for at in range(MAX_AGENT_TYPES):
                     for tau in range(MAX_TIME_PERIODS):
-                        if (orig_zone, dest_zone) not in column_pool.keys():
+                        if (at, tau, orig_zone, dest_zone) not in column_pool.keys():
                             continue
                         
-                        cv = column_pool[(orig_zone, dest_zone)]
+                        cv = column_pool[(at, tau, orig_zone, dest_zone)]
 
                         for col in cv.get_columns().values():
                             i += 1
@@ -352,7 +354,7 @@ def output_columns(nodes, links, zones, column_pool, output_dir='.'):
                             writer.writerow(line)
 
 
-def output_link_performance(links, output_dir='.'):
+def output_link_performance(links, demand_period_count, output_dir='.'):
     with open(output_dir+'/link_performance.csv', 'w',  newline='') as fp:
         writer = csv.writer(fp)
 
@@ -372,7 +374,7 @@ def output_link_performance(links, output_dir='.'):
         writer.writerow(line)
 
         for link in links:
-            for tau in range(MAX_TIME_PERIODS):
+            for tau in range(demand_period_count):
                 avg_travel_time = link.get_period_avg_travel_time(tau)
                 speed = link.get_length() / (max(0.001, avg_travel_time) / 60)
                 
@@ -422,6 +424,7 @@ def read_network(load_demand='true', input_dir='.'):
 
     network.update(assignm.get_agent_type_count(), 
                    assignm.get_demand_period_count())
+                   
     assignm.network = network
     assignm.setup_spnetwork()
 

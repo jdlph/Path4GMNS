@@ -8,7 +8,7 @@ setuptools.setup(
     version="0.6.0",
     author="Dr. Xuesong Zhou, Dr. Peiheng Li",
     author_email="xzhou74@asu.edu, jdlph@hotmail.com",
-    description="an open-source, cross-platform, lightweight, and fast Python\
+    description="An open-source, cross-platform, lightweight, and fast Python\
                 path engine for networks encoded in GMNS",
     long_description=long_description,
     long_description_content_type="text/markdown",
