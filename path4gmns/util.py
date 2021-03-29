@@ -205,7 +205,8 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
         print(f"the number of links is {link_seq_no}")
     
 
-def read_demand(input_dir, file, agent_type, demand_period, zone_to_node_dict, demands, column_pool):
+def read_demand(input_dir, file, agent_type, demand_period, 
+                zone_to_node_dict, demands, column_pool):
     """ step 3:read input_agent """
     with open(input_dir+'/'+file, 'r', encoding='utf-8') as fp:
         print('read demand.csv')
@@ -216,35 +217,35 @@ def read_demand(input_dir, file, agent_type, demand_period, zone_to_node_dict, d
             volume = line['volume']
             
             # invalid origin zone id, discard it
-            o_zone_id = line['o_zone_id']
-            if not o_zone_id:
+            oz_id = line['o_zone_id']
+            if not oz_id:
                 continue
 
             # invalid destinationzone id, discard it
-            d_zone_id = line['d_zone_id']
-            if not d_zone_id:
+            dz_id = line['d_zone_id']
+            if not dz_id:
                 continue
             
-            o_zone_id = int(o_zone_id)
+            oz_id = int(oz_id)
             # o_zone_id does not exist in node.csv, discard it
-            if o_zone_id not in zone_to_node_dict.keys():
+            if oz_id not in zone_to_node_dict.keys():
                 continue
             
-            d_zone_id = int(d_zone_id)
+            dz_id = int(dz_id)
             # d_zone_id does not exist in node.csv, discard it
-            if d_zone_id not in zone_to_node_dict.keys():
+            if dz_id not in zone_to_node_dict.keys():
                 continue
 
             volume = float(volume)
 
             # set up total demand volume for an OD pair
-            if (o_zone_id, d_zone_id) not in demands.keys():
-                demands[(o_zone_id, d_zone_id)] = 0
-            demands[(o_zone_id, d_zone_id)] += volume
+            if (oz_id, dz_id) not in demands.keys():
+                demands[(oz_id, dz_id)] = 0
+            demands[(oz_id, dz_id)] += volume
             # set up volume for ColumnVec
-            if (agent_type, demand_period, o_zone_id, d_zone_id) not in column_pool.keys():
-                column_pool[(agent_type, demand_period, o_zone_id, d_zone_id)] = ColumnVec()
-            column_pool[(agent_type, demand_period, o_zone_id, d_zone_id)].od_vol += volume
+            if (agent_type, demand_period, oz_id, dz_id) not in column_pool.keys():
+                column_pool[(agent_type, demand_period, oz_id, dz_id)] = ColumnVec()
+            column_pool[(agent_type, demand_period, oz_id, dz_id)].od_vol += volume
 
             if volume == 0:
                 continue

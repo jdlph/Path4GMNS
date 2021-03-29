@@ -103,7 +103,6 @@ class Link:
         self.travel_marginal_cost_by_period = [
             [0] * MAX_TIME_PERIODS for i in range(MAX_AGNET_TYPES)
         ]
-        # self._setup_vdfperiod()
 
     def get_link_id(self):
         return self.id
@@ -166,17 +165,7 @@ class Link:
         self.travel_marginal_cost_by_period[tau][agent_type] = (
             self.vdfperiods[tau].marginal_base * PCE_agent_type
         )
-
-    # def _setup_vdfperiod(self):
-    #     for tau in range(MAX_TIME_PERIODS):
-    #         vp = self.vdfperiods[tau]
-    #         vp.alpha = self.vdf_alpha
-    #         vp.beta = self.vdf_beta
-    #         vp.phf = self.vdf_phf
-    #         vp.mu = self.vdf_mu
-    #         vp.fftt = self.vdf_fftt
-    #         vp.capacity = self.vdf_cap
-            
+           
 
 class Network:
     
@@ -201,9 +190,6 @@ class Network:
         self.link_predecessor = None
         # added for CG
         self.zones = None
-        self.tau = 0
-        self.agent_type = 0
-        self.column_pool = {}
         self.has_capi_allocated = False
         # the following two are IDs rather than objects
         self._agent_types = 0
@@ -556,6 +542,9 @@ class AgentType:
     def get_id(self):
         return self.id
 
+    def get_vot(self):
+        return self.vot
+
 
 class DemandPeriod:
 
@@ -571,95 +560,7 @@ class DemandPeriod:
 
     def get_file_name(self):
         return self.file
-
-        
-class Assignment:
-    
-    def __init__(self):
-        self.agent_types = []
-        self.demand_periods = []
-        # 4-d array
-        self.column_pool = {}
-        self.demands = {}
-        self.network = None
-        self.spnetworks = []
-        self.memory_blocks = 4
-    
-    def get_agent_type_count(self):
-        return len(self.agent_types)
-
-    def get_demand_period_count(self):
-        return len(self.demand_periods)
-
-    def get_agent_types(self):
-        for at in self.agent_types:
-            yield at
-
-    def get_demand_periods(self):
-        for dp in self.demand_periods:
-            yield dp
-
-    def get_network(self):
-        return self.network
-
-    def get_nodes(self):
-        return self.network.node_list
-
-    def get_links(self):
-        return self.network.link_list
-
-    def get_zones(self):
-        return self.network.zones
-
-    def get_column_pool(self):
-        return self.column_pool
-
-    def get_agent_orig_node_id(self, agent_id):
-        return self.network.get_agent_orig_node_id(agent_id)
-
-    def get_agent_dest_node_id(self, agent_id):
-        return self.network.get_agent_dest_node_id(agent_id)
-
-    def get_agent_node_path(self, agent_id):
-        return self.network.get_agent_node_path(agent_id)
-
-    def get_agent_link_path(self, agent_id):
-        return self.network.get_agent_link_path(agent_id)
-
-    def find_path_for_agents(self):
-        find_path_for_agents(self.network, self.column_pool)
-
-    def find_shortest_path(self, from_node_id, to_node_id, seq_type='node'):
-        return find_shortest_path(self.network, from_node_id, 
-                                  to_node_id, seq_type='node')
-
-    def setup_spnetwork(self):
-        spbase = SPNetworkBase(self.network)
-        spvec = {}
-
-        for at in range(self.get_agent_type_count()):
-            for dp in range(self.get_demand_period_count()):
-                # z is zone id starting from 1
-                for z in self.network.zones:
-                    if z - 1 < self.memory_blocks:
-                        sp = SPNetwork(spbase, at, dp)
-                        spvec[(at, dp, z-1)] = sp
-                        sp.orig_zones.append(z)
-                        sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
-                        for node_id in self.network.get_nodes_from_zone(z):
-                            sp.node_id_to_no[node_id] = self.network.get_node_no(node_id)
-                        self.spnetworks.append(sp)
-                    else:
-                        m = (z - 1) % self.memory_blocks
-                        if (at, dp, m) not in spvec.keys():
-                            spvec[(at, dp, m)] = SPNetwork(spbase, at, dp)
-                        else:
-                            sp = spvec[(at, dp, m)]
-                        sp.orig_zones.append(z)
-                        sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
-                        for node_id in self.network.get_nodes_from_zone(z):
-                            sp.node_id_to_no[node_id] = self.network.get_node_no(node_id)
-                    
+                 
 
 class VDFPeriod:
     
@@ -788,6 +689,7 @@ class SPNetwork(SPNetworkBase):
         # zone sequence no
         self.orig_zones = []
         self.node_id_to_no = {}
+        self.has_capi_allocated = False
 
     def add_orig_nodes(self, nodes):
         self.orig_nodes.extend(nodes)
@@ -800,3 +702,101 @@ class SPNetwork(SPNetworkBase):
             return self.node_id_to_no[node_id]
         except KeyError:
             raise(f"EXCEPTION: Node ID {node_id} NOT IN THE NETWORK!!")
+
+    def get_agent_type(self):
+        return self.agent_type
+
+    def get_demand_period(self):
+        return self.demand_period
+
+
+class Assignment:
+    
+    def __init__(self):
+        self.agent_types = []
+        self.demand_periods = []
+        # 4-d array
+        self.column_pool = {}
+        self.demands = {}
+        self.network = None
+        self.spnetworks = []
+        self.memory_blocks = 4
+    
+    def get_agent_type_count(self):
+        return len(self.agent_types)
+
+    def get_demand_period_count(self):
+        return len(self.demand_periods)
+
+    def get_agent_types(self):
+        for at in self.agent_types:
+            yield at
+
+    def get_demand_periods(self):
+        for dp in self.demand_periods:
+            yield dp
+
+    def get_network(self):
+        return self.network
+
+    def get_nodes(self):
+        return self.network.node_list
+
+    def get_links(self):
+        return self.network.link_list
+
+    def get_zones(self):
+        return self.network.zones
+
+    def get_column_pool(self):
+        return self.column_pool
+
+    def get_agent_orig_node_id(self, agent_id):
+        return self.network.get_agent_orig_node_id(agent_id)
+
+    def get_agent_dest_node_id(self, agent_id):
+        return self.network.get_agent_dest_node_id(agent_id)
+
+    def get_agent_node_path(self, agent_id):
+        return self.network.get_agent_node_path(agent_id)
+
+    def get_agent_link_path(self, agent_id):
+        return self.network.get_agent_link_path(agent_id)
+
+    def find_path_for_agents(self):
+        find_path_for_agents(self.network, self.column_pool)
+
+    def find_shortest_path(self, from_node_id, to_node_id, seq_type='node'):
+        return find_shortest_path(self.network, from_node_id, 
+                                  to_node_id, seq_type='node')
+
+    def setup_spnetwork(self):
+        spbase = SPNetworkBase(self.network)
+        spvec = {}
+
+        for at in range(self.get_agent_type_count()):
+            for dp in range(self.get_demand_period_count()):
+                # z is zone id starting from 1
+                for z in self.network.zones:
+                    if z - 1 < self.memory_blocks:
+                        sp = SPNetwork(spbase, at, dp)
+                        spvec[(at, dp, z-1)] = sp
+                        sp.orig_zones.append(z)
+                        sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
+                        for node_id in self.network.get_nodes_from_zone(z):
+                            sp.node_id_to_no[node_id] = (
+                                self.network.get_node_no(node_id)
+                            )
+                        self.spnetworks.append(sp)
+                    else:
+                        m = (z - 1) % self.memory_blocks
+                        if (at, dp, m) not in spvec.keys():
+                            spvec[(at, dp, m)] = SPNetwork(spbase, at, dp)
+                        else:
+                            sp = spvec[(at, dp, m)]
+                        sp.orig_zones.append(z)
+                        sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
+                        for node_id in self.network.get_nodes_from_zone(z):
+                            sp.node_id_to_no[node_id] = (
+                                self.network.get_node_no(node_id)
+                            )
