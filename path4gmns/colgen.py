@@ -389,7 +389,7 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, A):
     st = time()
 
     for i in range(iter_num):
-        print(f"current iteration number in assignment: {i}")
+        print(f"current iteration number in assignment: {i}\n")
         _update_link_travel_time_and_cost(link_list, at_size, dp_size)
         
         _reset_and_update_link_vol_based_on_columns(column_pool, 

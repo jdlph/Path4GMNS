@@ -290,11 +290,17 @@ def read_settings(input_dir, assignment):
         assignment.agent_types.append(at)
 
     
-def output_columns(nodes, links, zones, column_pool, 
-                   agent_type_count, demand_period_count, output_dir='.'):
+def output_columns(network, output_dir='.'):
                    
     with open(output_dir+'/agent.csv', 'w',  newline='') as fp:
         writer = csv.writer(fp)
+
+        nodes = network.get_nodes()
+        links = network.get_links() 
+        zones = network.get_zones()
+        column_pool = network.get_column_pool()
+        agent_type_count = network.get_agent_type_count()
+        demand_period_count = network.get_demand_period_count()
 
         line = ['agent_id', 
                 'o_zone_id',
@@ -315,14 +321,14 @@ def output_columns(nodes, links, zones, column_pool,
         path_sep = ';'
 
         i = 0
-        for orig_zone in zones:
-            for dest_zone in zones:
-                for at in range(MAX_AGENT_TYPES):
-                    for tau in range(MAX_TIME_PERIODS):
-                        if (at, tau, orig_zone, dest_zone) not in column_pool.keys():
+        for oz_id in zones:
+            for dz_id in zones:
+                for at in range(agent_type_count):
+                    for tau in range(demand_period_count):
+                        if (at, tau, oz_id, dz_id) not in column_pool.keys():
                             continue
                         
-                        cv = column_pool[(at, tau, orig_zone, dest_zone)]
+                        cv = column_pool[(at, tau, oz_id, dz_id)]
 
                         for col in cv.get_columns().values():
                             i += 1
@@ -338,8 +344,8 @@ def output_columns(nodes, links, zones, column_pool,
                             geometry = 'LINESTRING (' + geometry + ')'
 
                             line = [i,
-                                    orig_zone,
-                                    dest_zone,
+                                    oz_id,
+                                    dz_id,
                                     col.get_seq_no(),
                                     at,
                                     tau,
@@ -354,9 +360,12 @@ def output_columns(nodes, links, zones, column_pool,
                             writer.writerow(line)
 
 
-def output_link_performance(links, demand_period_count, output_dir='.'):
+def output_link_performance(network, output_dir='.'):
     with open(output_dir+'/link_performance.csv', 'w',  newline='') as fp:
         writer = csv.writer(fp)
+
+        links = network.get_links()
+        demand_period_count = network.get_demand_period_count()
 
         line = ['link_id', 
                 'from_node_id',

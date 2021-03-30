@@ -47,24 +47,16 @@ def test_column_generation_py():
     print('start column generation')
     st = time()
 
-    iter_num = 20
-    column_update_num = 20
+    iter_num = 5
+    column_update_num = 5
     pg.perform_network_assignment(1, iter_num, column_update_num, network)
     
-    print('processing time of column generation:{0: .2f}'
-          .format(time()-st)+ 's'
+    print('processing time of column generation:{0: .2f}'.format(time()-st)+'s'
           f' for {iter_num} assignment iterations and '
           f'{column_update_num} iterations in column generation')
 
-    pg.output_columns(network.get_nodes(), 
-                      network.get_links(), 
-                      network.get_zones(),
-                      network.get_column_pool(),
-                      network.get_agent_type_count(),
-                      network.get_demand_period_count())
-
-    pg.output_link_performance(network.get_links(),
-                               network.get_demand_period_count())
+    pg.output_columns(network)
+    pg.output_link_performance(network)
 
     print('\npath finding results can be found in agent.csv')
 
@@ -78,8 +70,7 @@ def test_column_generation_dtalite():
     column_update_num = 20
     pg.perform_network_assignment_DTALite(1, iter_num, column_update_num)
     
-    print('processing time of column generation:{0: .2f}'
-          .format(time()-st)+ 's'
+    print('processing time of column generation:{0: .2f}'.format(time()-st)+'s'
           f' for {iter_num} assignment iterations and '
           f'{column_update_num} iterations in column generation')
 

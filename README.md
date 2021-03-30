@@ -96,10 +96,8 @@ column_update_num = 10
 
 pg.perform_network_assignment(mode, assignment_num, column_update_num, network)
 
-pg.output_columns(network.get_nodes(), network.get_links(), 
-                  network.get_zones(), network.get_column_pool())
-
-pg.output_link_performance(network.get_links())
+pg.output_columns(network)
+pg.output_link_performance(network)
 
 print('\npath finding results can be found in agent.csv')
 ```
