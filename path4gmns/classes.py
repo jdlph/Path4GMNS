@@ -434,6 +434,9 @@ class Network:
     def get_link_list(self):
         return self.link_list
 
+    def get_zones(self):
+        return self.zones
+
     def get_from_node_no_arr(self):
         return self.from_node_no_array
 
@@ -727,6 +730,9 @@ class SPNetwork(Network):
     def get_node_list(self):
         return self.base.get_node_list()
 
+    def get_zones(self):
+        return self.base.get_zones()
+
     def get_link_list(self):
         return self.base.get_link_list()
 
@@ -787,6 +793,10 @@ class Assignment:
     def get_demand_periods(self):
         for dp in self.demand_periods:
             yield dp
+
+    def get_spnetworks(self):
+        for sp in self.spnetworks:
+            yield sp
 
     def get_network(self):
         return self.network

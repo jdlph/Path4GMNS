@@ -8,7 +8,7 @@ from .classes import Column, ColumnVec
 __all__ = ['perform_network_assignment']
 
 
-MIN_OD_VOL = 0.000001
+_MIN_OD_VOL = 0.000001
 
 
 def _update_generalized_link_cost(links, link_cost_array, 
@@ -23,21 +23,21 @@ def _update_generalized_link_cost(links, link_cost_array,
 
 
 def _update_link_travel_time_and_cost(links, 
-                                      agent_type_count,
-                                      demand_period_count):
+                                      agent_type_size,
+                                      demand_period_size):
 
     for link in links:
         link.calculate_td_vdfunction()
-        for tau in range(demand_period_count):
-            for at in range(agent_type_count):
+        for tau in range(demand_period_size):
+            for at in range(agent_type_size):
                 link.calculate_agent_marginal_cost(tau, at)
 
 
 def _reset_and_update_link_vol_based_on_columns(column_pool, 
                                                 links,
                                                 zones,
-                                                agent_type_count,
-                                                demand_period_count, 
+                                                agent_type_size,
+                                                demand_period_size, 
                                                 iter_num,
                                                 is_path_vol_self_reducing):
 
@@ -46,16 +46,16 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
         return
     
     for link in links:
-        for tau in range(demand_period_count):
+        for tau in range(demand_period_size):
             link.reset_period_flow_vol(tau)
             # link.queue_length_by_slot[tau] = 0
-            for at in range(agent_type_count):
+            for at in range(agent_type_size):
                 link.reset_period_agent_vol(tau, at)
 
-    for at in range(agent_type_count):
+    for at in range(agent_type_size):
         for oz_id in zones:
             for dz_id in zones:
-                for tau in range(demand_period_count):
+                for tau in range(demand_period_size):
                     if (at, tau, oz_id, dz_id) not in column_pool.keys():
                         continue
 
@@ -91,8 +91,8 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
 def _update_column_gradient_cost_and_flow(column_pool, 
                                           links, 
                                           zones,
-                                          agent_type_count,
-                                          demand_period_count, 
+                                          agent_type_size,
+                                          demand_period_size, 
                                           iter_num):
 
     total_gap = 0
@@ -101,19 +101,19 @@ def _update_column_gradient_cost_and_flow(column_pool,
     _reset_and_update_link_vol_based_on_columns(column_pool, 
                                                 links,
                                                 zones,
-                                                agent_type_count,
-                                                demand_period_count, 
+                                                agent_type_size,
+                                                demand_period_size, 
                                                 iter_num,
                                                 False)
 
     _update_link_travel_time_and_cost(links, 
-                                      agent_type_count,
-                                      demand_period_count)
+                                      agent_type_size,
+                                      demand_period_size)
 
     for oz_id in zones:
         for dz_id in zones:
-            for at in range(agent_type_count):
-                for tau in range(demand_period_count):
+            for at in range(agent_type_size):
+                for tau in range(demand_period_size):
                     if (at, tau, oz_id, dz_id) not in column_pool.keys():
                         continue
                     
@@ -208,14 +208,14 @@ def _update_column_gradient_cost_and_flow(column_pool,
 
 
 def _optimize_column_pool(column_pool, links, 
-                          zones, demand_period_count, 
-                          agent_type_count,colum_update_num):
+                          zones, demand_period_size, 
+                          agent_type_size, colum_update_num):
 
     for i in range(colum_update_num):
         print(f"current iteration number in column generation: {i}")
         _update_column_gradient_cost_and_flow(column_pool, links, 
-                                              zones, demand_period_count, 
-                                              agent_type_count, i)
+                                              zones, demand_period_size, 
+                                              agent_type_size, i)
 
 
 def _backtrace_shortest_path_tree(orig_node_no,
@@ -253,7 +253,7 @@ def _backtrace_shortest_path_tree(orig_node_no,
             continue
 
         od_vol = cv.get_od_volume()
-        if od_vol <= MIN_OD_VOL:
+        if od_vol <= _MIN_OD_VOL:
             continue
         
         vol = od_vol * k_path_prob
@@ -293,13 +293,13 @@ def _backtrace_shortest_path_tree(orig_node_no,
 
 
 def _update_column_travel_time(column_pool, links, zones, 
-                               agent_type_count,
-                               demand_period_count):
+                               agent_type_size,
+                               demand_period_size):
     
     for oz in zones:
         for dz in zones:
-            for at in range(agent_type_count):
-                for tau in range(demand_period_count):
+            for at in range(agent_type_size):
+                for tau in range(demand_period_size):
                     if (at, tau, oz, dz) not in column_pool.keys():
                         continue
                     
@@ -372,9 +372,9 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, A):
 
     # base network
     G = A.get_network()
-    link_list = G.link_list
-    link_costs = G.link_cost_array
-    zones = G.zones
+    link_list = G.get_link_list()
+    link_costs = G.get_link_costs()
+    zones = G.get_zones()
 
     column_pool = A.get_column_pool()
     at_size = A.get_agent_type_count()
@@ -396,13 +396,12 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, A):
         
         # update generalized link cost before assignment
         for at in A.get_agent_types():
-            vot = at.get_vot()
             for dp in A.get_demand_periods():
-                dp_id = dp.get_id()
-                _update_generalized_link_cost(link_list, link_costs, dp_id, vot)
+                _update_generalized_link_cost(link_list, link_costs, 
+                                              dp.get_id(), at.get_vot())
         
         # loop through all nodes on the base network
-        _assignment(A.spnetworks, A.column_pool, i)
+        _assignment(A.get_spnetworks(), column_pool, i)
 
     print('\nprocessing time of assignment:{0: .2f}'.format(time()-st)+ 's\n')
 
