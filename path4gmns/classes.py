@@ -585,6 +585,9 @@ class AgentType:
     def get_vot(self):
         return self.vot
 
+    def get_type(self):
+        return self.type
+
 
 class DemandPeriod:
 
@@ -602,6 +605,9 @@ class DemandPeriod:
 
     def get_file_name(self):
         return self.file
+
+    def get_period(self):
+        return self.period
                  
 
 class VDFPeriod:

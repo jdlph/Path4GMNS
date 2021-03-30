@@ -263,13 +263,14 @@ def read_settings(input_dir, assignment):
             demands = settings['demand_files']
             for i, d in enumerate(demands):
                 demand_file = d['file_name']
-                demand_format_tpye = d['format_type']
+                # demand_format_tpye = d['format_type']
                 demand_period = d['period']
                 demand_time_period = d['time_period']
                 demand_agent_type = d['agent_type']
 
                 dp = DemandPeriod(i, demand_period, demand_time_period, demand_agent_type, demand_file)
                 assignment.demand_periods.append(dp)
+            
             # agent types
             agents = settings['agents']
             for i, a in enumerate(agents):
@@ -290,17 +291,14 @@ def read_settings(input_dir, assignment):
         assignment.agent_types.append(at)
 
     
-def output_columns(network, output_dir='.'):
-                   
+def output_columns(network, output_dir='.'):               
     with open(output_dir+'/agent.csv', 'w',  newline='') as fp:
-        writer = csv.writer(fp)
-
         nodes = network.get_nodes()
         links = network.get_links() 
         zones = network.get_zones()
         column_pool = network.get_column_pool()
-        agent_type_count = network.get_agent_type_count()
-        demand_period_count = network.get_demand_period_count()
+
+        writer = csv.writer(fp)
 
         line = ['agent_id', 
                 'o_zone_id',
@@ -323,12 +321,12 @@ def output_columns(network, output_dir='.'):
         i = 0
         for oz_id in zones:
             for dz_id in zones:
-                for at in range(agent_type_count):
-                    for tau in range(demand_period_count):
-                        if (at, tau, oz_id, dz_id) not in column_pool.keys():
+                for at in network.get_agent_types():
+                    for dp in network.get_demand_periods():
+                        if (at.get_id(), dp.get_id(), oz_id, dz_id) not in column_pool.keys():
                             continue
                         
-                        cv = column_pool[(at, tau, oz_id, dz_id)]
+                        cv = column_pool[(at.get_id(), dp.get_id(), oz_id, dz_id)]
 
                         for col in cv.get_columns().values():
                             i += 1
@@ -347,8 +345,8 @@ def output_columns(network, output_dir='.'):
                                     oz_id,
                                     dz_id,
                                     col.get_seq_no(),
-                                    at,
-                                    tau,
+                                    at.get_type(),
+                                    dp.get_period(),
                                     col.get_volume(),
                                     col.get_toll(),
                                     col.get_travel_time(),
@@ -362,10 +360,9 @@ def output_columns(network, output_dir='.'):
 
 def output_link_performance(network, output_dir='.'):
     with open(output_dir+'/link_performance.csv', 'w',  newline='') as fp:
-        writer = csv.writer(fp)
-
         links = network.get_links()
-        demand_period_count = network.get_demand_period_count()
+        
+        writer = csv.writer(fp)
 
         line = ['link_id', 
                 'from_node_id',
@@ -383,18 +380,18 @@ def output_link_performance(network, output_dir='.'):
         writer.writerow(line)
 
         for link in links:
-            for tau in range(demand_period_count):
-                avg_travel_time = link.get_period_avg_travel_time(tau)
+            for dp in network.get_demand_periods():
+                avg_travel_time = link.get_period_avg_travel_time(dp.get_id())
                 speed = link.get_length() / (max(0.001, avg_travel_time) / 60)
                 
                 line = [link.get_link_id(),
                         link.get_from_node_id(),
                         link.get_to_node_id(),
-                        tau,
-                        link.get_period_flow_vol(tau),
+                        dp.get_period(),
+                        link.get_period_flow_vol(dp.get_id()),
                         avg_travel_time,
                         speed,
-                        link.get_period_voc(tau),
+                        link.get_period_voc(dp.get_id()),
                         '',
                         '',
                         link.get_geometry(),

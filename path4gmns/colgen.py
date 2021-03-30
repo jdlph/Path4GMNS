@@ -389,7 +389,7 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, A):
     st = time()
 
     for i in range(iter_num):
-        print(f"current iteration number in assignment: {i}\n")
+        print(f"current iteration number in assignment: {i}")
         _update_link_travel_time_and_cost(link_list, at_size, dp_size)
         
         _reset_and_update_link_vol_based_on_columns(column_pool, 
@@ -410,7 +410,7 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, A):
         # loop through all nodes on the base network
         _assignment(A.spnetworks, A.column_pool, i)
 
-    print('\nprocessing time of assignment:{0: .2f}'.format(time()-st)+ 's')
+    print('\nprocessing time of assignment:{0: .2f}'.format(time()-st)+ 's\n')
 
     _optimize_column_pool(column_pool, 
                           link_list,
