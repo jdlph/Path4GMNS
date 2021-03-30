@@ -3,8 +3,7 @@ import yaml as ym
 
 
 from .classes import Node, Link, Network, Agent, ColumnVec, VDFPeriod, \
-                     AgentType, DemandPeriod, Assignment, \
-                     MAX_TIME_PERIODS, MAX_AGENT_TYPES
+                     AgentType, DemandPeriod, Assignment
 
 
 def read_nodes(input_dir, nodes, id_to_no_dict, 
@@ -51,7 +50,8 @@ def read_nodes(input_dir, nodes, id_to_no_dict,
         print(f"the number of nodes is {node_seq_no}")
 
 
-def read_links(input_dir, links, nodes, id_to_no_dict):
+def read_links(input_dir, links, nodes, id_to_no_dict, 
+              agent_type_size, demand_period_size):
     """ step 2: read input_link """
     with open(input_dir+'/link.csv', 'r', encoding='utf-8') as fp:
         print('read link.csv')
@@ -135,10 +135,12 @@ def read_links(input_dir, links, nodes, id_to_no_dict):
                         free_speed,
                         capacity,
                         allowed_uses,
-                        geometry)
+                        geometry,
+                        agent_type_size,
+                        demand_period_size)
             
             # VDF Attributes
-            for i in range(MAX_TIME_PERIODS):
+            for i in range(demand_period_size):
                 header_vdf_alpha = 'VDF_alpha' + str(i+1)
                 header_vdf_beta = 'VDF_beta' + str(i+1)
                 header_vdf_mu = 'VDF_mu' + str(i+1)
@@ -404,6 +406,8 @@ def read_network(load_demand='true', input_dir='.'):
     assignm = Assignment()
     network = Network()
 
+    read_settings(input_dir, assignm)
+
     read_nodes(input_dir,
                network.node_list,
                network.internal_node_seq_no_dict,
@@ -413,11 +417,11 @@ def read_network(load_demand='true', input_dir='.'):
     read_links(input_dir, 
                network.link_list,
                network.node_list,
-               network.internal_node_seq_no_dict)
+               network.internal_node_seq_no_dict,
+               assignm.get_agent_type_count(), 
+               assignm.get_demand_period_count())
 
     if load_demand:
-        read_settings(input_dir, assignm)
-
         for at in assignm.get_agent_types():
             for dp in assignm.get_demand_periods():
                 read_demand(input_dir,

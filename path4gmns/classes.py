@@ -4,9 +4,8 @@ from random import choice
 from .path import MAX_LABEL_COST, find_path_for_agents, find_shortest_path
 
 
+# reserved for simulation
 _NUM_OF_SECS_PER_SIMU_INTERVAL = 6 
-MAX_TIME_PERIODS = 1
-MAX_AGENT_TYPES = 1
 
 
 class Node:         
@@ -65,7 +64,9 @@ class Link:
                  free_speed=60,
                  capacity=49500,
                  allowed_uses='auto',
-                 geometry=''):   
+                 geometry='',
+                 agent_type_size=1,
+                 demand_period_size=1):   
         """ the attribute of link """
         self.id = id
         self.link_seq_no = link_seq_no
@@ -89,17 +90,19 @@ class Link:
         self.cost = self.free_flow_travel_time_in_min
         self.flow_volume = 0
         # add for CG
+        self.agent_type_size = agent_type_size
+        self.demand_period_size = demand_period_size
         self.toll = 0
         self.route_choice_cost = 0
-        self.travel_time_by_period = [0] * MAX_TIME_PERIODS
-        self.flow_vol_by_period = [0] * MAX_TIME_PERIODS
+        self.travel_time_by_period = [0] * demand_period_size
+        self.flow_vol_by_period = [0] * demand_period_size
         self.vol_by_period_by_at = [
-            [0] * MAX_TIME_PERIODS for i in range(MAX_AGENT_TYPES)
+            [0] * demand_period_size for i in range(agent_type_size)
         ]
         # self.queue_length_by_slot = [0] * MAX_TIME_PERIODS
         self.vdfperiods = []
         self.travel_marginal_cost_by_period = [
-            [0] * MAX_TIME_PERIODS for i in range(MAX_AGENT_TYPES)
+            [0] * demand_period_size for i in range(agent_type_size)
         ]
 
     def get_link_id(self):
@@ -139,6 +142,7 @@ class Link:
         return self.vdfperiods[tau].get_avg_travel_time()
 
     def get_generalized_cost(self, tau, agent_type, value_of_time=10):
+        """ warning: value_of_time is nevered passed from caller"""
         return self.travel_time_by_period[tau] + self.toll / value_of_time * 60
 
     def reset_period_flow_vol(self, tau):
@@ -154,7 +158,7 @@ class Link:
         self.vol_by_period_by_at[tau][agent_type] += v
 
     def calculate_td_vdfunction(self):
-        for tau in range(MAX_TIME_PERIODS):
+        for tau in range(self.demand_period_size):
             self.travel_time_by_period[tau] = (
                 self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau])
             )
@@ -236,16 +240,16 @@ class Network:
         self.zones = None
         self.has_capi_allocated = False
         # the following two are IDs rather than objects
-        self._agent_types = 0
-        self._demand_periods = 0
+        self._agent_type_size = 1
+        self._demand_period_size = 1
 
-    def update(self, agent_types=0, demand_periods=0):
+    def update(self, agent_type_size, demand_period_size):
         self.node_size = len(self.node_list)
         self.link_size = len(self.link_list)
         self.agent_size = len(self.agent_list)
         self.zones = self.zone_to_nodes_dict.keys()
-        self._agent_types = agent_types
-        self._demand_periods = demand_periods
+        self._agent_type_size = agent_type_size
+        self._demand_period_size = demand_period_size
 
     def allocate_for_CAPI(self):
         # execute only on the first call
@@ -348,8 +352,8 @@ class Network:
         
         for orig in self.zones:
             for dest in self.zones:
-                for at in range(self._agent_types):
-                    for dp in range(self._demand_periods):
+                for at in range(self._agent_type_size):
+                    for dp in range(self._demand_period_size):
                         if (at, dp, orig, dest) not in column_pool.keys():
                                 continue
 
