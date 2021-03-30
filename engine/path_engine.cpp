@@ -17,7 +17,7 @@ void shortest_path(int o_node_no, int node_size,
                    const int* sorted_link_no_arr, const double* link_cost,
                    double* label_cost, int* node_pred,
                    int* link_pred, int* deque_next,
-                   int depature_time, int first_thru_node)
+                   int departure_time, int first_thru_node)
 {
     // construct and initialize the following three on the first call only
     static constexpr int invalid = -1, was_in_deque = -7;
@@ -39,7 +39,7 @@ void shortest_path(int o_node_no, int node_size,
     
     // SEList initialization
     current_node = o_node_no;
-    label_cost[current_node] = depature_time;
+    label_cost[current_node] = departure_time;
     deque_next[current_node] = was_in_deque;
     deque_head = deque_tail = invalid;
 

@@ -5,9 +5,6 @@ Two path engines are provided:
    C++ and built into path_engine.dll.
 2. Python engine which provides three implementations: FIFO, Deque, and 
    heap-Dijkstra. The default is deque.
-
-The code is adopted and modified from 
-https://github.com/asu-trans-ai-lab/DTALite 
 """
 
 
@@ -63,7 +60,7 @@ _cdll.shortest_path.argtypes = [
 
 
 def _optimal_label_correcting_CAPI(G, origin_node_no, 
-                                   depature_time=0, 
+                                   departure_time=0, 
                                    first_thru_node=0):
     """ call the deque implementation of MLC written in cpp
     
@@ -82,7 +79,7 @@ def _optimal_label_correcting_CAPI(G, origin_node_no,
                         G.get_node_preds(),
                         G.get_link_preds(),
                         G.get_queue_next(),
-                        depature_time,
+                        departure_time,
                         first_thru_node)
 
 
@@ -345,5 +342,5 @@ def find_path_for_agents(G, column_pool, engine_type='c'):
         if not link_path:
             continue
         
-        agent.node_path = [x for x in reversed(node_path)]
-        agent.link_path = [x for x in reversed(link_path)]
+        agent.node_path = [x for x in node_path]
+        agent.link_path = [x for x in link_path]

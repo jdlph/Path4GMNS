@@ -164,6 +164,7 @@ class Link:
             )
     
     def calculate_agent_marginal_cost(self, tau, agent_type, PCE_agent_type=1):
+        """ warning """
         self.travel_marginal_cost_by_period[tau][agent_type] = (
             self.vdfperiods[tau].marginal_base * PCE_agent_type
         )
@@ -306,46 +307,6 @@ class Network:
         
         self.has_capi_allocated = True
 
-    def _get_agent(self, agent_no):
-        """ retrieve agent using agent_no """
-        try:
-            return self.agent_list[agent_no]
-        except KeyError:
-            print('Please provide a valid agent id, which shall be a\
-                  positive integer!')
-
-    def get_agent_node_path(self, agent_id):
-        """ return the sequence of node IDs along the agent path """
-        agent_no = agent_id - 1
-        agent = self._get_agent(agent_no)
-        
-        return ';'.join(
-            str(self.external_node_id_dict[x]) for x in agent.node_path
-        )
-
-    def get_agent_link_path(self, agent_id):
-        """ return the sequence of link IDs along the agent path """
-        agent_no = agent_id - 1
-        agent = self._get_agent(agent_no)
-            
-        return ';'.join(
-            self.link_list[x].get_link_id() for x in agent.link_path
-        )
-
-    def get_agent_orig_node_id(self, agent_id):
-        """ return the origin node id of agent """
-        agent_no = agent_id - 1
-        agent = self._get_agent(agent_no)
-
-        return agent.get_orig_node_id()      
-
-    def get_agent_dest_node_id(self, agent_id):
-        """ return the origin node id of agent """
-        agent_no = agent_id - 1
-        agent = self._get_agent(agent_no)
-        
-        return agent.get_dest_node_id()    
-
     def setup_agents(self, column_pool):
         agent_id = 1
         agent_no = 0
@@ -412,6 +373,46 @@ class Network:
 
         self.agent_size = len(self.agent_list)
         print(f"the number of agents is {self.agent_size}")
+    
+    def _get_agent(self, agent_no):
+        """ retrieve agent using agent_no """
+        try:
+            return self.agent_list[agent_no]
+        except KeyError:
+            print('Please provide a valid agent id, which shall be a\
+                  positive integer!')
+
+    def get_agent_node_path(self, agent_id):
+        """ return the sequence of node IDs along the agent path """
+        agent_no = agent_id - 1
+        agent = self._get_agent(agent_no)
+        
+        return ';'.join(
+            str(self.external_node_id_dict[x]) for x in reversed(agent.node_path)
+        )
+
+    def get_agent_link_path(self, agent_id):
+        """ return the sequence of link IDs along the agent path """
+        agent_no = agent_id - 1
+        agent = self._get_agent(agent_no)
+            
+        return ';'.join(
+            self.link_list[x].get_link_id() for x in reversed(agent.link_path)
+        )
+
+    def get_agent_orig_node_id(self, agent_id):
+        """ return the origin node id of agent """
+        agent_no = agent_id - 1
+        agent = self._get_agent(agent_no)
+
+        return agent.get_orig_node_id()      
+
+    def get_agent_dest_node_id(self, agent_id):
+        """ return the origin node id of agent """
+        agent_no = agent_id - 1
+        agent = self._get_agent(agent_no)
+        
+        return agent.get_dest_node_id()
 
     def get_agent_count(self):
         return self.agent_size
