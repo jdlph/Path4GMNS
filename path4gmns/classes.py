@@ -5,8 +5,6 @@ from .path import MAX_LABEL_COST, find_path_for_agents, find_shortest_path
 
 
 _NUM_OF_SECS_PER_SIMU_INTERVAL = 6 
-
-MIN_OD_VOL = 0.000001
 MAX_TIME_PERIODS = 1
 MAX_AGENT_TYPES = 1
 
@@ -420,6 +418,48 @@ class Network:
     def get_node_no(self, node_id):
         return self.internal_node_seq_no_dict[node_id]
 
+    def get_node_size(self):
+        return self.node_size
+
+    def get_link_size(self):
+        return self.link_size
+
+    def get_node_list(self):
+        return self.node_list
+
+    def get_link_list(self):
+        return self.link_list
+
+    def get_from_node_no_arr(self):
+        return self.from_node_no_array
+
+    def get_to_node_no_arr(self):
+        return self.to_node_no_array
+
+    def get_first_links(self):
+        return self.first_link_from
+
+    def get_last_links(self):
+        return self.last_link_from
+
+    def get_sorted_link_no_arr(self):
+        return self.sorted_link_no_array
+
+    def get_link_costs(self):
+        return self.link_cost_array
+
+    def get_node_preds(self):
+        return self.node_predecessor
+
+    def get_link_preds(self):
+        return self.link_predecessor
+
+    def get_node_label_costs(self):
+        return self.node_label_cost
+
+    def get_queue_next(self):
+        return self.queue_next
+
 
 class Column:
     
@@ -609,89 +649,40 @@ class VDFPeriod:
         return self.avg_travel_time
 
 
-class SPNetworkBase(Network):
-    """ network topology and link costs shared by all derived networks """
-    def __init__(self, network=None):
-        # copy attributes from network
-        # self.node_list = network.node_list
-        # self.link_list = network.link_list
-
-        self.node_size = network.node_size
-        self.link_size = network.link_size
-
-        # initialize from_node_no_array, to_node_no_array, and link_cost_array
-        from_node_no_array = [link.from_node_seq_no for link in network.link_list]
-        to_node_no_array = [link.to_node_seq_no for link in network.link_list]
-        link_cost_array = [link.cost for link in network.link_list]
-        
-        # initialize others as numpy arrays directly
-        first_link_from = [-1] * network.node_size
-        last_link_from = [-1] * network.node_size
-        sorted_link_no_array = [-1] * network.link_size
-
-        # internal link index used for shortest path calculation only 
-        j = 0
-        for i, node in enumerate(network.node_list):
-            if not node.outgoing_link_list:
-                continue
-            first_link_from[i] = j
-            for link in node.outgoing_link_list:
-                # set up the mapping from j to the true link seq no
-                sorted_link_no_array[j] = link.link_seq_no
-                j += 1
-            last_link_from[i] = j
-
-        # set up arrays using ctypes
-        int_arr_node = ctypes.c_int * network.node_size
-        int_arr_link = ctypes.c_int * network.link_size
-        double_arr_link = ctypes.c_double * network.link_size
-    
-        self.from_node_no_array = int_arr_link(*from_node_no_array)
-        self.to_node_no_array = int_arr_link(*to_node_no_array)
-        self.first_link_from = int_arr_node(*first_link_from)
-        self.last_link_from = int_arr_node(*last_link_from)
-        self.sorted_link_no_array = int_arr_link(*sorted_link_no_array)
-        self.link_cost_array = double_arr_link(*link_cost_array)
-
-
-class SPNetwork(SPNetworkBase):
+class SPNetwork(Network):
     """ attributes related to outputs from shortest path calculations """
-    def __init__(self, spbase, at, dp):
+    def __init__(self, base, at, dp):
+        self.base = base
+        # AgentType object
         self.agent_type = at
+        # DemandPeriod object
         self.demand_period = dp
-        # copy attributes from SPNetworkBase
-        # self.node_list = spbase.node_list
-        # self.link_list = spbase.link_list
-
-        self.from_node_no_array = spbase.from_node_no_array
-        self.to_node_no_array = spbase.to_node_no_array
-        self.first_link_from = spbase.first_link_from
-        self.last_link_from = spbase.last_link_from
-        self.sorted_link_no_array = spbase.sorted_link_no_array
-        self.link_cost_array = spbase.link_cost_array
-
-        self.node_size = spbase.node_size
-        self.link_size = spbase.link_size
+        
+        # this is necessary for each instance of SPNetwork 
+        # to retrieve network topoloy
+        if not base.has_capi_allocated:
+            base.allocate_for_CAPI()
         
         # set up attributes unique to each instance
-        node_preds = [-1] * spbase.node_size
-        link_preds = [-1] * spbase.node_size
-        node_lables = [MAX_LABEL_COST] * spbase.node_size
-        queue_next = [0] * spbase.node_size
+        node_preds = [-1] * base.node_size
+        link_preds = [-1] * base.node_size
+        node_lables = [MAX_LABEL_COST] * base.node_size
+        queue_next = [0] * base.node_size
 
-        int_arr_node = ctypes.c_int * spbase.node_size
-        double_arr_node = ctypes.c_double * spbase.node_size
+        int_arr_node = ctypes.c_int * base.node_size
+        double_arr_node = ctypes.c_double * base.node_size
 
         self.node_predecessor = int_arr_node(*node_preds)
         self.link_predecessor = int_arr_node(*link_preds)
         self.node_label_cost = double_arr_node(*node_lables)
         self.queue_next = int_arr_node(*queue_next)
+        
         # node id
         self.orig_nodes = []
         # zone sequence no
         self.orig_zones = []
         self.node_id_to_no = {}
-        self.has_capi_allocated = False
+        self.has_capi_allocated = True
 
     def add_orig_nodes(self, nodes):
         self.orig_nodes.extend(nodes)
@@ -710,6 +701,55 @@ class SPNetwork(SPNetworkBase):
 
     def get_demand_period(self):
         return self.demand_period
+
+    def get_orig_nodes(self):
+        for i in self.orig_nodes:
+            yield i
+
+    # the following eight are shared by all SPNetworks
+    # network topology
+    def get_node_size(self):
+        return self.base.get_node_size()
+
+    def get_link_size(self):
+        return self.base.get_link_size()
+
+    def get_node_list(self):
+        return self.base.get_node_list()
+
+    def get_link_list(self):
+        return self.base.get_link_list()
+
+    def get_from_node_no_arr(self):
+        return self.base.get_from_node_no_arr()
+
+    def get_to_node_no_arr(self):
+        return self.base.get_to_node_no_arr()
+
+    def get_first_links(self):
+        return self.base.get_first_links()
+
+    def get_last_links(self):
+        return self.base.get_last_links()
+
+    def get_sorted_link_no_arr(self):
+        return self.base.get_sorted_link_no_arr()
+
+    def get_link_costs(self):
+        return self.base.get_link_costs()
+
+    # the following four are unique to each SPNetwork 
+    def get_node_preds(self):
+        return self.node_predecessor
+
+    def get_link_preds(self):
+        return self.link_predecessor
+
+    def get_node_label_costs(self):
+        return self.node_label_cost
+
+    def get_queue_next(self):
+        return self.queue_next
 
 
 class Assignment:
@@ -772,17 +812,28 @@ class Assignment:
         return find_shortest_path(self.network, from_node_id, 
                                   to_node_id, seq_type='node')
 
+    def perform_network_assignment(self, assignment_mode, iter_num, column_update_num):
+        # perform_network_assignment(assignment_mode, iter_num, column_update_num)
+        pass
+
+    def perform_network_assignment_DTALite(self, assignment_mode, 
+                                           iter_num, column_update_num):
+                                        
+        # perform_network_assignment_DTALite(assignment_mode, 
+        #                                    iter_num,
+        #                                    column_update_num)
+        pass
+
     def setup_spnetwork(self):
-        spbase = SPNetworkBase(self.network)
         spvec = {}
 
-        for at in range(self.get_agent_type_count()):
-            for dp in range(self.get_demand_period_count()):
+        for at in self.get_agent_types():
+            for dp in self.get_demand_periods():
                 # z is zone id starting from 1
                 for z in self.network.zones:
                     if z - 1 < self.memory_blocks:
-                        sp = SPNetwork(spbase, at, dp)
-                        spvec[(at, dp, z-1)] = sp
+                        sp = SPNetwork(self.network, at, dp)
+                        spvec[(at.get_id(), dp.get_id(), z-1)] = sp
                         sp.orig_zones.append(z)
                         sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
                         for node_id in self.network.get_nodes_from_zone(z):
@@ -792,10 +843,12 @@ class Assignment:
                         self.spnetworks.append(sp)
                     else:
                         m = (z - 1) % self.memory_blocks
-                        if (at, dp, m) not in spvec.keys():
-                            spvec[(at, dp, m)] = SPNetwork(spbase, at, dp)
+                        if (at.get_id(), dp.get_id(), m) not in spvec.keys():
+                            spvec[(at.get_id(), dp.get_id(), m)] = SPNetwork(
+                                self.network, at, dp
+                            )
                         else:
-                            sp = spvec[(at, dp, m)]
+                            sp = spvec[(at.get_id(), dp.get_id(), m)]
                         sp.orig_zones.append(z)
                         sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
                         for node_id in self.network.get_nodes_from_zone(z):

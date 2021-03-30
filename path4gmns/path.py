@@ -62,26 +62,28 @@ _cdll.shortest_path.argtypes = [
 ]
 
 
-def _optimal_label_correcting_CAPI(G, origin_node_no):
+def _optimal_label_correcting_CAPI(G, origin_node_no, 
+                                   depature_time=0, 
+                                   first_thru_node=0):
     """ call the deque implementation of MLC written in cpp
     
     node_label_cost, node_predecessor, and link_predecessor are still 
     initialized in shortest_path() even the source node has no outgoing links.
     """
     _cdll.shortest_path(origin_node_no,
-                        G.node_size,
-                        G.from_node_no_array,
-                        G.to_node_no_array,
-                        G.first_link_from,
-                        G.last_link_from,
-                        G.sorted_link_no_array,
-                        G.link_cost_array,
-                        G.node_label_cost,
-                        G.node_predecessor,
-                        G.link_predecessor,
-                        G.queue_next,
-                        0,
-                        0)
+                        G.get_node_size(),
+                        G.get_from_node_no_arr(),
+                        G.get_to_node_no_arr(),
+                        G.get_first_links(),
+                        G.get_last_links(),
+                        G.get_sorted_link_no_arr(),
+                        G.get_link_costs(),
+                        G.get_node_label_costs(),
+                        G.get_node_preds(),
+                        G.get_link_preds(),
+                        G.get_queue_next(),
+                        depature_time,
+                        first_thru_node)
 
 
 def _single_source_shortest_path_fifo(G, origin_node_no):
@@ -207,6 +209,7 @@ def _single_source_shortest_path_dijkstra(G, origin_node_no):
 
 def single_source_shortest_path(G, origin_node_id, engine_type='c',
                                 sp_algm='deque'):
+                                
     origin_node_no = G.get_node_no(origin_node_id)
     
     if engine_type.lower() == 'c':
