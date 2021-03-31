@@ -48,7 +48,7 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
                                                 is_path_vol_self_reducing):
 
     # the original implementation is iter_num < 0, which does not make sense
-    if iter_num <= 0:
+    if iter_num == 0:
         return
 
     for link in links:
@@ -390,6 +390,10 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, ui)
     """
     if assignment_mode != 1:
         raise Exception("not implemented yet")
+
+    # make sure iteration numbers are both non-negative
+    assert(iter_num>=0)
+    assert(column_update_num>=0)
 
     # base network
     A = ui._base_assignment

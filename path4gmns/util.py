@@ -13,8 +13,12 @@ __all__ = [
  ]
 
 
-def read_nodes(input_dir, nodes, id_to_no_dict,
-               no_to_id_dict, zone_to_node_dict):
+def read_nodes(input_dir,
+               nodes,
+               id_to_no_dict,
+               no_to_id_dict,
+               zone_to_node_dict):
+
     """ step 1: read input_node """
     with open(input_dir+'/node.csv', 'r', encoding='utf-8') as fp:
         print('read node.csv')
@@ -57,8 +61,13 @@ def read_nodes(input_dir, nodes, id_to_no_dict,
         print(f"the number of nodes is {node_seq_no}")
 
 
-def read_links(input_dir, links, nodes, id_to_no_dict,
-              agent_type_size, demand_period_size):
+def read_links(input_dir,
+              links,
+              nodes,
+              id_to_no_dict,
+              agent_type_size,
+              demand_period_size):
+
     """ step 2: read input_link """
     with open(input_dir+'/link.csv', 'r', encoding='utf-8') as fp:
         print('read link.csv')
@@ -214,11 +223,20 @@ def read_links(input_dir, links, nodes, id_to_no_dict,
         print(f"the number of links is {link_seq_no}")
 
 
-def read_demand(input_dir, file, agent_type, demand_period,
-                zone_to_node_dict, demands, column_pool):
+def read_demand(input_dir,
+                file,
+                agent_type_id,
+                demand_period_id,
+                zone_to_node_dict,
+                demands,
+                column_pool):
+
     """ step 3:read input_agent """
     with open(input_dir+'/'+file, 'r', encoding='utf-8') as fp:
         print('read demand.csv')
+
+        at = agent_type_id
+        dp = demand_period_id
 
         reader = csv.DictReader(fp)
         total_agents = 0
@@ -252,9 +270,9 @@ def read_demand(input_dir, file, agent_type, demand_period,
                 demands[(oz_id, dz_id)] = 0
             demands[(oz_id, dz_id)] += volume
             # set up volume for ColumnVec
-            if (agent_type, demand_period, oz_id, dz_id) not in column_pool.keys():
-                column_pool[(agent_type, demand_period, oz_id, dz_id)] = ColumnVec()
-            column_pool[(agent_type, demand_period, oz_id, dz_id)].od_vol += volume
+            if (at, dp, oz_id, dz_id) not in column_pool.keys():
+                column_pool[(at, dp, oz_id, dz_id)] = ColumnVec()
+            column_pool[(at, dp, oz_id, dz_id)].od_vol += volume
 
             if volume == 0:
                 continue
@@ -277,7 +295,12 @@ def read_settings(input_dir, assignment):
                 demand_time_period = d['time_period']
                 demand_agent_type = d['agent_type']
 
-                dp = DemandPeriod(i, demand_period, demand_time_period, demand_agent_type, demand_file)
+                dp = DemandPeriod(i,
+                                  demand_period,
+                                  demand_time_period,
+                                  demand_agent_type,
+                                  demand_file)
+
                 assignment.demand_periods.append(dp)
 
             # agent types
@@ -289,8 +312,15 @@ def read_settings(input_dir, assignment):
                 agent_flow_type = a['flow_type']
                 agent_pce = a['pce']
 
-                at = AgentType(i, agent_type, agent_name, agent_vot, agent_flow_type, agent_pce)
+                at = AgentType(i,
+                               agent_type,
+                               agent_name,
+                               agent_vot,
+                               agent_flow_type,
+                               agent_pce)
+
                 assignment.agent_types.append(at)
+
     except FileNotFoundError:
         # just in case user does not provide setting.yml
         dp = DemandPeriod()

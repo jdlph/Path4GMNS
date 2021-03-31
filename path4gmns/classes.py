@@ -889,7 +889,7 @@ class UI:
         self._base_assignment = assignment
 
     def get_column_pool(self):
-        return self._base_assignment.column_pool
+        return self._base_assignment.get_column_pool()
 
     def get_agent_orig_node_id(self, agent_id):
         return self._base_assignment.network.get_agent_orig_node_id(agent_id)
@@ -908,7 +908,7 @@ class UI:
 
     def find_shortest_path(self, from_node_id, to_node_id, seq_type='node'):
         return self._base_assignment.find_shortest_path(
-            from_node_id, 
-            to_node_id, 
+            from_node_id,
+            to_node_id,
             seq_type='node'
         )
