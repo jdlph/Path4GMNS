@@ -44,7 +44,7 @@ def test_find_shortest_path_for_agents():
 def test_column_generation_py():
     network = pg.read_network()
 
-    print('start column generation')
+    print('\nstart column generation\n')
     st = time()
 
     iter_num = 20
@@ -63,7 +63,7 @@ def test_column_generation_py():
 
 def test_column_generation_dtalite():
     """ validation using DTALite """
-    print('start column generation')
+    print('start column generation using DTALite')
     st = time()
 
     iter_num = 20
@@ -97,4 +97,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(3)
+    demo_mode(4)

@@ -323,7 +323,7 @@ class Network:
 
                         vol = int(cv.get_od_volume()+1)
 
-                        for i in range(vol):
+                        for _ in range(vol):
                             # construct agent using valid record
                             agent = Agent(agent_id,
                                           agent_no,
@@ -427,10 +427,10 @@ class Network:
     def get_link_size(self):
         return self.link_size
 
-    def get_node_list(self):
+    def get_nodes(self):
         return self.node_list
 
-    def get_link_list(self):
+    def get_links(self):
         return self.link_list
 
     def get_zones(self):
@@ -732,11 +732,11 @@ class SPNetwork(Network):
     def get_link_size(self):
         return self.base.get_link_size()
 
-    def get_node_list(self):
-        return self.base.get_node_list()
+    def get_nodes(self):
+        return self.base.get_nodes()
 
-    def get_link_list(self):
-        return self.base.get_link_list()
+    def get_links(self):
+        return self.base.get_links()
 
     def get_zones(self):
         return self.base.get_zones()
@@ -805,13 +805,16 @@ class Assignment:
         return self.network
 
     def get_nodes(self):
-        return self.network.node_list
+        """ return list of node objects """
+        return self.network.get_nodes()
 
     def get_links(self):
-        return self.network.link_list
+        """ return list of link objects """
+        return self.network.get_links()
 
     def get_zones(self):
-        return self.network.zones
+        """ return list of zone IDs """
+        return self.network.get_zones()
 
     def get_column_pool(self):
         return self.column_pool
@@ -878,3 +881,34 @@ class Assignment:
                             sp.node_id_to_no[node_id] = (
                                 self.network.get_node_no(node_id)
                             )
+
+
+class UI:
+    """ an abstract class only with user interfaces """
+    def __init__(self, assignment):
+        self._base_assignment = assignment
+
+    def get_column_pool(self):
+        return self._base_assignment.column_pool
+
+    def get_agent_orig_node_id(self, agent_id):
+        return self._base_assignment.network.get_agent_orig_node_id(agent_id)
+
+    def get_agent_dest_node_id(self, agent_id):
+        return self._base_assignment.network.get_agent_dest_node_id(agent_id)
+
+    def get_agent_node_path(self, agent_id):
+        return self._base_assignment.network.get_agent_node_path(agent_id)
+
+    def get_agent_link_path(self, agent_id):
+        return self._base_assignment.network.get_agent_link_path(agent_id)
+
+    def find_path_for_agents(self):
+        return self._base_assignment.find_path_for_agents()
+
+    def find_shortest_path(self, from_node_id, to_node_id, seq_type='node'):
+        return self._base_assignment.find_shortest_path(
+            from_node_id, 
+            to_node_id, 
+            seq_type='node'
+        )

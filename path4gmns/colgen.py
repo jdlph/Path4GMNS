@@ -14,15 +14,15 @@ _MIN_OD_VOL = 0.000001
 def _update_generalized_link_cost(spnetworks):
     """ update generalized link costs for each SPNetwork
 
-    there would be duplicate updates for SPNetworks with the same tau and vot
+    warning: there would be duplicate updates for SPNetworks with the same tau and vot
     belonging to different memory blocks. It could be resolved by creating
-    a shared network among them.
+    a shared network among them??
     """
     for sp in spnetworks:
         tau = sp.get_demand_period().get_id()
         vot = sp.get_agent_type().get_vot()
 
-        for link in sp.get_link_list():
+        for link in sp.get_links():
             sp.link_cost_array[link.get_seq_no()] = (
             link.get_period_travel_time(tau)
             + link.get_route_choice_cost()
@@ -30,10 +30,7 @@ def _update_generalized_link_cost(spnetworks):
         )
 
 
-def _update_link_travel_time_and_cost(links,
-                                      agent_types,
-                                      demand_periods):
-
+def _update_link_travel_time_and_cost(links, agent_types, demand_periods):
     for link in links:
         link.calculate_td_vdfunction()
         for dp in demand_periods:
@@ -107,9 +104,6 @@ def _update_column_gradient_cost_and_flow(column_pool,
                                           demand_periods,
                                           iter_num):
 
-    total_gap = 0
-    # total_gap_count = 0
-
     _reset_and_update_link_vol_based_on_columns(column_pool,
                                                 links,
                                                 zones,
@@ -118,9 +112,10 @@ def _update_column_gradient_cost_and_flow(column_pool,
                                                 iter_num,
                                                 False)
 
-    _update_link_travel_time_and_cost(links,
-                                      agent_types,
-                                      demand_periods)
+    _update_link_travel_time_and_cost(links, agent_types, demand_periods)
+
+    total_gap = 0
+    # total_gap_count = 0
 
     for oz_id in zones:
         for dz_id in zones:
@@ -146,6 +141,7 @@ def _update_column_gradient_cost_and_flow(column_pool,
                         path_toll = 0
                         path_gradient_cost = 0
                         path_travel_time = 0
+                        # i is link sequence no
                         for i in col.get_links():
                             path_toll += links[i].get_toll()
                             path_travel_time += (
@@ -313,22 +309,26 @@ def _backtrace_shortest_path_tree(orig_node_no,
         cv.get_column(node_sum).increase_volume(vol)
 
 
-def _update_column_travel_time(column_pool, links, zones,
-                               agent_type_size,
-                               demand_period_size):
+def _update_column_travel_time(column_pool, 
+                               links,
+                               zones,
+                               agent_types,
+                               demand_periods):
 
     for oz in zones:
         for dz in zones:
-            for at in range(agent_type_size):
-                for tau in range(demand_period_size):
-                    if (at, tau, oz, dz) not in column_pool.keys():
+            for atype in agent_types:
+                at = atype.get_id()
+                for dperiod in demand_periods:
+                    dp = dperiod.get_id()
+                    if (at, dp, oz, dz) not in column_pool.keys():
                         continue
 
-                    cv = column_pool[(at, tau, oz, dz)]
+                    cv = column_pool[(at, dp, oz, dz)]
 
                     for col in cv.get_columns().values():
                         travel_time = sum(
-                            links[j].travel_time_by_period[tau] for j in col.links
+                            links[j].travel_time_by_period[dp] for j in col.links
                         )
                         col.set_travel_time(travel_time)
 
@@ -339,8 +339,8 @@ def _assginment_core(spn, column_pool, iter_num):
         single_source_shortest_path(spn, node_id)
 
         _backtrace_shortest_path_tree(spn.get_node_no(node_id),
-                                      spn.get_node_list(),
-                                      spn.get_link_list(),
+                                      spn.get_nodes(),
+                                      spn.get_links(),
                                       spn.get_node_preds(),
                                       spn.get_link_preds(),
                                       spn.get_node_label_costs(),
@@ -357,7 +357,7 @@ def _assignment(spnetworks, column_pool, iter_num):
         _assginment_core(spn, column_pool, iter_num)
 
 
-def perform_network_assignment(assignment_mode, iter_num, column_update_num, A):
+def perform_network_assignment(assignment_mode, iter_num, column_update_num, ui):
     """ perform network assignemnt using the selected assignment mode
 
     WARNING
@@ -392,26 +392,25 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, A):
         raise Exception("not implemented yet")
 
     # base network
-    link_list = A.get_network().get_link_list()
-    zones = A.get_network().get_zones()
+    A = ui._base_assignment
 
+    links = A.get_links()
+    zones = A.get_zones()
+    ats = A.get_agent_types()
+    dps = A.get_demand_periods()
     column_pool = A.get_column_pool()
-    at_size = A.get_agent_type_count()
-    dp_size = A.get_demand_period_count()
 
     st = time()
 
     for i in range(iter_num):
         print(f"current iteration number in assignment: {i}")
-        _update_link_travel_time_and_cost(link_list,
-                                          A.get_agent_types(),
-                                          A.get_demand_periods())
+        _update_link_travel_time_and_cost(links, ats, dps)
 
         _reset_and_update_link_vol_based_on_columns(column_pool,
-                                                    link_list,
+                                                    links,
                                                     zones,
-                                                    A.get_agent_types(),
-                                                    A.get_demand_periods(),
+                                                    ats,
+                                                    dps,
                                                     i,
                                                     True)
 
@@ -423,23 +422,16 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, A):
 
     print('\nprocessing time of assignment:{0: .2f}'.format(time()-st)+ 's\n')
 
-    _optimize_column_pool(column_pool,
-                          link_list,
-                          zones,
-                          A.get_agent_types(),
-                          A.get_demand_periods(),
-                          column_update_num)
+    _optimize_column_pool(column_pool, links, zones, ats, dps, column_update_num)
 
     _reset_and_update_link_vol_based_on_columns(column_pool,
-                                                link_list,
+                                                links,
                                                 zones,
-                                                A.get_agent_types(),
-                                                A.get_demand_periods(),
+                                                ats,
+                                                dps,
                                                 iter_num,
                                                 False)
 
-    _update_link_travel_time_and_cost(link_list,
-                                      A.get_agent_types(),
-                                      A.get_demand_periods())
+    _update_link_travel_time_and_cost(links, ats, dps)
 
-    _update_column_travel_time(column_pool, link_list, zones, at_size, dp_size)
+    _update_column_travel_time(column_pool, links, zones, ats, dps)

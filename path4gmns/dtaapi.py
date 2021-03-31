@@ -3,6 +3,9 @@ import os.path
 from sys import platform
 
 
+__all__ = ['perform_network_assignment_DTALite']
+
+
 if platform.startswith('win32'):
     _dll_file = os.path.join(os.path.dirname(__file__), 'bin/DTALite.dll')
 elif platform.startswith('linux'):

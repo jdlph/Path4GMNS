@@ -3,7 +3,14 @@ import yaml as ym
 
 
 from .classes import Node, Link, Network, Agent, ColumnVec, VDFPeriod, \
-                     AgentType, DemandPeriod, Assignment
+                     AgentType, DemandPeriod, Assignment, UI
+
+
+__all__ = [
+    'read_network',
+    'output_columns',
+    'output_link_performance'
+ ]
 
 
 def read_nodes(input_dir, nodes, id_to_no_dict,
@@ -293,8 +300,10 @@ def read_settings(input_dir, assignment):
         assignment.agent_types.append(at)
 
 
-def output_columns(network, output_dir='.'):
+def output_columns(ui, output_dir='.'):
     with open(output_dir+'/agent.csv', 'w',  newline='') as fp:
+        network = ui._base_assignment
+
         nodes = network.get_nodes()
         links = network.get_links()
         zones = network.get_zones()
@@ -360,8 +369,10 @@ def output_columns(network, output_dir='.'):
                             writer.writerow(line)
 
 
-def output_link_performance(network, output_dir='.'):
+def output_link_performance(ui, output_dir='.'):
     with open(output_dir+'/link_performance.csv', 'w',  newline='') as fp:
+        network = ui._base_assignment
+
         links = network.get_links()
 
         writer = csv.writer(fp)
@@ -438,4 +449,6 @@ def read_network(load_demand='true', input_dir='.'):
     assignm.network = network
     assignm.setup_spnetwork()
 
-    return assignm
+    ui = UI(assignm)
+
+    return ui
