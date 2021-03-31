@@ -6,12 +6,12 @@ from .classes import Node, Link, Network, Agent, ColumnVec, VDFPeriod, \
                      AgentType, DemandPeriod, Assignment
 
 
-def read_nodes(input_dir, nodes, id_to_no_dict, 
+def read_nodes(input_dir, nodes, id_to_no_dict,
                no_to_id_dict, zone_to_node_dict):
     """ step 1: read input_node """
     with open(input_dir+'/node.csv', 'r', encoding='utf-8') as fp:
         print('read node.csv')
-        
+
         reader = csv.DictReader(fp)
         node_seq_no = 0
         for line in reader:
@@ -20,7 +20,7 @@ def read_nodes(input_dir, nodes, id_to_no_dict,
             if not node_id:
                 continue
             node_id = int(node_id)
-            
+
             # set up zone_id, which should be an integer
             zone_id = line['zone_id']
             if not zone_id:
@@ -31,38 +31,38 @@ def read_nodes(input_dir, nodes, id_to_no_dict,
             # treat them as string
             coord_x = line['x_coord']
             coord_y = line['y_coord']
-            
+
             # construct node object
             node = Node(node_seq_no, node_id, zone_id, coord_x, coord_y)
             nodes.append(node)
-            
+
             # set up mapping between node_seq_no and node_id
             id_to_no_dict[node_id] = node_seq_no
             no_to_id_dict[node_seq_no] = node_id
-            
+
             # associate node_id to corresponding zone
             if zone_id not in zone_to_node_dict.keys():
                 zone_to_node_dict[zone_id] = []
             zone_to_node_dict[zone_id].append(node_id)
-            
+
             node_seq_no += 1
-        
+
         print(f"the number of nodes is {node_seq_no}")
 
 
-def read_links(input_dir, links, nodes, id_to_no_dict, 
+def read_links(input_dir, links, nodes, id_to_no_dict,
               agent_type_size, demand_period_size):
     """ step 2: read input_link """
     with open(input_dir+'/link.csv', 'r', encoding='utf-8') as fp:
         print('read link.csv')
-        
+
         reader = csv.DictReader(fp)
         link_seq_no = 0
         for line in reader:
             # it can be an empty string
             link_id = line['link_id']
 
-            # check the validility 
+            # check the validility
             from_node_id = line['from_node_id']
             if not from_node_id:
                 continue
@@ -70,7 +70,7 @@ def read_links(input_dir, links, nodes, id_to_no_dict,
             to_node_id = line['to_node_id']
             if not to_node_id:
                 continue
-            
+
             length = line['length']
             if not length:
                 continue
@@ -88,7 +88,7 @@ def read_links(input_dir, links, nodes, id_to_no_dict,
                       f"or/and Node ID {to_node_id} NOT IN THE NETWORK!!")
                 continue
 
-            # for the following attributes, 
+            # for the following attributes,
             # if they are not None, convert them to the corresponding types
             # leave None's to the default constructor
             lanes = line['lanes']
@@ -98,24 +98,24 @@ def read_links(input_dir, links, nodes, id_to_no_dict,
             link_type = line['link_type']
             if link_type:
                 link_type = int(link_type)
-            
+
             free_speed = line['free_speed']
             if free_speed:
                 free_speed = int(free_speed)
-            
+
             capacity = line['capacity']
             if capacity:
                 # issue: int??
                 capacity = int(float(capacity))
 
-            # if link.csv does not have no column 'allowed_uses', 
+            # if link.csv does not have no column 'allowed_uses',
             # set allowed_uses to 'auto'
             try:
                 allowed_uses = line['allowed_uses']
             except KeyError:
                 allowed_uses = 'auto'
-            
-            # if link.csv does not have no column 'geometry', 
+
+            # if link.csv does not have no column 'geometry',
             # set geometry to ''
             try:
                 geometry = line['geometry']
@@ -124,8 +124,8 @@ def read_links(input_dir, links, nodes, id_to_no_dict,
 
             # construct link ojbect
             link = Link(link_id,
-                        link_seq_no, 
-                        from_node_no, 
+                        link_seq_no,
+                        from_node_no,
                         to_node_no,
                         from_node_id,
                         to_node_id,
@@ -138,7 +138,7 @@ def read_links(input_dir, links, nodes, id_to_no_dict,
                         geometry,
                         agent_type_size,
                         demand_period_size)
-            
+
             # VDF Attributes
             for i in range(demand_period_size):
                 header_vdf_alpha = 'VDF_alpha' + str(i+1)
@@ -153,36 +153,36 @@ def read_links(input_dir, links, nodes, id_to_no_dict,
                     if VDF_alpha:
                         VDF_alpha = float(VDF_alpha)
                 except KeyError:
-                    break  
-                
+                    break
+
                 try:
                     VDF_beta = line[header_vdf_beta]
                     if VDF_beta:
                         VDF_beta = float(VDF_beta)
                 except KeyError:
-                    break  
-                
+                    break
+
                 try:
                     VDF_mu = line[header_vdf_mu]
                     if VDF_mu:
                         VDF_mu = float(VDF_mu)
                 except KeyError:
-                    break  
-                
+                    break
+
                 try:
                     VDF_fftt = line[header_vdf_fftt]
                     if VDF_fftt:
-                        VDF_fftt = float(VDF_fftt)    
+                        VDF_fftt = float(VDF_fftt)
                 except KeyError:
-                    break  
+                    break
 
-                try:    
+                try:
                     VDF_cap = line[header_vdf_cap]
                     if VDF_cap:
                         VDF_cap = float(VDF_cap)
                 except KeyError:
-                    break  
-                
+                    break
+
                 # not a mandatory column
                 try:
                     VDF_phf = line[header_vdf_phf]
@@ -192,32 +192,32 @@ def read_links(input_dir, links, nodes, id_to_no_dict,
                     VDF_phf = -1
 
                 # construct VDFPeriod object
-                vdf = VDFPeriod(i, VDF_alpha, VDF_beta, VDF_mu, 
+                vdf = VDFPeriod(i, VDF_alpha, VDF_beta, VDF_mu,
                                 VDF_fftt, VDF_cap, VDF_phf)
-    
+
                 link.vdfperiods.append(vdf)
 
             # set up outgoing links and incoming links
             nodes[from_node_no].add_outgoing_link(link)
             nodes[to_node_no].add_incoming_link(link)
             links.append(link)
-            
-            link_seq_no += 1
-        
-        print(f"the number of links is {link_seq_no}")
-    
 
-def read_demand(input_dir, file, agent_type, demand_period, 
+            link_seq_no += 1
+
+        print(f"the number of links is {link_seq_no}")
+
+
+def read_demand(input_dir, file, agent_type, demand_period,
                 zone_to_node_dict, demands, column_pool):
     """ step 3:read input_agent """
     with open(input_dir+'/'+file, 'r', encoding='utf-8') as fp:
         print('read demand.csv')
-        
+
         reader = csv.DictReader(fp)
         total_agents = 0
         for line in reader:
             volume = line['volume']
-            
+
             # invalid origin zone id, discard it
             oz_id = line['o_zone_id']
             if not oz_id:
@@ -227,12 +227,12 @@ def read_demand(input_dir, file, agent_type, demand_period,
             dz_id = line['d_zone_id']
             if not dz_id:
                 continue
-            
+
             oz_id = int(oz_id)
             # o_zone_id does not exist in node.csv, discard it
             if oz_id not in zone_to_node_dict.keys():
                 continue
-            
+
             dz_id = int(dz_id)
             # d_zone_id does not exist in node.csv, discard it
             if dz_id not in zone_to_node_dict.keys():
@@ -253,7 +253,7 @@ def read_demand(input_dir, file, agent_type, demand_period,
                 continue
 
             total_agents += int(volume + 1)
-            
+
     print(f"the number of agents is {total_agents}")
 
 
@@ -272,7 +272,7 @@ def read_settings(input_dir, assignment):
 
                 dp = DemandPeriod(i, demand_period, demand_time_period, demand_agent_type, demand_file)
                 assignment.demand_periods.append(dp)
-            
+
             # agent types
             agents = settings['agents']
             for i, a in enumerate(agents):
@@ -283,7 +283,7 @@ def read_settings(input_dir, assignment):
                 agent_pce = a['pce']
 
                 at = AgentType(i, agent_type, agent_name, agent_vot, agent_flow_type, agent_pce)
-                assignment.agent_types.append(at)          
+                assignment.agent_types.append(at)
     except FileNotFoundError:
         # just in case user does not provide setting.yml
         dp = DemandPeriod()
@@ -292,17 +292,17 @@ def read_settings(input_dir, assignment):
         assignment.demand_periods.append(dp)
         assignment.agent_types.append(at)
 
-    
-def output_columns(network, output_dir='.'):               
+
+def output_columns(network, output_dir='.'):
     with open(output_dir+'/agent.csv', 'w',  newline='') as fp:
         nodes = network.get_nodes()
-        links = network.get_links() 
+        links = network.get_links()
         zones = network.get_zones()
         column_pool = network.get_column_pool()
 
         writer = csv.writer(fp)
 
-        line = ['agent_id', 
+        line = ['agent_id',
                 'o_zone_id',
                 'd_zone_id',
                 'path_id',
@@ -327,7 +327,7 @@ def output_columns(network, output_dir='.'):
                     for dp in network.get_demand_periods():
                         if (at.get_id(), dp.get_id(), oz_id, dz_id) not in column_pool.keys():
                             continue
-                        
+
                         cv = column_pool[(at.get_id(), dp.get_id(), oz_id, dz_id)]
 
                         for col in cv.get_columns().values():
@@ -363,10 +363,10 @@ def output_columns(network, output_dir='.'):
 def output_link_performance(network, output_dir='.'):
     with open(output_dir+'/link_performance.csv', 'w',  newline='') as fp:
         links = network.get_links()
-        
+
         writer = csv.writer(fp)
 
-        line = ['link_id', 
+        line = ['link_id',
                 'from_node_id',
                 'to_node_id',
                 'time_period',
@@ -378,14 +378,14 @@ def output_link_performance(network, output_dir='.'):
                 'density',
                 'geometry',
                 'notes']
-                    
+
         writer.writerow(line)
 
         for link in links:
             for dp in network.get_demand_periods():
                 avg_travel_time = link.get_period_avg_travel_time(dp.get_id())
                 speed = link.get_length() / (max(0.001, avg_travel_time) / 60)
-                
+
                 line = [link.get_link_id(),
                         link.get_from_node_id(),
                         link.get_to_node_id(),
@@ -400,7 +400,7 @@ def output_link_performance(network, output_dir='.'):
                         '']
 
                 writer.writerow(line)
-                            
+
 
 def read_network(load_demand='true', input_dir='.'):
     assignm = Assignment()
@@ -414,11 +414,11 @@ def read_network(load_demand='true', input_dir='.'):
                network.external_node_id_dict,
                network.zone_to_nodes_dict)
 
-    read_links(input_dir, 
+    read_links(input_dir,
                network.link_list,
                network.node_list,
                network.internal_node_seq_no_dict,
-               assignm.get_agent_type_count(), 
+               assignm.get_agent_type_count(),
                assignm.get_demand_period_count())
 
     if load_demand:
@@ -432,9 +432,9 @@ def read_network(load_demand='true', input_dir='.'):
                             assignm.demands,
                             assignm.column_pool)
 
-    network.update(assignm.get_agent_type_count(), 
+    network.update(assignm.get_agent_type_count(),
                    assignm.get_demand_period_count())
-                   
+
     assignm.network = network
     assignm.setup_spnetwork()
 

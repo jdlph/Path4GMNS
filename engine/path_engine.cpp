@@ -25,14 +25,14 @@ void shortest_path(int o_node_no, int node_size,
     // static constexpr int first_thru_node = 0;  
 
     // initialization 
-    for (int node_indiex = 0; node_indiex < node_size; ++node_indiex)
+    for (int node_no = 0; node_no < node_size; ++node_no)
     {
         // dueue_next is the implementation of scan eligible list for active nodes in label correcting 
-        deque_next[node_indiex] = invalid;
+        deque_next[node_no] = invalid;
         // label cost, make it consistent with the python implemenation
-        label_cost[node_indiex] = 10000;  
-        link_pred[node_indiex] = invalid;
-        node_pred[node_indiex] = invalid;
+        label_cost[node_no] = 10000;  
+        link_pred[node_no] = invalid;
+        node_pred[node_no] = invalid;
     }
 
     int current_node, deque_head, deque_tail;

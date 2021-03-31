@@ -3,7 +3,7 @@
 Two path engines are provided:
 1. C++ engine which is a special implementation of the deque implementation in
    C++ and built into path_engine.dll.
-2. Python engine which provides three implementations: FIFO, Deque, and 
+2. Python engine which provides three implementations: FIFO, Deque, and
    heap-Dijkstra. The default is deque.
 """
 
@@ -42,29 +42,29 @@ _cdll = ctypes.cdll.LoadLibrary(_dll_file)
 
 # set up the argument types for the shortest path function in dll.
 _cdll.shortest_path.argtypes = [
-    ctypes.c_int, 
-    ctypes.c_int, 
+    ctypes.c_int,
+    ctypes.c_int,
     ctypes.POINTER(ctypes.c_int),
     ctypes.POINTER(ctypes.c_int),
     ctypes.POINTER(ctypes.c_int),
     ctypes.POINTER(ctypes.c_int),
     ctypes.POINTER(ctypes.c_int),
-    ctypes.POINTER(ctypes.c_double), 
-    ctypes.POINTER(ctypes.c_double),                                  
+    ctypes.POINTER(ctypes.c_double),
+    ctypes.POINTER(ctypes.c_double),
     ctypes.POINTER(ctypes.c_int),
     ctypes.POINTER(ctypes.c_int),
     ctypes.POINTER(ctypes.c_int),
-    ctypes.c_int, 
+    ctypes.c_int,
     ctypes.c_int
 ]
 
 
-def _optimal_label_correcting_CAPI(G, origin_node_no, 
-                                   departure_time=0, 
+def _optimal_label_correcting_CAPI(G, origin_node_no,
+                                   departure_time=0,
                                    first_thru_node=0):
     """ call the deque implementation of MLC written in cpp
-    
-    node_label_cost, node_predecessor, and link_predecessor are still 
+
+    node_label_cost, node_predecessor, and link_predecessor are still
     initialized in shortest_path() even the source node has no outgoing links.
     """
     _cdll.shortest_path(origin_node_no,
@@ -85,15 +85,15 @@ def _optimal_label_correcting_CAPI(G, origin_node_no,
 
 def _single_source_shortest_path_fifo(G, origin_node_no):
     """ FIFO implementation of MLC using built-in list and indicator array
-    
-    The caller is responsible for initializing node_label_cost, 
+
+    The caller is responsible for initializing node_label_cost,
     node_predecessor, and link_predecessor.
     """
     G.node_label_cost[origin_node_no] = 0
     # node status array
     status = [0] * G.node_size
     # scan eligible list
-    SEList = []  
+    SEList = []
     SEList.append(origin_node_no)
 
     # label correcting
@@ -101,20 +101,20 @@ def _single_source_shortest_path_fifo(G, origin_node_no):
         from_node = SEList.pop(0)
         status[from_node] = 0
         for link in G.node_list[from_node].outgoing_link_list:
-            to_node = link.to_node_seq_no 
-            new_to_node_cost = (G.node_label_cost[from_node] 
+            to_node = link.to_node_seq_no
+            new_to_node_cost = (G.node_label_cost[from_node]
                                 + link.cost)
-            # we only compare cost at the downstream node ToID 
+            # we only compare cost at the downstream node ToID
             # at the new arrival time t
             if new_to_node_cost < G.node_label_cost[to_node]:
                 # update cost label and node/time predecessor
                 G.node_label_cost[to_node] = new_to_node_cost
-                # pointer to previous physical node index 
-                # from the current label at current node and time
-                G.node_predecessor[to_node] = from_node 
                 # pointer to previous physical node index
                 # from the current label at current node and time
-                G.link_predecessor[to_node] = link.link_seq_no 
+                G.node_predecessor[to_node] = from_node
+                # pointer to previous physical node index
+                # from the current label at current node and time
+                G.link_predecessor[to_node] = link.link_seq_no
                 if not status[to_node]:
                     SEList.append(to_node)
                     status[to_node] = 1
@@ -122,8 +122,8 @@ def _single_source_shortest_path_fifo(G, origin_node_no):
 
 def _single_source_shortest_path_deque(G, origin_node_no):
     """ Deque implementation of MLC using deque list and indicator array
-    
-    The caller is responsible for initializing node_label_cost, 
+
+    The caller is responsible for initializing node_label_cost,
     node_predecessor, and link_predecessor.
 
     Adopted and modified from
@@ -141,18 +141,18 @@ def _single_source_shortest_path_deque(G, origin_node_no):
         from_node = SEList.popleft()
         status[from_node] = 2
         for link in G.node_list[from_node].outgoing_link_list:
-            to_node = link.to_node_seq_no  
-            new_to_node_cost = (G.node_label_cost[from_node] 
+            to_node = link.to_node_seq_no
+            new_to_node_cost = (G.node_label_cost[from_node]
                                 + link.cost)
             # we only compare cost at the downstream node ToID
             # at the new arrival time t
             if new_to_node_cost < G.node_label_cost[to_node]:
                 # update cost label and node/time predecessor
                 G.node_label_cost[to_node] = new_to_node_cost
-                # pointer to previous physical node index 
+                # pointer to previous physical node index
                 # from the current label at current node and time
                 G.node_predecessor[to_node] = from_node
-                # pointer to previous physical node index 
+                # pointer to previous physical node index
                 # from the current label at current node and time
                 G.link_predecessor[to_node] = link.link_seq_no
                 if status[to_node] != 1:
@@ -165,8 +165,8 @@ def _single_source_shortest_path_deque(G, origin_node_no):
 
 def _single_source_shortest_path_dijkstra(G, origin_node_no):
     """ Simplified heap-Dijkstra's Algorithm using heapq
-    
-    The caller is responsible for initializing node_label_cost, 
+
+    The caller is responsible for initializing node_label_cost,
     node_predecessor, and link_predecessor.
 
     Adopted and modified from
@@ -190,15 +190,15 @@ def _single_source_shortest_path_dijkstra(G, origin_node_no):
         for link in G.node_list[from_node].outgoing_link_list:
             to_node = link.to_node_seq_no
             new_to_node_cost = label_cost + link.cost
-            # we only compare cost at the downstream node ToID 
+            # we only compare cost at the downstream node ToID
             # at the new arrival time t
             if new_to_node_cost < G.node_label_cost[to_node]:
                 # update cost label and node/time predecessor
                 G.node_label_cost[to_node] = new_to_node_cost
-                # pointer to previous physical node index 
+                # pointer to previous physical node index
                 # from the current label at current node and time
-                G.node_predecessor[to_node] = from_node 
-                # pointer to previous physical node index 
+                G.node_predecessor[to_node] = from_node
+                # pointer to previous physical node index
                 # from the current label at current node and time
                 G.link_predecessor[to_node] = link.link_seq_no
                 heapq.heappush(SEList, (G.node_label_cost[to_node], to_node))
@@ -206,9 +206,9 @@ def _single_source_shortest_path_dijkstra(G, origin_node_no):
 
 def single_source_shortest_path(G, origin_node_id, engine_type='c',
                                 sp_algm='deque'):
-                                
+
     origin_node_no = G.get_node_no(origin_node_id)
-    
+
     if engine_type.lower() == 'c':
         G.allocate_for_CAPI()
         _optimal_label_correcting_CAPI(G, origin_node_no)
@@ -241,15 +241,15 @@ def single_source_shortest_path(G, origin_node_id, engine_type='c',
 
 def output_path_sequence(G, from_node_id, to_node_id, type='node'):
     """ output shortest path in terms of node sequence or link sequence
-    
+
     Note that this function returns GENERATOR rather than list.
     """
     path = []
     current_node_seq_no = G.internal_node_seq_no_dict[to_node_id]
-   
+
     if type.startswith('node'):
         # retrieve the sequence backwards
-        while current_node_seq_no >= 0:  
+        while current_node_seq_no >= 0:
             path.append(current_node_seq_no)
             current_node_seq_no = G.node_predecessor[current_node_seq_no]
         # reverse the sequence
@@ -269,7 +269,7 @@ def output_path_sequence(G, from_node_id, to_node_id, type='node'):
 
 def _get_path_cost(G, to_node_id):
     to_node_no = G.internal_node_seq_no_dict[to_node_id]
-    
+
     return G.node_label_cost[to_node_no]
 
 
@@ -283,7 +283,7 @@ def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
 
     # return list(output_path_sequence(G, from_node_id, to_node_id, seq_type))
     return ';'.join(
-        str(x) for x in output_path_sequence(G, from_node_id, 
+        str(x) for x in output_path_sequence(G, from_node_id,
                                              to_node_id, seq_type)
     )
 
@@ -293,8 +293,8 @@ def find_path_for_agents(G, column_pool, engine_type='c'):
 
     the internal node and links will be used to set up the node sequence and
     link sequence respectively
-    
-    Note that we do not cache the predecessors and label cost even some agents 
+
+    Note that we do not cache the predecessors and label cost even some agents
     may share the same origin and each call of the single-source path algorithm
     will calculate the shortest path tree from the source node.
     """
@@ -327,20 +327,20 @@ def find_path_for_agents(G, column_pool, engine_type='c'):
         link_path = []
 
         current_node_seq_no = G.internal_node_seq_no_dict[to_node_id]
-        # set up the cost       
+        # set up the cost
         agent.path_cost = G.node_label_cost[current_node_seq_no]
-        
+
         # retrieve the sequence backwards
         while current_node_seq_no >= 0:
             node_path.append(current_node_seq_no)
-            current_link_seq_no = G.link_predecessor[current_node_seq_no]  
+            current_link_seq_no = G.link_predecessor[current_node_seq_no]
             if current_link_seq_no >= 0:
                 link_path.append(current_link_seq_no)
             current_node_seq_no = G.node_predecessor[current_node_seq_no]
-        
+
         # make sure it is a valid path
         if not link_path:
             continue
-        
+
         agent.node_path = [x for x in node_path]
         agent.link_path = [x for x in link_path]

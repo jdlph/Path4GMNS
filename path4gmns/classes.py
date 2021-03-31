@@ -5,20 +5,20 @@ from .path import MAX_LABEL_COST, find_path_for_agents, find_shortest_path
 
 
 # reserved for simulation
-_NUM_OF_SECS_PER_SIMU_INTERVAL = 6 
+_NUM_OF_SECS_PER_SIMU_INTERVAL = 6
 
 
-class Node:         
-    """ 
+class Node:
+    """
     external_node_id: the id of node
     node_seq_no: the index of the node and we call the node by its index
-    
-    we use g_internal_node_seq_no_dict(id to index) and 
+
+    we use g_internal_node_seq_no_dict(id to index) and
     g_external_node_id_dict(index to id) to map them
     """
 
-    def __init__(self, node_seq_no, external_node_id, zone_id, x='', y=''): 
-        """ the attribute of node  """ 
+    def __init__(self, node_seq_no, external_node_id, zone_id, x='', y=''):
+        """ the attribute of node  """
         self.node_seq_no = node_seq_no
         self.external_node_id = external_node_id
         self.outgoing_link_list = []
@@ -44,10 +44,10 @@ class Node:
 
     def add_outgoing_link(self, link):
         self.outgoing_link_list.append(link)
-    
+
     def add_incoming_link(self, link):
         self.incoming_link_list.append(link)
-        
+
 
 class Link:
 
@@ -55,7 +55,7 @@ class Link:
                  id,
                  link_seq_no,
                  from_node_no,
-                 to_node_no, 
+                 to_node_no,
                  from_node_id,
                  to_node_id,
                  length,
@@ -66,7 +66,7 @@ class Link:
                  allowed_uses='auto',
                  geometry='',
                  agent_type_size=1,
-                 demand_period_size=1):   
+                 demand_period_size=1):
         """ the attribute of link """
         self.id = id
         self.link_seq_no = link_seq_no
@@ -161,7 +161,7 @@ class Link:
             self.travel_time_by_period[tau] = (
                 self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau])
             )
-    
+
     def calculate_agent_marginal_cost(self, tau, agent_type):
         self.travel_marginal_cost_by_period[tau][agent_type.get_id()] = (
             self.vdfperiods[tau].marginal_base * agent_type.get_pce()
@@ -174,27 +174,27 @@ class Agent:
     agent_id: the id of agent
     agent_seq_no: the index of the agent and we call the agent by its index
     """
-    
-    def __init__(self, agent_id, agent_seq_no, agent_type, 
+
+    def __init__(self, agent_id, agent_seq_no, agent_type,
                  o_zone_id, d_zone_id):
-        """ the attribute of agent """ 
+        """ the attribute of agent """
         self.agent_id = agent_id
         self.agent_seq_no = agent_seq_no
-        # vehicle 
-        self.agent_type = agent_type  
+        # vehicle
+        self.agent_type = agent_type
         self.o_zone_id = o_zone_id
         self.d_zone_id = d_zone_id
         self.o_node_id = 0
         self.d_node_id = 0
         self.node_path = None
-        self.link_path = None 
-        self.current_link_seq_no_in_path = 0 
+        self.link_path = None
+        self.current_link_seq_no_in_path = 0
         self.departure_time_in_min = 0
         # Passenger Car Equivalent (PCE) of the agent
-        self.PCE_factor = 1  
+        self.PCE_factor = 1
         self.path_cost = 0
         self.departure_time_in_simu_interval = int(
-            self.departure_time_in_min 
+            self.departure_time_in_min
             * 60 /_NUM_OF_SECS_PER_SIMU_INTERVAL
             + 0.5)
         self.b_generated = False
@@ -212,10 +212,10 @@ class Agent:
 
     def get_dep_simu_intvl(self):
         return self.departure_time_in_simu_interval
- 
+
 
 class Network:
-    
+
     def __init__(self):
         self.node_list = []
         self.link_list = []
@@ -227,7 +227,7 @@ class Network:
         self.internal_node_seq_no_dict = {}
         # key: internal node id, value:external node id
         self.external_node_id_dict = {}
-        # td:time-dependent, key:simulation time interval, 
+        # td:time-dependent, key:simulation time interval,
         # value:agents(list) need to be activated
         self.agent_td_list_dict = {}
         # key: zone id, value: node id list
@@ -267,14 +267,14 @@ class Network:
         from_node_no_array = [link.from_node_seq_no for link in self.link_list]
         to_node_no_array = [link.to_node_seq_no for link in self.link_list]
         link_cost_array = [link.cost for link in self.link_list]
-        
+
         # initialize others as numpy arrays directly
         queue_next = [0] * node_size
         first_link_from = [-1] * node_size
         last_link_from = [-1] * node_size
         sorted_link_no_array = [-1] * link_size
 
-        # internal link index used for shortest path calculation only 
+        # internal link index used for shortest path calculation only
         j = 0
         for i, node in enumerate(self.node_list):
             if not node.outgoing_link_list:
@@ -302,13 +302,13 @@ class Network:
         self.node_predecessor = int_arr_node(*node_predecessor)
         self.link_predecessor = int_arr_node(*link_predecessor)
         self.queue_next = int_arr_node(*queue_next)
-        
+
         self.has_capi_allocated = True
 
     def setup_agents(self, column_pool):
         agent_id = 1
         agent_no = 0
-        
+
         for orig in self.zones:
             for dest in self.zones:
                 for at in range(self._agent_type_size):
@@ -328,24 +328,24 @@ class Network:
                             agent = Agent(agent_id,
                                           agent_no,
                                           at,
-                                          orig, 
+                                          orig,
                                           dest)
 
-                            # step 1 generate o_node_id and d_node_id randomly 
-                            # according to o_zone_id and d_zone_id 
+                            # step 1 generate o_node_id and d_node_id randomly
+                            # according to o_zone_id and d_zone_id
                             agent.o_node_id = choice(
                                 self.zone_to_nodes_dict[orig]
                             )
                             agent.d_node_id = choice(
                                 self.zone_to_nodes_dict[dest]
                             )
-                            
+
                             # step 2 update agent_id and agent_seq_no
                             agent_id += 1
-                            agent_no += 1 
+                            agent_no += 1
 
-                            # step 3: update the g_simulation_start_time_in_min and 
-                            # g_simulation_end_time_in_min 
+                            # step 3: update the g_simulation_start_time_in_min and
+                            # g_simulation_end_time_in_min
                             # if agent.departure_time_in_min < g_simulation_start_time_in_min:
                             #     g_simulation_start_time_in_min = agent.departure_time_in_min
                             # if agent.departure_time_in_min > g_simulation_end_time_in_min:
@@ -358,12 +358,12 @@ class Network:
                             self.agent_td_list_dict[departure_time].append(
                                 agent.get_seq_no()
                             )
-                            
+
                             self.agent_list.append(agent)
 
-        # 03/22/21, comment out until departure time is enabled 
+        # 03/22/21, comment out until departure time is enabled
         # in the future release
-        
+
         #step 3.6:sort agents by the departure time
         # agents.sort(key=lambda agent: agent.departure_time_in_min)
         # for i, agent in enumerate(agents):
@@ -371,7 +371,7 @@ class Network:
 
         self.agent_size = len(self.agent_list)
         print(f"the number of agents is {self.agent_size}")
-    
+
     def _get_agent(self, agent_no):
         """ retrieve agent using agent_no """
         try:
@@ -384,7 +384,7 @@ class Network:
         """ return the sequence of node IDs along the agent path """
         agent_no = agent_id - 1
         agent = self._get_agent(agent_no)
-        
+
         return ';'.join(
             str(self.external_node_id_dict[x]) for x in reversed(agent.node_path)
         )
@@ -393,7 +393,7 @@ class Network:
         """ return the sequence of link IDs along the agent path """
         agent_no = agent_id - 1
         agent = self._get_agent(agent_no)
-            
+
         return ';'.join(
             self.link_list[x].get_link_id() for x in reversed(agent.link_path)
         )
@@ -403,13 +403,13 @@ class Network:
         agent_no = agent_id - 1
         agent = self._get_agent(agent_no)
 
-        return agent.get_orig_node_id()      
+        return agent.get_orig_node_id()
 
     def get_agent_dest_node_id(self, agent_id):
         """ return the origin node id of agent """
         agent_no = agent_id - 1
         agent = self._get_agent(agent_no)
-        
+
         return agent.get_dest_node_id()
 
     def get_agent_count(self):
@@ -468,7 +468,7 @@ class Network:
 
 
 class Column:
-    
+
     def __init__(self, seq_no=-1):
         self.seq_no = seq_no
         self.vol = 0
@@ -493,7 +493,7 @@ class Column:
 
     def get_distance(self):
         return self.dist
-    
+
     def get_volume(self):
         return self.vol
 
@@ -521,7 +521,7 @@ class Column:
 
     def set_volume(self, v):
         self.vol = v
-    
+
     def set_toll(self, t):
         self.toll = t
 
@@ -548,7 +548,7 @@ class Column:
 
 
 class ColumnVec:
-    
+
     def __init__(self):
         self.od_vol = 0
         self.route_fixed = False
@@ -556,7 +556,7 @@ class ColumnVec:
 
     def is_route_fixed(self):
         return self.route_fixed
-    
+
     def get_od_volume(self):
         return self.od_vol
 
@@ -575,9 +575,9 @@ class ColumnVec:
 
 class AgentType:
 
-    def __init__(self, id=0, type='p', name='passenger', 
+    def __init__(self, id=0, type='p', name='passenger',
                  vot=10, flow_type=0, pce=1):
-                 
+
         self.id = id
         self.type = type
         self.name = name
@@ -600,7 +600,7 @@ class AgentType:
 
 class DemandPeriod:
 
-    def __init__(self, id=0, period='AM', time_period='0700_0800', 
+    def __init__(self, id=0, period='AM', time_period='0700_0800',
                  agent_type='p', file='demand.csv'):
 
         self.id = id
@@ -617,10 +617,10 @@ class DemandPeriod:
 
     def get_period(self):
         return self.period
-                 
+
 
 class VDFPeriod:
-    
+
     def __init__(self, id, alpha=0.15, beta=4, mu=1000,
                  fftt=0, cap=99999, phf=-1):
         self.id = id
@@ -648,16 +648,16 @@ class VDFPeriod:
         self.voc = vol / max(0.00001, self.capacity)
 
         self.marginal_base = (
-            self.fftt 
+            self.fftt
             * self.alpha
             * self.beta
             * pow(self.voc, self.beta - 1)
         )
-        
+
         self.avg_travel_time = (
-            self.fftt 
-            + self.fftt 
-            * self.alpha 
+            self.fftt
+            + self.fftt
+            * self.alpha
             * pow(self.voc, self.beta)
         )
 
@@ -672,12 +672,12 @@ class SPNetwork(Network):
         self.agent_type = at
         # DemandPeriod object
         self.demand_period = dp
-        
-        # this is necessary for each instance of SPNetwork 
+
+        # this is necessary for each instance of SPNetwork
         # to retrieve network topoloy
         if not base.has_capi_allocated:
             base.allocate_for_CAPI()
-        
+
         # set up attributes unique to each instance
         node_preds = [-1] * base.node_size
         link_preds = [-1] * base.node_size
@@ -734,7 +734,7 @@ class SPNetwork(Network):
 
     def get_node_list(self):
         return self.base.get_node_list()
-    
+
     def get_link_list(self):
         return self.base.get_link_list()
 
@@ -756,7 +756,7 @@ class SPNetwork(Network):
     def get_sorted_link_no_arr(self):
         return self.base.get_sorted_link_no_arr()
 
-    # the following five are unique to each SPNetwork 
+    # the following five are unique to each SPNetwork
     def get_node_preds(self):
         return self.node_predecessor
 
@@ -774,7 +774,7 @@ class SPNetwork(Network):
 
 
 class Assignment:
-    
+
     def __init__(self):
         self.agent_types = []
         self.demand_periods = []
@@ -784,7 +784,7 @@ class Assignment:
         self.network = None
         self.spnetworks = []
         self.memory_blocks = 4
-    
+
     def get_agent_type_count(self):
         return len(self.agent_types)
 
@@ -792,12 +792,10 @@ class Assignment:
         return len(self.demand_periods)
 
     def get_agent_types(self):
-        for at in self.agent_types:
-            yield at
+        return self.agent_types
 
     def get_demand_periods(self):
-        for dp in self.demand_periods:
-            yield dp
+        return self.demand_periods
 
     def get_spnetworks(self):
         for sp in self.spnetworks:
@@ -834,17 +832,17 @@ class Assignment:
         find_path_for_agents(self.network, self.column_pool)
 
     def find_shortest_path(self, from_node_id, to_node_id, seq_type='node'):
-        return find_shortest_path(self.network, from_node_id, 
+        return find_shortest_path(self.network, from_node_id,
                                   to_node_id, seq_type='node')
 
     def perform_network_assignment(self, assignment_mode, iter_num, column_update_num):
         # perform_network_assignment(assignment_mode, iter_num, column_update_num)
         pass
 
-    def perform_network_assignment_DTALite(self, assignment_mode, 
+    def perform_network_assignment_DTALite(self, assignment_mode,
                                            iter_num, column_update_num):
-                                        
-        # perform_network_assignment_DTALite(assignment_mode, 
+
+        # perform_network_assignment_DTALite(assignment_mode,
         #                                    iter_num,
         #                                    column_update_num)
         pass

@@ -25,9 +25,9 @@ def test_find_shortest_path_for_agents():
           +str(network.get_agent_orig_node_id(agent_id)))
     print('destination node id of agent is '
           +str(network.get_agent_dest_node_id(agent_id)))
-    print('shortest path (node id) of agent is ' 
+    print('shortest path (node id) of agent is '
           + str(network.get_agent_node_path(agent_id)))
-    print('shortest path (link id) of agent is ' 
+    print('shortest path (link id) of agent is '
           + str(network.get_agent_link_path(agent_id)))
 
     agent_id = 1000
@@ -35,22 +35,22 @@ def test_find_shortest_path_for_agents():
           +str(network.get_agent_orig_node_id(agent_id)))
     print('destination node id of agent is '
           +str(network.get_agent_dest_node_id(agent_id)))
-    print('shortest path (node id) of agent is ' 
+    print('shortest path (node id) of agent is '
           +str(network.get_agent_node_path(agent_id)))
-    print('shortest path (link id) of agent is ' 
+    print('shortest path (link id) of agent is '
           +str(network.get_agent_link_path(agent_id)))
 
 
 def test_column_generation_py():
     network = pg.read_network()
-    
+
     print('start column generation')
     st = time()
 
     iter_num = 20
     column_update_num = 20
     pg.perform_network_assignment(1, iter_num, column_update_num, network)
-    
+
     print('processing time of column generation:{0: .2f}'.format(time()-st)+'s'
           f' for {iter_num} assignment iterations and '
           f'{column_update_num} iterations in column generation')
@@ -62,14 +62,14 @@ def test_column_generation_py():
 
 
 def test_column_generation_dtalite():
-    """ validation using DTALite """ 
+    """ validation using DTALite """
     print('start column generation')
     st = time()
 
     iter_num = 20
     column_update_num = 20
     pg.perform_network_assignment_DTALite(1, iter_num, column_update_num)
-    
+
     print('processing time of column generation:{0: .2f}'.format(time()-st)+'s'
           f' for {iter_num} assignment iterations and '
           f'{column_update_num} iterations in column generation')
@@ -87,7 +87,7 @@ def demo_mode(mode):
         # option 2: find shortest paths for all agents on Chicago network
         test_find_shortest_path_for_agents()
     elif mode == 3:
-        # option 3: perform column generation using Python engine 
+        # option 3: perform column generation using Python engine
         # on Chicago network
         test_column_generation_py()
     else:
@@ -96,5 +96,5 @@ def demo_mode(mode):
 
 
 if __name__=="__main__":
-    
+
     demo_mode(3)
