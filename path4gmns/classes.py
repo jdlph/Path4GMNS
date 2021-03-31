@@ -141,8 +141,7 @@ class Link:
     def get_period_avg_travel_time(self, tau):
         return self.vdfperiods[tau].get_avg_travel_time()
 
-    def get_generalized_cost(self, tau, agent_type, value_of_time=10):
-        """ warning: value_of_time is nevered passed from caller"""
+    def get_generalized_cost(self, tau, value_of_time):
         return self.travel_time_by_period[tau] + self.toll / value_of_time * 60
 
     def reset_period_flow_vol(self, tau):
@@ -163,10 +162,9 @@ class Link:
                 self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau])
             )
     
-    def calculate_agent_marginal_cost(self, tau, agent_type, PCE_agent_type=1):
-        """ warning """
-        self.travel_marginal_cost_by_period[tau][agent_type] = (
-            self.vdfperiods[tau].marginal_base * PCE_agent_type
+    def calculate_agent_marginal_cost(self, tau, agent_type):
+        self.travel_marginal_cost_by_period[tau][agent_type.get_id()] = (
+            self.vdfperiods[tau].marginal_base * agent_type.get_pce()
         )
 
 
@@ -453,9 +451,6 @@ class Network:
     def get_sorted_link_no_arr(self):
         return self.sorted_link_no_array
 
-    def get_link_costs(self):
-        return self.link_cost_array
-
     def get_node_preds(self):
         return self.node_predecessor
 
@@ -464,6 +459,9 @@ class Network:
 
     def get_node_label_costs(self):
         return self.node_label_cost
+
+    def get_link_costs(self):
+        return self.link_cost_array
 
     def get_queue_next(self):
         return self.queue_next
@@ -596,6 +594,9 @@ class AgentType:
     def get_type(self):
         return self.type
 
+    def get_pce(self):
+        return self.pce
+
 
 class DemandPeriod:
 
@@ -682,15 +683,18 @@ class SPNetwork(Network):
         link_preds = [-1] * base.node_size
         node_lables = [MAX_LABEL_COST] * base.node_size
         queue_next = [0] * base.node_size
+        link_cost_array = [link.cost for link in base.link_list]
 
         int_arr_node = ctypes.c_int * base.node_size
         double_arr_node = ctypes.c_double * base.node_size
+        double_arr_link = ctypes.c_double * base.link_size
 
         self.node_predecessor = int_arr_node(*node_preds)
         self.link_predecessor = int_arr_node(*link_preds)
         self.node_label_cost = double_arr_node(*node_lables)
+        self.link_cost_array = double_arr_link(*link_cost_array)
         self.queue_next = int_arr_node(*queue_next)
-        
+
         # node id
         self.orig_nodes = []
         # zone sequence no
@@ -720,7 +724,7 @@ class SPNetwork(Network):
         for i in self.orig_nodes:
             yield i
 
-    # the following eight are shared by all SPNetworks
+    # the following ten are shared by all SPNetworks
     # network topology
     def get_node_size(self):
         return self.base.get_node_size()
@@ -730,12 +734,12 @@ class SPNetwork(Network):
 
     def get_node_list(self):
         return self.base.get_node_list()
+    
+    def get_link_list(self):
+        return self.base.get_link_list()
 
     def get_zones(self):
         return self.base.get_zones()
-
-    def get_link_list(self):
-        return self.base.get_link_list()
 
     def get_from_node_no_arr(self):
         return self.base.get_from_node_no_arr()
@@ -752,10 +756,7 @@ class SPNetwork(Network):
     def get_sorted_link_no_arr(self):
         return self.base.get_sorted_link_no_arr()
 
-    def get_link_costs(self):
-        return self.base.get_link_costs()
-
-    # the following four are unique to each SPNetwork 
+    # the following five are unique to each SPNetwork 
     def get_node_preds(self):
         return self.node_predecessor
 
@@ -764,6 +765,9 @@ class SPNetwork(Network):
 
     def get_node_label_costs(self):
         return self.node_label_cost
+
+    def get_link_costs(self):
+        return self.link_cost_array
 
     def get_queue_next(self):
         return self.queue_next
