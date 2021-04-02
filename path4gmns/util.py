@@ -1,7 +1,7 @@
 import csv
 import requests
 import os
-
+import threading
 
 from .classes import Node, Link, Network, Agent, ColumnVec, VDFPeriod, \
                      AgentType, DemandPeriod, Assignment, UI
@@ -527,12 +527,18 @@ def read_network(load_demand='true', input_dir='.'):
     return ui
 
 
+def _download_url(url, filename, local_dir):
+    r = requests.get(url)
+    with open(local_dir+filename, 'wb') as f:
+        f.write(r.content)
+
+
 def download_sample_data_sets():
     url = 'https://github.com/jdlph/Path4GMNS/blob/master/data/'
 
     data_sets = [
-        "Braess's_Paradox", 
-        "Chicago_Sketch", 
+        "Braess's_Paradox",
+        "Chicago_Sketch",
         "Lima_Network",
         "Sioux_Falls",
         "Two_Corridor"
@@ -548,21 +554,24 @@ def download_sample_data_sets():
 
     print('downloading starts')
 
-    local_dir = os.path.join(os.path.dirname(__file__), 'data')
-    if not os.path.isdir(local_dir):
-        os.mkdir(local_dir)
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    if not os.path.isdir(data_dir):
+        os.mkdir(data_dir)
 
     for ds in data_sets:
         web_dir = url + ds + '/'
-        local_dir = os.path.join(os.path.dirname(__file__), 'data', ds) + '/'
-        
+        local_dir = os.path.join(data_dir, ds) + '/'
+
         if not os.path.isdir(local_dir):
             os.mkdir(local_dir)
 
+        # multi-threading
         for x in files:
-            r = requests.get(web_dir+x)
-            with open(local_dir+x, 'wb') as f:
-                f.write(r.content)
+            t = threading.Thread(
+                target=_download_url,
+                args=(web_dir+x, x, local_dir)
+            )
+            t.start()
 
     print('downloading completes')
-    print('check '+os.path.dirname(__file__)+'/data for downloaded data sets')
+    print('check '+data_dir+' for downloaded data sets')
