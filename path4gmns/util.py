@@ -1,4 +1,6 @@
 import csv
+import requests
+import os
 
 
 from .classes import Node, Link, Network, Agent, ColumnVec, VDFPeriod, \
@@ -522,3 +524,39 @@ def read_network(load_demand='true', input_dir='.'):
     ui = UI(assignm)
 
     return ui
+
+
+def download_sample_data_sets():
+    url = 'https://github.com/jdlph/Path4GMNS/blob/master/data/'
+
+    data_sets = [
+        "Braess's_Paradox", 
+        "Chicago_Sketch", 
+        "Lima_Network",
+        "Sioux_Falls",
+        "Two_Corridor"]
+
+    files = [
+        "node.csv",
+        "link.csv"
+        "demand.csv"
+        "settings.csv"
+        "settings.yaml"
+    ]
+
+    print('downloading starts')
+
+    for ds in data_sets:
+        web_dir = url + ds + '/'
+        local_dir = os.path.join(os.path.dirname(__file__), 'data', ds) + '/'
+        
+        if not os.path.isdir(local_dir):
+            os.mkdir(local_dir)
+
+        for x in files:
+            r = requests.get(web_dir+x)
+            with open(local_dir+x, 'w') as f:
+                f.write(r.content)
+
+    print('downloading completes')
+    print('check '+os.path.dirname(__file__)+'/data for downloaded data sets')
