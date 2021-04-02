@@ -15,6 +15,56 @@ __all__ = [
  ]
 
 
+def _download_url(url, filename, local_dir):
+    r = requests.get(url)
+    with open(local_dir+filename, 'wb') as f:
+        f.write(r.content)
+
+
+def download_sample_data_sets():
+    url = 'https://github.com/jdlph/Path4GMNS/blob/master/data/'
+
+    data_sets = [
+        "Braess's_Paradox",
+        "Chicago_Sketch",
+        "Lima_Network",
+        "Sioux_Falls",
+        "Two_Corridor"
+    ]
+
+    files = [
+        "node.csv",
+        "link.csv",
+        "demand.csv",
+        "settings.csv",
+        "settings.yaml"
+    ]
+
+    print('downloading starts')
+
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    if not os.path.isdir(data_dir):
+        os.mkdir(data_dir)
+
+    for ds in data_sets:
+        web_dir = url + ds + '/'
+        local_dir = os.path.join(data_dir, ds) + '/'
+
+        if not os.path.isdir(local_dir):
+            os.mkdir(local_dir)
+
+        # multi-threading
+        for x in files:
+            t = threading.Thread(
+                target=_download_url,
+                args=(web_dir+x, x, local_dir)
+            )
+            t.start()
+
+    print('downloading completes')
+    print('check '+data_dir+' for downloaded data sets')
+
+
 def read_nodes(input_dir,
                nodes,
                id_to_no_dict,
@@ -373,6 +423,47 @@ def read_settings(input_dir, assignment):
         raise exception
 
 
+def read_network(load_demand='true', input_dir='.'):
+    assignm = Assignment()
+    network = Network()
+
+    read_settings(input_dir, assignm)
+
+    read_nodes(input_dir,
+               network.node_list,
+               network.internal_node_seq_no_dict,
+               network.external_node_id_dict,
+               network.zone_to_nodes_dict)
+
+    read_links(input_dir,
+               network.link_list,
+               network.node_list,
+               network.internal_node_seq_no_dict,
+               assignm.get_agent_type_count(),
+               assignm.get_demand_period_count())
+
+    if load_demand:
+        for at in assignm.get_agent_types():
+            for dp in assignm.get_demand_periods():
+                read_demand(input_dir,
+                            dp.get_file_name(),
+                            at.get_id(),
+                            dp.get_id(),
+                            network.zone_to_nodes_dict,
+                            assignm.demands,
+                            assignm.column_pool)
+
+    network.update(assignm.get_agent_type_count(),
+                   assignm.get_demand_period_count())
+
+    assignm.network = network
+    assignm.setup_spnetwork()
+
+    ui = UI(assignm)
+
+    return ui
+
+
 def output_columns(ui, output_dir='.'):
     with open(output_dir+'/agent.csv', 'w',  newline='') as fp:
         network = ui._base_assignment
@@ -484,94 +575,3 @@ def output_link_performance(ui, output_dir='.'):
                         '']
 
                 writer.writerow(line)
-
-
-def read_network(load_demand='true', input_dir='.'):
-    assignm = Assignment()
-    network = Network()
-
-    read_settings(input_dir, assignm)
-
-    read_nodes(input_dir,
-               network.node_list,
-               network.internal_node_seq_no_dict,
-               network.external_node_id_dict,
-               network.zone_to_nodes_dict)
-
-    read_links(input_dir,
-               network.link_list,
-               network.node_list,
-               network.internal_node_seq_no_dict,
-               assignm.get_agent_type_count(),
-               assignm.get_demand_period_count())
-
-    if load_demand:
-        for at in assignm.get_agent_types():
-            for dp in assignm.get_demand_periods():
-                read_demand(input_dir,
-                            dp.get_file_name(),
-                            at.get_id(),
-                            dp.get_id(),
-                            network.zone_to_nodes_dict,
-                            assignm.demands,
-                            assignm.column_pool)
-
-    network.update(assignm.get_agent_type_count(),
-                   assignm.get_demand_period_count())
-
-    assignm.network = network
-    assignm.setup_spnetwork()
-
-    ui = UI(assignm)
-
-    return ui
-
-
-def _download_url(url, filename, local_dir):
-    r = requests.get(url)
-    with open(local_dir+filename, 'wb') as f:
-        f.write(r.content)
-
-
-def download_sample_data_sets():
-    url = 'https://github.com/jdlph/Path4GMNS/blob/master/data/'
-
-    data_sets = [
-        "Braess's_Paradox",
-        "Chicago_Sketch",
-        "Lima_Network",
-        "Sioux_Falls",
-        "Two_Corridor"
-    ]
-
-    files = [
-        "node.csv",
-        "link.csv",
-        "demand.csv",
-        "settings.csv",
-        "settings.yaml"
-    ]
-
-    print('downloading starts')
-
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    if not os.path.isdir(data_dir):
-        os.mkdir(data_dir)
-
-    for ds in data_sets:
-        web_dir = url + ds + '/'
-        local_dir = os.path.join(data_dir, ds) + '/'
-
-        if not os.path.isdir(local_dir):
-            os.mkdir(local_dir)
-
-        # multi-threading
-        for x in files:
-            t = threading.Thread(
-                target=_download_url,
-                args=(web_dir+x, x, local_dir)
-            )
-            t.start()
-
-    print('downloading completes')
-    print('check '+data_dir+' for downloaded data sets')

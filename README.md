@@ -133,7 +133,7 @@ print('\npath finding results can be found in agent.csv')
 - [x] Read and output node and link geometries
 - [x] Set up individual agents from aggregated OD demand only when it is needed
 - [ ] Load columns/paths from existing runs and continue path-base UE
-- [ ] Download the predefined GMNS test data sets to usrs' local machines to improve the use experience when needed
+- [x] Download the predefined GMNS test data sets to usrs' local machines to improve the use experience when needed
 - [ ] Calculate and show up accessibility 
 - [ ] Visualize individual column/paths on user's call
 - [ ] Let users modify the network topology in a simple way by adding/removing nodes and links
