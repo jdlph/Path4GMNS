@@ -121,8 +121,7 @@ mode = 1
 assignment_num = 10
 column_update_num = 10
 
-pg.perform_network_assignment_DTALite(1, assignment_num,
-                                      column_update_num, network)
+pg.perform_network_assignment_DTALite(1, assignment_num, column_update_num)
 
 # no need to call output_columns() and output_link_performance() 
 # as the python module since outputs will be processed within DTALite
@@ -149,7 +148,7 @@ print('\npath finding results can be found in agent.csv')
 
       $ pip install path4gmns==0.6.0
 
-- [x] Get same assignment results after changing values of VDF parameters in link.csv. The bug has been fixed in the source code in v0.5.3. Please use the latest release.
+- [x] Get same assignment results after changing values of VDF parameters in link.csv. The bug has been fixed in the source code in v0.6.0. Please use the latest release.
 
 ##  Implementation Notes
 
