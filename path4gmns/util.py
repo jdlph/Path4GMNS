@@ -303,9 +303,9 @@ def read_demand(input_dir,
 
 
 def _auto_setup(assignment):
-    """ automatically set up one demand period and one agent type 
-    
-    The two objects will be set up using the default construnctors using the 
+    """ automatically set up one demand period and one agent type
+
+    The two objects will be set up using the default construnctors using the
     default values. See class DemandPeriod and class AgentType for details
     """
     dp = DemandPeriod()
@@ -357,15 +357,14 @@ def read_settings(input_dir, assignment):
                 assignment.agent_types.append(at)
     except ImportError:
         # just in case user does not have pyyaml installed
-        print('Please intall pyyaml next time. Engine will set up one demand \
-              period and one agent type using default values for you, which \
-              might NOT reflect your case!')
+        print('Please intall pyyaml next time!')
+        print('Engine will set up one demand period and one agent type using '
+              'default values for you, which might NOT reflect your case!\n')
         _auto_setup(assignment)
     except FileNotFoundError:
         # just in case user does not provide settings.yml
-        print('NO settings.yml. Engine will set up one demand period and one \
-              agent type using default values for you, which might NOT reflect\
-               your case!')
+        print('Engine will set up one demand period and one agent type using '
+              'default values for you, which might NOT reflect your case!\n')
         _auto_setup(assignment)
     except Exception as exception:
         raise exception

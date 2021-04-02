@@ -824,28 +824,28 @@ class Assignment:
 
     def get_agent_orig_node_id(self, agent_id):
         """ return the origin node id of an agent
-        
+
         excepition will be handled by  _get_agent() in class Network
         """
         return self.network.get_agent_orig_node_id(agent_id)
 
     def get_agent_dest_node_id(self, agent_id):
         """ return the destnation node id of an agent
-        
+
         excepition will be handled by  _get_agent() in class Network
         """
         return self.network.get_agent_dest_node_id(agent_id)
 
     def get_agent_node_path(self, agent_id):
         """ return the sequence of node IDs along the agent path
-        
+
         excepition will be handled by  _get_agent() in class Network
         """
         return self.network.get_agent_node_path(agent_id)
 
     def get_agent_link_path(self, agent_id):
         """ return the sequence of link IDs along the agent path
-        
+
         excepition will be handled by  _get_agent() in class Network
         """
         return self.network.get_agent_link_path(agent_id)
@@ -856,11 +856,11 @@ class Assignment:
 
     def find_shortest_path(self, from_node_id, to_node_id, seq_type='node'):
         """ call find_shortest_path() from path.py
-        
+
         exceptions will be handled in find_shortest_path()
         """
         return find_shortest_path(self.network, from_node_id,
-                                  to_node_id, seq_type='node')
+                                  to_node_id, seq_type)
 
     def perform_network_assignment(self, assignment_mode, iter_num, column_update_num):
         # perform_network_assignment(assignment_mode, iter_num, column_update_num)
@@ -937,12 +937,12 @@ class UI:
 
     def find_shortest_path(self, from_node_id, to_node_id, seq_type='node'):
         """ return shortest path between from_node_id and to_node_id
-        
+
         Parameters
         ----------
         from_node_id: the starting node id
         to_node_id  : the ending node id
-        seq_type    : 'node' or 'link'. You will get the shortest path in 
+        seq_type    : 'node' or 'link'. You will get the shortest path in
                       sequence of either node IDs or link IDs. The default is
                       'node'
 
@@ -951,10 +951,10 @@ class UI:
         the shortest path between from_node_id and to_node_id
 
         Exceptions will be thrown if either of them or both are not valid node
-        IDs. 
+        IDs.
         """
         return self._base_assignment.find_shortest_path(
             from_node_id,
             to_node_id,
-            seq_type='node'
+            seq_type
         )
