@@ -1,5 +1,4 @@
 import csv
-import yaml as ym
 
 
 from .classes import Node, Link, Network, Agent, ColumnVec, VDFPeriod, \
@@ -164,40 +163,60 @@ def read_links(input_dir,
                 header_vdf_cap = 'VDF_cap' + str(i+1)
                 header_vdf_phf = 'VDF_phf' + str(i+1)
 
+                # case i: link.csv does not VDF attributes at all
+                # case ii: link.csv only has partial VDF attributes
+                # under case i, we will set up only one VDFPeriod ojbect using
+                # default values
+                # under case ii, we will set up some VDFPeriod ojbects up to
+                # the number of complete set of VDF_alpha, VDF_beta, and VDF_mu
                 try:
                     VDF_alpha = line[header_vdf_alpha]
                     if VDF_alpha:
                         VDF_alpha = float(VDF_alpha)
                 except KeyError:
-                    break
+                    if i == 0:
+                        # default value will be applied in the constructor
+                        VDF_alpha = None
+                    else:
+                        break
 
                 try:
                     VDF_beta = line[header_vdf_beta]
                     if VDF_beta:
                         VDF_beta = float(VDF_beta)
                 except KeyError:
-                    break
+                    if i == 0:
+                        # default value will be applied in the constructor
+                        VDF_beta = None
+                    else:
+                        break
 
                 try:
                     VDF_mu = line[header_vdf_mu]
                     if VDF_mu:
                         VDF_mu = float(VDF_mu)
                 except KeyError:
-                    break
+                    if i == 0:
+                        # default value will be applied in the constructor
+                        VDF_mu = None
+                    else:
+                        break
 
                 try:
                     VDF_fftt = line[header_vdf_fftt]
                     if VDF_fftt:
                         VDF_fftt = float(VDF_fftt)
                 except KeyError:
-                    break
+                    # set it up using length and free_speed from link
+                    VDF_fftt = length / max(0.001, free_speed) * 60
 
                 try:
                     VDF_cap = line[header_vdf_cap]
                     if VDF_cap:
                         VDF_cap = float(VDF_cap)
                 except KeyError:
-                    break
+                    # set it up using capacity from link
+                    VDF_cap = capacity
 
                 # not a mandatory column
                 try:
@@ -205,7 +224,8 @@ def read_links(input_dir,
                     if VDF_phf:
                         VDF_phf = float(VDF_phf)
                 except KeyError:
-                    VDF_phf = -1
+                    # default value will be applied in the constructor
+                    VDF_phf = None
 
                 # construct VDFPeriod object
                 vdf = VDFPeriod(i, VDF_alpha, VDF_beta, VDF_mu,
@@ -282,8 +302,23 @@ def read_demand(input_dir,
     print(f"the number of agents is {total_agents}")
 
 
+def _auto_setup(assignment):
+    """ automatically set up one demand period and one agent type 
+    
+    The two objects will be set up using the default construnctors using the 
+    default values. See class DemandPeriod and class AgentType for details
+    """
+    dp = DemandPeriod()
+    at = AgentType()
+
+    assignment.demand_periods.append(dp)
+    assignment.agent_types.append(at)
+
+
 def read_settings(input_dir, assignment):
     try:
+        import yaml as ym
+
         with open(input_dir+'/settings.yml') as file:
             settings = ym.full_load(file)
             # demand files
@@ -320,14 +355,20 @@ def read_settings(input_dir, assignment):
                                agent_pce)
 
                 assignment.agent_types.append(at)
-
+    except ImportError:
+        # just in case user does not have pyyaml installed
+        print('Please intall pyyaml next time. Engine will set up one demand \
+              period and one agent type using default values for you, which \
+              might NOT reflect your case!')
+        _auto_setup(assignment)
     except FileNotFoundError:
-        # just in case user does not provide setting.yml
-        dp = DemandPeriod()
-        at = AgentType()
-
-        assignment.demand_periods.append(dp)
-        assignment.agent_types.append(at)
+        # just in case user does not provide settings.yml
+        print('NO settings.yml. Engine will set up one demand period and one \
+              agent type using default values for you, which might NOT reflect\
+               your case!')
+        _auto_setup(assignment)
+    except Exception as exception:
+        raise exception
 
 
 def output_columns(ui, output_dir='.'):
