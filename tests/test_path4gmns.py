@@ -26,9 +26,9 @@ def test_find_shortest_path_for_agents():
     print('destination node id of agent is '
           +str(network.get_agent_dest_node_id(agent_id)))
     print('shortest path (node id) of agent is '
-          + str(network.get_agent_node_path(agent_id)))
+          +str(network.get_agent_node_path(agent_id)))
     print('shortest path (link id) of agent is '
-          + str(network.get_agent_link_path(agent_id)))
+          +str(network.get_agent_link_path(agent_id)))
 
     agent_id = 1000
     print('\norigin node id of agent is '
