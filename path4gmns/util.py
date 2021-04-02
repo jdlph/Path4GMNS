@@ -10,7 +10,8 @@ from .classes import Node, Link, Network, Agent, ColumnVec, VDFPeriod, \
 __all__ = [
     'read_network',
     'output_columns',
-    'output_link_performance'
+    'output_link_performance',
+    'download_sample_data_sets'
  ]
 
 
@@ -534,17 +535,22 @@ def download_sample_data_sets():
         "Chicago_Sketch", 
         "Lima_Network",
         "Sioux_Falls",
-        "Two_Corridor"]
+        "Two_Corridor"
+    ]
 
     files = [
         "node.csv",
-        "link.csv"
-        "demand.csv"
-        "settings.csv"
+        "link.csv",
+        "demand.csv",
+        "settings.csv",
         "settings.yaml"
     ]
 
     print('downloading starts')
+
+    local_dir = os.path.join(os.path.dirname(__file__), 'data')
+    if not os.path.isdir(local_dir):
+        os.mkdir(local_dir)
 
     for ds in data_sets:
         web_dir = url + ds + '/'
@@ -555,7 +561,7 @@ def download_sample_data_sets():
 
         for x in files:
             r = requests.get(web_dir+x)
-            with open(local_dir+x, 'w') as f:
+            with open(local_dir+x, 'wb') as f:
                 f.write(r.content)
 
     print('downloading completes')
