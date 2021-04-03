@@ -3,8 +3,8 @@ import requests
 import os
 import threading
 
-from .classes import Node, Link, Network, Agent, ColumnVec, VDFPeriod, \
-                     AgentType, DemandPeriod, Assignment, UI
+from .classes import Node, Link, Network, Agent, Column, ColumnVec, \
+                     VDFPeriod, AgentType, DemandPeriod, Assignment, UI
 
 
 __all__ = [
@@ -577,3 +577,111 @@ def output_link_performance(ui, output_dir='.'):
                         '']
 
                 writer.writerow(line)
+
+
+def load_columns(input_dir, network):
+    """ developer note: do we use agent.csv to set up network? """
+    with open(input_dir+'/agent.csv', 'r', encoding='utf-8') as f:
+        print('read agent.csv')
+
+        reader = csv.reader(f)
+
+        # just in case agent_id was not outputed
+        last_agent_id = 0
+        for line in reader:
+            # critical info
+            oz_id = line['o_zone_id']
+            if not oz_id:
+                continue
+            else:
+                oz_id = int(float(oz_id))
+
+            dz_id = line['d_zone_id']
+            if not dz_id:
+                continue
+            else:
+                dz_id = int(float(dz_id))
+
+            node_seq = line['node_sequence']
+            if not node_seq:
+                continue
+        
+            link_seq = line['link_sequence']
+            if not link_seq:
+                continue
+            
+            # non-critical info
+            agent_id = line['agent_id']
+            if not agent_id:
+                agent_id = last_agent_id + 1
+            else:
+                agent_id = int(float(agent_id))
+
+            last_agent_id = agent_id
+            
+            # it could be empty
+            path_id = line['path_id']
+            
+            at = line['agent_type']
+            if not at:
+                continue
+            else:
+                at = int(float(at))
+
+            dp = line['demand_period']
+            if not dp:
+                continue
+            else:
+                dp = int(float(dp))
+
+            vol = line['volume']
+            if not vol:
+                continue
+            else:
+                vol = int(float(vol))
+                
+            toll = line['toll']
+            if not toll:
+                toll = 0
+            else:
+                toll = int(float(toll))
+        
+            tt = line['travel_time']
+            if not tt:
+                tt = 0
+            else:
+                tt = int(float(tt))
+
+            dist = line['distance']
+            if not dist:
+                dist = 0
+            else:
+                dist = int(float(tt))
+            
+            # it could be empty
+            geo = line['geometry']
+
+            if (at, dp, oz_id, dz_id) not in network.column_pool.keys():
+                continue
+
+            cv = network.column_pool[(at, dp, oz_id, dz_id)]
+
+            col.nodes = [int(x) for x in node_seq.split(';')]
+            node_sum = sum(col.nodes)
+            
+            if node_sum not in cv.path_node_seq_map.keys():
+                path_seq_no = cv.get_column_num()
+                col = Column(path_seq_no)
+                col.links = [int(x) for x in link_seq.split(';')]
+                # the following three are non-critical info
+                col.set_toll(toll)
+                col.set_travel_time(tt)
+
+                if dist == 0:
+                    sum(network.get_link(x).get_length() for x in col.links)
+                col.set_distance(dist)
+
+                cv.add_new_column(node_sum, col)
+
+            cv.get_column(node_sum).increase_volume(vol)
+            cv.od_vol += vol

@@ -469,6 +469,8 @@ class Network:
     def get_queue_next(self):
         return self.queue_next
 
+    def get_link(self, seq_no):
+        return self.link_list[seq_no]
 
 class Column:
 
@@ -521,6 +523,9 @@ class Column:
     def get_links(self):
         """ return link seq no """
         return self.links
+
+    def set_distance(self, d):
+        self.dist = d
 
     def set_volume(self, v):
         self.vol = v
@@ -775,6 +780,9 @@ class SPNetwork(Network):
     def get_queue_next(self):
         return self.queue_next
 
+    def get_link(self, seq_no):
+        self.base.get_links()[seq_no]
+
 
 class Assignment:
 
@@ -905,6 +913,10 @@ class Assignment:
                             sp.node_id_to_no[node_id] = (
                                 self.network.get_node_no(node_id)
                             )
+
+    def get_link(self, seq_no):
+        """ return link object corresponding to link seq no """
+        return self.network.get_link(seq_no)
 
 
 class UI:
