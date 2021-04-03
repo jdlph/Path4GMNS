@@ -15,9 +15,9 @@ __all__ = [
  ]
 
 
-def _download_url(url, filename, local_dir):
+def _download_url(url, filename, loc_dir):
     r = requests.get(url)
-    with open(local_dir+filename, 'wb') as f:
+    with open(loc_dir+filename, 'wb') as f:
         f.write(r.content)
 
 
@@ -42,27 +42,27 @@ def download_sample_data_sets():
 
     print('downloading starts')
 
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    if not os.path.isdir(data_dir):
-        os.mkdir(data_dir)
+    loc_data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    if not os.path.isdir(loc_data_dir):
+        os.mkdir(loc_data_dir)
 
     for ds in data_sets:
         web_dir = url + ds + '/'
-        local_dir = os.path.join(data_dir, ds) + '/'
+        loc_sub_dir = os.path.join(loc_data_dir, ds, '/')
 
-        if not os.path.isdir(local_dir):
-            os.mkdir(local_dir)
+        if not os.path.isdir(loc_sub_dir):
+            os.mkdir(loc_sub_dir)
 
         # multi-threading
         for x in files:
             t = threading.Thread(
                 target=_download_url,
-                args=(web_dir+x, x, local_dir)
+                args=(web_dir+x, x, loc_sub_dir)
             )
             t.start()
 
     print('downloading completes')
-    print('check '+data_dir+' for downloaded data sets')
+    print('check '+loc_data_dir+' for downloaded data sets')
 
 
 def read_nodes(input_dir,
@@ -416,6 +416,7 @@ def read_settings(input_dir, assignment):
         _auto_setup(assignment)
     except FileNotFoundError:
         # just in case user does not provide settings.yml
+        print('Please provide settings.yml next time!')
         print('Engine will set up one demand period and one agent type using '
               'default values for you, which might NOT reflect your case!\n')
         _auto_setup(assignment)
