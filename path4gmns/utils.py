@@ -42,7 +42,8 @@ def download_sample_data_sets():
 
     print('downloading starts')
 
-    loc_data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    # data folder under cdw
+    loc_data_dir = './data'
     if not os.path.isdir(loc_data_dir):
         os.mkdir(loc_data_dir)
 
