@@ -620,7 +620,7 @@ def load_columns(input_dir, network):
             last_agent_id = agent_id
             
             # it could be empty
-            path_id = line['path_id']
+            # path_id = line['path_id']
             
             at = line['agent_type']
             if not at:
@@ -659,20 +659,36 @@ def load_columns(input_dir, network):
                 dist = int(float(tt))
             
             # it could be empty
-            geo = line['geometry']
+            # geo = line['geometry']
 
             if (at, dp, oz_id, dz_id) not in network.column_pool.keys():
                 continue
 
             cv = network.column_pool[(at, dp, oz_id, dz_id)]
 
-            col.nodes = [int(x) for x in node_seq.split(';')]
-            node_sum = sum(col.nodes)
+            node_path = [int(x) for x in node_seq.split(';')]
+            node_sum = sum(node_path)
             
             if node_sum not in cv.path_node_seq_map.keys():
                 path_seq_no = cv.get_column_num()
                 col = Column(path_seq_no)
-                col.links = [int(x) for x in link_seq.split(';')]
+                
+                try:
+                    col.nodes = [x for x in node_path]
+                except IndexError:
+                    raise Exception(
+                        'Invalid node found on column!!'
+                        'Did you use agent.csv from a different network?'
+                    )
+
+                try:
+                    col.links = [int(x) for x in link_seq.split(';')]
+                except IndexError:
+                    raise Exception(
+                        'invalid link found on column!!'
+                        'Did you use agent.csv from a different network?'
+                    )
+                
                 # the following three are non-critical info
                 col.set_toll(toll)
                 col.set_travel_time(tt)

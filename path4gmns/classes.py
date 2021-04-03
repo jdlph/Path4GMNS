@@ -781,7 +781,7 @@ class SPNetwork(Network):
         return self.queue_next
 
     def get_link(self, seq_no):
-        self.base.get_links()[seq_no]
+        self.base.get_links(seq_no)
 
 
 class Assignment:
