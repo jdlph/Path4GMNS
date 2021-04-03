@@ -1,4 +1,4 @@
-from .util import *
+from .utils import *
 from .colgen import *
 from .dtaapi import *
 
