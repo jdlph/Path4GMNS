@@ -781,7 +781,7 @@ class SPNetwork(Network):
         return self.queue_next
 
     def get_link(self, seq_no):
-        self.base.get_links(seq_no)
+        self.base.get_link(seq_no)
 
 
 class Assignment:
@@ -791,6 +791,8 @@ class Assignment:
         self.demand_periods = []
         # 4-d array
         self.column_pool = {}
+        # developer note: useless after implementing multi-demand-period
+        # and multi-agent-type. consider removing it
         self.demands = {}
         self.network = None
         self.spnetworks = []
@@ -902,9 +904,8 @@ class Assignment:
                     else:
                         m = (z - 1) % self.memory_blocks
                         if (at.get_id(), dp.get_id(), m) not in spvec.keys():
-                            spvec[(at.get_id(), dp.get_id(), m)] = SPNetwork(
-                                self.network, at, dp
-                            )
+                            sp = SPNetwork(self.network, at, dp)
+                            spvec[(at.get_id(), dp.get_id(), m)] = sp
                         else:
                             sp = spvec[(at.get_id(), dp.get_id(), m)]
                         sp.orig_zones.append(z)

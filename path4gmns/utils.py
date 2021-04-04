@@ -339,6 +339,8 @@ def read_demand(input_dir,
 
             volume = float(volume)
 
+            # developer note: useless after implementing multi-demand-period
+            # and multi-agent-type. consider removing it
             # set up total demand volume for an OD pair
             if (oz_id, dz_id) not in demands.keys():
                 demands[(oz_id, dz_id)] = 0
