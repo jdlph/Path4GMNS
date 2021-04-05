@@ -791,9 +791,6 @@ class Assignment:
         self.demand_periods = []
         # 4-d array
         self.column_pool = {}
-        # developer note: useless after implementing multi-demand-period
-        # and multi-agent-type. consider removing it
-        self.demands = {}
         self.network = None
         self.spnetworks = []
         self.memory_blocks = 4
@@ -887,10 +884,10 @@ class Assignment:
     def setup_spnetwork(self):
         spvec = {}
 
-        for at in self.get_agent_types():
-            for dp in self.get_demand_periods():
-                # z is zone id starting from 1
-                for z in self.network.zones:
+        # z is zone id starting from 1
+        for z in self.network.zones:
+            for at in self.get_agent_types():
+                for dp in self.get_demand_periods():
                     if z - 1 < self.memory_blocks:
                         sp = SPNetwork(self.network, at, dp)
                         spvec[(at.get_id(), dp.get_id(), z-1)] = sp
@@ -903,11 +900,7 @@ class Assignment:
                         self.spnetworks.append(sp)
                     else:
                         m = (z - 1) % self.memory_blocks
-                        if (at.get_id(), dp.get_id(), m) not in spvec.keys():
-                            sp = SPNetwork(self.network, at, dp)
-                            spvec[(at.get_id(), dp.get_id(), m)] = sp
-                        else:
-                            sp = spvec[(at.get_id(), dp.get_id(), m)]
+                        sp = spvec[(at.get_id(), dp.get_id(), m)]
                         sp.orig_zones.append(z)
                         sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
                         for node_id in self.network.get_nodes_from_zone(z):
