@@ -52,7 +52,7 @@ print('\nshortest path (link id) from node 1 to node 2 is '
 import path4gmns as pg
 
 network = pg.read_network()
-pg.find_path_for_agents(network)
+network.find_path_for_agents()
 
 agent_id = 300
 print('\norigin node id of agent is '
