@@ -102,11 +102,12 @@ class Link:
         self.vol_by_period_by_at = [
             [0] * demand_period_size for i in range(agent_type_size)
         ]
-        # self.queue_length_by_slot = [0] * MAX_TIME_PERIODS
         self.vdfperiods = []
-        self.travel_marginal_cost_by_period = [
-            [0] * demand_period_size for i in range(agent_type_size)
-        ]
+        # Peiheng, 04/05/21, not needed for the current implementation
+        # self.queue_length_by_slot = [0] * MAX_TIME_PERIODS
+        # self.travel_marginal_cost_by_period = [
+        #     [0] * demand_period_size for i in range(agent_type_size)
+        # ]
 
     def get_link_id(self):
         return self.id
@@ -164,11 +165,12 @@ class Link:
             self.travel_time_by_period[tau] = (
                 self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau])
             )
-
-    def calculate_agent_marginal_cost(self, tau, agent_type):
-        self.travel_marginal_cost_by_period[tau][agent_type.get_id()] = (
-            self.vdfperiods[tau].marginal_base * agent_type.get_pce()
-        )
+    
+    # Peiheng, 04/05/21, not needed for the current implementation
+    # def calculate_agent_marginal_cost(self, tau, agent_type):
+    #     self.travel_marginal_cost_by_period[tau][agent_type.get_id()] = (
+    #         self.vdfperiods[tau].marginal_base * agent_type.get_pce()
+    #     )
 
 
 class Agent:

@@ -33,10 +33,11 @@ def _update_generalized_link_cost(spnetworks):
 def _update_link_travel_time_and_cost(links, agent_types, demand_periods):
     for link in links:
         link.calculate_td_vdfunction()
-        for dp in demand_periods:
-            tau = dp.get_id()
-            for at in agent_types:
-                link.calculate_agent_marginal_cost(tau, at)
+        # Peiheng, 04/05/21, not needed for the current implementation
+        # for dp in demand_periods:
+        #     tau = dp.get_id()
+        #     for at in agent_types:
+        #         link.calculate_agent_marginal_cost(tau, at)
 
 
 def _reset_and_update_link_vol_based_on_columns(column_pool,
