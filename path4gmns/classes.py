@@ -99,12 +99,12 @@ class Link:
         self.route_choice_cost = 0
         self.travel_time_by_period = [0] * demand_period_size
         self.flow_vol_by_period = [0] * demand_period_size
-        self.vol_by_period_by_at = [
-            [0] * demand_period_size for i in range(agent_type_size)
-        ]
         self.vdfperiods = []
         # Peiheng, 04/05/21, not needed for the current implementation
         # self.queue_length_by_slot = [0] * MAX_TIME_PERIODS
+        # self.vol_by_period_by_at = [
+        #     [0] * demand_period_size for i in range(agent_type_size)
+        # ]
         # self.travel_marginal_cost_by_period = [
         #     [0] * demand_period_size for i in range(agent_type_size)
         # ]
@@ -146,19 +146,22 @@ class Link:
         return self.vdfperiods[tau].get_avg_travel_time()
 
     def get_generalized_cost(self, tau, value_of_time):
-        return self.travel_time_by_period[tau] + self.toll / value_of_time * 60
+        return (
+            self.travel_time_by_period[tau] 
+            + self.toll / max(0.001, value_of_time) * 60
+        )
 
     def reset_period_flow_vol(self, tau):
         self.flow_vol_by_period[tau] = 0
 
-    def reset_period_agent_vol(self, tau, agent_type):
-        self.vol_by_period_by_at[tau][agent_type] = 0
+    # def reset_period_agent_vol(self, tau, agent_type):
+    #     self.vol_by_period_by_at[tau][agent_type] = 0
 
     def increase_period_flow_vol(self, tau, fv):
         self.flow_vol_by_period[tau] += fv
 
-    def increase_period_agent_vol(self, tau, agent_type, v):
-        self.vol_by_period_by_at[tau][agent_type] += v
+    # def increase_period_agent_vol(self, tau, agent_type, v):
+    #     self.vol_by_period_by_at[tau][agent_type] += v
 
     def calculate_td_vdfunction(self):
         for tau in range(self.demand_period_size):
@@ -563,6 +566,9 @@ class ColumnVec:
         self.od_vol = 0
         self.route_fixed = False
         self.path_node_seq_map = {}
+        # minimum free-flow travel time between O and D for each agent type.
+        # it is for accessiblity.
+        self.min_tt = {}
 
     def is_route_fixed(self):
         return self.route_fixed
@@ -581,6 +587,16 @@ class ColumnVec:
 
     def add_new_column(self, node_sum, col):
         self.path_node_seq_map[node_sum] = col
+
+    def get_min_travel_time(self, agent_type):
+        return self.min_tt[agent_type.get_id()]
+
+    def update_min_travel_time(self, agent_type, t):
+        at = agent_type.get_id()
+        if at not in self.min_tt.keys():   
+            self.min_tt[at] = t
+        elif self.min_tt[at] > t:
+           self.min_tt[at] = t
 
 
 class AgentType:
@@ -860,7 +876,7 @@ class Assignment:
         return self.network.get_agent_link_path(agent_id)
 
     def find_path_for_agents(self):
-        """  """
+        """ find and set up shortest path for each agent """
         find_path_for_agents(self.network, self.column_pool)
 
     def find_shortest_path(self, from_node_id, to_node_id, seq_type='node'):

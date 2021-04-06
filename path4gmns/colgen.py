@@ -5,7 +5,7 @@ from .path import single_source_shortest_path
 from .classes import Column, ColumnVec
 
 
-__all__ = ['perform_network_assignment']
+__all__ = ['perform_network_assignment', 'calculate_assessiblity']
 
 
 _MIN_OD_VOL = 0.000001
@@ -26,7 +26,7 @@ def _update_generalized_link_cost(spnetworks):
             sp.link_cost_array[link.get_seq_no()] = (
             link.get_period_travel_time(tau)
             + link.get_route_choice_cost()
-            + link.get_toll() / vot * 60
+            + link.get_toll() / min(0.001, vot) * 60
         )
 
 
@@ -57,8 +57,8 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
             tau = dperiod.get_id()
             link.reset_period_flow_vol(tau)
             # link.queue_length_by_slot[tau] = 0
-            for atype in agent_types:
-                link.reset_period_agent_vol(tau, atype.get_id())
+            # for atype in agent_types:
+            #     link.reset_period_agent_vol(tau, atype.get_id())
 
     for oz_id in zones:
         for dz_id in zones:
@@ -82,11 +82,11 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
                                 tau,
                                 link_vol_contributed_by_path_vol * pce_ratio
                             )
-                            links[i].increase_period_agent_vol(
-                                tau,
-                                at,
-                                link_vol_contributed_by_path_vol
-                            )
+                            # links[i].increase_period_agent_vol(
+                            #     tau,
+                            #     at,
+                            #     link_vol_contributed_by_path_vol
+                            # )
 
                         if not cv.is_route_fixed() \
                            and is_path_vol_self_reducing:
@@ -314,12 +314,14 @@ def _update_column_travel_time(column_pool,
                                links,
                                zones,
                                agent_types,
-                               demand_periods):
+                               demand_periods,
+                               get_min_travel_time=False):
 
     for oz in zones:
         for dz in zones:
             for atype in agent_types:
                 at = atype.get_id()
+                min_travel_time = -1
                 for dperiod in demand_periods:
                     dp = dperiod.get_id()
                     if (at, dp, oz, dz) not in column_pool.keys():
@@ -332,6 +334,17 @@ def _update_column_travel_time(column_pool,
                             links[j].travel_time_by_period[dp] for j in col.links
                         )
                         col.set_travel_time(travel_time)
+                        # get minmum travel time
+                        if not get_min_travel_time:
+                            continue
+
+                        if travel_time < min_travel_time or min_travel_time == -1:
+                            min_travel_time = travel_time
+                        
+                    if not get_min_travel_time:
+                        continue
+
+                    cv.update_min_travel_time(atype, min_travel_time)
 
 
 def _assginment_core(spn, column_pool, iter_num):
@@ -443,3 +456,39 @@ def perform_network_assignment(assignment_mode, iter_num,
     _update_link_travel_time_and_cost(links, ats, dps)
 
     _update_column_travel_time(column_pool, links, zones, ats, dps)
+
+
+def calculate_assessiblity(network, use_free_flow_travel_time=True):
+    print('this operation will reset link volume and travel times!!!')
+    
+    A = network._base_assignment
+
+    links = A.get_links()
+    zones = A.get_zones()
+    ats = A.get_agent_types()
+    dps = A.get_demand_periods()
+
+    if use_free_flow_travel_time:
+        column_pool = {}
+    else:
+        column_pool = A.get_column_pool()
+    
+
+    if use_free_flow_travel_time:
+        # reset link volume to zero
+        for link in links:
+            for dperiod in dps:
+                tau = dperiod.get_id()
+                link.reset_period_flow_vol(tau)
+        
+        # update link travel times with zero link volumes 
+        _update_link_travel_time_and_cost(links, ats, dps)
+        # update generalized link cost: travel time, reoute choice cost & toll
+        _update_generalized_link_cost(A.get_spnetworks())
+        # run assignment for one iteration to generate column pool
+        _assignment(A.get_spnetworks(), column_pool, 0)
+
+    # update minimum travel time between O and D for each agent type
+    _update_column_travel_time(column_pool, links, zones, ats, dps, True)
+
+    # output assessiblity
