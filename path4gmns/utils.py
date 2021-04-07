@@ -6,6 +6,8 @@ import threading
 from .classes import Node, Link, Network, Agent, Column, ColumnVec, \
                      VDFPeriod, AgentType, DemandPeriod, Assignment, UI
 
+from .colgen import update_links_using_columns
+
 
 __all__ = [
     'read_network',
@@ -581,10 +583,12 @@ def output_link_performance(ui, output_dir='.'):
                 writer.writerow(line)
 
 
-def load_columns(input_dir, network):
+def load_columns(input_dir, ui):
     """ developer note: do we use agent.csv to set up network? """
     with open(input_dir+'/agent.csv', 'r', encoding='utf-8') as f:
         print('read agent.csv')
+
+        A = ui._base_assignment
 
         reader = csv.reader(f)
 
@@ -663,10 +667,10 @@ def load_columns(input_dir, network):
             # it could be empty
             # geo = line['geometry']
 
-            if (at, dp, oz_id, dz_id) not in network.column_pool.keys():
+            if (at, dp, oz_id, dz_id) not in A.get_column_pool().keys():
                 continue
 
-            cv = network.column_pool[(at, dp, oz_id, dz_id)]
+            cv = A.get_column_vec(at, dp, oz_id, dz_id)
 
             node_path = [int(x) for x in node_seq.split(';')]
             node_sum = sum(node_path)
@@ -696,10 +700,12 @@ def load_columns(input_dir, network):
                 col.set_travel_time(tt)
 
                 if dist == 0:
-                    sum(network.get_link(x).get_length() for x in col.links)
+                    sum(A.get_link(x).get_length() for x in col.links)
                 col.set_distance(dist)
 
                 cv.add_new_column(node_sum, col)
 
             cv.get_column(node_sum).increase_volume(vol)
             cv.od_vol += vol
+
+        update_links_using_columns(ui)

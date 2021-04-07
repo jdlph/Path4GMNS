@@ -847,6 +847,9 @@ class Assignment:
     def get_column_pool(self):
         return self.column_pool
 
+    def get_column_vec(self, at, dp, orig_zone_id, dest_zone_id):
+        self.column_pool[(at, dp, orig_zone_id, dest_zone_id)]
+
     def get_agent_orig_node_id(self, agent_id):
         """ return the origin node id of an agent
 
@@ -938,6 +941,14 @@ class UI:
 
     def get_column_pool(self):
         return self._base_assignment.get_column_pool()
+
+    def get_column_vec(self, at, dp, orig_zone_id, dest_zone_id):
+        """ get all columns between two zones given agent type and demand period
+        
+        caller is responsible for checking if 
+        (at, dp, orig_zone_id, dest_zone_id) is in column pool
+        """
+        self._base_assignment.get_column_vec(at, dp, orig_zone_id, dest_zone_id)
 
     def get_agent_orig_node_id(self, agent_id):
         """ return the origin node id of an agent """

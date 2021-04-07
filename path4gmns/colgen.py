@@ -14,9 +14,9 @@ _MIN_OD_VOL = 0.000001
 def _update_generalized_link_cost(spnetworks):
     """ update generalized link costs for each SPNetwork
 
-    warning: there would be duplicate updates for SPNetworks with the same tau and vot
-    belonging to different memory blocks. It could be resolved by creating
-    a shared network among them??
+    warning: there would be duplicate updates for SPNetworks with the same tau 
+    and vot belonging to different memory blocks. It could be resolved by 
+    creating a shared network among them??
     """
     for sp in spnetworks:
         tau = sp.get_demand_period().get_id()
@@ -56,6 +56,7 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
         for dperiod in demand_periods:
             tau = dperiod.get_id()
             link.reset_period_flow_vol(tau)
+            # Peiheng, 04/05/21, not needed for the current implementation
             # link.queue_length_by_slot[tau] = 0
             # for atype in agent_types:
             #     link.reset_period_agent_vol(tau, atype.get_id())
@@ -82,6 +83,7 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
                                 tau,
                                 link_vol_contributed_by_path_vol * pce_ratio
                             )
+                            # Peiheng, 04/05/21, not needed for the current implementation
                             # links[i].increase_period_agent_vol(
                             #     tau,
                             #     at,
@@ -492,3 +494,25 @@ def calculate_assessiblity(network, use_free_flow_travel_time=True):
     _update_column_travel_time(column_pool, links, zones, ats, dps, True)
 
     # output assessiblity
+
+
+
+def update_links_using_columns(network):
+    A = network._base_assignment
+
+    column_pool = A.get_column_pool()
+    links = A.get_links()
+    zones = A.get_zones()
+    ats = A.get_agent_types()
+    dps = A.get_demand_periods()
+
+    # do not update column volume
+    _reset_and_update_link_vol_based_on_columns(column_pool,
+                                                links,
+                                                zones,
+                                                ats,
+                                                dps,
+                                                1,
+                                                False)
+
+    _update_link_travel_time_and_cost(links, ats, dps)
