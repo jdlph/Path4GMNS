@@ -566,9 +566,9 @@ class ColumnVec:
         self.od_vol = 0
         self.route_fixed = False
         self.path_node_seq_map = {}
-        # minimum free-flow travel time between O and D for each agent type.
+        # minimum free-flow travel time between O and D
         # it is for accessiblity.
-        self.min_tt = {}
+        self.min_tt = -1
 
     def is_route_fixed(self):
         return self.route_fixed
@@ -588,15 +588,12 @@ class ColumnVec:
     def add_new_column(self, node_sum, col):
         self.path_node_seq_map[node_sum] = col
 
-    def get_min_travel_time(self, agent_type):
-        return self.min_tt[agent_type.get_id()]
+    def get_min_travel_time(self):
+        return self.min_tt
 
-    def update_min_travel_time(self, agent_type, t):
-        at = agent_type.get_id()
-        if at not in self.min_tt.keys():   
-            self.min_tt[at] = t
-        elif self.min_tt[at] > t:
-           self.min_tt[at] = t
+    def update_min_travel_time(self, t):
+        if self.min_tt > t or self.min_tt == -1:
+           self.min_tt = t
 
 
 class AgentType:
@@ -944,7 +941,7 @@ class UI:
 
     def get_column_vec(self, at, dp, orig_zone_id, dest_zone_id):
         """ get all columns between two zones given agent type and demand period
-        
+
         caller is responsible for checking if 
         (at, dp, orig_zone_id, dest_zone_id) is in column pool
         """

@@ -1,4 +1,5 @@
 import ctypes
+import csv
 from time import time
 
 from .path import single_source_shortest_path
@@ -323,8 +324,8 @@ def _update_column_travel_time(column_pool,
         for dz in zones:
             for atype in agent_types:
                 at = atype.get_id()
-                min_travel_time = -1
                 for dperiod in demand_periods:
+                    min_travel_time = -1
                     dp = dperiod.get_id()
                     if (at, dp, oz, dz) not in column_pool.keys():
                         continue
@@ -346,7 +347,7 @@ def _update_column_travel_time(column_pool,
                     if not get_min_travel_time:
                         continue
 
-                    cv.update_min_travel_time(atype, min_travel_time)
+                    cv.update_min_travel_time(min_travel_time)
 
 
 def _assginment_core(spn, column_pool, iter_num):
@@ -460,7 +461,28 @@ def perform_network_assignment(assignment_mode, iter_num,
     _update_column_travel_time(column_pool, links, zones, ats, dps)
 
 
-def calculate_assessiblity(network, use_free_flow_travel_time=True):
+def _get_interval_id(t):
+    """ return interval id in predefined time budget intervals
+
+    [min_time_budget, min_time_budget+time_intvl],
+
+    (min_time_budget+time_intvl, min_time_budget+i*time_intvl], where i>=1 and
+    i is integer
+    """
+    min_time_budget = 10
+    time_intvl = 5
+
+    if t < min_time_budget:
+        return 0
+
+    if (t % (min_time_budget+time_intvl)) == 0:
+        return (t/(min_time_budget+time_intvl))
+
+    return int(t/(min_time_budget+time_intvl)) + 1
+
+
+def evaluate_accessiblity(network, use_free_flow_travel_time=True):
+    """ what if there is no demand between O and D?? """
     print('this operation will reset link volume and travel times!!!')
     
     A = network._base_assignment
@@ -469,13 +491,8 @@ def calculate_assessiblity(network, use_free_flow_travel_time=True):
     zones = A.get_zones()
     ats = A.get_agent_types()
     dps = A.get_demand_periods()
-
-    if use_free_flow_travel_time:
-        column_pool = {}
-    else:
-        column_pool = A.get_column_pool()
+    column_pool = A.get_column_pool()
     
-
     if use_free_flow_travel_time:
         # reset link volume to zero
         for link in links:
@@ -493,7 +510,58 @@ def calculate_assessiblity(network, use_free_flow_travel_time=True):
     # update minimum travel time between O and D for each agent type
     _update_column_travel_time(column_pool, links, zones, ats, dps, True)
 
-    # output assessiblity
+    # calculate minimum travel time between O and D for each agent type
+    min_travel_times = {}
+    max_min = 0
+    accessbilities = [0] * len(zones)
+    for oz in zones:
+        for dz in zones:
+            for atype in ats:
+                at = atype.get_id()
+                min_tt = -1
+                for dperiod in dps:
+                    dp = dperiod.get_id()
+                    if (at, dp, oz, dz) not in column_pool.keys():
+                        continue
+
+                    cv = column_pool[(at, dp, oz, dz)]
+                    tt = cv.get_min_travel_time()
+
+                    if tt < min_tt or min_tt == -1:
+                        min_tt = tt
+
+                # minimum travel time between O and D given agent type
+                min_travel_times[(oz, dz, at)] = min_tt
+
+                if min_tt > max_min:
+                    max_min = min_tt
+
+    with open('./accessibility.csv', 'w',  newline='') as f:
+        writer = csv.writer(f)
+
+        headers = ['zone_id', 'geometry', 'mode','TT_10', 'TT_15', 'TT_20','TT_25']
+
+        writer.writerow(headers)
+
+        # calculate accessiblity
+        interval_num = _get_interval_id(max_min) + 1
+        for oz in zones:
+            for atype in ats:
+                at = atype.get_id()
+                # number of accessible zones from oz for each agent type
+                counts = [0] * interval_num
+                for dz in zones:
+                    if (at, dp, at) not in min_travel_times.keys():
+                        continue
+
+                    id = _get_interval_id(min_travel_times[(oz, dz, at)])
+                    while id < interval_num:
+                        counts[id] += 1
+                        id += 1       
+                # output assessiblity
+                line = [oz, '', at]
+                line.extend(counts)
+                writer.writerow(line)
 
 
 
