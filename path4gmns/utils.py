@@ -659,7 +659,7 @@ def load_columns(input_dir, ui):
                 dist = int(float(tt))
             
             # it could be empty
-            # geo = line['geometry']
+            geo = line['geometry']
 
             if (at, dp, oz_id, dz_id) not in A.get_column_pool().keys():
                 continue
@@ -689,9 +689,10 @@ def load_columns(input_dir, ui):
                         'Did you use agent.csv from a different network?'
                     )
                 
-                # the following three are non-critical info
+                # the following four are non-critical info
                 col.set_toll(toll)
                 col.set_travel_time(tt)
+                col.set_geometry(geo)
 
                 if dist == 0:
                     sum(A.get_link(x).get_length() for x in col.links)

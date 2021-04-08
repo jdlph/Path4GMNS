@@ -491,6 +491,7 @@ class Column:
         self.gradient_cost_rel_diff = 0
         self.nodes = None
         self.links = None
+        self.geo = ''
 
     def get_link_num(self):
         return len(self.links)
@@ -558,6 +559,9 @@ class Column:
 
     def increase_volume(self, v):
         self.vol += v
+
+    def set_geometry(self, g):
+        self.geo = g
 
 
 class ColumnVec:
