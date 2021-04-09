@@ -10,6 +10,8 @@ __all__ = ['UI']
 # reserved for simulation
 _NUM_OF_SECS_PER_SIMU_INTERVAL = 6
 
+_ALLOWED_USES = ['auto', 'bike', 'walk', 'all']
+
 
 class Node:
     """
@@ -294,11 +296,31 @@ class Network:
                 j += 1
             last_link_from[i] = j
 
+        allowed_uses = [''] * link_size
+        # setup allowed uses
+        for i in range(link_size):
+            link = self.get_link(sorted_link_no_array[i])
+            modes = link.allowed_uses.split(',')
+            if not modes:
+                continue
+
+            for m in modes:
+                if m.startwith('auto'):
+                    allowed_uses[i] += 'p'
+                elif m.startwith('bike'):
+                    allowed_uses[i] += 'b'
+                elif m.startwith('walk'):
+                    allowed_uses[i] += 'w'
+                elif m.startwith('all'):
+                    allowed_uses[i] += 'a'
+
         # set up arrays using ctypes
         int_arr_node = ctypes.c_int * node_size
         int_arr_link = ctypes.c_int * link_size
         double_arr_node = ctypes.c_double * node_size
         double_arr_link = ctypes.c_double * link_size
+        # for allowed_uses
+        char_arr_link = ctypes.c_wchar_p * link_size
 
         self.from_node_no_array = int_arr_link(*from_node_no_array)
         self.to_node_no_array = int_arr_link(*to_node_no_array)
@@ -310,6 +332,7 @@ class Network:
         self.node_predecessor = int_arr_node(*node_predecessor)
         self.link_predecessor = int_arr_node(*link_predecessor)
         self.queue_next = int_arr_node(*queue_next)
+        self.allowed_uses = char_arr_link(*allowed_uses)
 
         self.has_capi_allocated = True
 
@@ -473,6 +496,9 @@ class Network:
 
     def get_queue_next(self):
         return self.queue_next
+
+    def get_allowed_uses(self):
+        return self.allowed_uses
 
     def get_link(self, seq_no):
         return self.link_list[seq_no]
@@ -782,6 +808,9 @@ class SPNetwork(Network):
 
     def get_sorted_link_no_arr(self):
         return self.base.get_sorted_link_no_arr()
+
+    def get_allowed_uses(self):
+        return self.base.get_allowed_uses()
 
     # the following five are unique to each SPNetwork
     def get_node_preds(self):

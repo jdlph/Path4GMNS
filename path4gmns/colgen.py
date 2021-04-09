@@ -374,8 +374,7 @@ def _assignment(spnetworks, column_pool, iter_num):
         _assginment_core(spn, column_pool, iter_num)
 
 
-def perform_network_assignment(assignment_mode, iter_num, 
-                               column_update_num, network):
+def perform_network_assignment(assignment_mode, iter_num, column_update_num, ui):
     """ perform network assignemnt using the selected assignment mode
 
     WARNING
@@ -416,7 +415,7 @@ def perform_network_assignment(assignment_mode, iter_num,
     assert(column_update_num>=0)
 
     # base assignment
-    A = network._base_assignment
+    A = ui._base_assignment
 
     links = A.get_links()
     zones = A.get_zones()
@@ -481,11 +480,11 @@ def _get_interval_id(t):
     return int(t/(min_time_budget+time_intvl)) + 1
 
 
-def evaluate_accessiblity(network, use_free_flow_travel_time=True):
+def evaluate_accessiblity(ui, use_free_flow_travel_time=True):
     """ what if there is no demand between O and D?? """
     print('this operation will reset link volume and travel times!!!')
     
-    A = network._base_assignment
+    A = ui._base_assignment
 
     links = A.get_links()
     zones = A.get_zones()
