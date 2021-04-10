@@ -1,5 +1,5 @@
 #include "path_engine.h"
-#include <cstring>
+#include <cwchar>
 
 /**
  * The following deque implementation is motivated by and modified from the efficient implementiation by Dr. Hillel Bar-Gera
@@ -64,7 +64,7 @@ void shortest_path(int o_node_no,
                 int new_node = to_node_no_arr[link_seq_no];
 
                 // mode shall be in link's allowed uses or the allowed uses are for all modes (i.e., a)
-                if (!wcschr(allowed_uses[link_seq_no], mode) && !wcschr(allowed_uses[link_seq_no], 'a'))
+                if (!std::wcschr(allowed_uses[link_seq_no], mode) && mode != 'a')
                     continue;
 
                 double new_cost = label_cost[current_node] + link_cost[link_seq_no];

@@ -504,7 +504,8 @@ class Network:
 
     def get_agent_type_str(self):
         """ for allowed uses in single_source_shortest_path()"""
-        return 'a'
+        # convert it to C char
+        return 'a'.encode()
 
 
 class Column:
@@ -775,7 +776,8 @@ class SPNetwork(Network):
         return self.agent_type
 
     def get_agent_type_str(self):
-        return self.agent_type.get_type()
+        # convert it to C char
+        return self.agent_type.get_type().encode()
 
     def get_demand_period(self):
         return self.demand_period

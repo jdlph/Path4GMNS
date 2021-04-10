@@ -328,7 +328,6 @@ def read_demand(input_dir,
                 agent_type_id,
                 demand_period_id,
                 zone_to_node_dict,
-                demands,
                 column_pool):
 
     """ step 3:read input_agent """
@@ -474,7 +473,6 @@ def read_network(load_demand='true', input_dir='.'):
                             at.get_id(),
                             dp.get_id(),
                             network.zone_to_nodes_dict,
-                            assignm.demands,
                             assignm.column_pool)
 
     network.update(assignm.get_agent_type_count(),
