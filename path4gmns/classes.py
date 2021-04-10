@@ -239,6 +239,8 @@ class Network:
         self.internal_node_seq_no_dict = {}
         # key: internal node id, value:external node id
         self.external_node_id_dict = {}
+        # map link id to link seq no
+        self.link_id_dict = {}
         # td:time-dependent, key:simulation time interval,
         # value:agents(list) need to be activated
         self.agent_td_list_dict = {}
@@ -521,6 +523,9 @@ class Network:
         """ for allowed uses in single_source_shortest_path()"""
         # convert it to C char
         return 'a'.encode()
+
+    def get_link_seq_no(self, id):
+        return self.link_id_dict[id]
 
 
 class Column:
@@ -870,6 +875,28 @@ class Assignment:
         self.network = None
         self.spnetworks = []
         self.memory_blocks = 4
+        self.map_at_id = {}
+        self.map_dp_id = {}
+
+    def update_agent_types(self, at):
+        self.agent_types.append(at)
+        self.map_at_id[at.get_type()] = at.get_id()
+
+    def update_demand_periods(self, dp):
+        self.demand_periods.append(dp)
+        self.map_dp_id(dp.get_period()) = dp.get_id()
+
+    def get_agent_type_id(self, at_type):
+        try:
+            return self.map_at_id[at_type]
+        except KeyError:
+            raise Exception('NO agent type: '+at_type)
+
+    def get_demand_period_id(self, dp_period):
+        try:
+            return self.map_dp_id[dp_period]
+        except KeyError:
+            raise Exception('NO demand period: '+dp_period)
 
     def get_agent_type_count(self):
         return len(self.agent_types)
@@ -906,7 +933,7 @@ class Assignment:
         return self.column_pool
 
     def get_column_vec(self, at, dp, orig_zone_id, dest_zone_id):
-        self.column_pool[(at, dp, orig_zone_id, dest_zone_id)]
+        return self.column_pool[(at, dp, orig_zone_id, dest_zone_id)]
 
     def get_agent_orig_node_id(self, agent_id):
         """ return the origin node id of an agent
@@ -990,6 +1017,14 @@ class Assignment:
     def get_link(self, seq_no):
         """ return link object corresponding to link seq no """
         return self.network.get_link(seq_no)
+
+    def get_link_seq_no(self, id):
+        """ id is string """
+        return self.network.get_link_seq_no(id)
+
+    def get_node_no(self, id):
+        """ id is integer """
+        return self.network.get_node_no(id)
 
 
 class UI:

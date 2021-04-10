@@ -144,6 +144,7 @@ def read_links(input_dir,
               links,
               nodes,
               id_to_no_dict,
+              link_id_dict,
               agent_type_size,
               demand_period_size):
 
@@ -216,6 +217,8 @@ def read_links(input_dir,
                 geometry = line['geometry']
             except KeyError:
                 geometry = ''
+
+            link_id_dict[link_id] = link_seq_no
 
             # construct link ojbect
             link = Link(link_id,
@@ -464,6 +467,7 @@ def read_network(load_demand='true', input_dir='.'):
                network.link_list,
                network.node_list,
                network.internal_node_seq_no_dict,
+               network.link_id_dict,
                assignm.get_agent_type_count(),
                assignm.get_demand_period_count())
 
@@ -608,7 +612,7 @@ def load_columns(input_dir, ui):
 
         A = ui._base_assignment
 
-        reader = csv.reader(f)
+        reader = csv.DictReader(f)
 
         # just in case agent_id was not outputed
         last_agent_id = 0
@@ -650,37 +654,37 @@ def load_columns(input_dir, ui):
             if not at:
                 continue
             else:
-                at = int(float(at))
+                at = A.get_agent_type_id(at)
 
             dp = line['demand_period']
             if not dp:
                 continue
             else:
-                dp = int(float(dp))
+                dp = A.get_demand_period_id(dp)
 
             vol = line['volume']
             if not vol:
                 continue
             else:
-                vol = int(float(vol))
+                vol = float(vol)
                 
             toll = line['toll']
             if not toll:
                 toll = 0
             else:
-                toll = int(float(toll))
+                toll = float(toll)
         
             tt = line['travel_time']
             if not tt:
                 tt = 0
             else:
-                tt = int(float(tt))
+                tt = float(tt)
 
             dist = line['distance']
             if not dist:
                 dist = 0
             else:
-                dist = int(float(tt))
+                dist = float(tt)
             
             # it could be empty
             geo = line['geometry']
@@ -698,7 +702,7 @@ def load_columns(input_dir, ui):
                 col = Column(path_seq_no)
                 
                 try:
-                    col.nodes = [x for x in node_path]
+                    col.nodes = [A.get_node_no(x) for x in node_path]
                 except IndexError:
                     raise Exception(
                         'Invalid node found on column!!'
@@ -706,7 +710,7 @@ def load_columns(input_dir, ui):
                     )
 
                 try:
-                    col.links = [int(x) for x in link_seq.split(';')]
+                    col.links = [A.get_link_seq_no(x) for x in link_seq.split(';')]
                 except IndexError:
                     raise Exception(
                         'invalid link found on column!!'
@@ -725,6 +729,5 @@ def load_columns(input_dir, ui):
                 cv.add_new_column(node_sum, col)
 
             cv.get_column(node_sum).increase_volume(vol)
-            cv.od_vol += vol
 
         update_links_using_columns(ui)

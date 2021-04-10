@@ -7,6 +7,26 @@ from .colgen import _assignment
 __all__ = ['evaluate_accessiblity']
 
 
+def _get_interval_id(t):
+    """ return interval id in predefined time budget intervals
+
+    [min_time_budget, min_time_budget+time_intvl],
+
+    (min_time_budget+time_intvl, min_time_budget+i*time_intvl], where i>=1 and
+    i is integer
+    """
+    min_time_budget = 10
+    time_intvl = 5
+
+    if t < min_time_budget:
+        return 0
+
+    if (t % (min_time_budget+time_intvl)) == 0:
+        return (t/(min_time_budget+time_intvl))
+
+    return int(t/(min_time_budget+time_intvl)) + 1
+
+
 def _update_generalized_link_cost_a(spnetworks):
     """ update generalized link costs to calcualte accessibility   """
     for sp in spnetworks:
@@ -65,26 +85,6 @@ def _update_min_travel_time(column_pool,
     return max_min
 
 
-def _get_interval_id(t):
-    """ return interval id in predefined time budget intervals
-
-    [min_time_budget, min_time_budget+time_intvl],
-
-    (min_time_budget+time_intvl, min_time_budget+i*time_intvl], where i>=1 and
-    i is integer
-    """
-    min_time_budget = 10
-    time_intvl = 5
-
-    if t < min_time_budget:
-        return 0
-
-    if (t % (min_time_budget+time_intvl)) == 0:
-        return (t/(min_time_budget+time_intvl))
-
-    return int(t/(min_time_budget+time_intvl)) + 1
-
-
 def evaluate_accessiblity(ui, use_free_flow_travel_time=True):
     """ what if there is no demand between O and D?? """
     print('this operation will reset link volume and travel times!!!')
@@ -117,32 +117,6 @@ def evaluate_accessiblity(ui, use_free_flow_travel_time=True):
 
     # calculate minimum travel time between O and D for each agent type
     min_travel_times = {}
-    # max_min = 0
-    # accessbilities = [0] * len(zones)
-    # for oz in zones:
-    #     for dz in zones:
-    #         if oz == dz:
-    #             continue
-
-    #         for atype in ats:
-    #             at = atype.get_id()
-    #             min_tt = -1
-    #             for dperiod in dps:
-    #                 dp = dperiod.get_id()
-    #                 if (at, dp, oz, dz) not in column_pool.keys():
-    #                     continue
-
-    #                 cv = column_pool[(at, dp, oz, dz)]
-    #                 tt = cv.get_min_travel_time()
-
-    #                 if tt < min_tt or min_tt == -1:
-    #                     min_tt = tt
-
-    #             # minimum travel time between O and D given agent type
-    #             min_travel_times[(oz, dz, at)] = min_tt
-
-    #             if min_tt > max_min:
-    #                 max_min = min_tt
 
     with open('./accessibility.csv', 'w',  newline='') as f:
         writer = csv.writer(f)
@@ -157,7 +131,6 @@ def evaluate_accessiblity(ui, use_free_flow_travel_time=True):
 
         # calculate accessiblity
         dp = 0
-        
         for oz in zones:
             for atype in ats:
                 at = atype.get_id()
