@@ -13,3 +13,4 @@ agents:
     vot: 10
     flow_type: 0
     pce: 1
+    free_speed: 60

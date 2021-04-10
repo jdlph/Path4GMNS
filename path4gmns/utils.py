@@ -421,13 +421,15 @@ def read_settings(input_dir, assignment):
                 agent_vot = a['vot']
                 agent_flow_type = a['flow_type']
                 agent_pce = a['pce']
+                agent_ffs = a['free_speed']
 
                 at = AgentType(i,
                                agent_type,
                                agent_name,
                                agent_vot,
                                agent_flow_type,
-                               agent_pce)
+                               agent_pce,
+                               agent_ffs)
 
                 assignment.agent_types.append(at)
     except ImportError:

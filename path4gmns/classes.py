@@ -81,7 +81,7 @@ class Link:
         # length is mile or km
         self.length = length
         self.lanes = lanes
-        # 1:one direction 2:two way
+        # 1:one direction, 2:two way, 3: virtual connector
         self.type = link_type
         # length:km, free_speed: km/h
         self.free_flow_travel_time_in_min = (
@@ -646,7 +646,7 @@ class ColumnVec:
 class AgentType:
 
     def __init__(self, id=0, type='p', name='passenger',
-                 vot=10, flow_type=0, pce=1):
+                 vot=10, flow_type=0, pce=1, ffs=60):
 
         self.id = id
         self.type = type
@@ -654,6 +654,7 @@ class AgentType:
         self.vot = vot
         self.flow_type = flow_type
         self.pce = pce
+        self.ffs = ffs
 
     def get_id(self):
         return self.id
@@ -666,6 +667,9 @@ class AgentType:
 
     def get_pce(self):
         return self.pce
+
+    def get_free_flow_speed(self):
+        return self.ffs
 
 
 class DemandPeriod:
