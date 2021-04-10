@@ -104,7 +104,7 @@ def evaluate_accessiblity(ui, output_dir='.'):
     # run assignment for one iteration to generate column pool
     _assignment(A.get_spnetworks(), column_pool, 0)
     # update minimum travel time between O and D for each agent type
-    max_min = _update_min_travel_time(column_pool, links, zones, ats)
+    max_min = _update_min_travel_time(column_pool, zones, ats)
 
     # calculate and output accessiblity for each OD pair (i.e., travel time)
     with open(output_dir+'/accessibility.csv', 'w',  newline='') as f:

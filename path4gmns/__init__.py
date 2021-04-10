@@ -1,6 +1,7 @@
-from .utils import *
+from .accessibility import *
 from .colgen import *
 from .dtaapi import *
+from .utils import *
 
 
 __version__ = '0.6.1'
