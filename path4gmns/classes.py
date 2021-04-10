@@ -304,13 +304,13 @@ class Network:
                 continue
 
             for m in modes:
-                if m.startwith('auto'):
+                if m.startswith('auto'):
                     allowed_uses[i] += 'p'
-                elif m.startwith('bike'):
+                elif m.startswith('bike'):
                     allowed_uses[i] += 'b'
-                elif m.startwith('walk'):
+                elif m.startswith('walk'):
                     allowed_uses[i] += 'w'
-                elif m.startwith('all'):
+                elif m.startswith('all'):
                     allowed_uses[i] += 'a'
 
         # set up arrays using ctypes

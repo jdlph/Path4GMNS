@@ -6,7 +6,7 @@ from .path import single_source_shortest_path
 from .classes import Column, ColumnVec
 
 
-__all__ = ['perform_network_assignment', 'calculate_assessiblity']
+__all__ = ['perform_network_assignment', 'evaluate_accessiblity']
 
 
 _MIN_OD_VOL = 0.000001
@@ -524,7 +524,7 @@ def evaluate_accessiblity(ui, use_free_flow_travel_time=True):
         for dz in zones:
             if oz == dz:
                 continue
-            
+
             for atype in ats:
                 at = atype.get_id()
                 min_tt = -1
