@@ -32,7 +32,7 @@ def _update_generalized_link_cost_a(spnetworks):
         vot = sp.get_agent_type().get_vot()
         ffs = sp.get_agent_type().get_free_flow_speed()
 
-        if sp.get_agent_type() == 'p':
+        if sp.get_agent_type().get_type() == 'p':
             for link in sp.get_links():
                 sp.link_cost_array[link.get_seq_no()] = (
                 link.get_free_flow_travel_time()
@@ -124,6 +124,9 @@ def evaluate_accessiblity(ui, output_dir='.'):
                 # for multimodal case, find mode with the minimum travel time
                 min_min = -1
                 for atype in ats:
+                    if atype.get_type() != 'p':
+                        continue
+
                     at = atype.get_id()
                 
                     if (at, dp, oz, dz) not in column_pool.keys():

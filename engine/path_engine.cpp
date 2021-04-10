@@ -1,6 +1,3 @@
-#include "path_engine.h"
-#include <cwchar>
-
 /**
  * The following deque implementation is motivated by and modified from the efficient implementiation by Dr. Hillel Bar-Gera
  *
@@ -12,6 +9,10 @@
  * With constexpr, it is a C++ function (which requires C++11 or higher) rather than a pure C function
  * Follow C++ coding style (++i rather than i++) and the {} style in AgentLite
  */
+
+#include <cwchar>
+#include "path_engine.h"
+
 void shortest_path(int o_node_no,
                    int node_size,
                    const int* from_node_no_arr,
@@ -64,7 +65,7 @@ void shortest_path(int o_node_no,
                 int new_node = to_node_no_arr[link_seq_no];
 
                 // mode shall be in link's allowed uses or the allowed uses are for all modes (i.e., a)
-                if (!std::wcschr(allowed_uses[link_seq_no], mode) && mode != 'a')
+                if (!std::wcschr(allowed_uses[link_seq_no], mode) && !std::wcschr(allowed_uses[link_seq_no], 'a'))
                     continue;
 
                 double new_cost = label_cost[current_node] + link_cost[link_seq_no];

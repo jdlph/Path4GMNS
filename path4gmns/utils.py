@@ -209,7 +209,7 @@ def read_links(input_dir,
             try:
                 allowed_uses = line['allowed_uses']
             except KeyError:
-                allowed_uses = 'auto'
+                allowed_uses = 'all'
 
             # if link.csv does not have no column 'geometry',
             # set geometry to ''

@@ -67,7 +67,7 @@ class Link:
                  link_type=1,
                  free_speed=60,
                  capacity=49500,
-                 allowed_uses='auto',
+                 allowed_uses='all',
                  geometry='',
                  agent_type_size=1,
                  demand_period_size=1):
