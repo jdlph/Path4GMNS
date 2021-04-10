@@ -14,7 +14,31 @@ __all__ = [
     'output_columns',
     'output_link_performance',
     'download_sample_data_sets'
- ]
+]
+
+
+def _convert_str_to_int(str):
+    """ 
+    TypeError will take care the case that str is None 
+    ValueError will take care the case that str is empty
+    """
+    try:
+        return int(str)
+    except ValueError:
+        return int(float(str))
+    except TypeError:
+        return None
+
+
+def _convert_str_to_float(str):
+    """ 
+    TypeError will take care the case that str is None 
+    ValueError will take care the case that str is empty
+    """
+    try:
+        return float(str)
+    except (TypeError, ValueError):
+        return None
 
 
 def _download_url(url, filename, loc_dir):
