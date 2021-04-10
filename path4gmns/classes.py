@@ -1086,3 +1086,9 @@ class UI:
             to_node_id,
             seq_type
         )
+
+
+class AccessibilityMatrix():
+
+    def __init__(self):
+        self.column_pool = {}
