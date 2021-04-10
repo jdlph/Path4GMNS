@@ -131,6 +131,9 @@ class Link:
     def get_toll(self):
         return self.toll
 
+    def get_free_flow_travel_time(self):
+        return self.free_flow_travel_time_in_min
+
     def get_route_choice_cost(self):
         return self.route_choice_cost
 

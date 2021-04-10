@@ -19,12 +19,20 @@ def _update_generalized_link_cost_a(spnetworks):
         vot = sp.get_agent_type().get_vot()
         ffs = sp.get_agent_type().get_free_flow_speed()
 
-        for link in sp.get_links():
-            sp.link_cost_array[link.get_seq_no()] = (
-            (link.get_length() / max(0.001, ffs) * 60)
-            + link.get_route_choice_cost()
-            + link.get_toll() / min(0.001, vot) * 60
-        )
+        if sp.get_agent_type() == 'p':
+            for link in sp.get_links():
+                sp.link_cost_array[link.get_seq_no()] = (
+                link.get_free_flow_travel_time()
+                + link.get_route_choice_cost()
+                + link.get_toll() / min(0.001, vot) * 60
+            )
+        else:
+            for link in sp.get_links():
+                sp.link_cost_array[link.get_seq_no()] = (
+                (link.get_length() / max(0.001, ffs) * 60)
+                + link.get_route_choice_cost()
+                + link.get_toll() / min(0.001, vot) * 60
+            )
 
 
 def _update_generalized_link_cost(spnetworks):
@@ -549,6 +557,7 @@ def evaluate_accessiblity(ui, use_free_flow_travel_time=True):
             for atype in ats:
                 at = atype.get_id()
                 column_pool[(at, dp, oz, dz)] = ColumnVec()
+                column_pool[(at, dp, oz, dz)].od_vol = 1
     
     if use_free_flow_travel_time:
         # update generalized link cost with free flow speed
@@ -591,13 +600,17 @@ def evaluate_accessiblity(ui, use_free_flow_travel_time=True):
     with open('./accessibility.csv', 'w',  newline='') as f:
         writer = csv.writer(f)
 
-        headers = ['zone_id', 'geometry', 'mode','TT_10', 'TT_15', 'TT_20','TT_25']
+        interval_num = _get_interval_id(max_min) + 1
+        time_bugets = ['TT_'+str(10+5*i) for i in range(interval_num)]
+
+        headers = ['zone_id', 'geometry', 'mode']
+        headers.extend(time_bugets)
 
         writer.writerow(headers)
 
         # calculate accessiblity
         dp = 0
-        interval_num = _get_interval_id(max_min) + 1
+        
         for oz in zones:
             for atype in ats:
                 at = atype.get_id()
@@ -608,6 +621,8 @@ def evaluate_accessiblity(ui, use_free_flow_travel_time=True):
                         continue
                     
                     cv = column_pool[(at, dp, oz, dz)]
+                    if cv.get_min_travel_time() == -1:
+                        continue
 
                     id = _get_interval_id(cv.get_min_travel_time())
                     while id < interval_num:
@@ -638,7 +653,3 @@ def update_links_using_columns(network):
                                                 False)
 
     _update_link_travel_time_and_cost(links, ats, dps)
-
-
-def get_mode_fftt(length, mode):
-    if mode.startswith('p')
