@@ -1,8 +1,7 @@
-import ctypes
 from time import time
 
 from .path import single_source_shortest_path
-from .classes import Column, ColumnVec
+from .classes import Column
 
 
 __all__ = ['perform_network_assignment']
@@ -316,15 +315,13 @@ def _update_column_travel_time(column_pool,
                                links,
                                zones,
                                agent_types,
-                               demand_periods,
-                               get_min_travel_time=False):
+                               demand_periods):
 
     for oz in zones:
         for dz in zones:
             for atype in agent_types:
                 at = atype.get_id()
                 for dperiod in demand_periods:
-                    min_travel_time = -1
                     dp = dperiod.get_id()
                     if (at, dp, oz, dz) not in column_pool.keys():
                         continue
@@ -336,17 +333,6 @@ def _update_column_travel_time(column_pool,
                             links[j].travel_time_by_period[dp] for j in col.links
                         )
                         col.set_travel_time(travel_time)
-                        # get minmum travel time
-                        if not get_min_travel_time:
-                            continue
-
-                        if travel_time < min_travel_time or min_travel_time == -1:
-                            min_travel_time = travel_time
-                        
-                    if not get_min_travel_time:
-                        continue
-
-                    cv.update_min_travel_time(min_travel_time)
 
 
 def _assginment_core(spn, column_pool, iter_num):

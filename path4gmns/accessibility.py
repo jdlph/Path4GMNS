@@ -10,10 +10,9 @@ __all__ = ['evaluate_accessiblity']
 def _get_interval_id(t):
     """ return interval id in predefined time budget intervals
 
-    [min_time_budget, min_time_budget+time_intvl],
-
-    (min_time_budget+time_intvl, min_time_budget+i*time_intvl], where i>=1 and
-    i is integer
+    [0, min_time_budget],
+    (min_time_budget + (i-1)*time_intvl, min_time_budget + i*time_intvl]
+        where, i is integer and i>=1
     """
     min_time_budget = 10
     time_intvl = 5
@@ -30,7 +29,6 @@ def _get_interval_id(t):
 def _update_generalized_link_cost_a(spnetworks):
     """ update generalized link costs to calcualte accessibility   """
     for sp in spnetworks:
-        tau = sp.get_demand_period().get_id()
         vot = sp.get_agent_type().get_vot()
         ffs = sp.get_agent_type().get_free_flow_speed()
 
@@ -50,10 +48,7 @@ def _update_generalized_link_cost_a(spnetworks):
             )
 
 
-def _update_min_travel_time(column_pool, 
-                            links,
-                            zones,
-                            agent_types):
+def _update_min_travel_time(column_pool, zones, agent_types):
     max_min = 0
     dp = 0
 
@@ -61,7 +56,6 @@ def _update_min_travel_time(column_pool,
         for dz in zones:
             for atype in agent_types:
                 at = atype.get_id()
-
                 min_travel_time = -1
                 
                 if (at, dp, oz, dz) not in column_pool.keys():
@@ -85,7 +79,7 @@ def _update_min_travel_time(column_pool,
     return max_min
 
 
-def evaluate_accessiblity(ui, use_free_flow_travel_time=True):
+def evaluate_accessiblity(ui, output_dir='.'):
     """ evaluate and output accessiblity matrices """
     print('this operation will reset link volume and travel times!!!')
     
@@ -106,19 +100,15 @@ def evaluate_accessiblity(ui, use_free_flow_travel_time=True):
                 column_pool[(at, dp, oz, dz)] = ColumnVec()
                 column_pool[(at, dp, oz, dz)].od_vol = 1
     
-    if use_free_flow_travel_time:
-        # update generalized link cost with free flow speed
-        _update_generalized_link_cost_a(A.get_spnetworks())
-        # run assignment for one iteration to generate column pool
-        _assignment(A.get_spnetworks(), column_pool, 0)
-
+    # update generalized link cost with free flow speed
+    _update_generalized_link_cost_a(A.get_spnetworks())
+    # run assignment for one iteration to generate column pool
+    _assignment(A.get_spnetworks(), column_pool, 0)
     # update minimum travel time between O and D for each agent type
     max_min = _update_min_travel_time(column_pool, links, zones, ats)
 
     # calculate and output accessiblity for each OD pair (i.e., travel time)
-    with open('./accessibility.csv', 'w',  newline='') as f:
-        writer = csv.writer(f)
-
+    with open(output_dir+'/accessibility.csv', 'w',  newline='') as f:
         interval_num = _get_interval_id(max_min) + 1
         time_bugets = ['TT_'+str(10+5*i) for i in range(interval_num)]
 
@@ -126,6 +116,7 @@ def evaluate_accessiblity(ui, use_free_flow_travel_time=True):
                    'd_zone_id', 'd_zone_name',
                    'accessibility', 'geometry']
 
+        writer = csv.writer(f)
         writer.writerow(headers)
 
         dp = 0
@@ -155,15 +146,14 @@ def evaluate_accessiblity(ui, use_free_flow_travel_time=True):
                 writer.writerow(line)
 
     # calculate and output aggregated accessiblity matrix for each agent type
-    with open('./accessibility_aggregated.csv', 'w',  newline='') as f:
-        writer = csv.writer(f)
-
+    with open(output_dir+'/accessibility_aggregated.csv', 'w',  newline='') as f:
         interval_num = _get_interval_id(max_min) + 1
         time_bugets = ['TT_'+str(10+5*i) for i in range(interval_num)]
 
         headers = ['zone_id', 'geometry', 'mode']
         headers.extend(time_bugets)
 
+        writer = csv.writer(f)
         writer.writerow(headers)
 
         # calculate accessiblity

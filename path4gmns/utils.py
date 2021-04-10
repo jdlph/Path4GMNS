@@ -141,12 +141,12 @@ def read_nodes(input_dir,
 
 
 def read_links(input_dir,
-              links,
-              nodes,
-              id_to_no_dict,
-              link_id_dict,
-              agent_type_size,
-              demand_period_size):
+               links,
+               nodes,
+               id_to_no_dict,
+               link_id_dict,
+               agent_type_size,
+               demand_period_size):
 
     """ step 2: read input_link """
     with open(input_dir+'/link.csv', 'r', encoding='utf-8') as fp:
