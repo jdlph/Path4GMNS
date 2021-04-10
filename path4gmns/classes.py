@@ -259,6 +259,26 @@ class Network:
         self._agent_type_size = agent_type_size
         self._demand_period_size = demand_period_size
 
+    def _convert_allowed_use(self, au):
+        if au.startswith('auto'):
+            return 'p'
+        elif au.startswith('bike'):
+            return 'b'
+        elif au.startswith('walk'):
+            return 'w'
+        elif au.startswith('all'):
+            return 'a'
+        else:
+            raise Exception('allowed use type is not in the predefined list!')
+
+    def _setup_allowed_use(self, allowed_uses):
+        for i, link in enumerate(self.link_list):
+            modes = link.allowed_uses.split(',')
+            if not modes:
+                continue
+
+            allowed_uses[i] = ''.join(self._convert_allowed_use(m) for m in modes)
+
     def allocate_for_CAPI(self):
         # execute only on the first call
         if self.has_capi_allocated:
@@ -295,23 +315,9 @@ class Network:
                 j += 1
             last_link_from[i] = j
 
-        allowed_uses = [''] * link_size
         # setup allowed uses
-        for i in range(link_size):
-            link = self.get_link(sorted_link_no_array[i])
-            modes = link.allowed_uses.split(',')
-            if not modes:
-                continue
-
-            for m in modes:
-                if m.startswith('auto'):
-                    allowed_uses[i] += 'p'
-                elif m.startswith('bike'):
-                    allowed_uses[i] += 'b'
-                elif m.startswith('walk'):
-                    allowed_uses[i] += 'w'
-                elif m.startswith('all'):
-                    allowed_uses[i] += 'a'
+        allowed_uses = [''] * link_size
+        self._setup_allowed_use(allowed_uses)
 
         # set up arrays using ctypes
         int_arr_node = ctypes.c_int * node_size
@@ -415,6 +421,9 @@ class Network:
         agent_no = agent_id - 1
         agent = self._get_agent(agent_no)
 
+        if not agent.node_path:
+            return ''
+
         return ';'.join(
             str(self.external_node_id_dict[x]) for x in reversed(agent.node_path)
         )
@@ -423,6 +432,9 @@ class Network:
         """ return the sequence of link IDs along the agent path """
         agent_no = agent_id - 1
         agent = self._get_agent(agent_no)
+
+        if not agent.link_path:
+            return ''
 
         return ';'.join(
             self.link_list[x].get_link_id() for x in reversed(agent.link_path)
