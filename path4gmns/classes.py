@@ -682,12 +682,28 @@ class AgentType:
 
 class DemandPeriod:
 
-    def __init__(self, id=0, period='AM', time_period='0700_0800',
-                 agent_type='p', file='demand.csv'):
+    def __init__(self, id=0, period='AM', time_period='0700_0800'):
 
         self.id = id
         self.period = period
         self.time_period = time_period
+
+    def get_id(self):
+        return self.id
+
+    def get_file_name(self):
+        return self.file
+
+    def get_period(self):
+        return self.period
+
+
+class Demand:
+
+    def __init__(self, id=0, period='AM', agent_type='p', file='demand.csv'):
+
+        self.id = id
+        self.period = period
         self.agent_type = agent_type
         self.file = file
 
@@ -699,6 +715,9 @@ class DemandPeriod:
 
     def get_period(self):
         return self.period
+
+    def get_agent_type(self):
+        return self.agent_type
 
 
 class VDFPeriod:
@@ -870,6 +889,7 @@ class Assignment:
     def __init__(self):
         self.agent_types = []
         self.demand_periods = []
+        self.demands = []
         # 4-d array
         self.column_pool = {}
         self.network = None
@@ -884,7 +904,7 @@ class Assignment:
 
     def update_demand_periods(self, dp):
         self.demand_periods.append(dp)
-        self.map_dp_id(dp.get_period()) = dp.get_id()
+        self.map_dp_id[dp.get_period()] = dp.get_id()
 
     def get_agent_type_id(self, at_type):
         try:
@@ -898,6 +918,9 @@ class Assignment:
         except KeyError:
             raise Exception('NO demand period: '+dp_period)
 
+    def update_demands(self, d):
+        self.demands.append(d)
+
     def get_agent_type_count(self):
         return len(self.agent_types)
 
@@ -909,6 +932,9 @@ class Assignment:
 
     def get_demand_periods(self):
         return self.demand_periods
+
+    def get_demands(self):
+        return self.demands
 
     def get_spnetworks(self):
         for sp in self.spnetworks:

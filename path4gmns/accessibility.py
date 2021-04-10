@@ -88,7 +88,6 @@ def evaluate_accessiblity(ui, output_dir='.'):
     links = A.get_links()
     zones = A.get_zones()
     ats = A.get_agent_types()
-    dps = A.get_demand_periods()
     
     # set up column pool for all OD pairs where O != D
     column_pool = {}

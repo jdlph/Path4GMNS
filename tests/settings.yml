@@ -1,12 +1,5 @@
 ---
 # settings for Path4GMNS
-demand_files:
-  - file_name: demand.csv
-    format_type: column
-    period: AM
-    time_period: 0700_0800
-    agent_type: p
-
 agents:
   - type: p
     name: passenger
@@ -14,3 +7,19 @@ agents:
     flow_type: 0
     pce: 1
     free_speed: 60
+  - type: w
+    name: walk
+    vot: 10
+    flow_type: 0
+    pce: 1
+    free_speed: 10
+  
+demand_periods:
+  - period: AM
+    time_period: 0700_0800
+
+demand_files:
+  - file_name: demand.csv
+    format_type: column
+    period: AM
+    agent_type: p

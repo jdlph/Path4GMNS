@@ -4,7 +4,7 @@ import os
 import threading
 
 from .classes import Node, Link, Network, Agent, Column, ColumnVec, \
-                     VDFPeriod, AgentType, DemandPeriod, Assignment, UI
+                     VDFPeriod, AgentType, DemandPeriod, Demand, Assignment, UI
 
 from .colgen import update_links_using_columns
 
@@ -386,11 +386,13 @@ def _auto_setup(assignment):
     The two objects will be set up using the default construnctors using the
     default values. See class DemandPeriod and class AgentType for details
     """
-    dp = DemandPeriod()
     at = AgentType()
+    dp = DemandPeriod()
+    d = Demand()
 
-    assignment.demand_periods.append(dp)
-    assignment.agent_types.append(at)
+    assignment.update_agent_types(at)
+    assignment.update_demand_periods(dp)
+    assignment.update_demands(d)
 
 
 def read_settings(input_dir, assignment):
@@ -399,22 +401,6 @@ def read_settings(input_dir, assignment):
 
         with open(input_dir+'/settings.yml') as file:
             settings = ym.full_load(file)
-            # demand files
-            demands = settings['demand_files']
-            for i, d in enumerate(demands):
-                demand_file = d['file_name']
-                # demand_format_tpye = d['format_type']
-                demand_period = d['period']
-                demand_time_period = d['time_period']
-                demand_agent_type = d['agent_type']
-
-                dp = DemandPeriod(i,
-                                  demand_period,
-                                  demand_time_period,
-                                  demand_agent_type,
-                                  demand_file)
-
-                assignment.demand_periods.append(dp)
 
             # agent types
             agents = settings['agents']
@@ -434,7 +420,28 @@ def read_settings(input_dir, assignment):
                                agent_pce,
                                agent_ffs)
 
-                assignment.agent_types.append(at)
+                assignment.update_agent_types(at)
+
+            # demand periods
+            demand_periods = settings['demand_periods']
+            for i, d in enumerate(demand_periods):
+                period = d['period']
+                time_period = d['time_period']
+
+                dp = DemandPeriod(i, period, time_period)
+                assignment.update_demand_periods(dp)
+            
+            # demand files
+            demands = settings['demand_files']
+            for i, d in enumerate(demands):
+                demand_file = d['file_name']
+                # demand_format_tpye = d['format_type']
+                demand_period = d['period']
+                demand_type = d['agent_type']
+
+                demand = Demand(i, demand_period, demand_type, demand_file)
+                assignment.update_demands(demand)
+
     except ImportError:
         # just in case user does not have pyyaml installed
         print('Please intall pyyaml next time!')
@@ -472,14 +479,15 @@ def read_network(load_demand='true', input_dir='.'):
                assignm.get_demand_period_count())
 
     if load_demand:
-        for at in assignm.get_agent_types():
-            for dp in assignm.get_demand_periods():
-                read_demand(input_dir,
-                            dp.get_file_name(),
-                            at.get_id(),
-                            dp.get_id(),
-                            network.zone_to_nodes_dict,
-                            assignm.column_pool)
+        for d in assignm.get_demands():
+            at = assignm.get_agent_type_id(d.get_agent_type())
+            dp = assignm.get_demand_period_id(d.get_period())
+            read_demand(input_dir,
+                        d.get_file_name(),
+                        at,
+                        dp,
+                        network.zone_to_nodes_dict,
+                        assignm.column_pool)
 
     network.update(assignm.get_agent_type_count(),
                    assignm.get_demand_period_count())
