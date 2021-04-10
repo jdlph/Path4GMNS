@@ -522,6 +522,9 @@ def evaluate_accessiblity(ui, use_free_flow_travel_time=True):
     accessbilities = [0] * len(zones)
     for oz in zones:
         for dz in zones:
+            if oz == dz:
+                continue
+            
             for atype in ats:
                 at = atype.get_id()
                 min_tt = -1

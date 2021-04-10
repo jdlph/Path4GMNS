@@ -63,10 +63,8 @@ _cdll.shortest_path.argtypes = [
 
 def _optimal_label_correcting_CAPI(G, 
                                    origin_node_no,
-                                   mode='a',
                                    departure_time=0,
-                                   first_thru_node=0,
-                                   ):
+                                   first_thru_node=0):
     """ call the deque implementation of MLC written in cpp
 
     node_label_cost, node_predecessor, and link_predecessor are still
@@ -84,9 +82,9 @@ def _optimal_label_correcting_CAPI(G,
                         G.get_node_preds(),
                         G.get_link_preds(),
                         G.get_queue_next(),
+                        G.get_agent_type_str(),
                         departure_time,
-                        first_thru_node,
-                        mode)
+                        first_thru_node)
 
 
 def _single_source_shortest_path_fifo(G, origin_node_no):
@@ -210,15 +208,14 @@ def _single_source_shortest_path_dijkstra(G, origin_node_no):
                 heapq.heappush(SEList, (G.node_label_cost[to_node], to_node))
 
 
-def single_source_shortest_path(G, origin_node_id, engine_type='c',
-                                sp_algm='deque'):
+def single_source_shortest_path(G, origin_node_id, 
+                                engine_type='c', sp_algm='deque'):
 
     origin_node_no = G.get_node_no(origin_node_id)
 
     if engine_type.lower() == 'c':
         G.allocate_for_CAPI()
-        mode = G.get_agent_type_str()
-        _optimal_label_correcting_CAPI(G, origin_node_no, mode)
+        _optimal_label_correcting_CAPI(G, origin_node_no)
     else:
         # just in case user uses C++ and Python path engines in a mixed way
         G.has_capi_allocated = False
