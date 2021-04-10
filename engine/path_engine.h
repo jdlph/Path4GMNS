@@ -19,8 +19,8 @@ extern "C" PATH_ENGINE_API void shortest_path(const int o_node_no,
                                               int* node_pred,
                                               int* link_pred,
                                               int* deque_next,
+                                              const char mode = 'a',
                                               int departure_time = 0,
-                                              int first_thru_node = 0,
-                                              const char mode = 'p');
+                                              int first_thru_node = 0);
 
 #endif

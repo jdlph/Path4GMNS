@@ -55,16 +55,18 @@ _cdll.shortest_path.argtypes = [
     ctypes.POINTER(ctypes.c_int),
     ctypes.POINTER(ctypes.c_int),
     ctypes.POINTER(ctypes.c_int),
+    ctypes.c_char,
     ctypes.c_int,
-    ctypes.c_int,
-    ctypes.c_char
+    ctypes.c_int
 ]
 
 
-def _optimal_label_correcting_CAPI(G, origin_node_no,
+def _optimal_label_correcting_CAPI(G, 
+                                   origin_node_no,
+                                   mode='a',
                                    departure_time=0,
                                    first_thru_node=0,
-                                   mode='p'):
+                                   ):
     """ call the deque implementation of MLC written in cpp
 
     node_label_cost, node_predecessor, and link_predecessor are still
@@ -215,7 +217,8 @@ def single_source_shortest_path(G, origin_node_id, engine_type='c',
 
     if engine_type.lower() == 'c':
         G.allocate_for_CAPI()
-        _optimal_label_correcting_CAPI(G, origin_node_no)
+        mode = G.get_agent_type_str()
+        _optimal_label_correcting_CAPI(G, origin_node_no, mode)
     else:
         # just in case user uses C++ and Python path engines in a mixed way
         G.has_capi_allocated = False

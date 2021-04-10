@@ -10,7 +10,6 @@ __all__ = ['UI']
 # reserved for simulation
 _NUM_OF_SECS_PER_SIMU_INTERVAL = 6
 
-_ALLOWED_USES = ['auto', 'bike', 'walk', 'all']
 
 
 class Node:
@@ -503,6 +502,11 @@ class Network:
     def get_link(self, seq_no):
         return self.link_list[seq_no]
 
+    def get_agent_type_str(self):
+        """ for allowed uses in single_source_shortest_path()"""
+        return 'a'
+
+
 class Column:
 
     def __init__(self, seq_no=-1):
@@ -769,6 +773,9 @@ class SPNetwork(Network):
 
     def get_agent_type(self):
         return self.agent_type
+
+    def get_agent_type_str(self):
+        return self.agent_type.get_type()
 
     def get_demand_period(self):
         return self.demand_period

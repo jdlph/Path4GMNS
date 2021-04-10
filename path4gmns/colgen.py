@@ -490,7 +490,14 @@ def evaluate_accessiblity(ui, use_free_flow_travel_time=True):
     zones = A.get_zones()
     ats = A.get_agent_types()
     dps = A.get_demand_periods()
-    column_pool = A.get_column_pool()
+    
+    # set up column pool for all OD pairs where O != D
+    column_pool = {}
+    for oz in zones:
+        for dz in zones:
+            for atype in ats:
+                at = atype.get_id()
+                column_pool[(at, 0, oz, dz)] = ColumnVec()
     
     if use_free_flow_travel_time:
         # reset link volume to zero
@@ -561,7 +568,6 @@ def evaluate_accessiblity(ui, use_free_flow_travel_time=True):
                 line = [oz, '', at]
                 line.extend(counts)
                 writer.writerow(line)
-
 
 
 def update_links_using_columns(network):

@@ -25,9 +25,9 @@ void shortest_path(int o_node_no,
                    int* node_pred,
                    int* link_pred,
                    int* deque_next,
+                   const char mode,
                    int departure_time,
-                   int first_thru_node,
-                   const char mode)
+                   int first_thru_node)
 {
     // construct and initialize the following three on the first call only
     static constexpr int invalid = -1, was_in_deque = -7;
