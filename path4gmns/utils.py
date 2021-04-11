@@ -11,6 +11,7 @@ from .colgen import update_links_using_columns
 
 __all__ = [
     'read_network',
+    'load_columns',
     'output_columns',
     'output_link_performance',
     'download_sample_data_sets'

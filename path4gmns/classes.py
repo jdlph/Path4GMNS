@@ -10,13 +10,9 @@ __all__ = ['UI']
 
 class Node:
     """
-    external_node_id: the id of node
-    node_seq_no: the index of the node and we call the node by its index
-
-    we use g_internal_node_seq_no_dict(id to index) and
-    g_external_node_id_dict(index to id) to map them
+    external_node_id: user defined node id from input
+    node_seq_no: internal node index used for calculation
     """
-
     def __init__(self, node_seq_no, external_node_id, zone_id, x='', y=''):
         """ the attribute of node  """
         self.node_seq_no = node_seq_no
@@ -179,10 +175,9 @@ class Link:
 class Agent:
     """ individual agent derived from aggragted demand between an OD pair
 
-    agent_id: the id of agent
-    agent_seq_no: the index of the agent and we call the agent by its index
+    agent_id: integer starts from 1
+    agent_seq_no: internal agent index starting from 0 used for calculation
     """
-
     def __init__(self, agent_id, agent_seq_no, agent_type,
                  o_zone_id, d_zone_id):
         """ the attribute of agent """
@@ -260,14 +255,15 @@ class Network:
         self._agent_type_size = agent_type_size
         self._demand_period_size = demand_period_size
 
-    def _convert_allowed_use(self, au):
-        if au.startswith('auto'):
+    @classmethod
+    def convert_allowed_use(cls, au):
+        if au.lower().startswith('auto'):
             return 'p'
-        elif au.startswith('bike'):
+        elif au.lower().startswith('bike'):
             return 'b'
-        elif au.startswith('walk'):
+        elif au.lower().startswith('walk'):
             return 'w'
-        elif au.startswith('all'):
+        elif au.lower().startswith('all'):
             return 'a'
         else:
             raise Exception('allowed use type is not in the predefined list!')
@@ -278,7 +274,9 @@ class Network:
             if not modes:
                 continue
 
-            allowed_uses[i] = ''.join(self._convert_allowed_use(m) for m in modes)
+            allowed_uses[i] = ''.join(
+                Network.convert_allowed_use(m) for m in modes
+            )
 
     def allocate_for_CAPI(self):
         # execute only on the first call
@@ -618,7 +616,7 @@ class ColumnVec:
         self.route_fixed = False
         self.path_node_seq_map = {}
         # minimum free-flow travel time between O and D
-        # it is for accessiblity.
+        # for accessiblity evaluation
         self.min_tt = -1
 
     def is_route_fixed(self):
@@ -651,7 +649,7 @@ class AgentType:
 
     def __init__(self, id=0, type='p', name='passenger',
                  vot=10, flow_type=0, pce=1, ffs=60):
-
+        """ default constructor """
         self.id = id
         self.type = type
         self.name = name
@@ -679,7 +677,6 @@ class AgentType:
 class DemandPeriod:
 
     def __init__(self, id=0, period='AM', time_period='0700_0800'):
-
         self.id = id
         self.period = period
         self.time_period = time_period
@@ -697,7 +694,6 @@ class DemandPeriod:
 class Demand:
 
     def __init__(self, id=0, period='AM', agent_type='p', file='demand.csv'):
-
         self.id = id
         self.period = period
         self.agent_type = agent_type
@@ -720,6 +716,7 @@ class VDFPeriod:
 
     def __init__(self, id, alpha=0.15, beta=4, mu=1000,
                  fftt=0, cap=99999, phf=-1):
+        """ default constructor """
         self.id = id
         # the following four have been defined in class Link
         # they should be exactly the same with those in the corresponding link
@@ -836,6 +833,9 @@ class SPNetwork(Network):
     def get_nodes(self):
         return self.base.get_nodes()
 
+    def get_link(self, seq_no):
+        self.base.get_link(seq_no)
+
     def get_links(self):
         return self.base.get_links()
 
@@ -875,9 +875,6 @@ class SPNetwork(Network):
 
     def get_queue_next(self):
         return self.queue_next
-
-    def get_link(self, seq_no):
-        self.base.get_link(seq_no)
 
 
 class Assignment:
@@ -1003,7 +1000,8 @@ class Assignment:
         return find_shortest_path(self.network, from_node_id,
                                   to_node_id, seq_type)
 
-    def perform_network_assignment(self, assignment_mode, iter_num, column_update_num):
+    def perform_network_assignment(self, assignment_mode, 
+                                   iter_num, column_update_num):
         # perform_network_assignment(assignment_mode, iter_num, column_update_num)
         pass
 
@@ -1076,6 +1074,7 @@ class Assignment:
                         )
     
     def setup_column_pool_a(self):
+        """ set up column_pool for accessibility evaluation """
         dp = 0
         for oz in self.get_zones():
             if oz == -1:
