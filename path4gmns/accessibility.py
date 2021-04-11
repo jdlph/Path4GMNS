@@ -105,6 +105,14 @@ def evaluate_accessiblity(ui, multimodal=True, output_dir='.'):
     max_min = _update_min_travel_time(column_pool)
 
     # calculate and output accessiblity for each OD pair (i.e., travel time)
+    output_accessiblity(column_pool, at)
+
+    # calculate and output aggregated accessiblity matrix for each agent type
+    output_accessibility_aggregated(column_pool, max_min, zones, ats)
+
+
+def output_accessiblity(column_pool, at, output_dir='.'):
+    # calculate and output accessiblity for each OD pair (i.e., travel time)
     with open(output_dir+'/accessibility.csv', 'w',  newline='') as f:
         headers = ['o_zone_id', 'o_zone_name', 
                    'd_zone_id', 'd_zone_name',
@@ -115,7 +123,6 @@ def evaluate_accessiblity(ui, multimodal=True, output_dir='.'):
 
         # for multimodal case, find the minimum travel time 
         # under mode 'p' (i.e., auto)
-        at = A.get_agent_type_id('p')
         dp = 0
         for k, cv in column_pool.items():
             # k = (at, dp, oz, dz)
@@ -128,6 +135,8 @@ def evaluate_accessiblity(ui, multimodal=True, output_dir='.'):
             line = [k[2], '', k[3], '', min_tt, '']
             writer.writerow(line)
 
+
+def output_accessibility_aggregated(column_pool, max_min, zones, ats, output_dir='.'):
     # calculate and output aggregated accessiblity matrix for each agent type
     with open(output_dir+'/accessibility_aggregated.csv', 'w',  newline='') as f:
         interval_num = _get_interval_id(max_min) + 1
