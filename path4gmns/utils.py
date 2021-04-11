@@ -22,6 +22,9 @@ def _convert_str_to_int(str):
     TypeError will take care the case that str is None 
     ValueError will take care the case that str is empty
     """
+    if not str:
+        return None
+
     try:
         return int(str)
     except ValueError:
@@ -35,6 +38,9 @@ def _convert_str_to_float(str):
     TypeError will take care the case that str is None 
     ValueError will take care the case that str is empty
     """
+    if not str:
+        return None
+        
     try:
         return float(str)
     except (TypeError, ValueError):
@@ -106,17 +112,14 @@ def read_nodes(input_dir,
         node_seq_no = 0
         for line in reader:
             # set up node_id, which should be an integer
-            node_id = line['node_id']
+            node_id = _convert_str_to_int(line['node_id'])
             if not node_id:
                 continue
-            node_id = int(node_id)
 
             # set up zone_id, which should be an integer
-            zone_id = line['zone_id']
+            zone_id = _convert_str_to_int(line['zone_id'])
             if not zone_id:
                 zone_id = -1
-            else:
-                zone_id = int(zone_id)
 
             # treat them as string
             coord_x = line['x_coord']
@@ -159,22 +162,19 @@ def read_links(input_dir,
             link_id = line['link_id']
 
             # check the validility
-            from_node_id = line['from_node_id']
+            from_node_id = _convert_str_to_int(line['from_node_id'])
             if not from_node_id:
                 continue
 
-            to_node_id = line['to_node_id']
+            to_node_id =_convert_str_to_int(line['to_node_id'])
             if not to_node_id:
                 continue
 
-            length = line['length']
+            length = _convert_str_to_float(line['length'])
             if not length:
                 continue
 
             # pass validility check
-            from_node_id = int(from_node_id)
-            to_node_id = int(to_node_id)
-            length = float(length)
 
             try:
                 from_node_no = id_to_no_dict[from_node_id]
@@ -187,22 +187,11 @@ def read_links(input_dir,
             # for the following attributes,
             # if they are not None, convert them to the corresponding types
             # leave None's to the default constructor
-            lanes = line['lanes']
-            if lanes:
-                lanes = int(lanes)
-
-            link_type = line['link_type']
-            if link_type:
-                link_type = int(link_type)
-
-            free_speed = line['free_speed']
-            if free_speed:
-                free_speed = int(free_speed)
-
-            capacity = line['capacity']
-            if capacity:
-                # issue: int??
-                capacity = int(float(capacity))
+            lanes = _convert_str_to_int(line['lanes'])
+            link_type = _convert_str_to_int(line['link_type'])
+            free_speed = _convert_str_to_int(line['free_speed'])
+            # issue: int??
+            capacity = _convert_str_to_int(line['capacity'])
 
             # if link.csv does not have no column 'allowed_uses',
             # set allowed_uses to 'auto'
@@ -256,7 +245,7 @@ def read_links(input_dir,
                     VDF_alpha = line[header_vdf_alpha]
                     if VDF_alpha:
                         VDF_alpha = float(VDF_alpha)
-                except KeyError:
+                except (KeyError, TypeError):
                     if i == 0:
                         # default value will be applied in the constructor
                         VDF_alpha = None
@@ -267,7 +256,7 @@ def read_links(input_dir,
                     VDF_beta = line[header_vdf_beta]
                     if VDF_beta:
                         VDF_beta = float(VDF_beta)
-                except KeyError:
+                except (KeyError, TypeError):
                     if i == 0:
                         # default value will be applied in the constructor
                         VDF_beta = None
@@ -278,7 +267,7 @@ def read_links(input_dir,
                     VDF_mu = line[header_vdf_mu]
                     if VDF_mu:
                         VDF_mu = float(VDF_mu)
-                except KeyError:
+                except (KeyError, TypeError):
                     if i == 0:
                         # default value will be applied in the constructor
                         VDF_mu = None
@@ -289,7 +278,7 @@ def read_links(input_dir,
                     VDF_fftt = line[header_vdf_fftt]
                     if VDF_fftt:
                         VDF_fftt = float(VDF_fftt)
-                except KeyError:
+                except (KeyError, TypeError):
                     # set it up using length and free_speed from link
                     VDF_fftt = length / max(0.001, free_speed) * 60
 
@@ -297,7 +286,7 @@ def read_links(input_dir,
                     VDF_cap = line[header_vdf_cap]
                     if VDF_cap:
                         VDF_cap = float(VDF_cap)
-                except KeyError:
+                except (KeyError, TypeError):
                     # set it up using capacity from link
                     VDF_cap = capacity
 
@@ -306,7 +295,7 @@ def read_links(input_dir,
                     VDF_phf = line[header_vdf_phf]
                     if VDF_phf:
                         VDF_phf = float(VDF_phf)
-                except KeyError:
+                except (KeyError, TypeError):
                     # default value will be applied in the constructor
                     VDF_phf = None
 
@@ -346,21 +335,19 @@ def read_demand(input_dir,
             volume = line['volume']
 
             # invalid origin zone id, discard it
-            oz_id = line['o_zone_id']
+            oz_id = _convert_str_to_int(line['o_zone_id'])
             if not oz_id:
                 continue
 
             # invalid destinationzone id, discard it
-            dz_id = line['d_zone_id']
+            dz_id = _convert_str_to_int(line['d_zone_id'])
             if not dz_id:
                 continue
 
-            oz_id = int(oz_id)
             # o_zone_id does not exist in node.csv, discard it
             if oz_id not in zone_to_node_dict.keys():
                 continue
 
-            dz_id = int(dz_id)
             # d_zone_id does not exist in node.csv, discard it
             if dz_id not in zone_to_node_dict.keys():
                 continue
@@ -626,17 +613,13 @@ def load_columns(input_dir, ui):
         last_agent_id = 0
         for line in reader:
             # critical info
-            oz_id = line['o_zone_id']
+            oz_id = _convert_str_to_int(line['o_zone_id'])
             if not oz_id:
                 continue
-            else:
-                oz_id = int(float(oz_id))
 
-            dz_id = line['d_zone_id']
+            dz_id = _convert_str_to_int(line['d_zone_id'])
             if not dz_id:
                 continue
-            else:
-                dz_id = int(float(dz_id))
 
             node_seq = line['node_sequence']
             if not node_seq:
@@ -647,11 +630,9 @@ def load_columns(input_dir, ui):
                 continue
             
             # non-critical info
-            agent_id = line['agent_id']
+            agent_id = _convert_str_to_int(line['agent_id'])
             if not agent_id:
                 agent_id = last_agent_id + 1
-            else:
-                agent_id = int(float(agent_id))
 
             last_agent_id = agent_id
             
@@ -670,29 +651,21 @@ def load_columns(input_dir, ui):
             else:
                 dp = A.get_demand_period_id(dp)
 
-            vol = line['volume']
+            vol = _convert_str_to_float(line['volume'])
             if not vol:
                 continue
-            else:
-                vol = float(vol)
                 
-            toll = line['toll']
+            toll = _convert_str_to_float(line['toll'])
             if not toll:
                 toll = 0
-            else:
-                toll = float(toll)
         
-            tt = line['travel_time']
+            tt = _convert_str_to_float(line['travel_time'])
             if not tt:
                 tt = 0
-            else:
-                tt = float(tt)
 
-            dist = line['distance']
+            dist = _convert_str_to_float(line['distance'])
             if not dist:
                 dist = 0
-            else:
-                dist = float(tt)
             
             # it could be empty
             geo = line['geometry']

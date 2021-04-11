@@ -132,14 +132,14 @@ print('\npath finding results can be found in agent.csv')
 ## Upcoming Features
 - [x] Read and output node and link geometries
 - [x] Set up individual agents from aggregated OD demand only when it is needed
-- [ ] Load columns/paths from existing runs and continue path-base UE
+- [x] Load columns/paths from existing runs and continue path-base UE
 - [x] Download the predefined GMNS test data sets to usrs' local machines to improve the use experience when needed
-- [ ] Calculate and show up accessibility 
+- [x] Calculate and show up multimodal accessibility 
 - [ ] Visualize individual column/paths on user's call
 - [ ] Let users modify the network topology in a simple way by adding/removing nodes and links
 - [ ] Enable manipulations on the overall travel demand and the demand between an OD pair
 - [x] Support for multi-demand-period and multi-agent-type
-- [ ] Add allowed use in terms of agent type for links 
+- [x] Add allowed use in terms of agent type for links 
 - [x] Provide a setting file in yaml to let users control key parameters
 - [ ] Adopt parallel computing to further boost the performance
 
