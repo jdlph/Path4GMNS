@@ -1049,6 +1049,38 @@ class Assignment:
                         sp.node_id_to_no[node_id] = (
                             self.network.get_node_no(node_id)
                         )
+                    
+    def setup_spntwork_a(self):
+        """ set up SPNetworks for accessibility evaluation """
+        spvec = {}
+        # we only need one demand period even multiple could exist
+        dp = self.demand_periods[0]
+
+        # z is zone id starting from 1
+        for z in self.network.zones:
+            for at in self.get_agent_types():
+                if z - 1 < self.memory_blocks:
+                    sp = SPNetwork(self.network, at, dp)
+                    spvec[(at.get_id(), dp.get_id(), z-1)] = sp
+                    sp.orig_zones.append(z)
+                    sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
+                    for node_id in self.network.get_nodes_from_zone(z):
+                        sp.node_id_to_no[node_id] = (
+                            self.network.get_node_no(node_id)
+                        )
+                    self.spnetworks.append(sp)
+                else:
+                    m = (z - 1) % self.memory_blocks
+                    sp = spvec[(at.get_id(), dp.get_id(), m)]
+                    sp.orig_zones.append(z)
+                    sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
+                    for node_id in self.network.get_nodes_from_zone(z):
+                        sp.node_id_to_no[node_id] = (
+                            self.network.get_node_no(node_id)
+                        )
+    
+    def setup_column_pool_a(self):
+        pass
 
     def get_link(self, seq_no):
         """ return link object corresponding to link seq no """

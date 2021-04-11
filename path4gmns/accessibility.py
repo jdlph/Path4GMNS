@@ -1,6 +1,6 @@
 import csv
 
-from .classes import ColumnVec
+from .classes import ColumnVec, Assignment
 from .colgen import _assignment
 
 
@@ -11,6 +11,7 @@ def _get_interval_id(t):
     """ return interval id in predefined time budget intervals
 
     [0, min_time_budget],
+
     (min_time_budget + (i-1)*time_intvl, min_time_budget + i*time_intvl]
         where, i is integer and i>=1
     """
@@ -27,7 +28,7 @@ def _get_interval_id(t):
 
 
 def _update_generalized_link_cost_a(spnetworks):
-    """ update generalized link costs to calcualte accessibility   """
+    """ update generalized link costs to calcualte accessibility """
     for sp in spnetworks:
         vot = sp.get_agent_type().get_vot()
         ffs = sp.get_agent_type().get_free_flow_speed()
@@ -52,18 +53,11 @@ def _update_min_travel_time(column_pool):
     max_min = 0
 
     for cv in column_pool.values():
-        # try:
-        #     min_travel_time = cv.get_columns()[0].get_toll()
-        # except IndexError:
-        #     # cv does not have any columns/paths
-        #     continue
         min_travel_time = -1
         
         for col in cv.get_columns().values():
             travel_time = col.get_toll()
-            # col.set_travel_time(travel_time)
-
-            # get minmum travel time
+            # update minmum travel time
             if travel_time < min_travel_time or min_travel_time == -1:
                 min_travel_time = travel_time
             
@@ -79,7 +73,19 @@ def evaluate_accessiblity(ui, output_dir='.'):
     """ evaluate and output accessiblity matrices """
     print('this operation will reset link volume and travel times!!!')
     
-    A = ui._base_assignment
+    # set up assignment object dedicated to accessibility evaluation
+    base = ui._base_assignment
+    A = Assignment()
+    A.network = base.get_network()
+
+    for at in base.get_agent_types():
+        A.update_agent_types(at)
+
+    for dp in base.get_demand_periods():
+        A.update_demand_periods(dp)
+
+    A.setup_spntwork_a()
+
     zones = A.get_zones()
     ats = A.get_agent_types()
     
