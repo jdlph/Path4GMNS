@@ -60,43 +60,31 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
             # for atype in agent_types:
             #     link.reset_period_agent_vol(tau, atype.get_id())
 
-    for oz_id in zones:
-        for dz_id in zones:
-            for atype in agent_types:
-                at = atype.get_id()
-                for dperiod in demand_periods:
-                    tau = dperiod.get_id()
-                    if (at, tau, oz_id, dz_id) not in column_pool.keys():
-                        continue
 
-                    cv = column_pool[(at, tau, oz_id, dz_id)]
+    for k, cv in column_pool.items():
+        # k= (at, tau, oz_id, dz_id)
+        tau = k[1]
+        if cv.get_od_volume() <= 0:
+            continue
 
-                    if cv.get_od_volume() <= 0:
-                        continue
+        for col in cv.get_columns().values():
+            link_vol_contributed_by_path_vol = col.get_volume()
+            for i in col.links:
+                pce_ratio = 1
+                links[i].increase_period_flow_vol(
+                    tau,
+                    link_vol_contributed_by_path_vol * pce_ratio
+                )
+                # Peiheng, 04/05/21, not needed for the current implementation
+                # links[i].increase_period_agent_vol(
+                #     tau,
+                #     at,
+                #     link_vol_contributed_by_path_vol
+                # )
 
-                    for col in cv.get_columns().values():
-                        link_vol_contributed_by_path_vol = col.get_volume()
-                        for i in col.links:
-                            pce_ratio = 1
-                            links[i].increase_period_flow_vol(
-                                tau,
-                                link_vol_contributed_by_path_vol * pce_ratio
-                            )
-                            # Peiheng, 04/05/21, not needed for the current implementation
-                            # links[i].increase_period_agent_vol(
-                            #     tau,
-                            #     at,
-                            #     link_vol_contributed_by_path_vol
-                            # )
+            if not cv.is_route_fixed() and is_path_vol_self_reducing:
+                col.vol *= iter_num / (iter_num + 1)
 
-                        if not cv.is_route_fixed() \
-                           and is_path_vol_self_reducing:
-                            col.vol *= iter_num / (iter_num + 1)
-                    # end of for column in ...
-                # end of for dperiod in ...
-            # end of for atype in ...
-        # end of for dz_id in ...
-    # end of for oz_id in range ...
 
 
 def _update_column_gradient_cost_and_flow(column_pool,
