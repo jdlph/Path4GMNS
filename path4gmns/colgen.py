@@ -62,10 +62,11 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
 
 
     for k, cv in column_pool.items():
-        # k= (at, tau, oz_id, dz_id)
-        tau = k[1]
         if cv.get_od_volume() <= 0:
             continue
+        
+        # k= (at, tau, oz_id, dz_id)
+        tau = k[1]
 
         for col in cv.get_columns().values():
             link_vol_contributed_by_path_vol = col.get_volume()
@@ -107,102 +108,86 @@ def _update_column_gradient_cost_and_flow(column_pool,
     total_gap = 0
     # total_gap_count = 0
 
-    for oz_id in zones:
-        for dz_id in zones:
-            for atype in agent_types:
-                at = atype.get_id()
-                vot = atype.get_vot()
-                for dperiod in demand_periods:
-                    tau = dperiod.get_id()
-                    if (at, tau, oz_id, dz_id) not in column_pool.keys():
-                        continue
+    for k, cv in column_pool.items():
+        if cv.get_od_volume() <= 0:
+            continue
 
-                    cv = column_pool[(at, tau, oz_id, dz_id)]
+        # k= (at, tau, oz_id, dz_id)
+        vot = agent_types[k[0]].get_vot()
+        tau = k[1]
+        
+        column_num = cv.get_column_num()
+        least_gradient_cost = 999999
+        least_gradient_cost_path_seq_no = -1
+        least_gradient_cost_path_node_sum = -1
 
-                    if cv.get_od_volume() <= 0:
-                        continue
+        for node_sum, col in cv.get_columns().items():
+            path_toll = 0
+            path_gradient_cost = 0
+            path_travel_time = 0
+            # i is link sequence no
+            for i in col.get_links():
+                path_toll += links[i].get_toll()
+                path_travel_time += (
+                    links[i].travel_time_by_period[tau]
+                )
+                path_gradient_cost += (
+                    links[i].get_generalized_cost(tau, vot)
+                )
 
-                    column_num = cv.get_column_num()
-                    least_gradient_cost = 999999
-                    least_gradient_cost_path_seq_no = -1
-                    least_gradient_cost_path_node_sum = -1
+            col.set_toll(path_toll)
+            col.set_travel_time(path_travel_time)
+            col.set_gradient_cost(path_gradient_cost)
 
-                    for node_sum, col in cv.get_columns().items():
-                        path_toll = 0
-                        path_gradient_cost = 0
-                        path_travel_time = 0
-                        # i is link sequence no
-                        for i in col.get_links():
-                            path_toll += links[i].get_toll()
-                            path_travel_time += (
-                                links[i].travel_time_by_period[tau]
-                            )
-                            path_gradient_cost += (
-                                links[i].get_generalized_cost(tau, vot)
-                            )
+            if column_num == 1:
+                # total_gap_count += (
+                #     path_gradient_cost * col.get_volume()
+                # )
+                break
 
-                        col.set_toll(path_toll)
-                        col.set_travel_time(path_travel_time)
-                        col.set_gradient_cost(path_gradient_cost)
+            if path_gradient_cost < least_gradient_cost:
+                least_gradient_cost = path_gradient_cost
+                least_gradient_cost_path_seq_no = col.get_seq_no()
+                least_gradient_cost_path_node_sum = node_sum
 
-                        if column_num == 1:
-                            # total_gap_count += (
-                            #     path_gradient_cost * col.get_volume()
-                            # )
-                            break
+        if column_num >= 2:
+            total_switched_out_path_vol = 0
 
-                        if path_gradient_cost < least_gradient_cost:
-                            least_gradient_cost = path_gradient_cost
-                            least_gradient_cost_path_seq_no = col.get_seq_no()
-                            least_gradient_cost_path_node_sum = node_sum
+            for col in cv.get_columns().values():
+                if col.get_seq_no() != least_gradient_cost_path_seq_no:
+                    col.set_gradient_cost_abs_diff(
+                        col.get_gradient_cost() - least_gradient_cost
+                    )
+                    col.set_gradient_cost_rel_diff(
+                        col.get_gradient_cost_abs_diff()
+                        / max(0.0001, least_gradient_cost)
+                    )
 
-                    if column_num >= 2:
-                        total_switched_out_path_vol = 0
+                    total_gap += (
+                        col.get_gradient_cost_abs_diff()
+                        * col.get_volume()
+                    )
 
-                        for node_sum, col in cv.get_columns().items():
-                            if col.get_seq_no() != least_gradient_cost_path_seq_no:
-                                col.set_gradient_cost_abs_diff(
-                                    col.get_gradient_cost()
-                                    - least_gradient_cost
-                                )
-                                col.set_gradient_cost_rel_diff(
-                                    col.get_gradient_cost_abs_diff()
-                                    / max(0.0001, least_gradient_cost)
-                                )
+                    # total_gap_count += (
+                    #     col.get_gradient_cost() * col.get_volume()
+                    # )
 
-                                total_gap += (
-                                    col.get_gradient_cost_abs_diff()
-                                    * col.get_volume()
-                                )
+                    step_size = 1 / (iter_num + 2) * cv.get_od_volume()
 
-                                # total_gap_count += (
-                                #     col.get_gradient_cost() * col.get_volume()
-                                # )
+                    previous_path_vol = col.get_volume()
+                    col.vol = max(
+                        0,
+                        (previous_path_vol
+                         - step_size
+                         * col.get_gradient_cost_rel_diff())
+                    )
 
-                                step_size = (
-                                    1 / (iter_num + 2) * cv.get_od_volume()
-                                )
+                    col.set_switch_volume(previous_path_vol - col.get_volume())
+                    total_switched_out_path_vol += col.get_switch_volume()
 
-                                previous_path_vol = col.get_volume()
-                                col.vol = max(
-                                    0,
-                                    (previous_path_vol
-                                     - step_size
-                                     * col.get_gradient_cost_rel_diff())
-                                )
-
-                                col.set_switch_volume(
-                                    previous_path_vol - col.get_volume()
-                                )
-                                total_switched_out_path_vol += (
-                                    col.get_switch_volume()
-                                )
-
-                    if least_gradient_cost_path_seq_no != -1:
-                        col = cv.get_column(
-                            least_gradient_cost_path_node_sum
-                        )
-                        col.increase_volume(total_switched_out_path_vol)
+        if least_gradient_cost_path_seq_no != -1:
+            col = cv.get_column(least_gradient_cost_path_node_sum)
+            col.increase_volume(total_switched_out_path_vol)
 
     print(f'total gap: {total_gap:.2f}')
     # print(f'total gap count is: {total_gap_count:.2f}')
