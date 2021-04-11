@@ -69,45 +69,33 @@ def _update_min_travel_time(column_pool):
     return max_min
 
 
-def evaluate_accessiblity(ui, output_dir='.'):
+def evaluate_accessiblity(ui, multimodal=True, output_dir='.'):
     """ evaluate and output accessiblity matrices """
-    print('this operation will reset link volume and travel times!!!')
+    print('this operation will reset link volume and travel time!!!\n')
     
     # set up assignment object dedicated to accessibility evaluation
     base = ui._base_assignment
     A = Assignment()
     A.network = base.get_network()
 
-    for at in base.get_agent_types():
-        A.update_agent_types(at)
+    if multimodal:
+        for at in base.get_agent_types():
+            A.update_agent_types(at)
+    else:
+        # otherwise, only consider mode 'p' (i.e., auto)
+        at = base.get_agent_type('p')
 
-    for dp in base.get_demand_periods():
-        A.update_demand_periods(dp)
+    # we only need one demand period even multiple could exist
+    # see setup_spntwork_a() too
+    dp = base.get_demand_periods()[0]
+    A.update_demand_periods(dp)
 
     A.setup_spntwork_a()
+    A.setup_column_pool_a()
 
     zones = A.get_zones()
     ats = A.get_agent_types()
-    
-    # set up column pool for all OD pairs where O != D
-    column_pool = {}
-    dp = 0
-    for oz in zones:
-        if oz == -1:
-            continue
-
-        for dz in zones:
-            if dz == -1:
-                continue
-
-            for atype in ats:
-                at = atype.get_id()
-                column_pool[(at, dp, oz, dz)] = ColumnVec()
-                
-                if oz == dz:
-                    continue
-                
-                column_pool[(at, dp, oz, dz)].od_vol = 1
+    column_pool = A.get_column_pool()
     
     # update generalized link cost with free flow speed
     _update_generalized_link_cost_a(A.get_spnetworks())
@@ -129,30 +117,26 @@ def evaluate_accessiblity(ui, output_dir='.'):
         writer.writerow(headers)
 
         at = A.get_agent_type_id('p')
-
         dp = 0
         for oz in zones:
             for dz in zones:
                 # for multimodal case, find the minimum travel time 
                 # under mode 'p' (i.e., auto)
-                min_min = -1
+                min_tt = -1
             
                 if (at, dp, oz, dz) not in column_pool.keys():
-                    min_min = 0
                     continue
                 
                 cv = column_pool[(at, dp, oz, dz)]
-                if cv.get_min_travel_time() == -1:
-                    min_min = 0
-                    continue
-
                 tt = cv.get_min_travel_time()
+                if tt == -1:
+                    tt = 0
 
-                if tt < min_min or min_min == -1:
-                    min_min = tt
+                if tt < min_tt or min_tt == -1:
+                    min_tt = tt
      
                 # output assessiblity
-                line = [oz, '', dz, '', min_min, '']
+                line = [oz, '', dz, '', min_tt, '']
                 writer.writerow(line)
 
     # calculate and output aggregated accessiblity matrix for each agent type

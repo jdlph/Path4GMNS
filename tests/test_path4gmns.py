@@ -81,12 +81,15 @@ def test_accessibility():
     network = pg.read_network()
     
     print('\nstart accessibility evaluation\n')
+    st = time()
 
     pg.evaluate_accessiblity(network)
 
-    print('complete accessibility evaluation.\n' 
-          'accessibility matrices can be found in accessibility.csv '
+    print('complete accessibility evaluation.\n')
+    print('processing time of accessibility evaluation:{0: .2f}'.format(time()-st)+'s')
+    print('accessibility matrices can be found in accessibility.csv '
           'and accessibility_aggregated.csv')
+
 
 def demo_mode(mode):
     print(f'the selected mode is {mode}\n')

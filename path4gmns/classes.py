@@ -1080,7 +1080,20 @@ class Assignment:
                         )
     
     def setup_column_pool_a(self):
-        pass
+        dp = 0
+        for oz in self.get_zones():
+            if oz == -1:
+                continue
+            for dz in self.get_zones():
+                if dz == -1:
+                    continue
+                for atype in self.agent_types:
+                    at = atype.get_id()
+                    self.column_pool[(at, dp, oz, dz)] = ColumnVec()
+                    if oz == dz:
+                        continue
+                    # set up volume/demand for all OD pairs where O != D
+                    self.column_pool[(at, dp, oz, dz)].od_vol = 1
 
     def get_link(self, seq_no):
         """ return link object corresponding to link seq no """
