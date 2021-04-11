@@ -29,7 +29,7 @@ def _update_generalized_link_cost(spnetworks):
         )
 
 
-def _update_link_travel_time_and_cost(links, agent_types, demand_periods):
+def _update_link_travel_time_and_cost(links):
     for link in links:
         link.calculate_td_vdfunction()
         # Peiheng, 04/05/21, not needed for the current implementation
@@ -41,8 +41,6 @@ def _update_link_travel_time_and_cost(links, agent_types, demand_periods):
 
 def _reset_and_update_link_vol_based_on_columns(column_pool,
                                                 links,
-                                                zones,
-                                                agent_types,
                                                 demand_periods,
                                                 iter_num,
                                                 is_path_vol_self_reducing):
@@ -90,20 +88,17 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
 
 def _update_column_gradient_cost_and_flow(column_pool,
                                           links,
-                                          zones,
                                           agent_types,
                                           demand_periods,
                                           iter_num):
 
     _reset_and_update_link_vol_based_on_columns(column_pool,
                                                 links,
-                                                zones,
-                                                agent_types,
                                                 demand_periods,
                                                 iter_num,
                                                 False)
 
-    _update_link_travel_time_and_cost(links, agent_types, demand_periods)
+    _update_link_travel_time_and_cost(links)
 
     total_gap = 0
     # total_gap_count = 0
@@ -154,36 +149,37 @@ def _update_column_gradient_cost_and_flow(column_pool,
             total_switched_out_path_vol = 0
 
             for col in cv.get_columns().values():
-                if col.get_seq_no() != least_gradient_cost_path_seq_no:
-                    col.set_gradient_cost_abs_diff(
-                        col.get_gradient_cost() - least_gradient_cost
-                    )
-                    col.set_gradient_cost_rel_diff(
-                        col.get_gradient_cost_abs_diff()
-                        / max(0.0001, least_gradient_cost)
-                    )
+                if col.get_seq_no() == least_gradient_cost_path_seq_no:
+                    continue
 
-                    total_gap += (
-                        col.get_gradient_cost_abs_diff()
-                        * col.get_volume()
-                    )
+                col.set_gradient_cost_abs_diff(
+                    col.get_gradient_cost() - least_gradient_cost
+                )
+                col.set_gradient_cost_rel_diff(
+                    col.get_gradient_cost_abs_diff()
+                    / max(0.0001, least_gradient_cost)
+                )
 
-                    # total_gap_count += (
-                    #     col.get_gradient_cost() * col.get_volume()
-                    # )
+                total_gap += (
+                    col.get_gradient_cost_abs_diff() * col.get_volume()
+                )
 
-                    step_size = 1 / (iter_num + 2) * cv.get_od_volume()
+                # total_gap_count += (
+                #     col.get_gradient_cost() * col.get_volume()
+                # )
 
-                    previous_path_vol = col.get_volume()
-                    col.vol = max(
-                        0,
-                        (previous_path_vol
-                         - step_size
-                         * col.get_gradient_cost_rel_diff())
-                    )
+                step_size = 1 / (iter_num + 2) * cv.get_od_volume()
 
-                    col.set_switch_volume(previous_path_vol - col.get_volume())
-                    total_switched_out_path_vol += col.get_switch_volume()
+                previous_path_vol = col.get_volume()
+                col.vol = max(
+                    0,
+                    (previous_path_vol
+                     - step_size
+                     * col.get_gradient_cost_rel_diff())
+                )
+
+                col.set_switch_volume(previous_path_vol - col.get_volume())
+                total_switched_out_path_vol += col.get_switch_volume()
 
         if least_gradient_cost_path_seq_no != -1:
             col = cv.get_column(least_gradient_cost_path_node_sum)
@@ -195,7 +191,6 @@ def _update_column_gradient_cost_and_flow(column_pool,
 
 def _optimize_column_pool(column_pool,
                           links,
-                          zones,
                           agent_types,
                           demand_periods,
                           colum_update_num):
@@ -204,7 +199,6 @@ def _optimize_column_pool(column_pool,
         print(f"current iteration number in column generation: {i}")
         _update_column_gradient_cost_and_flow(column_pool,
                                               links,
-                                              zones,
                                               agent_types,
                                               demand_periods,
                                               i)
@@ -283,11 +277,7 @@ def _backtrace_shortest_path_tree(orig_node_no,
         cv.get_column(node_sum).increase_volume(vol)
 
 
-def _update_column_travel_time(column_pool, 
-                               links,
-                               zones,
-                               agent_types,
-                               demand_periods):
+def _update_column_travel_time(column_pool, links):
 
     for k, cv in column_pool.items():
         if cv.get_od_volume() <= 0:
@@ -380,12 +370,10 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, ui)
 
     for i in range(iter_num):
         print(f"current iteration number in assignment: {i}")
-        _update_link_travel_time_and_cost(links, ats, dps)
+        _update_link_travel_time_and_cost(links)
 
         _reset_and_update_link_vol_based_on_columns(column_pool,
                                                     links,
-                                                    zones,
-                                                    ats,
                                                     dps,
                                                     i,
                                                     True)
@@ -398,19 +386,17 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, ui)
 
     print('\nprocessing time of assignment:{0: .2f}'.format(time()-st)+ 's\n')
 
-    _optimize_column_pool(column_pool, links, zones, ats, dps, column_update_num)
+    _optimize_column_pool(column_pool, links, ats, dps, column_update_num)
 
     _reset_and_update_link_vol_based_on_columns(column_pool,
                                                 links,
-                                                zones,
-                                                ats,
                                                 dps,
                                                 iter_num,
                                                 False)
 
-    _update_link_travel_time_and_cost(links, ats, dps)
+    _update_link_travel_time_and_cost(links)
 
-    _update_column_travel_time(column_pool, links, zones, ats, dps)
+    _update_column_travel_time(column_pool, links)
 
 
 def update_links_using_columns(network):
@@ -418,17 +404,13 @@ def update_links_using_columns(network):
 
     column_pool = A.get_column_pool()
     links = A.get_links()
-    zones = A.get_zones()
-    ats = A.get_agent_types()
     dps = A.get_demand_periods()
 
     # do not update column volume
     _reset_and_update_link_vol_based_on_columns(column_pool,
                                                 links,
-                                                zones,
-                                                ats,
                                                 dps,
                                                 1,
                                                 False)
 
-    _update_link_travel_time_and_cost(links, ats, dps)
+    _update_link_travel_time_and_cost(links)
