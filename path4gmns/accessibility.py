@@ -32,7 +32,7 @@ def _update_generalized_link_cost_a(spnetworks):
         vot = sp.get_agent_type().get_vot()
         ffs = sp.get_agent_type().get_free_flow_speed()
 
-        if sp.get_agent_type().get_type() == 'p':
+        if sp.get_agent_type().get_type().startswith('p'):
             for link in sp.get_links():
                 sp.link_cost_array[link.get_seq_no()] = (
                 link.get_free_flow_travel_time()
@@ -48,33 +48,29 @@ def _update_generalized_link_cost_a(spnetworks):
             )
 
 
-def _update_min_travel_time(column_pool, zones, agent_types):
+def _update_min_travel_time(column_pool):
     max_min = 0
-    dp = 0
 
-    for oz in zones:
-        for dz in zones:
-            for atype in agent_types:
-                at = atype.get_id()
-                min_travel_time = -1
-                
-                if (at, dp, oz, dz) not in column_pool.keys():
-                    continue
+    for cv in column_pool.values():
+        # try:
+        #     min_travel_time = cv.get_columns()[0].get_toll()
+        # except IndexError:
+        #     # cv does not have any columns/paths
+        #     continue
+        min_travel_time = -1
+        
+        for col in cv.get_columns().values():
+            travel_time = col.get_toll()
+            # col.set_travel_time(travel_time)
 
-                cv = column_pool[(at, dp, oz, dz)]
+            # get minmum travel time
+            if travel_time < min_travel_time or min_travel_time == -1:
+                min_travel_time = travel_time
+            
+        cv.update_min_travel_time(min_travel_time)
 
-                for col in cv.get_columns().values():
-                    travel_time = col.get_toll()
-                    # col.set_travel_time(travel_time)
-
-                    # get minmum travel time
-                    if travel_time < min_travel_time or min_travel_time == -1:
-                        min_travel_time = travel_time
-                    
-                cv.update_min_travel_time(min_travel_time)
-
-                if min_travel_time > max_min:
-                    max_min = min_travel_time
+        if min_travel_time > max_min:
+            max_min = min_travel_time
 
     return max_min
 
@@ -84,8 +80,6 @@ def evaluate_accessiblity(ui, output_dir='.'):
     print('this operation will reset link volume and travel times!!!')
     
     A = ui._base_assignment
-
-    links = A.get_links()
     zones = A.get_zones()
     ats = A.get_agent_types()
     
@@ -93,10 +87,20 @@ def evaluate_accessiblity(ui, output_dir='.'):
     column_pool = {}
     dp = 0
     for oz in zones:
+        if oz == -1:
+            continue
+
         for dz in zones:
+            if dz == -1:
+                continue
+
             for atype in ats:
                 at = atype.get_id()
                 column_pool[(at, dp, oz, dz)] = ColumnVec()
+                
+                if oz == dz:
+                    continue
+                
                 column_pool[(at, dp, oz, dz)].od_vol = 1
     
     # update generalized link cost with free flow speed
@@ -104,7 +108,7 @@ def evaluate_accessiblity(ui, output_dir='.'):
     # run assignment for one iteration to generate column pool
     _assignment(A.get_spnetworks(), column_pool, 0)
     # update minimum travel time between O and D for each agent type
-    max_min = _update_min_travel_time(column_pool, zones, ats)
+    max_min = _update_min_travel_time(column_pool)
 
     # calculate and output accessiblity for each OD pair (i.e., travel time)
     with open(output_dir+'/accessibility.csv', 'w',  newline='') as f:
@@ -118,30 +122,28 @@ def evaluate_accessiblity(ui, output_dir='.'):
         writer = csv.writer(f)
         writer.writerow(headers)
 
+        at = A.get_agent_type_id('p')
+
         dp = 0
         for oz in zones:
             for dz in zones:
-                # for multimodal case, find mode with the minimum travel time
+                # for multimodal case, find the minimum travel time 
+                # under mode 'p' (i.e., auto)
                 min_min = -1
-                for atype in ats:
-                    if atype.get_type() != 'p':
-                        continue
-
-                    at = atype.get_id()
+            
+                if (at, dp, oz, dz) not in column_pool.keys():
+                    min_min = 0
+                    continue
                 
-                    if (at, dp, oz, dz) not in column_pool.keys():
-                        min_min = 0
-                        continue
-                    
-                    cv = column_pool[(at, dp, oz, dz)]
-                    if cv.get_min_travel_time() == -1:
-                        min_min = 0
-                        continue
+                cv = column_pool[(at, dp, oz, dz)]
+                if cv.get_min_travel_time() == -1:
+                    min_min = 0
+                    continue
 
-                    tt = cv.get_min_travel_time()
+                tt = cv.get_min_travel_time()
 
-                    if tt < min_min or min_min == -1:
-                        min_min = tt
+                if tt < min_min or min_min == -1:
+                    min_min = tt
      
                 # output assessiblity
                 line = [oz, '', dz, '', min_min, '']
@@ -161,6 +163,9 @@ def evaluate_accessiblity(ui, output_dir='.'):
         # calculate accessiblity
         dp = 0
         for oz in zones:
+            if oz == -1:
+                continue
+
             for atype in ats:
                 at = atype.get_id()
                 # number of accessible zones from oz for each agent type
