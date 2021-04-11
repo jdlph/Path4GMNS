@@ -48,13 +48,26 @@ def _convert_str_to_float(str):
 
 
 def _download_url(url, filename, loc_dir):
-    r = requests.get(url)
-    with open(loc_dir+filename, 'wb') as f:
-        f.write(r.content)
+    try:
+        r = requests.get(url)
+        if r.status_code == 404:
+            print('invalid url!!!')
+            return
+        with open(loc_dir+filename, 'wb') as f:
+            f.write(r.content)
+    except requests.ConnectionError:
+        print('check your connectcion!!!')
 
 
 def download_sample_data_sets():
     url = 'https://github.com/jdlph/Path4GMNS/blob/master/data/'
+
+    try:
+        r = requests.get(url)
+        if r.status_code == 404:
+            raise Exception('invalid url!!!')
+    except requests.ConnectionError:
+        raise Exception('check your connectcion!!!')
 
     data_sets = [
         "Braess's_Paradox",
@@ -81,7 +94,7 @@ def download_sample_data_sets():
 
     for ds in data_sets:
         web_dir = url + ds + '/'
-        loc_sub_dir = os.path.join(loc_data_dir, ds, '/')
+        loc_sub_dir = os.path.join(loc_data_dir, ds) + '/'
 
         if not os.path.isdir(loc_sub_dir):
             os.mkdir(loc_sub_dir)
