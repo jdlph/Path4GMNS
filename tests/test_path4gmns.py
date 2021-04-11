@@ -83,10 +83,11 @@ def test_accessibility():
     print('\nstart accessibility evaluation\n')
     st = time()
 
-    pg.evaluate_accessiblity(network)
+    pg.evaluate_accessiblity(network, False)
 
     print('complete accessibility evaluation.\n')
-    print('processing time of accessibility evaluation:{0: .2f}'.format(time()-st)+'s')
+    print('processing time of accessibility evaluation:{0: .2f}'
+          .format(time()-st)+'s')
     print('accessibility matrices can be found in accessibility.csv '
           'and accessibility_aggregated.csv')
 
