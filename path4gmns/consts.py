@@ -1,0 +1,10 @@
+""" global constants """
+# for shortest path calculation
+MAX_LABEL_COST = 10000
+# for column generation
+MIN_OD_VOL = 0.000001
+# for accessibility evaluation
+MIN_TIME_BUDGET = 10
+BUDGET_TIME_INTVL = 5
+# reserved for simulation
+NUM_OF_SECS_PER_SIMU_INTERVAL = 6

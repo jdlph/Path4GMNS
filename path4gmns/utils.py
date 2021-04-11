@@ -3,8 +3,8 @@ import requests
 import os
 import threading
 
-from .classes import Node, Link, Network, Agent, Column, ColumnVec, \
-                     VDFPeriod, AgentType, DemandPeriod, Demand, Assignment, UI
+from .classes import Node, Link, Network, Column, ColumnVec, VDFPeriod, \
+                     AgentType, DemandPeriod, Demand, Assignment, UI
 
 from .colgen import update_links_using_columns
 

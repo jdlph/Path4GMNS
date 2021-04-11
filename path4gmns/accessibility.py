@@ -1,8 +1,9 @@
 import csv
 import threading
 
-from .classes import ColumnVec, Assignment
+from .classes import Assignment
 from .colgen import _assignment
+from .consts import MIN_TIME_BUDGET, BUDGET_TIME_INTVL
 
 
 __all__ = ['evaluate_accessiblity']
@@ -11,21 +12,18 @@ __all__ = ['evaluate_accessiblity']
 def _get_interval_id(t):
     """ return interval id in predefined time budget intervals
 
-    [0, min_time_budget],
+    [0, MIN_TIME_BUDGET],
 
-    (min_time_budget + (i-1)*time_intvl, min_time_budget + i*time_intvl]
+    (MIN_TIME_BUDGET + (i-1)*BUDGET_TIME_INTVL, MIN_TIME_BUDGET + i*BUDGET_TIME_INTVL]
         where, i is integer and i>=1
     """
-    min_time_budget = 10
-    time_intvl = 5
-
-    if t < min_time_budget:
+    if t < MIN_TIME_BUDGET:
         return 0
 
-    if (t % (min_time_budget+time_intvl)) == 0:
-        return (t/(min_time_budget+time_intvl))
+    if (t % (MIN_TIME_BUDGET+BUDGET_TIME_INTVL)) == 0:
+        return (t/(MIN_TIME_BUDGET+BUDGET_TIME_INTVL))
 
-    return int(t/(min_time_budget+time_intvl)) + 1
+    return int(t/(MIN_TIME_BUDGET+BUDGET_TIME_INTVL)) + 1
 
 
 def _update_generalized_link_cost_a(spnetworks):
@@ -70,8 +68,7 @@ def _update_min_travel_time(column_pool):
     return max_min
 
 
-
-def output_accessiblity(column_pool, at, output_dir='.'):
+def _output_accessiblity(column_pool, at, output_dir='.'):
     """ output accessiblity for each OD pair (i.e., travel time) """
     with open(output_dir+'/accessibility.csv', 'w',  newline='') as f:
         headers = ['o_zone_id', 'o_zone_name', 
@@ -96,13 +93,14 @@ def output_accessiblity(column_pool, at, output_dir='.'):
             writer.writerow(line)
 
 
-def output_accessibility_aggregated(column_pool, max_min, zones,
-                                    ats, output_dir='.'):
+def _output_accessibility_aggregated(column_pool, interval_num, 
+                                     zones, ats, output_dir='.'):
     """ output aggregated accessiblity matrix for each agent type """ 
 
     with open(output_dir+'/accessibility_aggregated.csv', 'w',  newline='') as f:
-        interval_num = _get_interval_id(max_min) + 1
-        time_bugets = ['TT_'+str(10+5*i) for i in range(interval_num)]
+        time_bugets = [
+            'TT_'+str(MIN_TIME_BUDGET+BUDGET_TIME_INTVL*i) for i in range(interval_num)
+        ]
 
         headers = ['zone_id', 'geometry', 'mode']
         headers.extend(time_bugets)
@@ -138,8 +136,7 @@ def output_accessibility_aggregated(column_pool, max_min, zones,
                 writer.writerow(line)
 
 
-def evaluate_accessiblity(ui, multitheading=True, 
-                          multimodal=True, output_dir='.'):
+def evaluate_accessiblity(ui, multimodal=True, output_dir='.'):
     """ evaluate and output accessiblity matrices """
     print('this operation will reset link volume and travel time!!!\n')
     
@@ -154,6 +151,7 @@ def evaluate_accessiblity(ui, multitheading=True,
     else:
         # otherwise, only consider mode 'p' (i.e., auto)
         at = base.get_agent_type('p')
+        A.update_agent_types(at)
 
     # we only need one demand period even multiple could exist
     # see setup_spntwork_a() too
@@ -173,22 +171,23 @@ def evaluate_accessiblity(ui, multitheading=True,
     _assignment(A.get_spnetworks(), column_pool, 0)
     # update minimum travel time between O and D for each agent type
     max_min = _update_min_travel_time(column_pool)
+    interval_num = _get_interval_id(max_min) + 1
 
+    multitheading = True
     if multitheading:
+        at_id = A.get_agent_type_id('p')
         t = threading.Thread(
-            target=output_accessiblity,
-            args=(column_pool, at, output_dir,))
+            target=_output_accessiblity,
+            args=(column_pool, at_id, output_dir,))
         t.start()
 
         t = threading.Thread(
-            target=output_accessibility_aggregated,
-            args=(column_pool, max_min, zones, ats, output_dir)
+            target=_output_accessibility_aggregated,
+            args=(column_pool, interval_num, zones, ats, output_dir)
         )
         t.start()
     else:
         # calculate and output accessiblity for each OD pair (i.e., travel time)
-        output_accessiblity(column_pool, at)
-
+        _output_accessiblity(column_pool, at)
         # calculate and output aggregated accessiblity matrix for each agent type
-        output_accessibility_aggregated(column_pool, max_min, zones, ats)
-
+        _output_accessibility_aggregated(column_pool, interval_num, zones, ats)

@@ -14,18 +14,15 @@ import heapq
 import os.path
 from sys import platform
 
+from .consts import MAX_LABEL_COST
+
 
 __all__ = [
-    'MAX_LABEL_COST',
     'single_source_shortest_path',
     'output_path_sequence',
     'find_shortest_path',
     'find_path_for_agents'
 ]
-
-
-# for initialization in shortest path calculation
-MAX_LABEL_COST = 10000
 
 
 if platform.startswith('win32'):

@@ -1,15 +1,11 @@
 import ctypes
 from random import choice
 
-from .path import MAX_LABEL_COST, find_path_for_agents, find_shortest_path
+from .path import find_path_for_agents, find_shortest_path
+from .consts import MAX_LABEL_COST
 
 
 __all__ = ['UI']
-
-
-# reserved for simulation
-_NUM_OF_SECS_PER_SIMU_INTERVAL = 6
-
 
 
 class Node:
@@ -205,10 +201,10 @@ class Agent:
         # Passenger Car Equivalent (PCE) of the agent
         self.PCE_factor = 1
         self.path_cost = 0
-        self.departure_time_in_simu_interval = int(
-            self.departure_time_in_min
-            * 60 /_NUM_OF_SECS_PER_SIMU_INTERVAL
-            + 0.5)
+        # self.departure_time_in_simu_interval = int(
+        #     self.departure_time_in_min
+        #     * 60 /_NUM_OF_SECS_PER_SIMU_INTERVAL
+        #     + 0.5)
         self.b_generated = False
         self.b_complete_trip = False
         self.feasible_path_exist_flag = False
@@ -222,8 +218,8 @@ class Agent:
     def get_seq_no(self):
         return self.agent_seq_no
 
-    def get_dep_simu_intvl(self):
-        return self.departure_time_in_simu_interval
+    # def get_dep_simu_intvl(self):
+    #     return self.departure_time_in_simu_interval
 
 
 class Network:
@@ -393,12 +389,12 @@ class Network:
                             #     g_simulation_end_time_in_min = agent.departure_time_in_min
 
                             #step 4: add the agent to the time dependent agent list
-                            departure_time = agent.get_dep_simu_intvl()
-                            if departure_time not in self.agent_td_list_dict.keys():
-                                self.agent_td_list_dict[departure_time] = []
-                            self.agent_td_list_dict[departure_time].append(
-                                agent.get_seq_no()
-                            )
+                            # departure_time = agent.get_dep_simu_intvl()
+                            # if departure_time not in self.agent_td_list_dict.keys():
+                            #     self.agent_td_list_dict[departure_time] = []
+                            # self.agent_td_list_dict[departure_time].append(
+                            #     agent.get_seq_no()
+                            # )
 
                             self.agent_list.append(agent)
 

@@ -2,12 +2,10 @@ from time import time
 
 from .path import single_source_shortest_path
 from .classes import Column
+from .consts import MIN_OD_VOL
 
 
 __all__ = ['perform_network_assignment']
-
-
-_MIN_OD_VOL = 0.000001
 
 
 def _update_generalized_link_cost(spnetworks):
@@ -238,7 +236,7 @@ def _backtrace_shortest_path_tree(orig_node_no,
             continue
 
         od_vol = cv.get_od_volume()
-        if od_vol <= _MIN_OD_VOL:
+        if od_vol <= MIN_OD_VOL:
             continue
 
         vol = od_vol * k_path_prob
