@@ -289,22 +289,18 @@ def _update_column_travel_time(column_pool,
                                agent_types,
                                demand_periods):
 
-    for oz in zones:
-        for dz in zones:
-            for atype in agent_types:
-                at = atype.get_id()
-                for dperiod in demand_periods:
-                    dp = dperiod.get_id()
-                    if (at, dp, oz, dz) not in column_pool.keys():
-                        continue
+    for k, cv in column_pool.items():
+        if cv.get_od_volume() <= 0:
+            continue
 
-                    cv = column_pool[(at, dp, oz, dz)]
+        # k = (at, dp, oz, dz)
+        dp = k[1]
 
-                    for col in cv.get_columns().values():
-                        travel_time = sum(
-                            links[j].travel_time_by_period[dp] for j in col.links
-                        )
-                        col.set_travel_time(travel_time)
+        for col in cv.get_columns().values():
+            travel_time = sum(
+                links[j].travel_time_by_period[dp] for j in col.links
+            )
+            col.set_travel_time(travel_time)
 
 
 def _assginment_core(spn, column_pool, iter_num):
