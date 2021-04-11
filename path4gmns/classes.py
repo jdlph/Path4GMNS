@@ -906,17 +906,23 @@ class Assignment:
         self.demand_periods.append(dp)
         self.map_dp_id[dp.get_period()] = dp.get_id()
 
-    def get_agent_type_id(self, at_type):
+    def get_agent_type_id(self, at_str):
         try:
-            return self.map_at_id[at_type]
+            return self.map_at_id[at_str]
         except KeyError:
-            raise Exception('NO agent type: '+at_type)
+            raise Exception('NO agent type: '+at_str)
 
-    def get_demand_period_id(self, dp_period):
+    def get_demand_period_id(self, dp_str):
         try:
-            return self.map_dp_id[dp_period]
+            return self.map_dp_id[dp_str]
         except KeyError:
-            raise Exception('NO demand period: '+dp_period)
+            raise Exception('NO demand period: '+dp_str)
+
+    def get_agent_type(self, at_str):
+        return self.agent_types[self.get_agent_type_id(at_str)]
+
+    def get_demand_period(self, dp_str):
+        return self.demand_periods[self.get_demand_period_id(dp_str)]
 
     def update_demands(self, d):
         self.demands.append(d)
@@ -1018,27 +1024,31 @@ class Assignment:
 
         # z is zone id starting from 1
         for z in self.network.zones:
-            for at in self.get_agent_types():
-                for dp in self.get_demand_periods():
-                    if z - 1 < self.memory_blocks:
-                        sp = SPNetwork(self.network, at, dp)
-                        spvec[(at.get_id(), dp.get_id(), z-1)] = sp
-                        sp.orig_zones.append(z)
-                        sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
-                        for node_id in self.network.get_nodes_from_zone(z):
-                            sp.node_id_to_no[node_id] = (
-                                self.network.get_node_no(node_id)
-                            )
-                        self.spnetworks.append(sp)
-                    else:
-                        m = (z - 1) % self.memory_blocks
-                        sp = spvec[(at.get_id(), dp.get_id(), m)]
-                        sp.orig_zones.append(z)
-                        sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
-                        for node_id in self.network.get_nodes_from_zone(z):
-                            sp.node_id_to_no[node_id] = (
-                                self.network.get_node_no(node_id)
-                            )
+            if z == -1:
+                continue
+
+            for d in self.demands:
+                at = self.get_agent_type(d.get_agent_type())
+                dp = self.get_demand_period(d.get_period())
+                if z - 1 < self.memory_blocks:
+                    sp = SPNetwork(self.network, at, dp)
+                    spvec[(at.get_id(), dp.get_id(), z-1)] = sp
+                    sp.orig_zones.append(z)
+                    sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
+                    for node_id in self.network.get_nodes_from_zone(z):
+                        sp.node_id_to_no[node_id] = (
+                            self.network.get_node_no(node_id)
+                        )
+                    self.spnetworks.append(sp)
+                else:
+                    m = (z - 1) % self.memory_blocks
+                    sp = spvec[(at.get_id(), dp.get_id(), m)]
+                    sp.orig_zones.append(z)
+                    sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
+                    for node_id in self.network.get_nodes_from_zone(z):
+                        sp.node_id_to_no[node_id] = (
+                            self.network.get_node_no(node_id)
+                        )
 
     def get_link(self, seq_no):
         """ return link object corresponding to link seq no """

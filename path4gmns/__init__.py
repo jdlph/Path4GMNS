@@ -4,7 +4,7 @@ from .dtaapi import *
 from .utils import *
 
 
-__version__ = '0.6.1'
+__version__ = '0.7.0a1'
 
 
 # print out the current version
