@@ -254,13 +254,12 @@ def _backtrace_shortest_path_tree(orig_node_no,
     oz_id = nodes[orig_node_no].get_zone_id()
     k_path_prob = 1 / (iter_num + 1)
 
-    node_size = len(nodes)
-
-    for i in range(node_size):
+    for node in nodes:
+        i = node.get_node_no()
         if i == orig_node_no:
             continue
 
-        dz_id = nodes[i].get_zone_id()
+        dz_id = node.get_zone_id()
         if dz_id == -1:
             continue
 
