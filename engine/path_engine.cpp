@@ -64,8 +64,9 @@ void shortest_path(int o_node_no,
                 int link_seq_no = sorted_link_no_arr[k];
                 int new_node = to_node_no_arr[link_seq_no];
 
-                // mode shall be in link's allowed uses or the allowed uses are for all modes (i.e., a)
-                if (!std::wcschr(allowed_uses[link_seq_no], mode) && !std::wcschr(allowed_uses[link_seq_no], 'a'))
+                // if mode == 'a', we are doing static shortest path calculation using distance and all links shall be considered;
+                // otherwise, mode shall be in link's allowed uses or the allowed uses are for all modes (i.e., a)
+                if (mode != 'a' && !std::wcschr(allowed_uses[link_seq_no], mode) && !std::wcschr(allowed_uses[link_seq_no], 'a'))
                     continue;
 
                 double new_cost = label_cost[current_node] + link_cost[link_seq_no];
