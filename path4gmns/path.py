@@ -14,18 +14,15 @@ import heapq
 import os.path
 from sys import platform
 
+from .consts import MAX_LABEL_COST
+
 
 __all__ = [
-    'MAX_LABEL_COST',
     'single_source_shortest_path',
     'output_path_sequence',
     'find_shortest_path',
     'find_path_for_agents'
 ]
-
-
-# for initialization in shortest path calculation
-MAX_LABEL_COST = 10000
 
 
 if platform.startswith('win32'):
@@ -49,17 +46,20 @@ _cdll.shortest_path.argtypes = [
     ctypes.POINTER(ctypes.c_int),
     ctypes.POINTER(ctypes.c_int),
     ctypes.POINTER(ctypes.c_int),
+    ctypes.POINTER(ctypes.c_wchar_p),
     ctypes.POINTER(ctypes.c_double),
     ctypes.POINTER(ctypes.c_double),
     ctypes.POINTER(ctypes.c_int),
     ctypes.POINTER(ctypes.c_int),
     ctypes.POINTER(ctypes.c_int),
+    ctypes.c_char,
     ctypes.c_int,
     ctypes.c_int
 ]
 
 
-def _optimal_label_correcting_CAPI(G, origin_node_no,
+def _optimal_label_correcting_CAPI(G, 
+                                   origin_node_no,
                                    departure_time=0,
                                    first_thru_node=0):
     """ call the deque implementation of MLC written in cpp
@@ -74,11 +74,13 @@ def _optimal_label_correcting_CAPI(G, origin_node_no,
                         G.get_first_links(),
                         G.get_last_links(),
                         G.get_sorted_link_no_arr(),
+                        G.get_allowed_uses(),
                         G.get_link_costs(),
                         G.get_node_label_costs(),
                         G.get_node_preds(),
                         G.get_link_preds(),
                         G.get_queue_next(),
+                        G.get_agent_type_str(),
                         departure_time,
                         first_thru_node)
 
@@ -204,8 +206,8 @@ def _single_source_shortest_path_dijkstra(G, origin_node_no):
                 heapq.heappush(SEList, (G.node_label_cost[to_node], to_node))
 
 
-def single_source_shortest_path(G, origin_node_id, engine_type='c',
-                                sp_algm='deque'):
+def single_source_shortest_path(G, origin_node_id, 
+                                engine_type='c', sp_algm='deque'):
 
     origin_node_no = G.get_node_no(origin_node_id)
 
@@ -289,7 +291,7 @@ def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
 
 
 def find_path_for_agents(G, column_pool, engine_type='c'):
-    """ find shortest path for each agent
+    """ find and set up shortest path for each agent
 
     the internal node and links will be used to set up the node sequence and
     link sequence respectively

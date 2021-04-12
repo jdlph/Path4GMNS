@@ -59,6 +59,12 @@ def perform_network_assignment_DTALite(assignment_mode,
         The parameters are exactly the same as do_network_assignment()
         The outputs are exactly the same as output_link_performance()
     """
+    # make sure assignment_mode is right
+    assert(assignment_mode in [0, 1, 2, 3])
+    # make sure iteration numbers are both non-negative
+    assert(iter_num>=0)
+    assert(column_update_num>=0)
+
     print('\nDTALite run starts')
 
     _dtalite_engine.network_assignment(assignment_mode,

@@ -1,5 +1,3 @@
-#include "path_engine.h"
-
 /**
  * The following deque implementation is motivated by and modified from the efficient implementiation by Dr. Hillel Bar-Gera
  *
@@ -11,13 +9,26 @@
  * With constexpr, it is a C++ function (which requires C++11 or higher) rather than a pure C function
  * Follow C++ coding style (++i rather than i++) and the {} style in AgentLite
  */
-void shortest_path(int o_node_no, int node_size,
-                   const int* from_node_no_arr, const int* to_node_no_arr,
-                   const int* first_link_from, const int* last_link_from,
-                   const int* sorted_link_no_arr, const double* link_cost,
-                   double* label_cost, int* node_pred,
-                   int* link_pred, int* deque_next,
-                   int departure_time, int first_thru_node)
+
+#include <cwchar>
+#include "path_engine.h"
+
+void shortest_path(int o_node_no,
+                   int node_size,
+                   const int* from_node_no_arr,
+                   const int* to_node_no_arr,
+                   const int* first_link_from,
+                   const int* last_link_from,
+                   const int* sorted_link_no_arr,
+                   const wchar_t** allowed_uses,
+                   const double* link_cost,
+                   double* label_cost,
+                   int* node_pred,
+                   int* link_pred,
+                   int* deque_next,
+                   const char mode,
+                   int departure_time,
+                   int first_thru_node)
 {
     // construct and initialize the following three on the first call only
     static constexpr int invalid = -1, was_in_deque = -7;
@@ -52,6 +63,11 @@ void shortest_path(int o_node_no, int node_size,
             {
                 int link_seq_no = sorted_link_no_arr[k];
                 int new_node = to_node_no_arr[link_seq_no];
+
+                // if mode == 'a', we are doing static shortest path calculation using distance and all links shall be considered;
+                // otherwise, mode shall be in link's allowed uses or the allowed uses are for all modes (i.e., a)
+                if (mode != 'a' && !std::wcschr(allowed_uses[link_seq_no], mode) && !std::wcschr(allowed_uses[link_seq_no], 'a'))
+                    continue;
 
                 double new_cost = label_cost[current_node] + link_cost[link_seq_no];
                 if (label_cost[new_node] > new_cost)

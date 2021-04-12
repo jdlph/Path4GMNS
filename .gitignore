@@ -9,3 +9,4 @@ tests/log*
 tests/agent.csv
 tests/link_performance.csv
 **log*
+accessibility*.csv

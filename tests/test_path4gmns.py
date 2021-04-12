@@ -77,6 +77,21 @@ def test_column_generation_dtalite():
     print('\npath finding results can be found in agent.csv')
 
 
+def test_accessibility():
+    network = pg.read_network()
+    
+    print('\nstart accessibility evaluation\n')
+    st = time()
+
+    pg.evaluate_accessiblity(network, False)
+
+    print('complete accessibility evaluation.\n')
+    print('processing time of accessibility evaluation:{0: .2f}'
+          .format(time()-st)+'s')
+    print('accessibility matrices can be found in accessibility.csv '
+          'and accessibility_aggregated.csv')
+
+
 def demo_mode(mode):
     print(f'the selected mode is {mode}\n')
 
@@ -90,9 +105,11 @@ def demo_mode(mode):
         # option 3: perform column generation using Python engine
         # on Chicago network
         test_column_generation_py()
-    else:
+    elif mode == 4:
         # option 4: perform column generation using DTALite on Chicago network
         test_column_generation_dtalite()
+    else:
+        test_accessibility()
 
 
 if __name__=="__main__":
