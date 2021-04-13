@@ -2,6 +2,10 @@ import path4gmns as pg
 from time import time
 
 
+def test_download_sample_data_sets():
+    pg.download_sample_data_sets()
+
+
 def test_find_shortest_path():
     load_demand = False
     network = pg.read_network(load_demand)
@@ -95,7 +99,10 @@ def test_accessibility():
 def demo_mode(mode):
     print(f'the selected mode is {mode}\n')
 
-    if mode == 1:
+    if mode == 0:
+        # option 0: download the sample data set from GitHub
+        test_download_sample_data_sets()
+    elif mode == 1:
         # option 1: find shortest path between O and D on Chicago network
         test_find_shortest_path()
     elif mode == 2:
@@ -109,9 +116,10 @@ def demo_mode(mode):
         # option 4: perform column generation using DTALite on Chicago network
         test_column_generation_dtalite()
     else:
+        # option 5: evaluate accessibility
         test_accessibility()
 
 
 if __name__=="__main__":
 
-    demo_mode(3)
+    demo_mode(0)

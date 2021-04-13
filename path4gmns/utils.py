@@ -1,5 +1,4 @@
 import csv
-import requests
 import os
 import threading
 
@@ -50,6 +49,11 @@ def _convert_str_to_float(str):
 
 def _download_url(url, filename, loc_dir):
     try:
+        import requests
+    except ImportError:
+        print('please print requests to preceed downloading!!')
+
+    try:
         r = requests.get(url)
         r.raise_for_status()
         with open(loc_dir+filename, 'wb') as f:
@@ -64,16 +68,6 @@ def _download_url(url, filename, loc_dir):
 
 def download_sample_data_sets():
     url = 'https://raw.githubusercontent.com/jdlph/Path4GMNS/master/data/'
-
-    try:
-        r = requests.get(url)
-        r.raise_for_status()
-    except requests.HTTPError:
-        raise Exception('404 Client Error: invalid url')
-    except requests.ConnectionError:
-        raise Exception('check your connectcion!!!')
-    except Exception as e:
-        raise e
 
     data_sets = [
         "Braess's_Paradox",
