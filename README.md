@@ -11,24 +11,28 @@ If you need a specific version of Path4GMNS, say, 0.6.0,
 ```
 $ pip install path4gmns==0.6.0
 ```
-If you want to test the latest features of Path4GMNS, you can build the package from sources and install it offline, where **Python 3.x** is required.
+
+## Dependencies
+
+### OpenMP Run-Time Library
+
+*Windows Users*
+
+Download [Microsoft Visual C++ Redistributable for Visual Studio 2019](https://visualstudio.microsoft.com/downloads/#microsoft-visual-c-redistributable-for-visual-studio-2019). Check [here](https://support.microsoft.com/en-us/topic/the-latest-supported-visual-c-downloads-2647da03-1eea-4433-9aff-95f26a218cc0) for earlier versions and more information.
+
+
+*macOS Users*
 ```
-# from the root directory of PATH4GMNS
-$ python setup.py sdist bdist_wheel
-$ cd dist
-$ python -m pip install path4gmns-version.tar.gz
-``` 
-The shared libraries of [DTALite](https://github.com/jdlph/DTALite/tree/main/src_cpp) and [path_engine](https://github.com/jdlph/Path4GMNS/tree/master/engine) for Path4GMNS can be built with a C++ compiler supporting C++11 and higher, where we use CMake to define the building process. Take path_engine for example,
+$ brew install libomp
 ```
-# from the root directory of engine
-$ mkdir build
-$ cd build
-$ cmake ..
-$ cmake --build .
-```
-You can replace the last command with $ make if your target system has Make installed.
-### Caveat
-As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Environment) generators, e.g., Visual Studio and Xcode, you will need to manually update the build type from debug to release in your IDE and build your target from there.
+
+*Linux Users*
+
+As most Linux distributions have GCC installed with OpenMP support, no actions are needed.
+
+### requests
+
+install [requests 2.21.1 or higher](https://pypi.org/project/requests/).
 
 ## Getting Started
 ### *Download the test data set*
@@ -129,26 +133,79 @@ pg.perform_network_assignment_DTALite(1, assignment_num, column_update_num)
 print('\npath finding results can be found in agent.csv')
 ```
 
+### *Perform multimodal accessibility evaluation*
+```python
+network = pg.read_network()
+
+print('\nstart accessibility evaluation\n')
+st = time()
+
+pg.evaluate_accessiblity(network)
+
+print('complete accessibility evaluation.\n')
+print('processing time of accessibility evaluation:{0: .2f}'
+      .format(time()-st)+'s')
+print('accessibility matrices can be found in accessibility.csv '
+      'and accessibility_aggregated.csv')
+```
+
+The following example is to evaluate accessibility under default mode (i.e. mode 'auto' or agent type 'p').
+```python
+network = pg.read_network()
+
+print('\nstart accessibility evaluation\n')
+st = time()
+
+multimodal = False
+
+pg.evaluate_accessiblity(network, multimodal)
+
+print('complete accessibility evaluation.\n')
+print('processing time of accessibility evaluation:{0: .2f}'
+      .format(time()-st)+'s')
+print('accessibility matrices can be found in accessibility.csv '
+      'and accessibility_aggregated.csv')
+```
+
+## Build Path4GMNS from Scratch
+
+If you want to test the latest features of Path4GMNS, you can build the package from sources and install it offline, where **Python 3.x** is required.
+```
+# from the root directory of PATH4GMNS
+$ python setup.py sdist bdist_wheel
+$ cd dist
+$ python -m pip install path4gmns-version.tar.gz
+``` 
+The shared libraries of [DTALite](https://github.com/jdlph/DTALite/tree/main/src_cpp) and [path_engine](https://github.com/jdlph/Path4GMNS/tree/master/engine) for Path4GMNS can be built with a C++ compiler supporting C++11 and higher, where we use CMake to define the building process. Take path_engine for example,
+```
+# from the root directory of engine
+$ mkdir build
+$ cd build
+$ cmake ..
+$ cmake --build .
+```
+You can replace the last command with $ make if your target system has Make installed.
+### Caveat
+As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Environment) generators, e.g., Visual Studio and Xcode, you will need to manually update the build type from debug to release in your IDE and build your target from there.
+
 ## Upcoming Features
-- [x] Read and output node and link geometries
-- [x] Set up individual agents from aggregated OD demand only when it is needed
-- [x] Load columns/paths from existing runs and continue path-base UE
-- [x] Download the predefined GMNS test data sets to usrs' local machines to improve the use experience when needed
-- [x] Calculate and show up multimodal accessibility 
+- [x] Read and output node and link geometries (v0.6.0)
+- [x] Set up individual agents from aggregated OD demand only when it is needed (v0.6.0)
+- [x] Load columns/paths from existing runs and continue path-base UE (v0.7.0a1)
+- [x] Download the predefined GMNS test data sets to usrs' local machines to improve the use experience when needed (v0.7.0a1)
+- [x] Calculate and show up multimodal accessibilities (v0.7.0a1)
 - [ ] Visualize individual column/paths on user's call
 - [ ] Let users modify the network topology in a simple way by adding/removing nodes and links
 - [ ] Enable manipulations on the overall travel demand and the demand between an OD pair
-- [x] Support for multi-demand-period and multi-agent-type
-- [x] Add allowed use in terms of agent type for links 
-- [x] Provide a setting file in yaml to let users control key parameters
+- [x] Support for multi-demand-period and multi-agent-type (v0.6.0)
+- [x] Add allowed use in terms of agent type (i.e., transportation mode) for links (v0.7.0a1)
+- [x] Provide a setting file in yaml to let users control key parameters (v0.6.0)
 - [ ] Adopt parallel computing to further boost the performance
 
 ## Known Issues
 - [x] OSError: GLIBC_2.29 not found (required by DTALite.so) when importing Path4GMNS. You might encounter this issue if you are running Ubuntu 18.04LTS or lower (e.g., Google Colab) as DTALite.so shipped with v0.5.2 and prior was built on Ubuntu 20.04LTS. [v0.6.0](https://pypi.org/project/path4gmns/0.6.0/) built on Ubuntu 18.04LTS with GLIBC_2.27 is published on PyPI and open for download.
 
       $ pip install path4gmns==0.6.0
-
-- [x] Get same assignment results after changing values of VDF parameters in link.csv. The bug has been fixed in the source code in v0.6.0. Please use the latest release.
 
 ##  Implementation Notes
 
