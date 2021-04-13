@@ -19,8 +19,8 @@ __all__ = [
 
 
 def _convert_str_to_int(str):
-    """ 
-    TypeError will take care the case that str is None 
+    """
+    TypeError will take care the case that str is None
     ValueError will take care the case that str is empty
     """
     if not str:
@@ -35,13 +35,13 @@ def _convert_str_to_int(str):
 
 
 def _convert_str_to_float(str):
-    """ 
-    TypeError will take care the case that str is None 
+    """
+    TypeError will take care the case that str is None
     ValueError will take care the case that str is empty
     """
     if not str:
         return None
-        
+
     try:
         return float(str)
     except (TypeError, ValueError):
@@ -114,7 +114,7 @@ def download_sample_data_sets():
             )
             t.start()
             threads.append(t)
-        
+
         for t in threads:
             t.join()
 
@@ -441,7 +441,7 @@ def read_settings(input_dir, assignment):
 
                 dp = DemandPeriod(i, period, time_period)
                 assignment.update_demand_periods(dp)
-            
+
             # demand files
             demands = settings['demand_files']
             for i, d in enumerate(demands):
@@ -509,6 +509,120 @@ def read_network(load_demand='true', input_dir='.'):
     ui = UI(assignm)
 
     return ui
+
+
+def load_columns(input_dir, ui):
+    """ developer note: do we use agent.csv to set up network? """
+    with open(input_dir+'/agent.csv', 'r', encoding='utf-8') as f:
+        print('read agent.csv')
+
+        A = ui._base_assignment
+
+        reader = csv.DictReader(f)
+
+        # just in case agent_id was not outputed
+        last_agent_id = 0
+        for line in reader:
+            # critical info
+            oz_id = _convert_str_to_int(line['o_zone_id'])
+            if not oz_id:
+                continue
+
+            dz_id = _convert_str_to_int(line['d_zone_id'])
+            if not dz_id:
+                continue
+
+            node_seq = line['node_sequence']
+            if not node_seq:
+                continue
+
+            link_seq = line['link_sequence']
+            if not link_seq:
+                continue
+
+            # non-critical info
+            agent_id = _convert_str_to_int(line['agent_id'])
+            if not agent_id:
+                agent_id = last_agent_id + 1
+
+            last_agent_id = agent_id
+
+            # it could be empty
+            # path_id = line['path_id']
+
+            at = line['agent_type']
+            if not at:
+                continue
+            else:
+                at = A.get_agent_type_id(at)
+
+            dp = line['demand_period']
+            if not dp:
+                continue
+            else:
+                dp = A.get_demand_period_id(dp)
+
+            vol = _convert_str_to_float(line['volume'])
+            if not vol:
+                continue
+
+            toll = _convert_str_to_float(line['toll'])
+            if not toll:
+                toll = 0
+
+            tt = _convert_str_to_float(line['travel_time'])
+            if not tt:
+                tt = 0
+
+            dist = _convert_str_to_float(line['distance'])
+            if not dist:
+                dist = 0
+
+            # it could be empty
+            geo = line['geometry']
+
+            if (at, dp, oz_id, dz_id) not in A.get_column_pool().keys():
+                continue
+
+            cv = A.get_column_vec(at, dp, oz_id, dz_id)
+
+            node_path = [int(x) for x in node_seq.split(';')]
+            node_sum = sum(node_path)
+
+            if node_sum not in cv.path_node_seq_map.keys():
+                path_seq_no = cv.get_column_num()
+                col = Column(path_seq_no)
+
+                try:
+                    col.nodes = [A.get_node_no(x) for x in node_path]
+                except IndexError:
+                    raise Exception(
+                        'Invalid node found on column!!'
+                        'Did you use agent.csv from a different network?'
+                    )
+
+                try:
+                    col.links = [A.get_link_seq_no(x) for x in link_seq.split(';')]
+                except IndexError:
+                    raise Exception(
+                        'invalid link found on column!!'
+                        'Did you use agent.csv from a different network?'
+                    )
+
+                # the following four are non-critical info
+                col.set_toll(toll)
+                col.set_travel_time(tt)
+                col.set_geometry(geo)
+
+                if dist == 0:
+                    sum(A.get_link(x).get_length() for x in col.links)
+                col.set_distance(dist)
+
+                cv.add_new_column(node_sum, col)
+
+            cv.get_column(node_sum).increase_volume(vol)
+
+        update_links_using_columns(ui)
 
 
 def output_columns(ui, output_dir='.'):
@@ -622,117 +736,3 @@ def output_link_performance(ui, output_dir='.'):
                         '']
 
                 writer.writerow(line)
-
-
-def load_columns(input_dir, ui):
-    """ developer note: do we use agent.csv to set up network? """
-    with open(input_dir+'/agent.csv', 'r', encoding='utf-8') as f:
-        print('read agent.csv')
-
-        A = ui._base_assignment
-
-        reader = csv.DictReader(f)
-
-        # just in case agent_id was not outputed
-        last_agent_id = 0
-        for line in reader:
-            # critical info
-            oz_id = _convert_str_to_int(line['o_zone_id'])
-            if not oz_id:
-                continue
-
-            dz_id = _convert_str_to_int(line['d_zone_id'])
-            if not dz_id:
-                continue
-
-            node_seq = line['node_sequence']
-            if not node_seq:
-                continue
-        
-            link_seq = line['link_sequence']
-            if not link_seq:
-                continue
-            
-            # non-critical info
-            agent_id = _convert_str_to_int(line['agent_id'])
-            if not agent_id:
-                agent_id = last_agent_id + 1
-
-            last_agent_id = agent_id
-            
-            # it could be empty
-            # path_id = line['path_id']
-            
-            at = line['agent_type']
-            if not at:
-                continue
-            else:
-                at = A.get_agent_type_id(at)
-
-            dp = line['demand_period']
-            if not dp:
-                continue
-            else:
-                dp = A.get_demand_period_id(dp)
-
-            vol = _convert_str_to_float(line['volume'])
-            if not vol:
-                continue
-                
-            toll = _convert_str_to_float(line['toll'])
-            if not toll:
-                toll = 0
-        
-            tt = _convert_str_to_float(line['travel_time'])
-            if not tt:
-                tt = 0
-
-            dist = _convert_str_to_float(line['distance'])
-            if not dist:
-                dist = 0
-            
-            # it could be empty
-            geo = line['geometry']
-
-            if (at, dp, oz_id, dz_id) not in A.get_column_pool().keys():
-                continue
-
-            cv = A.get_column_vec(at, dp, oz_id, dz_id)
-
-            node_path = [int(x) for x in node_seq.split(';')]
-            node_sum = sum(node_path)
-            
-            if node_sum not in cv.path_node_seq_map.keys():
-                path_seq_no = cv.get_column_num()
-                col = Column(path_seq_no)
-                
-                try:
-                    col.nodes = [A.get_node_no(x) for x in node_path]
-                except IndexError:
-                    raise Exception(
-                        'Invalid node found on column!!'
-                        'Did you use agent.csv from a different network?'
-                    )
-
-                try:
-                    col.links = [A.get_link_seq_no(x) for x in link_seq.split(';')]
-                except IndexError:
-                    raise Exception(
-                        'invalid link found on column!!'
-                        'Did you use agent.csv from a different network?'
-                    )
-                
-                # the following four are non-critical info
-                col.set_toll(toll)
-                col.set_travel_time(tt)
-                col.set_geometry(geo)
-
-                if dist == 0:
-                    sum(A.get_link(x).get_length() for x in col.links)
-                col.set_distance(dist)
-
-                cv.add_new_column(node_sum, col)
-
-            cv.get_column(node_sum).increase_volume(vol)
-
-        update_links_using_columns(ui)

@@ -9,13 +9,12 @@ __all__ = ['UI']
 
 
 class Node:
-    """
-    external_node_id: user defined node id from input
-    node_seq_no: internal node index used for calculation
-    """
+
     def __init__(self, node_seq_no, external_node_id, zone_id, x='', y=''):
-        """ the attribute of node  """
+        """ the attributes of node  """
+        # external_node_id: user defined node id from input
         self.node_seq_no = node_seq_no
+        # node_seq_no: internal node index used for calculation
         self.external_node_id = external_node_id
         self.outgoing_link_list = []
         self.incoming_link_list = []
@@ -63,7 +62,7 @@ class Link:
                  geometry='',
                  agent_type_size=1,
                  demand_period_size=1):
-        """ the attribute of link """
+        """ the attributes of link """
         self.id = id
         self.link_seq_no = link_seq_no
         self.from_node_seq_no = from_node_no
@@ -143,7 +142,7 @@ class Link:
 
     def get_generalized_cost(self, tau, value_of_time):
         return (
-            self.travel_time_by_period[tau] 
+            self.travel_time_by_period[tau]
             + self.toll / max(0.001, value_of_time) * 60
         )
 
@@ -164,7 +163,7 @@ class Link:
             self.travel_time_by_period[tau] = (
                 self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau])
             )
-    
+
     # Peiheng, 04/05/21, not needed for the current implementation
     # def calculate_agent_marginal_cost(self, tau, agent_type):
     #     self.travel_marginal_cost_by_period[tau][agent_type.get_id()] = (
@@ -255,8 +254,8 @@ class Network:
         self._agent_type_size = agent_type_size
         self._demand_period_size = demand_period_size
 
-    @classmethod
-    def convert_allowed_use(cls, au):
+    @staticmethod
+    def convert_allowed_use(au):
         if au.lower().startswith('auto'):
             return 'p'
         elif au.lower().startswith('bike'):
@@ -1000,7 +999,7 @@ class Assignment:
         return find_shortest_path(self.network, from_node_id,
                                   to_node_id, seq_type)
 
-    def perform_network_assignment(self, assignment_mode, 
+    def perform_network_assignment(self, assignment_mode,
                                    iter_num, column_update_num):
         # perform_network_assignment(assignment_mode, iter_num, column_update_num)
         pass
@@ -1043,7 +1042,7 @@ class Assignment:
                         sp.node_id_to_no[node_id] = (
                             self.network.get_node_no(node_id)
                         )
-                    
+
     def setup_spntwork_a(self):
         """ set up SPNetworks for accessibility evaluation """
         spvec = {}
@@ -1072,7 +1071,7 @@ class Assignment:
                         sp.node_id_to_no[node_id] = (
                             self.network.get_node_no(node_id)
                         )
-    
+
     def setup_column_pool_a(self):
         """ set up column_pool for accessibility evaluation """
         dp = 0
@@ -1114,7 +1113,7 @@ class UI:
     def get_column_vec(self, at, dp, orig_zone_id, dest_zone_id):
         """ get all columns between two zones given agent type and demand period
 
-        caller is responsible for checking if 
+        caller is responsible for checking if
         (at, dp, orig_zone_id, dest_zone_id) is in column pool
         """
         self._base_assignment.get_column_vec(at, dp, orig_zone_id, dest_zone_id)
