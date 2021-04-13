@@ -51,13 +51,13 @@ def _convert_str_to_float(str):
 def _download_url(url, filename, loc_dir):
     try:
         r = requests.get(url)
-        if r.status_code != 200:
-            print('invalid url: '+url)
-            return
+        r.raise_for_status()
         with open(loc_dir+filename, 'wb') as f:
             f.write(r.content)
+    except requests.HTTPError:
+        print('file not existing: '+url)
     except requests.ConnectionError:
-        print('check your connectcion!!!')
+        raise Exception('check your connectcion!!!')
     except Exception as e:
         raise e
 
@@ -67,8 +67,9 @@ def download_sample_data_sets():
 
     try:
         r = requests.get(url)
-        if r.status_code == 404:
-            raise Exception('invalid url!!!')
+        r.raise_for_status()
+    except requests.HTTPError:
+        raise Exception('404 Client Error: invalid url')
     except requests.ConnectionError:
         raise Exception('check your connectcion!!!')
     except Exception as e:
