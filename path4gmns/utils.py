@@ -51,17 +51,19 @@ def _convert_str_to_float(str):
 def _download_url(url, filename, loc_dir):
     try:
         r = requests.get(url)
-        if r.status_code == 404:
-            print('invalid url!!!')
+        if r.status_code != 200:
+            print('invalid url: '+url)
             return
         with open(loc_dir+filename, 'wb') as f:
             f.write(r.content)
     except requests.ConnectionError:
         print('check your connectcion!!!')
+    except Exception as e:
+        raise e
 
 
 def download_sample_data_sets():
-    url = 'https://github.com/jdlph/Path4GMNS/blob/master/data/'
+    url = 'https://raw.githubusercontent.com/jdlph/Path4GMNS/master/data/'
 
     try:
         r = requests.get(url)
@@ -69,6 +71,8 @@ def download_sample_data_sets():
             raise Exception('invalid url!!!')
     except requests.ConnectionError:
         raise Exception('check your connectcion!!!')
+    except Exception as e:
+        raise e
 
     data_sets = [
         "Braess's_Paradox",
@@ -89,7 +93,7 @@ def download_sample_data_sets():
     print('downloading starts')
 
     # data folder under cdw
-    loc_data_dir = './data'
+    loc_data_dir = 'data'
     if not os.path.isdir(loc_data_dir):
         os.mkdir(loc_data_dir)
 
@@ -101,15 +105,20 @@ def download_sample_data_sets():
             os.mkdir(loc_sub_dir)
 
         # multi-threading
+        threads = []
         for x in files:
             t = threading.Thread(
                 target=_download_url,
                 args=(web_dir+x, x, loc_sub_dir)
             )
             t.start()
+            threads.append(t)
+        
+        for t in threads:
+            t.join()
 
     print('downloading completes')
-    print('check '+loc_data_dir+' for downloaded data sets')
+    print('check '+os.path.join(os.getcwd(), loc_data_dir)+' for downloaded data sets')
 
 
 def read_nodes(input_dir,
