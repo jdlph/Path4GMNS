@@ -465,8 +465,8 @@ def read_settings(input_dir, assignment):
         print('Engine will set up one demand period and one agent type using '
               'default values for you, which might NOT reflect your case!\n')
         _auto_setup(assignment)
-    except Exception as exception:
-        raise exception
+    except Exception as e:
+        raise e
 
 
 def read_network(load_demand='true', input_dir='.'):

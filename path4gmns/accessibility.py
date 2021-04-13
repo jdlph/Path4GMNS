@@ -53,13 +53,16 @@ def _update_min_travel_time(column_pool):
 
     for cv in column_pool.values():
         min_travel_time = -1
-        
+
         for col in cv.get_columns().values():
+            # the naming of get_toll() may be confusing
+            # it is the path generalized cost or gradient cost
+            # see _backtrace_shortest_path_tree() for details
             travel_time = col.get_toll()
             # update minmum travel time
             if travel_time < min_travel_time or min_travel_time == -1:
                 min_travel_time = travel_time
-            
+
         cv.update_min_travel_time(min_travel_time)
 
         if min_travel_time > max_min:
@@ -71,14 +74,14 @@ def _update_min_travel_time(column_pool):
 def _output_accessiblity(column_pool, at, output_dir='.'):
     """ output accessiblity for each OD pair (i.e., travel time) """
     with open(output_dir+'/accessibility.csv', 'w',  newline='') as f:
-        headers = ['o_zone_id', 'o_zone_name', 
+        headers = ['o_zone_id', 'o_zone_name',
                    'd_zone_id', 'd_zone_name',
                    'accessibility', 'geometry']
 
         writer = csv.writer(f)
         writer.writerow(headers)
 
-        # for multimodal case, find the minimum travel time 
+        # for multimodal case, find the minimum travel time
         # under mode 'p' (i.e., auto)
         dp = 0
         for k, cv in column_pool.items():
@@ -87,15 +90,15 @@ def _output_accessiblity(column_pool, at, output_dir='.'):
                 continue
 
             min_tt = max(0, cv.get_min_travel_time())
-            
+
             # output assessiblity
             line = [k[2], '', k[3], '', min_tt, '']
             writer.writerow(line)
 
 
-def _output_accessibility_aggregated(column_pool, interval_num, 
+def _output_accessibility_aggregated(column_pool, interval_num,
                                      zones, ats, output_dir='.'):
-    """ output aggregated accessiblity matrix for each agent type """ 
+    """ output aggregated accessiblity matrix for each agent type """
 
     with open(output_dir+'/accessibility_aggregated.csv', 'w',  newline='') as f:
         time_bugets = [
@@ -121,7 +124,7 @@ def _output_accessibility_aggregated(column_pool, interval_num,
                 for dz in zones:
                     if (at, dp, oz, dz) not in column_pool.keys():
                         continue
-                    
+
                     cv = column_pool[(at, dp, oz, dz)]
                     if cv.get_min_travel_time() == -1:
                         continue
@@ -129,7 +132,7 @@ def _output_accessibility_aggregated(column_pool, interval_num,
                     id = _get_interval_id(cv.get_min_travel_time())
                     while id < interval_num:
                         counts[id] += 1
-                        id += 1       
+                        id += 1
                 # output assessiblity
                 line = [oz, '', atype.get_type()]
                 line.extend(counts)
@@ -139,7 +142,7 @@ def _output_accessibility_aggregated(column_pool, interval_num,
 def evaluate_accessiblity(ui, multimodal=True, output_dir='.'):
     """ evaluate and output accessiblity matrices """
     print('this operation will reset link volume and travel time!!!\n')
-    
+
     # set up assignment object dedicated to accessibility evaluation
     base = ui._base_assignment
     A = Assignment()
@@ -164,7 +167,7 @@ def evaluate_accessiblity(ui, multimodal=True, output_dir='.'):
     zones = A.get_zones()
     ats = A.get_agent_types()
     column_pool = A.get_column_pool()
-    
+
     # update generalized link cost with free flow speed
     _update_generalized_link_cost_a(A.get_spnetworks())
     # run assignment for one iteration to generate column pool

@@ -11,8 +11,8 @@ __all__ = ['perform_network_assignment']
 def _update_generalized_link_cost(spnetworks):
     """ update generalized link costs for each SPNetwork
 
-    warning: there would be duplicate updates for SPNetworks with the same tau 
-    and vot belonging to different memory blocks. It could be resolved by 
+    warning: there would be duplicate updates for SPNetworks with the same tau
+    and vot belonging to different memory blocks. It could be resolved by
     creating a shared network among them??
     """
     for sp in spnetworks:
@@ -60,7 +60,7 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
     for k, cv in column_pool.items():
         if cv.get_od_volume() <= 0:
             continue
-        
+
         # k= (at, tau, oz_id, dz_id)
         tau = k[1]
 
@@ -108,7 +108,7 @@ def _update_column_gradient_cost_and_flow(column_pool,
         # k= (at, tau, oz_id, dz_id)
         vot = agent_types[k[0]].get_vot()
         tau = k[1]
-        
+
         column_num = cv.get_column_num()
         least_gradient_cost = 999999
         least_gradient_cost_path_seq_no = -1
@@ -182,6 +182,9 @@ def _update_column_gradient_cost_and_flow(column_pool,
         if least_gradient_cost_path_seq_no != -1:
             col = cv.get_column(least_gradient_cost_path_node_sum)
             col.increase_volume(total_switched_out_path_vol)
+            # total_gap_count += (
+            #     col.get_gradient_cost() * col.get_volume()
+            # )
 
     print(f'total gap: {total_gap:.2f}')
     # print(f'total gap count is: {total_gap_count:.2f}')
@@ -269,7 +272,7 @@ def _backtrace_shortest_path_tree(orig_node_no,
             col.set_toll(node_label_costs[i])
             col.nodes = [x for x in node_path]
             col.links = [x for x in link_path]
-            col.dist = dist
+            col.set_distance(dist)
             cv.add_new_column(node_sum, col)
 
         cv.get_column(node_sum).increase_volume(vol)
@@ -398,6 +401,7 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, ui)
 
 
 def update_links_using_columns(network):
+    """ a helper function for load_columns() """
     A = network._base_assignment
 
     column_pool = A.get_column_pool()

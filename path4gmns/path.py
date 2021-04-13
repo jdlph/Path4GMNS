@@ -58,7 +58,7 @@ _cdll.shortest_path.argtypes = [
 ]
 
 
-def _optimal_label_correcting_CAPI(G, 
+def _optimal_label_correcting_CAPI(G,
                                    origin_node_no,
                                    departure_time=0,
                                    first_thru_node=0):
@@ -206,7 +206,7 @@ def _single_source_shortest_path_dijkstra(G, origin_node_no):
                 heapq.heappush(SEList, (G.node_label_cost[to_node], to_node))
 
 
-def single_source_shortest_path(G, origin_node_id, 
+def single_source_shortest_path(G, origin_node_id,
                                 engine_type='c', sp_algm='deque'):
 
     origin_node_no = G.get_node_no(origin_node_id)
