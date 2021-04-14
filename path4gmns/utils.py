@@ -70,7 +70,7 @@ def download_sample_data_sets():
     url = 'https://raw.githubusercontent.com/jdlph/Path4GMNS/master/data/'
 
     data_sets = [
-        "Braess's_Paradox",
+        "Braess_Paradox",
         "Chicago_Sketch",
         "Lima_Network",
         "Sioux_Falls",

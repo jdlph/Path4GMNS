@@ -27,7 +27,7 @@ def _get_interval_id(t):
 
 
 def _update_generalized_link_cost_a(spnetworks):
-    """ update generalized link costs to calcualte accessibility """
+    """ update generalized link costs to calculate accessibility """
     for sp in spnetworks:
         vot = sp.get_agent_type().get_vot()
         ffs = sp.get_agent_type().get_free_flow_speed()
@@ -57,7 +57,8 @@ def _update_min_travel_time(column_pool):
         for col in cv.get_columns().values():
             # the naming of get_toll() may be confusing
             # it is the path generalized cost or gradient cost
-            # see _backtrace_shortest_path_tree() for details
+            # see _backtrace_shortest_path_tree()
+            # and _update_generalized_link_cost_a() for details
             travel_time = col.get_toll()
             # update minmum travel time
             if travel_time < min_travel_time or min_travel_time == -1:
