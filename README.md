@@ -12,32 +12,22 @@ If you need a specific version of Path4GMNS, say, 0.6.0,
 $ pip install path4gmns==0.6.0
 ```
 
-## Dependencies
-
-### OpenMP Run-Time Library
-
-*Windows Users*
-
-Download [Microsoft Visual C++ Redistributable for Visual Studio 2019](https://visualstudio.microsoft.com/downloads/#microsoft-visual-c-redistributable-for-visual-studio-2019). Check [here](https://support.microsoft.com/en-us/topic/the-latest-supported-visual-c-downloads-2647da03-1eea-4433-9aff-95f26a218cc0) for earlier versions and more information.
-
-
-*macOS Users*
-```
-$ brew install libomp
-```
-
-*Linux Users*
-
-As most Linux distributions have GCC installed with OpenMP support, no actions are needed.
-
-### requests
-
-install [requests 2.21.1 or higher](https://pypi.org/project/requests/).
+### Dependency
+Path4GMNS is written in **Python 3.x**, which is the minimum requirement to use the basic functionalities of Path4GMNS. Some of its modules require futher run-time supports. We will go through them one by one along with the sample codes in the following section
 
 ## Getting Started
-### *Download the test data set*
-A simple test data set (the Chicago Sketch Network) along with the test script can be downloaded from [here](https://github.com/jdlph/Path4GMNS/tree/master/tests). We will provide more data sets later.
-### *Get the shortest path between two nodes*
+### *Download the Test Data Set*
+A test data set with five different networks can be found from [here](https://github.com/jdlph/Path4GMNS/tree/master/data). You can manually download each individual test network or use the built-in helper function to download the whole data set automatically.
+
+```python
+import path4gmns as pg
+
+pg.download_sample_data_sets()
+```
+
+Note that [requests 2.21.1 (or higher)](https://pypi.org/project/requests/) is needed for you to proceed downloading.
+
+### *Get the Shortest Path between Two Nodes*
 Find the (static) shortest path (based on distance) and output it in the format of a sequence of node/link IDs.
 ```python
 import path4gmns as pg
@@ -51,7 +41,21 @@ print('\nshortest path (link id) from node 1 to node 2 is '
       +network.find_shortest_path(1, 2, 'link'))
 ```
 
-### *Find shortest paths for all individual agents*
+If you want to use a specific network from the sample data set, you can spcicify the absolute path or the relative path from your cwd in read_network(). Assume your cwd is ~/test_path4gmns, where you have the downloaded sample data set and your test script placed (see [here](https://github.com/jdlph/Path4GMNS/blob/master/tests/test_path4gmns.py) for a sample test script).
+
+```python
+import path4gmns as pg
+
+load_demand = False
+network = pg.read_network(load_demand, input_dir='data/Chicago_Sketch')
+
+print('\nshortest path (node id) from node 1 to node 2 is '
+      +network.find_shortest_path(1, 2))
+print('\nshortest path (link id) from node 1 to node 2 is '
+      +network.find_shortest_path(1, 2, 'link'))
+```
+
+### *Find Shortest Paths for all Individual Agents*
 ```python
 import path4gmns as pg
 
@@ -85,7 +89,7 @@ print('shortest path (link id) of agent is '
       +str(network.get_agent_link_path(agent_id)))
 ```
 
-### *Perform path-based user-equilibrium (UE) traffic assignment using the python column-generation module*
+### *Perform Path-Based User-Equilibrium (UE) Traffic Assignment using the Python Column-Generation Module*
 The python column-generation module only implements mode 1 (i.e., Path-Based UE). Please use perform_network_assignment_DTALite() If you need other assignment modes, e.g., link-based UE or dynamic traffic assignment (DTA). 
 
 ```python
@@ -106,7 +110,7 @@ pg.output_link_performance(network)
 print('\npath finding results can be found in agent.csv')
 ```
 
-### *Perform path-based UE traffic assignment using DTALite*
+### *Perform Path-Based UE Traffic Assignment using DTALite*
 DTALite has the following four assignment modes to choose
 
       0: Link-based UE
@@ -133,7 +137,32 @@ pg.perform_network_assignment_DTALite(1, assignment_num, column_update_num)
 print('\npath finding results can be found in agent.csv')
 ```
 
+The OpenMP Run-Time Library must be installed to utilize the built-in parallel computing feature in DTALite. DTALite would not be able to run if the run-time support is absent. Installation of the OpenMP run-time library varies by operating systems.
+
+***Windows Users***
+
+Download [Microsoft Visual C++ Redistributable for Visual Studio 2019](https://visualstudio.microsoft.com/downloads/#microsoft-visual-c-redistributable-for-visual-studio-2019) and check [here](https://support.microsoft.com/en-us/topic/the-latest-supported-visual-c-downloads-2647da03-1eea-4433-9aff-95f26a218cc0) for more information and earlier versions.
+
+***Linux Users***
+
+No actions are needed as most Linux distributions have GCC installed with OpenMP support.
+
+***macOS Users***
+```
+$ brew install libomp
+```
+
 ### *Perform multimodal accessibility evaluation*
+
+The current implemenation supprts evaluations for the following three modes. More modes will be added in the furure to accommodate the full set of allowed uses for links as specified by GMNS.
+      
+      1: passenger (i.e., auto)
+      2. bike
+      3. walk
+
+In order to perform multimodal accessibility evaluation, the corresponding modes (i.e., agent types) must be presented in settings.yml, which is parsed by [pyyaml 5.1 (or higher)](https://pypi.org/project/PyYAML/) to the Python engine. If pyyaml is not installed or settings.yml is not provided, one default demand period (AM) and one agent type (passenger) will be automatically set up along with one default demand file.
+
+
 ```python
 network = pg.read_network()
 
@@ -203,9 +232,9 @@ As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Envi
 - [ ] Adopt parallel computing to further boost the performance
 
 ## Known Issues
-- [x] OSError: GLIBC_2.29 not found (required by DTALite.so) when importing Path4GMNS. You might encounter this issue if you are running Ubuntu 18.04LTS or lower (e.g., Google Colab) as DTALite.so shipped with v0.5.2 and prior was built on Ubuntu 20.04LTS. [v0.6.0](https://pypi.org/project/path4gmns/0.6.0/) built on Ubuntu 18.04LTS with GLIBC_2.27 is published on PyPI and open for download.
+- [x] OSError: GLIBC_2.29 not found (required by DTALite.so) when importing Path4GMNS. You might encounter this issue if you are running Ubuntu 18.04LTS or lower (e.g., Google Colab) as DTALite.so shipped with v0.5.2 and prior was built on Ubuntu 20.04LTS. [v0.7.0a1](https://pypi.org/project/path4gmns/0.7.0a1/) built on Ubuntu 18.04LTS with GLIBC_2.27 is published on PyPI and open for download.
 
-      $ pip install path4gmns==0.6.0
+      $ pip install path4gmns==0.7.0a1
 
 ##  Implementation Notes
 
