@@ -51,8 +51,8 @@ def test_column_generation_py():
     print('\nstart column generation\n')
     st = time()
 
-    iter_num = 20
-    column_update_num = 20
+    iter_num = 10
+    column_update_num = 10
     pg.perform_network_assignment(1, iter_num, column_update_num, network)
 
     print('processing time of column generation:{0: .2f}'.format(time()-st)+'s'
@@ -77,6 +77,33 @@ def test_column_generation_dtalite():
     print('processing time of column generation:{0: .2f}'.format(time()-st)+'s'
           f' for {iter_num} assignment iterations and '
           f'{column_update_num} iterations in column generation')
+
+    print('\npath finding results can be found in agent.csv')
+
+
+def test_loading_columns():
+    network = pg.read_network()
+
+    print('\nstart loading columns\n')
+    st = time()
+
+    pg.load_columns(network)
+
+    print('processing time of loading columns :{0: .2f}'.format(time()-st)+'s')
+
+    print('\nstart column generation\n')
+    st = time()
+
+    iter_num = 10
+    column_update_num = 10
+    pg.perform_network_assignment(1, iter_num, column_update_num, network)
+
+    print('processing time of column generation:{0: .2f}'.format(time()-st)+'s'
+          f' for {iter_num} assignment iterations and '
+          f'{column_update_num} iterations in column generation')
+
+    pg.output_columns(network)
+    pg.output_link_performance(network)
 
     print('\npath finding results can be found in agent.csv')
 
@@ -115,11 +142,15 @@ def demo_mode(mode):
     elif mode == 4:
         # option 4: perform column generation using DTALite on Chicago network
         test_column_generation_dtalite()
+    elif mode == 5:
+        # option 5: load columns generated from option 3 or 4
+        # on Chicago network
+        test_loading_columns()
     else:
-        # option 5: evaluate accessibility
+        # option 5: evaluate multimodal accessibility on Chicago network
         test_accessibility()
 
 
 if __name__=="__main__":
 
-    demo_mode(0)
+    demo_mode(3)

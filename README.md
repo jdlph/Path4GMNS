@@ -2,6 +2,17 @@
 
 Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding the static and time-dependent shortest path for simple analyses, its main functionality is to provide an efficient and flexible framework for column(path)-based modeling and applications in transportations (e.g., activity-based demand modeling).
 
+Path4GMNS supports, in short,
+
+* finding (static) shortest path between two nodes;
+* constructing shortest paths for all individual agents;
+* performing various types of traffic assignments including
+  * Link-based User-Equilibrium (UE);
+  * Path-based UE;
+  * UE + Dynamic Traffic Assignment (DTA) and simulation;
+  * Origin-Destination Matrix Estimation (ODME);
+* evaluating multimodal accessiblity.
+
 ## Installation
 Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/), and can be installed using
 ```
@@ -17,7 +28,7 @@ The Python modules are written in **Python 3.x**, which is the minimum requireme
 
 ## Getting Started
 ### *Download the Test Data Set*
-A sample data set with five different networks can be found from [here](https://github.com/jdlph/Path4GMNS/tree/master/data). You can manually download each individual test network or use the built-in helper function to download the whole data set automatically.
+A sample data set with five different networks are provided. You can manually retrieve each individual test network from [here](https://github.com/jdlph/Path4GMNS/tree/master/data) or use the built-in helper function to automatically download the whole data set.
 
 ```python
 import path4gmns as pg
@@ -56,7 +67,7 @@ print('\nshortest path (link id) from node 1 to node 2 is '
 ```
 
 ### *Find Shortest Paths for All Individual Agents*
-Path4GMNS is capable of calculating and constructing the (static) shortest path for each individual agent. Individual agents will be firstly set up using the aggregated travel demand between each OD pair within find_path_for_agents() on its first call.
+Path4GMNS is capable of calculating and constructing the (static) shortest paths for all agents. First, individual agents will be set up within find_path_for_agents() on its first call using the aggregated travel demand between each OD pair.
 
 ```python
 import path4gmns as pg
@@ -91,8 +102,8 @@ print('shortest path (link id) of agent is '
       +str(network.get_agent_link_path(agent_id)))
 ```
 
-### *Perform Path-Based User-Equilibrium (UE) Traffic Assignment using the Python Column-Generation Module*
-The python column-generation module only implements mode 1 (i.e., Path-Based UE). If you need other assignment modes, e.g., link-based UE or dynamic traffic assignment (DTA), please use perform_network_assignment_DTALite().
+### *Perform Path-Based UE Traffic Assignment using the Python Column-Generation Module*
+The python column-generation module only implements Path-Based UE (i.e.,mode 1). If you need other assignment modes, e.g., link-based UE or dynamic traffic assignment (DTA), please use perform_network_assignment_DTALite().
 
 ```python
 import path4gmns as pg
@@ -118,8 +129,9 @@ v0.7.0a1 supports loading column/path results from existing files (generated fro
 import path4gmns as pg
 
 network = pg.read_network()
-# you can specify the input directory like pg.load_columns('data/Chicago_Sketch', nework)
-pg.load_columns(nework)
+# you can specify the input directory
+# like pg.load_columns(nework, 'data/Chicago_Sketch')
+pg.load_columns(network)
 
 # path-based UE
 mode = 1
@@ -179,7 +191,7 @@ You will need to install libomp using [Homebrew](https://brew.sh/).
 $ brew install libomp
 ```
 
-### *Perform multimodal accessibility evaluation*
+### *Perform Multimodal Accessibility Evaluation*
 
 The current implemenation supprts accessibility evaluations for the following three modes. More modes will be added in the future to accommodate the full set of allowed uses for links as specified by GMNS.
 
@@ -232,7 +244,7 @@ print('accessibility matrices can be found in accessibility.csv '
       'and accessibility_aggregated.csv')
 ```
 
-The following example is to evaluate accessibility only under the default mode (i.e. mode 'auto' or agent type 'passenger').
+The following example is to evaluate accessibility only under the default mode (i.e. mode auto or agent type passenger).
 
 ```python
 network = pg.read_network()
@@ -253,9 +265,9 @@ print('accessibility matrices can be found in accessibility.csv '
 
 ## Build Path4GMNS from Source
 
-If you want to test the latest features of Path4GMNS, you can build the package from source and install it offline, where **Python 3.x** is required.
+If you would like to test the latest features of Path4GMNS, you can build the package from source and install it offline, where **Python 3.x** is required.
 
-### 1. Build the shared libraries of DTALite and path_engine and move them to Path4GMSN/path4gmns/bin
+### *1. Build the Shared Libraries*
 
 The shared libraries of [DTALite](https://github.com/jdlph/DTALite/tree/main/src_cpp) and [path_engine](https://github.com/jdlph/Path4GMNS/tree/master/engine) for Path4GMNS can be built with a C++ compiler supporting C++11 and higher, where we use CMake to define the building process. Take path_engine for example,
 ```
@@ -265,13 +277,13 @@ $ cd build
 $ cmake ..
 $ cmake --build .
 ```
-You can replace the last command with $ make if your target system has Make installed. See [here](https://github.com/jdlph/DTALite) for details on building the shared library of DTALite.
+The last command can be replaced with $ make if your target system has Make installed. See [here](https://github.com/jdlph/DTALite) for details on building the shared library of DTALite. After they are successfully compiled, move them to Path4GMSN/path4gmns/bin.
 
 ***Caveat***
 
 As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Environment) generators, e.g., Visual Studio and Xcode, you will need to manually update the build type from debug to release in your IDE and build your target from there.
 
-### 2. Build the Python Package and Install It
+### *2. Build and Install the Python Package*
 
 ```
 # from the root directory of PATH4GMNS
@@ -279,6 +291,10 @@ $ python setup.py sdist bdist_wheel
 $ cd dist
 $ python -m pip install path4gmns-version.tar.gz
 ```
+
+## Benchmarks
+
+
 
 ## Upcoming Features
 - [x] Read and output node and link geometries (v0.6.0)

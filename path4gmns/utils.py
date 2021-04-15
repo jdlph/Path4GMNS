@@ -505,7 +505,7 @@ def read_network(load_demand='true', input_dir='.'):
     return ui
 
 
-def load_columns(input_dir, ui):
+def load_columns(ui, input_dir='.'):
     """ developer note: do we use agent.csv to set up network? """
     with open(input_dir+'/agent.csv', 'r', encoding='utf-8') as f:
         print('read agent.csv')
