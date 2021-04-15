@@ -4,11 +4,11 @@ Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path e
 
 1. finding (static) shortest path between two nodes;
 2. constructing shortest paths for all individual agents;
-3. performing various types of traffic assignments including
-  * Link-based User-Equilibrium (UE);
-  * Path-based UE;
-  * UE + Dynamic Traffic Assignment (DTA) and simulation;
-  * Origin-Destination Matrix Estimation (ODME);
+3. performing various multimodal traffic assignments including
+   * Link-based User-Equilibrium (UE);
+   * Path-based UE;
+   * UE + Dynamic Traffic Assignment (DTA) and simulation;
+   * Origin-Destination Matrix Estimation (ODME);
 4. evaluating multimodal accessiblity.
 
 ## Installation
@@ -101,7 +101,7 @@ print('shortest path (link id) of agent is '
 ```
 
 ### Perform Path-Based UE Traffic Assignment using the Python Column-Generation Module
-The python column-generation module only implements path-based UE (i.e.,mode 1). If you need other assignment modes, e.g., link-based UE or DTA, please use perform_network_assignment_DTALite().
+The python column-generation module only implements path-based UE (i.e., mode 1). If you need other assignment modes, e.g., link-based UE or DTA, please use perform_network_assignment_DTALite().
 
 ```python
 import path4gmns as pg
@@ -121,7 +121,7 @@ pg.output_link_performance(network)
 print('\npath finding results can be found in agent.csv')
 ```
 
-v0.7.0a1 now supports loading column/path results from existing files (generated from either the Python module or DTALite) and continue the column-generation procedure from where you left. Please **skip the assignment stage** and go directly to column pool optimization by setting assignment_num = 0.
+v0.7.0a1 now supports loading columns/paths from existing files (generated from either the Python module or DTALite) and continue the column-generation procedure from where you left. Please **skip the assignment stage** and go directly to column pool optimization by setting **assignment_num = 0**.
 
 ```python
 import path4gmns as pg
@@ -153,6 +153,8 @@ DTALite has the following four assignment modes to choose.
       2: UE + DTA and simulation
       3: ODME
 
+The next example demonstrates how to perform path-based UE (i.e., mode 1) using DTALite from Path4GMNS.
+
 ```python
 import path4gmns as pg
 
@@ -172,7 +174,7 @@ pg.perform_network_assignment_DTALite(1, assignment_num, column_update_num)
 print('\npath finding results can be found in agent.csv')
 ```
 
-The OpenMP Run-Time Library must be installed to utilize the built-in parallel computing feature in DTALite. DTALite would not be able to run if the run-time support is absent. Installation of the OpenMP run-time library varies by operating systems.
+The OpenMP Run-Time Library must be installed to utilize the built-in parallel computing feature in DTALite (and DTALite would not be able to run if the run-time support is absent). Installation of the OpenMP run-time library varies by operating systems.
 
 ***Windows Users***
 
@@ -264,7 +266,7 @@ print('accessibility matrices can be found in accessibility.csv '
 
 ## Build Path4GMNS from Source
 
-If you would like to test the latest features of Path4GMNS, you can build the package from source and install it offline, where **Python 3.x** is required.
+If you would like to test the latest features of Path4GMNS or have a compatible version to a specific operating system or an architecture, you can build the package from source and install it offline, where **Python 3.x** is required.
 
 ### 1. Build the Shared Libraries
 
@@ -312,7 +314,7 @@ Here, 0.7.0a1 is the version number specified in setup.py. You may need to updat
 - [x] Provide a setting file in yaml to let users control key parameters (v0.6.0)
 - [ ] Adopt parallel computing to further boost the performance
 
-##  Implementation Notes
+## Implementation Notes
 
 The column generation scheme in Path4GMNS is an equivalent **single-processing implementation** as its [DTALite](https://github.com/jdlph/DTALite/tree/main/src_cpp) multiprocessing counterpart. **Note that the results (i.e., column pool and trajectory for an agent) from Path4GMNS and DTALite are comparable but likely not identical as the shortest paths are usually not unique and subjected to implementations**. This subtle difference should be gone and the link performances should be consistent if the iterations on both assignment and column generation are large enough. You can always compare the results (i.e., link_performance.csv) from Path4GMNS and DTALite given the same network and demand.
 
