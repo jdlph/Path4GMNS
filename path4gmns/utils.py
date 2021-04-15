@@ -82,7 +82,7 @@ def download_sample_data_sets():
         "link.csv",
         "demand.csv",
         "settings.csv",
-        "settings.yaml"
+        "settings.yml"
     ]
 
     print('downloading starts')

@@ -5,9 +5,9 @@ Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path e
 1. finding (static) shortest path between two nodes;
 2. constructing shortest paths for all individual agents;
 3. performing various multimodal traffic assignments including
-   * Link-based User-Equilibrium (UE);
-   * Path-based UE;
-   * UE + Dynamic Traffic Assignment (DTA) and simulation;
+   * Link-based User-Equilibrium (UE),
+   * Path-based UE,
+   * UE + Dynamic Traffic Assignment (DTA) and simulation,
    * Origin-Destination Matrix Estimation (ODME);
 4. evaluating multimodal accessiblity.
 
@@ -101,7 +101,7 @@ print('shortest path (link id) of agent is '
 ```
 
 ### Perform Path-Based UE Traffic Assignment using the Python Column-Generation Module
-The python column-generation module only implements path-based UE (i.e., mode 1). If you need other assignment modes, e.g., link-based UE or DTA, please use perform_network_assignment_DTALite().
+The Python column-generation module only implements path-based UE (i.e., mode 1). If you need other assignment modes, e.g., link-based UE or DTA, please use perform_network_assignment_DTALite().
 
 ```python
 import path4gmns as pg
@@ -192,9 +192,9 @@ You will need to install libomp using [Homebrew](https://brew.sh/).
 $ brew install libomp
 ```
 
-### *Perform Multimodal Accessibility Evaluation*
+### Perform Multimodal Accessibility Evaluation
 
-The current implemenation under v0.7.0a1 supprts accessibility evaluations for the following three modes. More modes will be added in the future to accommodate the full set of allowed uses for links as specified by GMNS.
+The current implemenation under v0.7.0a1 supprts accessibility evaluations for the following three modes. More modes will be added in the future to accommodate the full set of allowed uses for links as specified by GMNS. Note that you can restrict the allowed uses (modes) on each link by adding a field of "allowed_uses" to link.csv following the example [here](https://github.com/zephyr-data-specs/GMNS/blob/master/Small_Network_Examples/Cambridge_v090/link.csv). Othewise, links are open to all modes.
 
       1. passenger (i.e., auto)
       2. bike
@@ -245,7 +245,7 @@ print('accessibility matrices can be found in accessibility.csv '
       'and accessibility_aggregated.csv')
 ```
 
-The following example is to evaluate accessibility only under the default mode (i.e. mode auto or agent type passenger).
+Two formats of accessibility will be outputed: accessibility between each OD pair in terms of free flow travel time (accessibility.csv) and aggregated accessibility as to the number of accessible zones from each zone for each transportation mode specified in settings.yml given a budget time (accessibility_aggregated.csv). The following example is to evaluate accessibility only under the default mode (i.e. mode auto or agent type passenger).
 
 ```python
 network = pg.read_network()
@@ -294,11 +294,10 @@ $ cd dist
 $ python -m pip install path4gmns-0.7.0a1.tar.gz
 ```
 
-Here, 0.7.0a1 is the version number specified in setup.py. You may need to update it accordingly.
+Here, 0.7.0a1 is the version number. Replace it with the one specified in setup.py.
 
 ## Benchmarks
-
-
+Coming soon.
 
 ## Upcoming Features
 - [x] Read and output node and link geometries (v0.6.0)

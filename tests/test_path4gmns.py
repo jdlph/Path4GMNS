@@ -52,7 +52,7 @@ def test_column_generation_py():
     st = time()
 
     iter_num = 20
-    column_update_num = 10
+    column_update_num = 20
     pg.perform_network_assignment(1, iter_num, column_update_num, network)
 
     print('processing time of column generation:{0: .2f}'.format(time()-st)+'s'
@@ -153,4 +153,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(5)
+    demo_mode(3)
