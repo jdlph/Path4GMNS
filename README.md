@@ -1,17 +1,15 @@
 # Path4GMNS
 
-Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding the static and time-dependent shortest path for simple analyses, its main functionality is to provide an efficient and flexible framework for column(path)-based modeling and applications in transportations (e.g., activity-based demand modeling).
+Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding the static and time-dependent shortest path for simple analyses, its main functionality is to provide an efficient and flexible framework for column(path)-based modeling and applications in transportations (e.g., activity-based demand modeling). Path4GMNS supports, in short,
 
-Path4GMNS supports, in short,
-
-* finding (static) shortest path between two nodes;
-* constructing shortest paths for all individual agents;
-* performing various types of traffic assignments including
+1. finding (static) shortest path between two nodes;
+2. constructing shortest paths for all individual agents;
+3. performing various types of traffic assignments including
   * Link-based User-Equilibrium (UE);
   * Path-based UE;
   * UE + Dynamic Traffic Assignment (DTA) and simulation;
   * Origin-Destination Matrix Estimation (ODME);
-* evaluating multimodal accessiblity.
+4. evaluating multimodal accessiblity.
 
 ## Installation
 Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/), and can be installed using
@@ -52,7 +50,7 @@ print('\nshortest path (link id) from node 1 to node 2 is '
       +network.find_shortest_path(1, 2, 'link'))
 ```
 
-If you want to use a specific network from the downloaded sample data set, you can spcicify the absolute path or the relative path from your cwd in read_network().
+You can specify the absolute path or the relative path from your cwd in read_network() to use a particular network from the downloaded sample data set.
 
 ```python
 import path4gmns as pg
@@ -67,7 +65,7 @@ print('\nshortest path (link id) from node 1 to node 2 is '
 ```
 
 ### *Find Shortest Paths for All Individual Agents*
-Path4GMNS is capable of calculating and constructing the (static) shortest paths for all agents. First, individual agents will be set up within find_path_for_agents() on its first call using the aggregated travel demand between each OD pair.
+Path4GMNS is capable of calculating and constructing the (static) shortest paths for all agents. Individual agents will be automatically set up using the aggregated travel demand between each OD pair within find_path_for_agents() on its first call.
 
 ```python
 import path4gmns as pg
@@ -103,7 +101,7 @@ print('shortest path (link id) of agent is '
 ```
 
 ### *Perform Path-Based UE Traffic Assignment using the Python Column-Generation Module*
-The python column-generation module only implements Path-Based UE (i.e.,mode 1). If you need other assignment modes, e.g., link-based UE or dynamic traffic assignment (DTA), please use perform_network_assignment_DTALite().
+The python column-generation module only implements path-based UE (i.e.,mode 1). If you need other assignment modes, e.g., link-based UE or DTA, please use perform_network_assignment_DTALite().
 
 ```python
 import path4gmns as pg
@@ -112,7 +110,7 @@ network = pg.read_network()
 
 # path-based UE
 mode = 1
-assignment_num = 10
+assignment_num = 20
 column_update_num = 10
 
 pg.perform_network_assignment(mode, assignment_num, column_update_num, network)
@@ -123,7 +121,7 @@ pg.output_link_performance(network)
 print('\npath finding results can be found in agent.csv')
 ```
 
-v0.7.0a1 supports loading column/path results from existing files (generated from either the Python module or DTALite in the next example) and continue the column-generation procedure from where you left in the previous run by using this Python module only.
+v0.7.0a1 now supports loading column/path results from existing files (generated from either the Python module or DTALite) and continue the column-generation procedure from where you left. Please **skip the assignment stage** and go directly to column pool optimization by setting assignment_num = 0.
 
 ```python
 import path4gmns as pg
@@ -135,7 +133,8 @@ pg.load_columns(network)
 
 # path-based UE
 mode = 1
-assignment_num = 10
+# we recommend NOT doing assignemnt again after loading columns
+assignment_num = 0
 column_update_num = 10
 
 pg.perform_network_assignment(mode, assignment_num, column_update_num, network)
@@ -267,7 +266,7 @@ print('accessibility matrices can be found in accessibility.csv '
 
 If you would like to test the latest features of Path4GMNS, you can build the package from source and install it offline, where **Python 3.x** is required.
 
-### *1. Build the Shared Libraries*
+### 1. Build the Shared Libraries
 
 The shared libraries of [DTALite](https://github.com/jdlph/DTALite/tree/main/src_cpp) and [path_engine](https://github.com/jdlph/Path4GMNS/tree/master/engine) for Path4GMNS can be built with a C++ compiler supporting C++11 and higher, where we use CMake to define the building process. Take path_engine for example,
 ```
@@ -283,7 +282,7 @@ The last command can be replaced with $ make if your target system has Make inst
 
 As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Environment) generators, e.g., Visual Studio and Xcode, you will need to manually update the build type from debug to release in your IDE and build your target from there.
 
-### *2. Build and Install the Python Package*
+### 2. Build and Install the Python Package
 
 ```
 # from the root directory of PATH4GMNS

@@ -51,7 +51,7 @@ def test_column_generation_py():
     print('\nstart column generation\n')
     st = time()
 
-    iter_num = 10
+    iter_num = 20
     column_update_num = 10
     pg.perform_network_assignment(1, iter_num, column_update_num, network)
 
@@ -94,7 +94,7 @@ def test_loading_columns():
     print('\nstart column generation\n')
     st = time()
 
-    iter_num = 10
+    iter_num = 0
     column_update_num = 10
     pg.perform_network_assignment(1, iter_num, column_update_num, network)
 
@@ -153,4 +153,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(3)
+    demo_mode(5)
