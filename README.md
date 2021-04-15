@@ -25,7 +25,7 @@ $ pip install path4gmns==0.7.0a1
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding use cases in the following section.
 
 ## Getting Started
-### *Download the Test Data Set*
+### Download the Test Data Set
 A sample data set with five different networks are provided. You can manually retrieve each individual test network from [here](https://github.com/jdlph/Path4GMNS/tree/master/data) or use the built-in helper function to automatically download the whole data set.
 
 ```python
@@ -36,7 +36,7 @@ pg.download_sample_data_sets()
 
 Note that [requests](https://pypi.org/project/requests/) (2.21.1 or higher) is needed for you to proceed downloading.
 
-### *Get the Shortest Path between Two Nodes*
+### Get the Shortest Path between Two Nodes
 Find the (static) shortest path (based on distance) and output it in the format of a sequence of node/link IDs.
 ```python
 import path4gmns as pg
@@ -64,7 +64,7 @@ print('\nshortest path (link id) from node 1 to node 2 is '
       +network.find_shortest_path(1, 2, 'link'))
 ```
 
-### *Find Shortest Paths for All Individual Agents*
+### Find Shortest Paths for All Individual Agents
 Path4GMNS is capable of calculating and constructing the (static) shortest paths for all agents. Individual agents will be automatically set up using the aggregated travel demand between each OD pair within find_path_for_agents() on its first call.
 
 ```python
@@ -100,7 +100,7 @@ print('shortest path (link id) of agent is '
       +str(network.get_agent_link_path(agent_id)))
 ```
 
-### *Perform Path-Based UE Traffic Assignment using the Python Column-Generation Module*
+### Perform Path-Based UE Traffic Assignment using the Python Column-Generation Module
 The python column-generation module only implements path-based UE (i.e.,mode 1). If you need other assignment modes, e.g., link-based UE or DTA, please use perform_network_assignment_DTALite().
 
 ```python
@@ -145,7 +145,7 @@ pg.output_link_performance(network)
 print('\npath finding results can be found in agent.csv')
 ```
 
-### *Perform Path-Based UE Traffic Assignment using DTALite*
+### Perform Path-Based UE Traffic Assignment using DTALite
 DTALite has the following four assignment modes to choose.
 
       0: Link-based UE
@@ -192,7 +192,7 @@ $ brew install libomp
 
 ### *Perform Multimodal Accessibility Evaluation*
 
-The current implemenation supprts accessibility evaluations for the following three modes. More modes will be added in the future to accommodate the full set of allowed uses for links as specified by GMNS.
+The current implemenation under v0.7.0a1 supprts accessibility evaluations for the following three modes. More modes will be added in the future to accommodate the full set of allowed uses for links as specified by GMNS.
 
       1. passenger (i.e., auto)
       2. bike
@@ -276,7 +276,7 @@ $ cd build
 $ cmake ..
 $ cmake --build .
 ```
-The last command can be replaced with $ make if your target system has Make installed. See [here](https://github.com/jdlph/DTALite) for details on building the shared library of DTALite. After they are successfully compiled, move them to Path4GMSN/path4gmns/bin.
+The last command can be replaced with $ make if your target system has Make installed. See [here](https://github.com/jdlph/DTALite) for details on how to build DTALite. After they are successfully compiled, move them to Path4GMSN/path4gmns/bin.
 
 ***Caveat***
 
@@ -288,8 +288,11 @@ As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Envi
 # from the root directory of PATH4GMNS
 $ python setup.py sdist bdist_wheel
 $ cd dist
-$ python -m pip install path4gmns-version.tar.gz
+# or python -m pip instal pypath4gmns-0.7.0a1-py3-none-any.whl
+$ python -m pip install path4gmns-0.7.0a1.tar.gz
 ```
+
+Here, 0.7.0a1 is the version number specified in setup.py. You may need to update it accordingly.
 
 ## Benchmarks
 
