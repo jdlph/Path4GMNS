@@ -962,28 +962,28 @@ class Assignment:
     def get_agent_orig_node_id(self, agent_id):
         """ return the origin node id of an agent
 
-        excepition will be handled by  _get_agent() in class Network
+        exception will be handled by  _get_agent() in class Network
         """
         return self.network.get_agent_orig_node_id(agent_id)
 
     def get_agent_dest_node_id(self, agent_id):
         """ return the destnation node id of an agent
 
-        excepition will be handled by  _get_agent() in class Network
+        exception will be handled by  _get_agent() in class Network
         """
         return self.network.get_agent_dest_node_id(agent_id)
 
     def get_agent_node_path(self, agent_id):
         """ return the sequence of node IDs along the agent path
 
-        excepition will be handled by  _get_agent() in class Network
+        exception will be handled by  _get_agent() in class Network
         """
         return self.network.get_agent_node_path(agent_id)
 
     def get_agent_link_path(self, agent_id):
         """ return the sequence of link IDs along the agent path
 
-        excepition will be handled by  _get_agent() in class Network
+        exception will be handled by  _get_agent() in class Network
         """
         return self.network.get_agent_link_path(agent_id)
 
@@ -1120,19 +1120,19 @@ class UI:
 
     def get_agent_orig_node_id(self, agent_id):
         """ return the origin node id of an agent """
-        return self._base_assignment.network.get_agent_orig_node_id(agent_id)
+        return self._base_assignment.get_agent_orig_node_id(agent_id)
 
     def get_agent_dest_node_id(self, agent_id):
         """ return the destnation node id of an agent """
-        return self._base_assignment.network.get_agent_dest_node_id(agent_id)
+        return self._base_assignment.get_agent_dest_node_id(agent_id)
 
     def get_agent_node_path(self, agent_id):
         """ return the sequence of node IDs along the agent path """
-        return self._base_assignment.network.get_agent_node_path(agent_id)
+        return self._base_assignment.get_agent_node_path(agent_id)
 
     def get_agent_link_path(self, agent_id):
         """ return the sequence of link IDs along the agent path """
-        return self._base_assignment.network.get_agent_link_path(agent_id)
+        return self._base_assignment.get_agent_link_path(agent_id)
 
     def find_path_for_agents(self):
         """ find and set up shortest path for each agent """

@@ -55,8 +55,9 @@ def _update_min_travel_time(column_pool):
         min_travel_time = -1
 
         for col in cv.get_columns().values():
-            # the naming of get_toll() may be confusing
-            # it is the path generalized cost or gradient cost
+            # the naming of get_toll() may be confusing but it is the path
+            # generalized cost or gradient cost from the first iteration of 
+            # assignment
             # see _backtrace_shortest_path_tree()
             # and _update_generalized_link_cost_a() for details
             travel_time = col.get_toll()

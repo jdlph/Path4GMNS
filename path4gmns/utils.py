@@ -224,8 +224,13 @@ def read_links(input_dir,
 
             # if link.csv does not have no column 'allowed_uses',
             # set allowed_uses to 'auto'
+            # developer's note:
+            # we may need to change this implemenation as we cannot deal with
+            # cases a link which is not open to any modes
             try:
                 allowed_uses = line['allowed_uses']
+                if not allowed_uses:
+                    allowed_uses = 'all'
             except KeyError:
                 allowed_uses = 'all'
 
