@@ -21,7 +21,7 @@ def _get_interval_id(t):
         return 0
 
     if (t % (MIN_TIME_BUDGET+BUDGET_TIME_INTVL)) == 0:
-        return (t/(MIN_TIME_BUDGET+BUDGET_TIME_INTVL))
+        return int(t/(MIN_TIME_BUDGET+BUDGET_TIME_INTVL))
 
     return int(t/(MIN_TIME_BUDGET+BUDGET_TIME_INTVL)) + 1
 

@@ -147,10 +147,10 @@ def demo_mode(mode):
         # on Chicago network
         test_loading_columns()
     else:
-        # option 5: evaluate multimodal accessibility on Chicago network
+        # option 6: evaluate multimodal accessibility on Chicago network
         test_accessibility()
 
 
 if __name__=="__main__":
 
-    demo_mode(3)
+    demo_mode(6)

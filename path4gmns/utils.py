@@ -204,12 +204,23 @@ def read_links(input_dir,
 
             # for the following attributes,
             # if they are not None, convert them to the corresponding types
-            # leave None's to the default constructor
+            # if they are None's, set them using the default values
             lanes = _convert_str_to_int(line['lanes'])
+            if not lanes:
+                lanes = 1
+
             link_type = _convert_str_to_int(line['link_type'])
+            if not link_type:
+                link_type = 1
+
             free_speed = _convert_str_to_int(line['free_speed'])
+            if not free_speed:
+                free_speed = 60
+
             # issue: int??
             capacity = _convert_str_to_int(line['capacity'])
+            if not capacity:
+                capacity = 49500
 
             # if link.csv does not have no column 'allowed_uses',
             # set allowed_uses to 'auto'
@@ -266,7 +277,7 @@ def read_links(input_dir,
                 except (KeyError, TypeError):
                     if i == 0:
                         # default value will be applied in the constructor
-                        VDF_alpha = None
+                        VDF_alpha = 0.15
                     else:
                         break
 
@@ -277,7 +288,7 @@ def read_links(input_dir,
                 except (KeyError, TypeError):
                     if i == 0:
                         # default value will be applied in the constructor
-                        VDF_beta = None
+                        VDF_beta = 4
                     else:
                         break
 
@@ -288,7 +299,7 @@ def read_links(input_dir,
                 except (KeyError, TypeError):
                     if i == 0:
                         # default value will be applied in the constructor
-                        VDF_mu = None
+                        VDF_mu = 1000
                     else:
                         break
 
@@ -315,7 +326,7 @@ def read_links(input_dir,
                         VDF_phf = float(VDF_phf)
                 except (KeyError, TypeError):
                     # default value will be applied in the constructor
-                    VDF_phf = None
+                    VDF_phf = -1
 
                 # construct VDFPeriod object
                 vdf = VDFPeriod(i, VDF_alpha, VDF_beta, VDF_mu,
@@ -350,8 +361,6 @@ def read_demand(input_dir,
         reader = csv.DictReader(fp)
         total_agents = 0
         for line in reader:
-            volume = line['volume']
-
             # invalid origin zone id, discard it
             oz_id = _convert_str_to_int(line['o_zone_id'])
             if not oz_id:
@@ -370,7 +379,9 @@ def read_demand(input_dir,
             if dz_id not in zone_to_node_dict.keys():
                 continue
 
-            volume = float(volume)
+            volume = _convert_str_to_float(line['volume'])
+            if not volume:
+                continue
 
             # set up volume for ColumnVec
             if (at, dp, oz_id, dz_id) not in column_pool.keys():

@@ -72,7 +72,7 @@ class Link:
         # length is mile or km
         self.length = length
         self.lanes = lanes
-        # 1:one direction, 2:two way, 3: virtual connector
+        # 1:one direction, 2:two way
         self.type = link_type
         # length:km, free_speed: km/h
         self.free_flow_travel_time_in_min = (
