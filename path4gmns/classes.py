@@ -250,7 +250,8 @@ class Network:
         self.node_size = len(self.node_list)
         self.link_size = len(self.link_list)
         self.agent_size = len(self.agent_list)
-        self.zones = self.zone_to_nodes_dict.keys()
+        # it is needed for setup_spnetwork() and setup_spnetwork_a()
+        self.zones = sorted(self.zone_to_nodes_dict.keys())
         self._agent_type_size = agent_type_size
         self._demand_period_size = demand_period_size
 

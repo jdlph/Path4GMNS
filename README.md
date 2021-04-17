@@ -26,7 +26,7 @@ The Python modules are written in **Python 3.x**, which is the minimum requireme
 
 ## Getting Started
 ### Download the Test Data Set
-A sample data set with five different networks are provided. You can manually retrieve each individual test network from [here](https://github.com/jdlph/Path4GMNS/tree/master/data) or use the built-in helper function to automatically download the whole data set.
+A sample data set with six different networks are provided. You can manually retrieve each individual test network from [here](https://github.com/jdlph/Path4GMNS/tree/master/data) or use the built-in helper function to automatically download the whole data set.
 
 ```python
 import path4gmns as pg
