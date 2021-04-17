@@ -1,6 +1,6 @@
 # Path4GMNS
 
-Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding the static and time-dependent shortest path for simple analyses, its main functionality is to provide an efficient and flexible framework for column(path)-based modeling and applications in transportations (e.g., activity-based demand modeling). Path4GMNS supports, in short,
+Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding the static and time-dependent shortest path for simple analyses, its main functionality is to provide an efficient and flexible framework for column(path)-based modeling and applications in transportation (e.g., activity-based demand modeling). Path4GMNS supports, in short,
 
 1. finding (static) shortest path between two nodes;
 2. constructing shortest paths for all individual agents;
@@ -128,7 +128,7 @@ import path4gmns as pg
 
 network = pg.read_network()
 # you can specify the input directory
-# like pg.load_columns(nework, 'data/Chicago_Sketch')
+# like pg.load_columns(network, 'data/Chicago_Sketch')
 pg.load_columns(network)
 
 # path-based UE
@@ -174,7 +174,7 @@ pg.perform_network_assignment_DTALite(1, assignment_num, column_update_num)
 print('\npath finding results can be found in agent.csv')
 ```
 
-The OpenMP Run-Time Library must be installed to utilize the built-in parallel computing feature in DTALite (and DTALite would not be able to run if the run-time support is absent). Installation of the OpenMP run-time library varies by operating systems.
+The OpenMP run-time library must be installed to utilize the built-in parallel computing feature in DTALite (and DTALite would not be able to run if the run-time support is absent). Its installation varies by operating systems.
 
 ***Windows Users***
 

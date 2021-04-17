@@ -3,7 +3,7 @@ import threading
 
 from .classes import Assignment
 from .colgen import _assignment
-from .consts import MIN_TIME_BUDGET, BUDGET_TIME_INTVL
+from .consts import MAX_TIME_BUDGET, MIN_TIME_BUDGET, BUDGET_TIME_INTVL
 
 
 __all__ = ['evaluate_accessiblity']
@@ -204,6 +204,9 @@ def evaluate_accessiblity(ui, multimodal=True, output_dir='.'):
     _assignment(A.get_spnetworks(), column_pool, 0)
     # update minimum travel time between O and D for each agent type
     max_min = _update_min_travel_time(column_pool)
+    if max_min > MAX_TIME_BUDGET:
+        # manual cutoff to avoid potential long computation time
+        max_min = MAX_TIME_BUDGET
     interval_num = _get_interval_id(max_min) + 1
 
     multitheading = True
