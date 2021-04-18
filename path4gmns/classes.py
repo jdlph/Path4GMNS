@@ -1052,6 +1052,9 @@ class Assignment:
 
         # z is zone id starting from 1
         for z in self.network.zones:
+            if z == -1:
+                continue
+            
             for at in self.get_agent_types():
                 if z - 1 < self.memory_blocks:
                     sp = SPNetwork(self.network, at, dp)

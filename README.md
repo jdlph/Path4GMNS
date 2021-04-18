@@ -9,10 +9,10 @@ Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path e
    * Path-based UE,
    * UE + Dynamic Traffic Assignment (DTA) and simulation,
    * Origin-Destination Matrix Estimation (ODME);
-4. evaluating multimodal accessiblity.
+4. evaluating multimodal accessibility.
 
 ## Installation
-Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/), and can be installed using
+Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.7.0a1/), and can be installed using
 ```
 $ pip install path4gmns
 ```
@@ -20,6 +20,8 @@ If you need a specific version of Path4GMNS, say, 0.7.0a1,
 ```
 $ pip install path4gmns==0.7.0a1
 ```
+
+v0.7.0a1 comes with new functionalities, improved performance, potential issue fix, and more robust input loading. All previous releases shall be deprecated for any purposes. 
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding use cases in the following section.
@@ -166,7 +168,7 @@ mode = 1
 assignment_num = 10
 column_update_num = 10
 
-pg.perform_network_assignment_DTALite(1, assignment_num, column_update_num)
+pg.perform_network_assignment_DTALite(mode, assignment_num, column_update_num)
 
 # no need to call output_columns() and output_link_performance()
 # since outputs will be processed within DTALite
@@ -200,7 +202,7 @@ The current implemenation under v0.7.0a1 supprts accessibility evaluation for th
       2. bike
       3. walk
 
-In order to perform multimodal accessibility evaluation, the corresponding modes (i.e., agent types) must be presented in [settings.yml](https://github.com/jdlph/Path4GMNS/blob/master/tests/settings.yml). It will be parsed by [pyyaml](https://pypi.org/project/PyYAML/) (5.1 or higher) to the Python engine at run-time.
+In order to perform multimodal accessibility evaluation, the corresponding modes (i.e., agent types) must be presented in [settings.yml](https://github.com/jdlph/Path4GMNS/blob/master/tests/settings.yml). It will be parsed by [pyyaml](https://pypi.org/project/PyYAML/) (5.1 or higher) to the Python engine at run-time. **Note that demand.csv is not necessary for accessibility evaluation**.
 
 ```yaml
 agents:
@@ -231,7 +233,11 @@ demand_files:
 If pyyaml is not installed or settings.yml is not provided, one demand period (AM) and one agent type (passenger) will be automatically created.
 
 ```python
-network = pg.read_network()
+import path4gmns as pg
+
+# you do not need to load demand file to only evaluate accessibility
+load_demand = False
+network = pg.read_network(load_demand)
 
 print('\nstart accessibility evaluation\n')
 st = time()
@@ -247,10 +253,12 @@ print('accessibility matrices can be found in accessibility.csv '
 
 Two formats of accessibility will be outputed: accessibility between each OD pair in terms of free flow travel time (accessibility.csv) and aggregated accessibility as to the number of accessible zones from each zone for each transportation mode specified in settings.yml given a budget time (up to 240 minutes) (accessibility_aggregated.csv). The following example is to evaluate accessibility only under the default mode (i.e. mode auto or agent type passenger).
 
-**Waring**: you may encounter memory issue to evaluate accessibility on a large network under the current implementation, which is not memory efficient for this functionality. It may be replaced with the implementation using virtual centroids and connectors in the future.
-
 ```python
-network = pg.read_network()
+import path4gmns as pg
+
+# you do not need to load demand file to only evaluate accessibility
+load_demand = False
+network = pg.read_network(load_demand)
 
 print('\nstart accessibility evaluation\n')
 st = time()
@@ -265,6 +273,8 @@ print('processing time of accessibility evaluation:{0: .2f}'
 print('accessibility matrices can be found in accessibility.csv '
       'and accessibility_aggregated.csv')
 ```
+
+**Waring**: you may encounter **memory issue** to evaluate accessibility on a large network under the current implementation, which is not memory efficient for this functionality. It may be replaced with an advanced implementation using virtual centroids and connectors in the future.
 
 ## Build Path4GMNS from Source
 
