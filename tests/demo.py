@@ -153,4 +153,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(6)
+    demo_mode(1)

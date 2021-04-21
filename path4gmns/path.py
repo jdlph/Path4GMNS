@@ -284,10 +284,12 @@ def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
     single_source_shortest_path(G, from_node_id, engine_type='c')
 
     # return list(output_path_sequence(G, from_node_id, to_node_id, seq_type))
-    return ';'.join(
+    path = ';'.join(
         str(x) for x in output_path_sequence(G, from_node_id,
                                              to_node_id, seq_type)
     )
+
+    return f'distance: {_get_path_cost(G, to_node_id):.2f} | path: {path}'
 
 
 def find_path_for_agents(G, column_pool, engine_type='c'):

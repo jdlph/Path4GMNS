@@ -161,6 +161,13 @@ def read_nodes(input_dir,
 
         print(f"the number of nodes is {node_seq_no}")
 
+        zone_size = len(zone_to_node_dict)
+        # do not count virtual zone with id as -1
+        if -1 in zone_to_node_dict.keys():
+            zone_size -= 1
+
+        print(f"the number of zones is {zone_size}")
+
 
 def read_links(input_dir,
                links,
