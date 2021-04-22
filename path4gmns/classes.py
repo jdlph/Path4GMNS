@@ -212,6 +212,21 @@ class Agent:
     def get_seq_no(self):
         return self.agent_seq_no
 
+    def get_id(self):
+        return self.agent_id
+
+    def get_orig_zone_id(self):
+        return self.o_zone_id
+
+    def get_dest_zone_id(self):
+        return self.d_zone_id
+
+    def get_path_cost(self):
+        return self.path_cost
+
+    def get_node_path(self):
+        return self.node_path
+
     # def get_dep_simu_intvl(self):
     #     return self.departure_time_in_simu_interval
 
@@ -416,7 +431,11 @@ class Network:
                   positive integer!')
 
     def get_agent_node_path(self, agent_id):
-        """ return the sequence of node IDs along the agent path """
+        """ return the sequence of node IDs along the agent path 
+        
+        developer's note: consider changing its name to 
+        get_agent_node_path_str()
+        """
         agent_no = agent_id - 1
         agent = self._get_agent(agent_no)
 
@@ -428,7 +447,11 @@ class Network:
         )
 
     def get_agent_link_path(self, agent_id):
-        """ return the sequence of link IDs along the agent path """
+        """ return the sequence of link IDs along the agent path
+        
+        developer's note: consider changing its name to 
+        get_agent_link_path_str()
+        """
         agent_no = agent_id - 1
         agent = self._get_agent(agent_no)
 
@@ -520,6 +543,9 @@ class Network:
 
     def get_link_seq_no(self, id):
         return self.link_id_dict[id]
+
+    def get_agents(self):
+        return self.agent_list
 
 
 class Column:
@@ -1104,6 +1130,9 @@ class Assignment:
     def get_node_no(self, id):
         """ id is integer """
         return self.network.get_node_no(id)
+
+    def get_agents(self):
+        return self.network.get_agents()
 
 
 class UI:

@@ -13,7 +13,8 @@ __all__ = [
     'load_columns',
     'output_columns',
     'output_link_performance',
-    'download_sample_data_sets'
+    'download_sample_data_sets',
+    'output_agent_paths'
 ]
 
 
@@ -754,3 +755,63 @@ def output_link_performance(ui, output_dir='.'):
                         '']
 
                 writer.writerow(line)
+
+
+def output_agent_paths(ui, output_dir='.'):
+    with open(output_dir+'/agent_paths.csv', 'w',  newline='') as f:
+        writer = csv.writer(f)
+
+        line = ['agent_id',
+                'o_zone_id',
+                'd_zone_id',
+                'path_id',
+                'agent_type',
+                'demand_period',
+                'volume',
+                'toll',
+                'travel_time',
+                'distance',
+                'node_sequence',
+                'link_sequence',
+                'geometry']
+
+        writer.writerow(line)
+
+        network = ui._base_assignment
+        nodes = network.get_nodes()
+        agents = network.get_agents()
+        agents.sort(key=lambda agent: agent.get_orig_node_id())
+
+        pre_dest_node_id = -1
+        for a in agents:
+            if a.get_dest_node_id() == pre_dest_node_id:
+                continue
+
+            pre_dest_node_id = a.get_dest_node_id()
+
+            agent_id = a.get_id()
+
+            if not a.get_node_path():
+               continue
+
+            geometry = ', '.join(
+                nodes[x].get_coordinate() for x in reversed(a.get_node_path())
+            )
+
+            geometry = 'LINESTRING (' + geometry + ')'
+
+            line = [agent_id,
+                    a.get_orig_zone_id(),
+                    a.get_dest_zone_id(),
+                    0,
+                    'N/A',
+                    'N/A',
+                    'N/A',
+                    'N/A',
+                    'N/A',
+                    a.get_path_cost(),
+                    network.get_agent_node_path(agent_id),
+                    network.get_agent_link_path(agent_id),
+                    geometry]
+
+            writer.writerow(line)

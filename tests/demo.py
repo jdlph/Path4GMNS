@@ -44,6 +44,8 @@ def test_find_shortest_path_for_agents():
     print('shortest path (link id) of agent is '
           +str(network.get_agent_link_path(agent_id)))
 
+    pg.output_agent_paths(network)
+
 
 def test_column_generation_py():
     network = pg.read_network()
@@ -153,4 +155,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(1)
+    demo_mode(2)
