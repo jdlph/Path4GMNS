@@ -116,7 +116,7 @@ def test_accessibility():
     print('\nstart accessibility evaluation\n')
     st = time()
 
-    pg.evaluate_accessiblity(network)
+    pg.evaluate_accessibility(network)
 
     print('complete accessibility evaluation.\n')
     print('processing time of accessibility evaluation:{0: .2f}'

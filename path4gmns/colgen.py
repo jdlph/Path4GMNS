@@ -294,7 +294,7 @@ def _update_column_travel_time(column_pool, links):
             col.set_travel_time(travel_time)
 
 
-def _assginment_core(spn, column_pool, iter_num):
+def _assignment_core(spn, column_pool, iter_num):
 
     for node_id in spn.get_orig_nodes():
         single_source_shortest_path(spn, node_id)
@@ -315,7 +315,7 @@ def _assignment(spnetworks, column_pool, iter_num):
     # single processing
     # it could be multiprocessing
     for spn in spnetworks:
-        _assginment_core(spn, column_pool, iter_num)
+        _assignment_core(spn, column_pool, iter_num)
 
 
 def perform_network_assignment(assignment_mode, iter_num, column_update_num, ui):

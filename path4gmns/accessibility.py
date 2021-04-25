@@ -1,12 +1,12 @@
 import csv
 import threading
 
-from .classes import Assignment
+from .classes import Assignment, Node
 from .colgen import _assignment
 from .consts import MAX_TIME_BUDGET, MIN_TIME_BUDGET, BUDGET_TIME_INTVL
 
 
-__all__ = ['evaluate_accessiblity']
+__all__ = ['evaluate_accessibility']
 
 
 def _get_interval_id(t):
@@ -73,8 +73,8 @@ def _update_min_travel_time(column_pool):
     return max_min
 
 
-def _output_accessiblity(column_pool, at, output_dir='.'):
-    """ output accessiblity for each OD pair (i.e., travel time) """
+def _output_accessibility(column_pool, at, output_dir='.'):
+    """ output accessibility for each OD pair (i.e., travel time) """
     with open(output_dir+'/accessibility.csv', 'w',  newline='') as f:
         headers = ['o_zone_id', 'o_zone_name',
                    'd_zone_id', 'd_zone_name',
@@ -100,7 +100,7 @@ def _output_accessiblity(column_pool, at, output_dir='.'):
 
 def _output_accessibility_aggregated(column_pool, interval_num,
                                      zones, ats, output_dir='.'):
-    """ output aggregated accessiblity matrix for each agent type """
+    """ output aggregated accessibility matrix for each agent type """
 
     with open(output_dir+'/accessibility_aggregated.csv', 'w',  newline='') as f:
         time_bugets = [
@@ -113,7 +113,7 @@ def _output_accessibility_aggregated(column_pool, interval_num,
         writer = csv.writer(f)
         writer.writerow(headers)
 
-        # calculate accessiblity
+        # calculate accessibility
         dp = 0
         for oz in zones:
             if oz == -1:
@@ -141,8 +141,8 @@ def _output_accessibility_aggregated(column_pool, interval_num,
                 writer.writerow(line)
 
 
-def evaluate_accessiblity(ui, multimodal=True, output_dir='.'):
-    """ evaluate and output accessiblity matrices
+def evaluate_accessibility(ui, multimodal=True, output_dir='.'):
+    """ evaluate and output accessibility matrices
 
     Parameters
     ----------
@@ -213,7 +213,7 @@ def evaluate_accessiblity(ui, multimodal=True, output_dir='.'):
     if multitheading:
         at_id = A.get_agent_type_id('p')
         t = threading.Thread(
-            target=_output_accessiblity,
+            target=_output_accessibility,
             args=(column_pool, at_id, output_dir,))
         t.start()
 
@@ -223,7 +223,34 @@ def evaluate_accessiblity(ui, multimodal=True, output_dir='.'):
         )
         t.start()
     else:
-        # calculate and output accessiblity for each OD pair (i.e., travel time)
-        _output_accessiblity(column_pool, at)
-        # calculate and output aggregated accessiblity matrix for each agent type
+        # calculate and output accessibility for each OD pair (i.e., travel time)
+        _output_accessibility(column_pool, at)
+        # calculate and output aggregated accessibility matrix for each agent type
         _output_accessibility_aggregated(column_pool, interval_num, zones, ats)
+
+
+def _add_centroids_connectors(ui):
+    base = ui._base_assignment
+    id_to_no_dict = base.network.internal_node_seq_no_dict
+    no_to_id_dict = base.network.external_node_id_dict
+    # get zones
+    node_size = base.get_network().get_node_size()
+
+    node_seq_no = node_size
+    for z in base.get_zones():
+        if z == -1:
+            continue
+
+        # create a centroid
+        node_id = 'c' + str(z)
+        centroid = Node(node_seq_no, node_id, z)
+        
+        id_to_no_dict[node_id] = node_seq_no
+        no_to_id_dict[node_seq_no] = node_id
+
+        node_seq_no += 1
+
+        # build connectors
+        # from centroid to activity nodes in this zone
+
+        # from activity nodes in this zone to centroid
