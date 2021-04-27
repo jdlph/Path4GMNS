@@ -906,14 +906,15 @@ class SPNetwork(Network):
 class AccessNetwork(Network):
     """ network for accessibility evaluation """
 
-    def __init__(self, base, agent_types):
+    def __init__(self, base):
         self.base = base
-        self.agent_types = agent_types
         self.node_list = None
         self.link_list = None
         self.node_size = base.get_node_size()
         self.link_size = base.get_link_size()
+        self.centroids = []
         self.agent_type_str = 'a'
+        self.multimodal = True
         self.has_capi_allocated = False
         self._add_centroids_connectors()
         super().allocate_for_CAPI()
@@ -933,9 +934,10 @@ class AccessNetwork(Network):
                 continue
 
             # create a centroid
-            node_id = 'c' + str(z)
+            node_id = 'c_' + str(z)
             centroid = Node(node_seq_no, node_id, z)
             self.node_list.append(centroid)
+            self.centroids.append(centroid)
             
             id_to_no_dict[node_id] = node_seq_no
             no_to_id_dict[node_seq_no] = node_id
@@ -945,7 +947,7 @@ class AccessNetwork(Network):
             # build connectors
             
             for i in self.base.get_nodes_from_zone():
-                link_id_f = 'conn' + str(link_seq_no)
+                link_id_f = 'conn_' + str(link_seq_no)
                 from_node_no = node_seq_no
                 to_node_id = i
                 
@@ -990,28 +992,15 @@ class AccessNetwork(Network):
     def get_zones(self):
         return self.base.get_zones()
 
-    def get_agent_type_strs(self):
-        """ it may cause problem when there is only one agent type """
-        for at in self.agent_types:
-            yield at.get_type()
+    def set_target_mode(self, mode):
+        self.agent_type_str = Network.convert_allowed_use(mode)
 
     def get_agent_type_str(self):
         """ how about automated multimodal evaluation? """
         return self.agent_type_str.encode()
 
-    def set_target_mode(self, mode):
-        if mode.lower().startswith('auto'):
-            return
-        elif mode.lower().startswith('bike'):
-            at = 'b'
-        elif mode.lower().startswith('walk'):
-            at = 'w'
-        elif mode.lower().startswith('all'):
-            at = 'a'
-        else:
-            raise Exception('allowed use type is not in the predefined list!')
-        
-        self.agent_type_str = at
+    def get_centroids(self):
+        return self.centroids
 
 
 class Assignment:
