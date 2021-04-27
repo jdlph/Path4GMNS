@@ -903,6 +903,117 @@ class SPNetwork(Network):
         return self.queue_next
 
 
+class AccessNetwork(Network):
+    """ network for accessibility evaluation """
+
+    def __init__(self, base, agent_types):
+        self.base = base
+        self.agent_types = agent_types
+        self.node_list = None
+        self.link_list = None
+        self.node_size = base.get_node_size()
+        self.link_size = base.get_link_size()
+        self.agent_type_str = 'a'
+        self.has_capi_allocated = False
+        self._add_centroids_connectors()
+        super().allocate_for_CAPI()
+
+    def _add_centroids_connectors(self):
+        id_to_no_dict = self.base.internal_node_seq_no_dict
+        no_to_id_dict = self.base.external_node_id_dict
+        # deep copy
+        self.node_list = [x for x in self.base.get_nodes()]
+        self.link_list = [x for x in self.base.get_links()]
+
+        node_seq_no = self.get_node_size()
+        link_seq_no = self.get_link_size()
+        # get zones
+        for z in self.get_zones():
+            if z == -1:
+                continue
+
+            # create a centroid
+            node_id = 'c' + str(z)
+            centroid = Node(node_seq_no, node_id, z)
+            self.node_list.append(centroid)
+            
+            id_to_no_dict[node_id] = node_seq_no
+            no_to_id_dict[node_seq_no] = node_id
+
+            node_seq_no += 1
+
+            # build connectors
+            
+            for i in self.base.get_nodes_from_zone():
+                link_id_f = 'conn' + str(link_seq_no)
+                from_node_no = node_seq_no
+                to_node_id = i
+                
+                try:
+                    to_node_no= id_to_no_dict[i],
+                except KeyError:
+                    continue
+
+                # connector from centroid to activity nodes in this zone
+                c_forward = Link(link_id_f,
+                                 link_seq_no,
+                                 from_node_no,
+                                 to_node_no,
+                                 node_id,
+                                 to_node_id,
+                                 0)
+
+                # connector from activity nodes in this zone to centroid
+                link_id_b = 'conn' + str(link_seq_no+1)
+                c_backward = Link(link_id_b,
+                                  link_seq_no+1,
+                                  to_node_no,
+                                  from_node_no,
+                                  to_node_id,
+                                  node_id,
+                                  0)
+
+                self.node_list[from_node_no].add_outgoing_link(c_forward)
+                self.node_list[to_node_no].add_outgoing_link(c_backward)
+
+                self.link_list.append(c_forward)
+                self.link_list.append(c_backward)
+
+                link_seq_no += 2
+
+        self.node_size = len(self.node_list)
+        self.link_size = len(self.link_list)
+
+    def get_node_size(self):
+        return self.base.get_node_size()
+
+    def get_zones(self):
+        return self.base.get_zones()
+
+    def get_agent_type_strs(self):
+        """ it may cause problem when there is only one agent type """
+        for at in self.agent_types:
+            yield at.get_type()
+
+    def get_agent_type_str(self):
+        """ how about automated multimodal evaluation? """
+        return self.agent_type_str.encode()
+
+    def set_target_mode(self, mode):
+        if mode.lower().startswith('auto'):
+            return
+        elif mode.lower().startswith('bike'):
+            at = 'b'
+        elif mode.lower().startswith('walk'):
+            at = 'w'
+        elif mode.lower().startswith('all'):
+            at = 'a'
+        else:
+            raise Exception('allowed use type is not in the predefined list!')
+        
+        self.agent_type_str = at
+
+
 class Assignment:
 
     def __init__(self):
