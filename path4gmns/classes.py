@@ -992,8 +992,9 @@ class AccessNetwork(Network):
     def get_zones(self):
         return self.base.get_zones()
 
-    def set_target_mode(self, mode):
-        self.agent_type_str = Network.convert_allowed_use(mode)
+    def set_target_mode(self, at_str):
+        """ no check on at_str? """
+        self.agent_type_str = at_str
 
     def get_agent_type_str(self):
         """ how about automated multimodal evaluation? """

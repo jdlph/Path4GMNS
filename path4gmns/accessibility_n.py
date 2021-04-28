@@ -51,7 +51,7 @@ def _update_generalized_link_cost_a(G, at):
 def _update_min_travel_time(an, at, min_travel_times):
     _update_generalized_link_cost_a(an, at)
 
-    at_type_str = at.get_type()
+    at_str = at.get_type()
     max_min = 0
     for c in an.get_centroids():
         node_id = c.get_node_id()
@@ -64,7 +64,7 @@ def _update_min_travel_time(an, at, min_travel_times):
 
             to_zone_id = c_.get_zone_id()
             min_tt = an.get_node_label_costs(node_no)
-            min_travel_times[(zone_id, to_zone_id, at_type_str)] = min_tt
+            min_travel_times[(zone_id, to_zone_id, at_str)] = min_tt
 
             if min_tt < MAX_LABEL_COST and max_min < min_tt:
                 max_min = min_tt
@@ -147,12 +147,13 @@ def evaluate_accessibility(ui, multimodal=True, output_dir='.'):
     min_travel_times = {}
     if multimodal:
         for at in ats:
-            max_min_ = _update_min_travel_time(at, an)
+            an.set_target_mode(at.get_type())
+            max_min_ = _update_min_travel_time(an, at, min_travel_times)
             if max_min_ > max_min:
                 max_min = max_min_
     else:
         at = base.get_agent_type('p')
-        max_min = _update_min_travel_time(at, an)
+        max_min = _update_min_travel_time(an, at, min_travel_times)
 
     interval_num = _get_interval_id(min(max_min, MAX_TIME_BUDGET)) + 1
 
