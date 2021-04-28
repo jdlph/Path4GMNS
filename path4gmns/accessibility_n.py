@@ -1,9 +1,10 @@
 import csv
 import threading
 
-from .path import single_source_shortest_path
 from .classes import AccessNetwork
-from .consts import MAX_LABEL_COST, MIN_TIME_BUDGET, BUDGET_TIME_INTVL, MAX_TIME_BUDGET
+from .path import single_source_shortest_path
+from .consts import MAX_LABEL_COST, MIN_TIME_BUDGET, \
+                    BUDGET_TIME_INTVL, MAX_TIME_BUDGET
 
 
 __all__ = ['evaluate_accessibility']
@@ -47,7 +48,31 @@ def _update_generalized_link_cost_a(G, at):
         )
 
 
-def _output_accessibility(column_pool, output_dir='.'):
+def _update_min_travel_time(an, at, min_travel_times):
+    _update_generalized_link_cost_a(an, at)
+
+    at_type_str = at.get_type()
+    max_min = 0
+    for c in an.get_centroids():
+        node_id = c.get_node_id()
+        node_no = c.get_node_no()
+        zone_id = c.get_zone_id()
+        single_source_shortest_path(an, node_id)
+        for c_ in an.get_centroids():
+            if c_ == c:
+                continue
+
+            to_zone_id = c_.get_zone_id()
+            min_tt = an.get_node_label_costs(node_no)
+            min_travel_times[(zone_id, to_zone_id, at_type_str)] = min_tt
+
+            if min_tt < MAX_LABEL_COST and max_min < min_tt:
+                max_min = min_tt
+
+    return max_min
+
+
+def _output_accessibility(min_travel_times, output_dir='.'):
     """ output accessibility for each OD pair (i.e., travel time) """
     with open(output_dir+'/accessibility.csv', 'w',  newline='') as f:
         headers = ['o_zone_id', 'o_zone_name',
@@ -59,7 +84,7 @@ def _output_accessibility(column_pool, output_dir='.'):
 
         # for multimodal case, find the minimum travel time
         # under mode 'p' (i.e., auto)
-        for k, v in column_pool.items():
+        for k, v in min_travel_times.items():
             # k = (from_zone_id, to_zone_id, at_type_str)
             if k[2] != 'p':
                 continue
@@ -122,65 +147,22 @@ def evaluate_accessibility(ui, multimodal=True, output_dir='.'):
     min_travel_times = {}
     if multimodal:
         for at in ats:
-            at_type_str = at.get_type()
-            # update generalized link costs
-            _update_generalized_link_cost_a(an, at)
-            
-            for c in an.get_centroids():
-                node_id = c.get_node_id()
-                node_no = c.get_node_no()
-                zone_id = c.get_zone_id()
-                single_source_shortest_path(an, node_id)
-                for c_ in an.get_centroids():
-                    if c_ == c:
-                        continue
-
-                    to_zone_id = c_.get_zone_id()
-                    min_tt = an.get_node_label_costs(node_no)
-                    min_travel_times[(zone_id, to_zone_id, at_type_str)] = min_tt
-
-                    if min_tt < MAX_LABEL_COST and max_min < min_tt:
-                        max_min = min_tt
-
+            max_min_ = _update_min_travel_time(at, an)
+            if max_min_ > max_min:
+                max_min = max_min_
     else:
         at = base.get_agent_type('p')
-        at_type_str = at.get_type()
-        # update generalized link costs
-        _update_generalized_link_cost_a(an, at)
-        
-        for c in an.get_centroids():
-            node_id = c.get_node_id()
-            node_no = c.get_node_no()
-            zone_id = c.get_zone_id()
-            single_source_shortest_path(an, node_id)
-            for c_ in an.get_centroids():
-                if c_ == c:
-                    continue
-
-                to_zone_id = c_.get_zone_id()
-                min_tt = an.get_node_label_costs(node_no)
-                min_travel_times[(zone_id, to_zone_id, at_type_str)] = min_tt
-
-                if min_tt < MAX_LABEL_COST and max_min < min_tt:
-                    max_min = min_tt
-
+        max_min = _update_min_travel_time(at, an)
 
     interval_num = _get_interval_id(min(max_min, MAX_TIME_BUDGET)) + 1
 
-    multitheading = True
-    if multitheading:
-        t = threading.Thread(
-            target=_output_accessibility,
-            args=(min_travel_times, output_dir,))
-        t.start()
+    t = threading.Thread(
+        target=_output_accessibility,
+        args=(min_travel_times, output_dir,))
+    t.start()
 
-        t = threading.Thread(
-            target=_output_accessibility_aggregated,
-            args=(min_travel_times, interval_num, zones, ats, output_dir)
-        )
-        t.start()
-    else:
-        # calculate and output accessibility for each OD pair (i.e., travel time)
-        _output_accessibility(min_travel_times)
-        # calculate and output aggregated accessibility matrix for each agent type
-        _output_accessibility_aggregated(min_travel_times, interval_num, zones, ats)
+    t = threading.Thread(
+        target=_output_accessibility_aggregated,
+        args=(min_travel_times, interval_num, zones, ats, output_dir)
+    )
+    t.start()
