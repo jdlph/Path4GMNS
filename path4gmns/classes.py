@@ -914,7 +914,6 @@ class AccessNetwork(Network):
         self.link_size = base.get_link_size()
         self.centroids = []
         self.agent_type_str = 'a'
-        self.multimodal = True
         self.has_capi_allocated = False
         self._add_centroids_connectors()
         super().allocate_for_CAPI()
@@ -926,8 +925,8 @@ class AccessNetwork(Network):
         self.node_list = [x for x in self.base.get_nodes()]
         self.link_list = [x for x in self.base.get_links()]
 
-        node_seq_no = self.get_node_size()
-        link_seq_no = self.get_link_size()
+        node_seq_no = self.node_size
+        link_seq_no = self.link_size
         # get zones
         for z in self.get_zones():
             if z == -1:
@@ -986,11 +985,8 @@ class AccessNetwork(Network):
         self.node_size = len(self.node_list)
         self.link_size = len(self.link_list)
 
-    def get_node_size(self):
-        return self.base.get_node_size()
-
-    def get_zones(self):
-        return self.base.get_zones()
+    # def get_zones(self):
+    #     return self.base.get_zones()
 
     def set_target_mode(self, at_str):
         """ no check on at_str? """
