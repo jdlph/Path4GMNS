@@ -547,6 +547,10 @@ class Network:
     def get_agents(self):
         return self.agent_list
 
+    def get_last_thru_node(self):
+        """ node no of the first potential centroid """
+        return self.get_node_size()
+
 
 class Column:
 
@@ -902,6 +906,10 @@ class SPNetwork(Network):
     def get_queue_next(self):
         return self.queue_next
 
+    def get_last_thru_node(self):
+        """ node no of the first potential centroid """
+        return self.get_node_size()
+
 
 class AccessNetwork(Network):
     """ network for accessibility evaluation """
@@ -1044,6 +1052,9 @@ class AccessNetwork(Network):
     def get_allowed_uses(self):
         return self.allowed_uses
 
+    def get_last_thru_node(self):
+        """ node no of the first centroid """
+        return self.base.get_node_size()
 
 class Assignment:
 

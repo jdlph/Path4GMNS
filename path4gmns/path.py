@@ -60,8 +60,7 @@ _cdll.shortest_path.argtypes = [
 
 def _optimal_label_correcting_CAPI(G,
                                    origin_node_no,
-                                   departure_time=0,
-                                   first_thru_node=0):
+                                   departure_time=0):
     """ call the deque implementation of MLC written in cpp
 
     node_label_cost, node_predecessor, and link_predecessor are still
@@ -81,8 +80,8 @@ def _optimal_label_correcting_CAPI(G,
                         G.get_link_preds(),
                         G.get_queue_next(),
                         G.get_agent_type_str(),
-                        departure_time,
-                        first_thru_node)
+                        G.get_last_thru_node(),
+                        departure_time)
 
 
 def _single_source_shortest_path_fifo(G, origin_node_no):
