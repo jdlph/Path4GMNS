@@ -919,8 +919,8 @@ class AccessNetwork(Network):
         super().allocate_for_CAPI()
 
     def _add_centroids_connectors(self):
-        id_to_no_dict = self.base.internal_node_seq_no_dict
-        no_to_id_dict = self.base.external_node_id_dict
+        self.id_to_no_dict = self.base.internal_node_seq_no_dict
+        self.no_to_id_dict = self.base.external_node_id_dict
         # deep copy
         self.node_list = [x for x in self.base.get_nodes()]
         self.link_list = [x for x in self.base.get_links()]
@@ -938,20 +938,18 @@ class AccessNetwork(Network):
             self.node_list.append(centroid)
             self.centroids.append(centroid)
             
-            id_to_no_dict[node_id] = node_seq_no
-            no_to_id_dict[node_seq_no] = node_id
-
-            node_seq_no += 1
+            self.id_to_no_dict[node_id] = node_seq_no
+            self.no_to_id_dict[node_seq_no] = node_id
 
             # build connectors
             
-            for i in self.base.get_nodes_from_zone():
+            for i in self.get_nodes_from_zone(z):
                 link_id_f = 'conn_' + str(link_seq_no)
                 from_node_no = node_seq_no
                 to_node_id = i
                 
                 try:
-                    to_node_no= id_to_no_dict[i],
+                    to_node_no = self.id_to_no_dict[i]
                 except KeyError:
                     continue
 
@@ -965,7 +963,7 @@ class AccessNetwork(Network):
                                  0)
 
                 # connector from activity nodes in this zone to centroid
-                link_id_b = 'conn' + str(link_seq_no+1)
+                link_id_b = 'conn_' + str(link_seq_no+1)
                 c_backward = Link(link_id_b,
                                   link_seq_no+1,
                                   to_node_no,
@@ -982,11 +980,16 @@ class AccessNetwork(Network):
 
                 link_seq_no += 2
 
+            node_seq_no += 1
+
         self.node_size = len(self.node_list)
         self.link_size = len(self.link_list)
 
-    # def get_zones(self):
-    #     return self.base.get_zones()
+    def get_zones(self):
+        return self.base.get_zones()
+
+    def get_nodes_from_zone(self, zone_id):
+        return self.zone_to_nodes_dict[zone_id]
 
     def set_target_mode(self, at_str):
         """ no check on at_str? """
@@ -998,6 +1001,48 @@ class AccessNetwork(Network):
 
     def get_centroids(self):
         return self.centroids
+
+    def get_node_no(self, node_id):
+        return self.id_to_no_dict[node_id]
+
+    def get_node_size(self):
+        return self.node_size
+
+    def get_link_size(self):
+        return self.link_size
+
+    def get_from_node_no_arr(self):
+        return self.from_node_no_array
+
+    def get_to_node_no_arr(self):
+        return self.to_node_no_array
+
+    def get_first_links(self):
+        return self.first_link_from
+
+    def get_last_links(self):
+        return self.last_link_from
+
+    def get_sorted_link_no_arr(self):
+        return self.sorted_link_no_array
+
+    def get_node_preds(self):
+        return self.node_predecessor
+
+    def get_link_preds(self):
+        return self.link_predecessor
+
+    def get_node_label_costs(self):
+        return self.node_label_cost
+
+    def get_link_costs(self):
+        return self.link_cost_array
+
+    def get_queue_next(self):
+        return self.queue_next
+
+    def get_allowed_uses(self):
+        return self.allowed_uses
 
 
 class Assignment:
