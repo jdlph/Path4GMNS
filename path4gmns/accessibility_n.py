@@ -55,15 +55,15 @@ def _update_min_travel_time(an, at, min_travel_times):
     max_min = 0
     for c in an.get_centroids():
         node_id = c.get_node_id()
-        node_no = c.get_node_no()
         zone_id = c.get_zone_id()
         single_source_shortest_path(an, node_id)
         for c_ in an.get_centroids():
             if c_ == c:
                 continue
 
+            node_no = c_.get_node_no()
             to_zone_id = c_.get_zone_id()
-            min_tt = an.get_node_label_costs(node_no)
+            min_tt = an.get_node_label_costs()[node_no]
             min_travel_times[(zone_id, to_zone_id, at_str)] = min_tt
 
             if min_tt < MAX_LABEL_COST and max_min < min_tt:
@@ -115,14 +115,14 @@ def _output_accessibility_aggregated(min_travel_times, interval_num,
                 continue
 
             for atype in ats:
-                at = atype.get_id()
+                at_str = atype.get_type()
                 # number of accessible zones from oz for each agent type
                 counts = [0] * interval_num
                 for dz in zones:
-                    if (oz, dz, at) not in min_travel_times.keys():
+                    if (oz, dz, at_str) not in min_travel_times.keys():
                         continue
 
-                    min_tt = min_travel_times[(oz, dz, at)]
+                    min_tt = min_travel_times[(oz, dz, at_str)]
                     if min_tt >= MAX_LABEL_COST:
                         continue
 

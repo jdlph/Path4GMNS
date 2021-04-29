@@ -997,7 +997,7 @@ class AccessNetwork(Network):
         return self.base.get_zones()
 
     def get_nodes_from_zone(self, zone_id):
-        return self.zone_to_nodes_dict[zone_id]
+        return self.base.zone_to_nodes_dict[zone_id]
 
     def set_target_mode(self, at_str):
         """ no check on at_str? """

@@ -66,7 +66,7 @@ def _optimal_label_correcting_CAPI(G,
     node_label_cost, node_predecessor, and link_predecessor are still
     initialized in shortest_path() even the source node has no outgoing links.
     """
-    _cdll.shortest_path(origin_node_no,
+    _cdll.shortest_path_n(origin_node_no,
                         G.get_node_size(),
                         G.get_from_node_no_arr(),
                         G.get_to_node_no_arr(),

@@ -38,6 +38,6 @@ extern "C" PATH_ENGINE_API void shortest_path_n(int o_node_no,
                                                 int* deque_next,
                                                 const char mode,
                                                 int last_thru_node,
-                                                int departure_time);
+                                                int departure_time=0);
 
 #endif
