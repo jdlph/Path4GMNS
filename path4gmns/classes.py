@@ -432,19 +432,20 @@ class Network:
 
     def get_agent_node_path(self, agent_id):
         """ return the sequence of node IDs along the agent path 
-        
+
         developer's note: consider changing its name to 
         get_agent_node_path_str()
         """
         agent_no = agent_id - 1
         agent = self._get_agent(agent_no)
 
-        if not agent.node_path:
-            return ''
+        path = ''
+        if agent.node_path:
+            path = ';'.join(
+                str(self.external_node_id_dict[x]) for x in reversed(agent.node_path)
+            )
 
-        return ';'.join(
-            str(self.external_node_id_dict[x]) for x in reversed(agent.node_path)
-        )
+        return f'distance: {agent.get_path_cost():.2f} | node path: {path}'
 
     def get_agent_link_path(self, agent_id):
         """ return the sequence of link IDs along the agent path
@@ -455,12 +456,13 @@ class Network:
         agent_no = agent_id - 1
         agent = self._get_agent(agent_no)
 
-        if not agent.link_path:
-            return ''
-
-        return ';'.join(
+        path = ''
+        if agent.link_path:
+            path = ';'.join(
             self.link_list[x].get_link_id() for x in reversed(agent.link_path)
         )
+
+        return f'distance: {agent.get_path_cost():.2f} | link path: {path}'
 
     def get_agent_orig_node_id(self, agent_id):
         """ return the origin node id of agent """
