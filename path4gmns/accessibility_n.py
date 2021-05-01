@@ -167,3 +167,7 @@ def evaluate_accessibility(ui, multimodal=True, output_dir='.'):
         args=(min_travel_times, interval_num, zones, ats, output_dir)
     )
     t.start()
+
+
+def get_accessible_nodes():
+    pass

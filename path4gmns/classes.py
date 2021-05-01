@@ -1,7 +1,9 @@
 import ctypes
 from random import choice
+from typing import Tuple
 
-from .path import find_path_for_agents, find_shortest_path
+from .path import find_path_for_agents, find_shortest_path, \
+                  single_source_shortest_path
 from .consts import MAX_LABEL_COST
 
 
@@ -916,7 +918,7 @@ class SPNetwork(Network):
 class AccessNetwork(Network):
     """ network for accessibility evaluation """
 
-    def __init__(self, base):
+    def __init__(self, base, add_cc=True):
         self.base = base
         self.node_list = None
         self.link_list = None
@@ -925,7 +927,9 @@ class AccessNetwork(Network):
         self.centroids = []
         self.agent_type_str = 'a'
         self.has_capi_allocated = False
-        self._add_centroids_connectors()
+        self.pre_source_node_id = -1
+        if add_cc:
+            self._add_centroids_connectors()
         super().allocate_for_CAPI()
 
     def _add_centroids_connectors(self):
@@ -1005,6 +1009,9 @@ class AccessNetwork(Network):
         """ no check on at_str? """
         self.agent_type_str = at_str
 
+    def set_source_node_id(self, node_id):
+        self.pre_source_node_id = node_id
+
     def get_agent_type_str(self):
         """ how about automated multimodal evaluation? """
         return self.agent_type_str.encode()
@@ -1058,6 +1065,7 @@ class AccessNetwork(Network):
         """ node no of the first centroid """
         return self.base.get_node_size()
 
+
 class Assignment:
 
     def __init__(self):
@@ -1068,6 +1076,7 @@ class Assignment:
         self.column_pool = {}
         self.network = None
         self.spnetworks = []
+        self.accessnetwork = None
         self.memory_blocks = 4
         self.map_at_id = {}
         self.map_dp_id = {}
@@ -1289,6 +1298,42 @@ class Assignment:
     def get_agents(self):
         return self.network.get_agents()
 
+    def get_accessible_nodes(self, source_node_id, time_budget, mode):
+        if source_node_id not in self.network.internal_node_seq_no_dict.keys():
+            raise Exception(f"Node ID: {source_node_id} not in the network")
+        
+        assert(time_budget>=0)
+
+        if time_budget == 0:
+            return []
+
+        if not self.accessnetwork:
+            self.accessnetwork = AccessNetwork(self.network, False)
+        
+        run_sp = False
+        if self.accessnetwork.pre_source_node_id != source_node_id:
+            self.accessnetwork.set_source_node_id(source_node_id)
+            run_sp = True
+
+        if self.accessnetwork.agent_type_str != mode:
+            self.accessnetwork.set_target_mode(mode)
+            run_sp = True
+        
+        if run_sp:
+            single_source_shortest_path(self.accessnetwork, source_node_id)
+
+        nodes = []
+        for node in self.accessnetwork.get_nodes():
+            node_no = node.get_node_no()
+            if self.accessnetwork.get_node_label_costs()[node_no] <= time_budget:
+                nodes.append(node.get_node_id())
+        
+        return nodes
+
+    def get_accessible_links(self, source_node_id, time_budget, mode):
+        nodes = self.get_accessible_nodes(source_node_id, time_budget, mode)
+        return [self.accessnetwork.link_predecessor[x] for x in nodes]
+
 
 class UI:
     """ an abstract class only with user interfaces """
@@ -1349,3 +1394,9 @@ class UI:
             to_node_id,
             seq_type
         )
+
+    def get_accessible_nodes(self, source_node_id, time_budget, mode='a'):
+        return self._base_assignment.get_accessible_nodes(source_node_id, time_budget, mode)
+
+    def get_accessible_links(self, source_node_id, time_budget, mode='a'):
+        return self._base_assignment.get_accessible_links(source_node_id, time_budget, mode)
