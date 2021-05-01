@@ -920,28 +920,24 @@ class AccessNetwork(Network):
 
     def __init__(self, base, add_cc=True):
         self.base = base
-        self.node_list = None
-        self.link_list = None
+        self.node_list = self.base.get_nodes()
+        self.link_list = self.base.get_links()
+        self.map_id_to_no = self.base.internal_node_seq_no_dict
+        self.map_no_to_id = self.base.external_node_id_dict
         self.node_size = base.get_node_size()
         self.link_size = base.get_link_size()
         self.centroids = []
         self.agent_type_str = 'a'
-        self.has_capi_allocated = False
         self.pre_source_node_id = -1
-        self._add_centroids_connectors(add_cc)
+        if add_cc:
+            self._add_centroids_connectors()
+        self.has_capi_allocated = False
         super().allocate_for_CAPI()
 
-    def _add_centroids_connectors(self, add_cc):
-        self.id_to_no_dict = self.base.internal_node_seq_no_dict
-        self.no_to_id_dict = self.base.external_node_id_dict
+    def _add_centroids_connectors(self):
         # deep copy
-        # self.node_list = [deepcopy(x) for x in self.base.get_nodes()]
-        # self.link_list = [deepcopy(x) for x in self.base.get_links()]
-        self.node_list = deepcopy(self.base.get_nodes())
-        self.link_list = deepcopy(self.base.get_links())
-
-        if not add_cc:
-            return
+        self.node_list = deepcopy(self.node_list)
+        self.link_list = deepcopy(self.link_list)
 
         node_seq_no = self.node_size
         link_seq_no = self.link_size
@@ -956,8 +952,8 @@ class AccessNetwork(Network):
             self.node_list.append(centroid)
             self.centroids.append(centroid)
             
-            self.id_to_no_dict[node_id] = node_seq_no
-            self.no_to_id_dict[node_seq_no] = node_id
+            self.map_id_to_no[node_id] = node_seq_no
+            self.map_no_to_id[node_seq_no] = node_id
 
             # build connectors
             
@@ -967,7 +963,7 @@ class AccessNetwork(Network):
                 to_node_id = i
                 
                 try:
-                    to_node_no = self.id_to_no_dict[i]
+                    to_node_no = self.map_id_to_no[i]
                 except KeyError:
                     continue
 
@@ -1029,7 +1025,7 @@ class AccessNetwork(Network):
         return self.centroids
 
     def get_node_no(self, node_id):
-        return self.id_to_no_dict[node_id]
+        return self.map_id_to_no[node_id]
 
     def get_node_size(self):
         return self.node_size
@@ -1419,12 +1415,18 @@ class UI:
 
         Outputs
         -------
-        a list of nodes that can be accessible from source_node_id given \
-        time_budget and mode
+        print out the number of nodes that can be accessible from \
+        source_node_id given time_budget and mode, and the node list
         """
-        return self._base_assignment.get_accessible_nodes(source_node_id, 
-                                                          time_budget,
-                                                          mode)
+        nodes = self._base_assignment.get_accessible_nodes(source_node_id, 
+                                                           time_budget,
+                                                           mode)
+    
+        node_strs = ';'.join(str(x) for x in nodes)
+
+        print(f'number of accessible nodes is {len(nodes)}')
+        print(f'accessible nodes are: {node_strs}')
+
 
     def get_accessible_links(self, source_node_id, time_budget, mode='a'):
         """ get the accessible links from a node given mode and time budget
@@ -1438,9 +1440,14 @@ class UI:
 
         Outputs
         -------
-        a list of links that can be accessible from source_node_id given \
-        time_budget and mode
+        print out the number of links that can be accessible from \
+        source_node_id given time_budget and mode, and the link list
         """
-        return self._base_assignment.get_accessible_links(source_node_id,
-                                                          time_budget,
-                                                          mode)
+        links = self._base_assignment.get_accessible_links(source_node_id, 
+                                                           time_budget,
+                                                           mode)
+    
+        link_strs = ';'.join(str(x) for x in links)
+
+        print(f'number of accessible links is {len(links)}')
+        print(f'accessible links are: {link_strs}')
