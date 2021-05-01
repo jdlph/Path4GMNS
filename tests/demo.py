@@ -21,28 +21,28 @@ def test_find_shortest_path_for_agents():
 
     st = time()
     network.find_path_for_agents()
-    print('\nprocessing time of finding shortest paths for all agents:{0: .2f}'
-          .format(time()-st)+ 's')
+    print('\nprocessing time of finding shortest paths for all agents: '
+          f'{time()-st:.2f} s')
 
     agent_id = 300
     print('\norigin node id of agent is '
-          +str(network.get_agent_orig_node_id(agent_id)))
+          f'{network.get_agent_orig_node_id(agent_id)}')
     print('destination node id of agent is '
-          +str(network.get_agent_dest_node_id(agent_id)))
+          f'{network.get_agent_dest_node_id(agent_id)}')
     print('shortest path (node id) of agent is '
-          +str(network.get_agent_node_path(agent_id)))
+          f'{network.get_agent_node_path(agent_id)}')
     print('shortest path (link id) of agent is '
-          +str(network.get_agent_link_path(agent_id)))
+          f'{network.get_agent_link_path(agent_id)}')
 
     agent_id = 1000
     print('\norigin node id of agent is '
-          +str(network.get_agent_orig_node_id(agent_id)))
+          f'{network.get_agent_orig_node_id(agent_id)}')
     print('destination node id of agent is '
-          +str(network.get_agent_dest_node_id(agent_id)))
+          f'{network.get_agent_dest_node_id(agent_id)}')
     print('shortest path (node id) of agent is '
-          +str(network.get_agent_node_path(agent_id)))
+          f'{network.get_agent_node_path(agent_id)}')
     print('shortest path (link id) of agent is '
-          +str(network.get_agent_link_path(agent_id)))
+          f'{network.get_agent_link_path(agent_id)}')
 
     pg.output_agent_paths(network)
 
@@ -57,7 +57,7 @@ def test_column_generation_py():
     column_update_num = 20
     pg.perform_network_assignment(1, iter_num, column_update_num, network)
 
-    print('processing time of column generation:{0: .2f}'.format(time()-st)+'s'
+    print(f'processing time of column generation: {time()-st:.2f} s'
           f' for {iter_num} assignment iterations and '
           f'{column_update_num} iterations in column generation')
 
@@ -76,7 +76,7 @@ def test_column_generation_dtalite():
     column_update_num = 20
     pg.perform_network_assignment_DTALite(1, iter_num, column_update_num)
 
-    print('processing time of column generation:{0: .2f}'.format(time()-st)+'s'
+    print(f'processing time of column generation: {time()-st:.2f} s'
           f' for {iter_num} assignment iterations and '
           f'{column_update_num} iterations in column generation')
 
@@ -91,7 +91,7 @@ def test_loading_columns():
 
     pg.load_columns(network)
 
-    print('processing time of loading columns :{0: .2f}'.format(time()-st)+'s')
+    print(f'processing time of loading columns: {time()-st:.2f} s')
 
     print('\nstart column generation\n')
     st = time()
@@ -100,7 +100,7 @@ def test_loading_columns():
     column_update_num = 10
     pg.perform_network_assignment(1, iter_num, column_update_num, network)
 
-    print('processing time of column generation:{0: .2f}'.format(time()-st)+'s'
+    print(f'processing time of column generation: {time()-st:.2f} s'
           f' for {iter_num} assignment iterations and '
           f'{column_update_num} iterations in column generation')
 
@@ -119,12 +119,11 @@ def test_accessibility():
     pg.evaluate_accessibility(network)
 
     print('complete accessibility evaluation.\n')
-    print('processing time of accessibility evaluation:{0: .2f}'
-          .format(time()-st)+'s')
+    print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
     print('accessibility matrices can be found in accessibility.csv '
           'and accessibility_aggregated.csv')
 
-    network.get_accessible_nodes(1, 10)
+    network.get_accessible_nodes(1, 10, 'b')
     network.get_accessible_links(1, 10)
 
 

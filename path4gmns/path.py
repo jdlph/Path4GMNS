@@ -240,7 +240,7 @@ def single_source_shortest_path(G, origin_node_id,
                             +'fifo or deque or dijkstra')
 
 
-def output_path_sequence(G, from_node_id, to_node_id, type='node'):
+def output_path_sequence(G, to_node_id, type='node'):
     """ output shortest path in terms of node sequence or link sequence
 
     Note that this function returns GENERATOR rather than list.
@@ -284,8 +284,7 @@ def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
 
     # return list(output_path_sequence(G, from_node_id, to_node_id, seq_type))
     path = ';'.join(
-        str(x) for x in output_path_sequence(G, from_node_id,
-                                             to_node_id, seq_type)
+        str(x) for x in output_path_sequence(G, to_node_id, seq_type)
     )
 
     return f'distance: {_get_path_cost(G, to_node_id):.2f} | path: {path}'
