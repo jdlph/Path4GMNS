@@ -124,6 +124,9 @@ def test_accessibility():
     print('accessibility matrices can be found in accessibility.csv '
           'and accessibility_aggregated.csv')
 
+    network.get_accessible_nodes(1, 10)
+    network.get_accessible_links(1, 10)
+
 
 def demo_mode(mode):
     print(f'the selected mode is {mode}\n')

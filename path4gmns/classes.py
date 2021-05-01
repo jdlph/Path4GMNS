@@ -1,6 +1,6 @@
 import ctypes
+from copy import deepcopy
 from random import choice
-from typing import Tuple
 
 from .path import find_path_for_agents, find_shortest_path, \
                   single_source_shortest_path
@@ -928,16 +928,20 @@ class AccessNetwork(Network):
         self.agent_type_str = 'a'
         self.has_capi_allocated = False
         self.pre_source_node_id = -1
-        if add_cc:
-            self._add_centroids_connectors()
+        self._add_centroids_connectors(add_cc)
         super().allocate_for_CAPI()
 
-    def _add_centroids_connectors(self):
+    def _add_centroids_connectors(self, add_cc):
         self.id_to_no_dict = self.base.internal_node_seq_no_dict
         self.no_to_id_dict = self.base.external_node_id_dict
         # deep copy
-        self.node_list = [x for x in self.base.get_nodes()]
-        self.link_list = [x for x in self.base.get_links()]
+        # self.node_list = [deepcopy(x) for x in self.base.get_nodes()]
+        # self.link_list = [deepcopy(x) for x in self.base.get_links()]
+        self.node_list = deepcopy(self.base.get_nodes())
+        self.link_list = deepcopy(self.base.get_links())
+
+        if not add_cc:
+            return
 
         node_seq_no = self.node_size
         link_seq_no = self.link_size
@@ -1005,15 +1009,20 @@ class AccessNetwork(Network):
     def get_nodes_from_zone(self, zone_id):
         return self.base.zone_to_nodes_dict[zone_id]
 
-    def set_target_mode(self, at_str):
-        """ no check on at_str? """
-        self.agent_type_str = at_str
+    def set_target_mode(self, mode):
+        """ set up the target mode for accessibility evaluation
+        
+        Parameters
+        ----------
+        mode : please choose one of the following four, 'p', 'w', 'b', and 'a'.
+        """
+        assert(mode in ['p', 'w', 'b', 'a'])
+        self.agent_type_str = mode
 
     def set_source_node_id(self, node_id):
         self.pre_source_node_id = node_id
 
     def get_agent_type_str(self):
-        """ how about automated multimodal evaluation? """
         return self.agent_type_str.encode()
 
     def get_centroids(self):
@@ -1310,6 +1319,7 @@ class Assignment:
         if not self.accessnetwork:
             self.accessnetwork = AccessNetwork(self.network, False)
         
+        # simple caching to avoid duplicate shortest path calculation
         run_sp = False
         if self.accessnetwork.pre_source_node_id != source_node_id:
             self.accessnetwork.set_source_node_id(source_node_id)
@@ -1322,6 +1332,8 @@ class Assignment:
         if run_sp:
             single_source_shortest_path(self.accessnetwork, source_node_id)
 
+        # if max min travel time is less than or equal to time_budget,
+        # output the entire node set directly without the following check?
         nodes = []
         for node in self.accessnetwork.get_nodes():
             node_no = node.get_node_no()
@@ -1396,7 +1408,39 @@ class UI:
         )
 
     def get_accessible_nodes(self, source_node_id, time_budget, mode='a'):
-        return self._base_assignment.get_accessible_nodes(source_node_id, time_budget, mode)
+        """ get the accessible nodes from a node given mode and time budget
+        
+        Parameters
+        ----------
+        source_node_id: the starting node id for evaluation
+        time_budget: the amount of time to travel in minutes
+        mode: transportation mode, please choose one of the following four,\
+              'p', 'w', 'b', and 'a'.
+
+        Outputs
+        -------
+        a list of nodes that can be accessible from source_node_id given \
+        time_budget and mode
+        """
+        return self._base_assignment.get_accessible_nodes(source_node_id, 
+                                                          time_budget,
+                                                          mode)
 
     def get_accessible_links(self, source_node_id, time_budget, mode='a'):
-        return self._base_assignment.get_accessible_links(source_node_id, time_budget, mode)
+        """ get the accessible links from a node given mode and time budget
+        
+        Parameters
+        ----------
+        source_node_id: the starting node id for evaluation
+        time_budget: the amount of time to travel in minutes
+        mode: transportation mode, please choose one of the following four,\
+              'p', 'w', 'b', and 'a'.
+
+        Outputs
+        -------
+        a list of links that can be accessible from source_node_id given \
+        time_budget and mode
+        """
+        return self._base_assignment.get_accessible_links(source_node_id,
+                                                          time_budget,
+                                                          mode)
