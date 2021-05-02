@@ -433,9 +433,9 @@ class Network:
                   positive integer!')
 
     def get_agent_node_path(self, agent_id):
-        """ return the sequence of node IDs along the agent path 
+        """ return the sequence of node IDs along the agent path
 
-        developer's note: consider changing its name to 
+        developer's note: consider changing its name to
         get_agent_node_path_str()
         """
         agent_no = agent_id - 1
@@ -451,8 +451,8 @@ class Network:
 
     def get_agent_link_path(self, agent_id):
         """ return the sequence of link IDs along the agent path
-        
-        developer's note: consider changing its name to 
+
+        developer's note: consider changing its name to
         get_agent_link_path_str()
         """
         agent_no = agent_id - 1
@@ -951,17 +951,17 @@ class AccessNetwork(Network):
             centroid = Node(node_seq_no, node_id, z)
             self.node_list.append(centroid)
             self.centroids.append(centroid)
-            
+
             self.map_id_to_no[node_id] = node_seq_no
             self.map_no_to_id[node_seq_no] = node_id
 
             # build connectors
-            
+
             for i in self.get_nodes_from_zone(z):
                 link_id_f = 'conn_' + str(link_seq_no)
                 from_node_no = node_seq_no
                 to_node_id = i
-                
+
                 try:
                     to_node_no = self.map_id_to_no[i]
                 except KeyError:
@@ -1007,7 +1007,7 @@ class AccessNetwork(Network):
 
     def set_target_mode(self, mode):
         """ set up the target mode for accessibility evaluation
-        
+
         Parameters
         ----------
         mode : please choose one of the following four, 'p', 'w', 'b', and 'a'.
@@ -1266,55 +1266,6 @@ class Assignment:
                             self.network.get_node_no(node_id)
                         )
 
-    def setup_spntwork_a(self):
-        """ set up SPNetworks for accessibility evaluation """
-        spvec = {}
-        # we only need one demand period even multiple could exist
-        dp = self.demand_periods[0]
-
-        # z is zone id starting from 1
-        for z in self.network.zones:
-            if z == -1:
-                continue
-            
-            for at in self.get_agent_types():
-                if z - 1 < self.memory_blocks:
-                    sp = SPNetwork(self.network, at, dp)
-                    spvec[(at.get_id(), dp.get_id(), z-1)] = sp
-                    sp.orig_zones.append(z)
-                    sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
-                    for node_id in self.network.get_nodes_from_zone(z):
-                        sp.node_id_to_no[node_id] = (
-                            self.network.get_node_no(node_id)
-                        )
-                    self.spnetworks.append(sp)
-                else:
-                    m = (z - 1) % self.memory_blocks
-                    sp = spvec[(at.get_id(), dp.get_id(), m)]
-                    sp.orig_zones.append(z)
-                    sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
-                    for node_id in self.network.get_nodes_from_zone(z):
-                        sp.node_id_to_no[node_id] = (
-                            self.network.get_node_no(node_id)
-                        )
-
-    def setup_column_pool_a(self):
-        """ set up column_pool for accessibility evaluation """
-        dp = 0
-        for oz in self.get_zones():
-            if oz == -1:
-                continue
-            for dz in self.get_zones():
-                if dz == -1:
-                    continue
-                for atype in self.agent_types:
-                    at = atype.get_id()
-                    self.column_pool[(at, dp, oz, dz)] = ColumnVec()
-                    if oz == dz:
-                        continue
-                    # set up volume/demand for all OD pairs where O != D
-                    self.column_pool[(at, dp, oz, dz)].od_vol = 1
-
     def get_link(self, seq_no):
         """ return link object corresponding to link seq no """
         return self.network.get_link(seq_no)
@@ -1336,7 +1287,7 @@ class Assignment:
     def get_accessible_nodes(self, source_node_id, time_budget, mode):
         if source_node_id not in self.network.internal_node_seq_no_dict.keys():
             raise Exception(f"Node ID: {source_node_id} not in the network")
-        
+
         assert(time_budget>=0)
 
         if time_budget == 0:
@@ -1344,7 +1295,7 @@ class Assignment:
 
         if not self.accessnetwork:
             self.accessnetwork = AccessNetwork(self.network, False)
-        
+
         # simple caching to avoid duplicate shortest path calculation
         run_sp = False
         if self.accessnetwork.pre_source_node_id != source_node_id:
@@ -1356,7 +1307,7 @@ class Assignment:
             at = self.get_agent_type(mode)
             self.accessnetwork.update_generalized_link_cost(at)
             run_sp = True
-        
+
         if run_sp:
             single_source_shortest_path(self.accessnetwork, source_node_id)
 
@@ -1370,7 +1321,7 @@ class Assignment:
                 continue
             if self.accessnetwork.get_node_label_cost(node_no) <= time_budget:
                 nodes.append(node.get_node_id())
-        
+
         return nodes
 
     def get_accessible_links(self, source_node_id, time_budget, mode):
@@ -1443,7 +1394,7 @@ class UI:
 
     def get_accessible_nodes(self, source_node_id, time_budget, mode='a'):
         """ get the accessible nodes from a node given mode and time budget
-        
+
         Parameters
         ----------
         source_node_id: the starting node id for evaluation
@@ -1456,10 +1407,10 @@ class UI:
         print out the number of nodes that can be accessible from \
         source_node_id given time_budget and mode, and the node list
         """
-        nodes = self._base_assignment.get_accessible_nodes(source_node_id, 
+        nodes = self._base_assignment.get_accessible_nodes(source_node_id,
                                                            time_budget,
                                                            mode)
-    
+
         node_strs = ';'.join(str(x) for x in nodes)
 
         print(f'number of accessible nodes is {len(nodes)}')
@@ -1468,7 +1419,7 @@ class UI:
 
     def get_accessible_links(self, source_node_id, time_budget, mode='p'):
         """ get the accessible links from a node given mode and time budget
-        
+
         Parameters
         ----------
         source_node_id: the starting node id for evaluation
@@ -1481,10 +1432,10 @@ class UI:
         print out the number of links that can be accessible from \
         source_node_id given time_budget and mode, and the link list
         """
-        links = self._base_assignment.get_accessible_links(source_node_id, 
+        links = self._base_assignment.get_accessible_links(source_node_id,
                                                            time_budget,
                                                            mode)
-    
+
         link_strs = ';'.join(str(x) for x in links)
 
         print(f'number of accessible links is {len(links)}')

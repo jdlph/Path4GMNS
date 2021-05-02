@@ -27,27 +27,6 @@ def _get_interval_id(t):
     return int(t/(MIN_TIME_BUDGET+BUDGET_TIME_INTVL)) + 1
 
 
-def _update_generalized_link_cost_a(G, at):
-    """ update generalized link costs to calculate accessibility """
-    vot = at.get_vot()
-    ffs = at.get_free_flow_speed()
-
-    if at.get_type().startswith('p'):
-        for link in G.get_links():
-            G.link_cost_array[link.get_seq_no()] = (
-            link.get_free_flow_travel_time()
-            + link.get_route_choice_cost()
-            + link.get_toll() / min(0.001, vot) * 60
-        )
-    else:
-        for link in G.get_links():
-            G.link_cost_array[link.get_seq_no()] = (
-            (link.get_length() / max(0.001, ffs) * 60)
-            + link.get_route_choice_cost()
-            + link.get_toll() / min(0.001, vot) * 60
-        )
-
-
 def _update_min_travel_time(an, at, min_travel_times):
     # _update_generalized_link_cost_a(an, at)
     an.update_generalized_link_cost(at)
@@ -168,7 +147,3 @@ def evaluate_accessibility(ui, multimodal=True, output_dir='.'):
         args=(min_travel_times, interval_num, zones, ats, output_dir)
     )
     t.start()
-
-
-def get_accessible_nodes():
-    pass

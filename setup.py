@@ -16,6 +16,7 @@ setuptools.setup(
     packages=['path4gmns'],
     package_dir={'path4gmns': 'path4gmns'},
     package_data={'path4gmns': ['bin/*']},
+    license='Apache License 2.0',
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
