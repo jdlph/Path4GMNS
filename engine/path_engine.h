@@ -6,7 +6,7 @@
 #define PATH_ENGINE_API
 #endif
 
-extern "C" PATH_ENGINE_API void shortest_path(const int o_node_no, 
+extern "C" PATH_ENGINE_API void shortest_path(const int o_node_no,
                                               const int node_size,
                                               const int* from_node_no_arr,
                                               const int* to_node_no_arr,

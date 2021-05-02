@@ -1,4 +1,4 @@
-from .accessibility_n import *
+from .accessibility import *
 from .colgen import *
 from .dtaapi import *
 from .utils import *

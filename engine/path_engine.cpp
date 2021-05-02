@@ -137,7 +137,7 @@ void shortest_path_n(int o_node_no,
 {
     // construct and initialize the following three on the first call only
     static constexpr int invalid = -1, was_in_deque = -7;
-    
+
     // initialization
     for (int node_no = 0; node_no < node_size; ++node_no)
     {
