@@ -1057,6 +1057,9 @@ class AccessNetwork(Network):
     def get_node_label_costs(self):
         return self.node_label_cost
 
+    def get_node_label_cost(self, node_no):
+        return self.node_label_cost[node_no]
+
     def get_link_costs(self):
         return self.link_cost_array
 
@@ -1069,6 +1072,11 @@ class AccessNetwork(Network):
     def get_last_thru_node(self):
         """ node no of the first centroid """
         return self.base.get_node_size()
+
+    def get_pred_link_id(self, node_id):
+        """ return id of the predecessor link to node_id """
+        link_no = self.link_predecessor[self.get_node_no(node_id)]
+        return self.link_list[link_no].get_link_id()
 
     def update_generalized_link_cost(self, at):
         """ update generalized link costs to calculate accessibility """
@@ -1322,6 +1330,9 @@ class Assignment:
     def get_agents(self):
         return self.network.get_agents()
 
+    def get_node_label_cost(self, node_no):
+        return self.accessnetwork.get_node_label_cost(node_no)
+
     def get_accessible_nodes(self, source_node_id, time_budget, mode):
         if source_node_id not in self.network.internal_node_seq_no_dict.keys():
             raise Exception(f"Node ID: {source_node_id} not in the network")
@@ -1357,7 +1368,7 @@ class Assignment:
             # do not include the source node itself
             if node.get_node_id() == source_node_id:
                 continue
-            if self.accessnetwork.get_node_label_costs()[node_no] <= time_budget:
+            if self.accessnetwork.get_node_label_cost(node_no) <= time_budget:
                 nodes.append(node.get_node_id())
         
         return nodes
@@ -1365,16 +1376,10 @@ class Assignment:
     def get_accessible_links(self, source_node_id, time_budget, mode):
         # node id's
         nodes = self.get_accessible_nodes(source_node_id, time_budget, mode)
-        # link sequence no's
-        links = [
-            self.accessnetwork.link_predecessor[self.accessnetwork.get_node_no(x)] for x in nodes
-        ]
-        
         # convert to link id's
         return [
-            self.accessnetwork.link_list[x].get_link_id() for x in links
+            self.accessnetwork.get_pred_link_id(x) for x in nodes
         ]
-
 
 class UI:
     """ an abstract class only with user interfaces """

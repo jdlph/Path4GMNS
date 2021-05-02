@@ -64,7 +64,7 @@ def _update_min_travel_time(an, at, min_travel_times):
 
             node_no = c_.get_node_no()
             to_zone_id = c_.get_zone_id()
-            min_tt = an.get_node_label_costs()[node_no]
+            min_tt = an.get_node_label_cost(node_no)
             min_travel_times[(zone_id, to_zone_id, at_str)] = min_tt
 
             if min_tt < MAX_LABEL_COST and max_min < min_tt:
