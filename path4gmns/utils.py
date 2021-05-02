@@ -605,7 +605,16 @@ def load_columns(ui, input_dir='.'):
 
             cv = A.get_column_vec(at, dp, oz_id, dz_id)
 
-            node_path = [int(x) for x in node_seq.split(';')]
+            node_path = None
+            try:
+                # if x is only needed for columns generated from DTALite, 
+                # which have the trailing ';' and leads to '' after split
+                node_path = [int(x) for x in node_seq.split(';') if x]
+            except ValueError:
+                raise Exception(
+                    f'INVALID NODE PATH found for agent id: {agent_id}'
+                )
+            
             node_sum = sum(node_path)
 
             if node_sum not in cv.path_node_seq_map.keys():
@@ -621,11 +630,19 @@ def load_columns(ui, input_dir='.'):
                     )
 
                 try:
-                    col.links = [A.get_link_seq_no(x) for x in link_seq.split(';')]
+                    # if x is only needed for columns generated from DTALite, 
+                    # which have the trailing ';' and leads to '' after split
+                    col.links = [
+                        A.get_link_seq_no(x) for x in link_seq.split(';') if x
+                    ]
                 except IndexError:
                     raise Exception(
-                        'invalid link found on column!!'
+                        'INVALID link found on column!!'
                         'Did you use agent.csv from a different network?'
+                    )
+                except ValueError:
+                    raise Exception(
+                        f'INVALID LINK PATH found for agent id: {agent_id}'
                     )
 
                 # the following four are non-critical info
