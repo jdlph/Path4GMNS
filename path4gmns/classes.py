@@ -649,9 +649,6 @@ class ColumnVec:
         self.od_vol = 0
         self.route_fixed = False
         self.path_node_seq_map = {}
-        # minimum free-flow travel time between O and D
-        # for accessiblity evaluation
-        self.min_tt = -1
 
     def is_route_fixed(self):
         return self.route_fixed
@@ -670,13 +667,6 @@ class ColumnVec:
 
     def add_new_column(self, node_sum, col):
         self.path_node_seq_map[node_sum] = col
-
-    def get_min_travel_time(self):
-        return self.min_tt
-
-    def update_min_travel_time(self, t):
-        if self.min_tt > t or self.min_tt == -1:
-           self.min_tt = t
 
 
 class AgentType:
@@ -1010,7 +1000,8 @@ class AccessNetwork(Network):
 
         Parameters
         ----------
-        mode : please choose one of the following four, 'p', 'w', 'b', and 'a'.
+        mode : please choose one of the following three, 'p', 'w', and 'b', 
+        which are in settings.yml.
         """
         assert(mode in ['p', 'w', 'b', 'a'])
         self.agent_type_str = mode
@@ -1399,8 +1390,8 @@ class UI:
         ----------
         source_node_id: the starting node id for evaluation
         time_budget: the amount of time to travel in minutes
-        mode: transportation mode, please choose one of the following four,\
-              'p', 'w', 'b', and 'a'.
+        mode: transportation mode, please choose one of the following three, \
+              'p', 'w', and 'b', which are in settings.yml.
 
         Outputs
         -------
@@ -1424,8 +1415,8 @@ class UI:
         ----------
         source_node_id: the starting node id for evaluation
         time_budget: the amount of time to travel in minutes
-        mode: transportation mode, please choose one of the following four,\
-              'p', 'w', 'b', and 'a'.
+        mode: transportation mode, please choose one of the following three, \
+              'p', 'w', and 'b', which are in settings.yml.
 
         Outputs
         -------
