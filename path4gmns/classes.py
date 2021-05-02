@@ -1070,6 +1070,25 @@ class AccessNetwork(Network):
         """ node no of the first centroid """
         return self.base.get_node_size()
 
+    def update_generalized_link_cost(self, at):
+        """ update generalized link costs to calculate accessibility """
+        vot = at.get_vot()
+        ffs = at.get_free_flow_speed()
+
+        if at.get_type().startswith('p'):
+            for link in self.get_links():
+                self.link_cost_array[link.get_seq_no()] = (
+                    link.get_free_flow_travel_time()
+                    + link.get_route_choice_cost()
+                    + link.get_toll() / min(0.001, vot) * 60
+                )
+        else:
+            for link in self.get_links():
+                self.link_cost_array[link.get_seq_no()] = (
+                    (link.get_length() / max(0.001, ffs) * 60)
+                    + link.get_route_choice_cost()
+                    + link.get_toll() / min(0.001, vot) * 60
+                )
 
 class Assignment:
 
@@ -1323,6 +1342,8 @@ class Assignment:
 
         if self.accessnetwork.agent_type_str != mode:
             self.accessnetwork.set_target_mode(mode)
+            at = self.get_agent_type(mode)
+            self.accessnetwork.update_generalized_link_cost(at)
             run_sp = True
         
         if run_sp:
@@ -1333,14 +1354,26 @@ class Assignment:
         nodes = []
         for node in self.accessnetwork.get_nodes():
             node_no = node.get_node_no()
+            # do not include the source node itself
+            if node.get_node_id() == source_node_id:
+                continue
             if self.accessnetwork.get_node_label_costs()[node_no] <= time_budget:
                 nodes.append(node.get_node_id())
         
         return nodes
 
     def get_accessible_links(self, source_node_id, time_budget, mode):
+        # node id's
         nodes = self.get_accessible_nodes(source_node_id, time_budget, mode)
-        return [self.accessnetwork.link_predecessor[x] for x in nodes]
+        # link sequence no's
+        links = [
+            self.accessnetwork.link_predecessor[self.accessnetwork.get_node_no(x)] for x in nodes
+        ]
+        
+        # convert to link id's
+        return [
+            self.accessnetwork.link_list[x].get_link_id() for x in links
+        ]
 
 
 class UI:
@@ -1428,7 +1461,7 @@ class UI:
         print(f'accessible nodes are: {node_strs}')
 
 
-    def get_accessible_links(self, source_node_id, time_budget, mode='a'):
+    def get_accessible_links(self, source_node_id, time_budget, mode='p'):
         """ get the accessible links from a node given mode and time budget
         
         Parameters

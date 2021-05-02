@@ -123,8 +123,8 @@ def test_accessibility():
     print('accessibility matrices can be found in accessibility.csv '
           'and accessibility_aggregated.csv')
 
-    network.get_accessible_nodes(1, 10, 'b')
-    network.get_accessible_links(1, 10)
+    network.get_accessible_nodes(1, 5)
+    network.get_accessible_links(1, 5)
 
 
 def demo_mode(mode):
@@ -157,4 +157,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(5)
+    demo_mode(6)

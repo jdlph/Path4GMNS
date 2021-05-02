@@ -49,7 +49,8 @@ def _update_generalized_link_cost_a(G, at):
 
 
 def _update_min_travel_time(an, at, min_travel_times):
-    _update_generalized_link_cost_a(an, at)
+    # _update_generalized_link_cost_a(an, at)
+    an.update_generalized_link_cost(at)
 
     at_str = at.get_type()
     max_min = 0
