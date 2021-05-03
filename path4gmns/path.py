@@ -261,8 +261,8 @@ def output_path_sequence(G, to_node_id, type='node'):
         current_link_seq_no = G.link_predecessor[current_node_seq_no]
         while current_link_seq_no >= 0:
             path.append(current_link_seq_no)
-            current_link_seq_no = G.link_predecessor[current_node_seq_no]
             current_node_seq_no = G.node_predecessor[current_node_seq_no]
+            current_link_seq_no = G.link_predecessor[current_node_seq_no]
         # reverse the sequence
         for link_seq_no in reversed(path):
             yield G.link_list[link_seq_no].get_link_id()
