@@ -7,21 +7,21 @@ Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path e
 3. performing various multimodal traffic assignments including
    * Link-based User-Equilibrium (UE),
    * Path-based UE,
-   * UE + Dynamic Traffic Assignment (DTA) and simulation,
+   * UE + Dynamic Traffic Assignment (DTA),
    * Origin-Destination Matrix Estimation (ODME);
 4. evaluating multimodal accessibility.
 
 ## Installation
-Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.7.0a1/), and can be installed using
+Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.7.0/), and can be installed using
 ```
 $ pip install path4gmns
 ```
-If you need a specific version of Path4GMNS, say, 0.7.0a1,
+If you need a specific version of Path4GMNS, say, 0.7.0,
 ```
-$ pip install path4gmns==0.7.0a1
+$ pip install path4gmns==0.7.0
 ```
 
-v0.7.0a1 comes with new functionalities, improved performance, potential issue fix, and more robust input loading. All previous releases shall be deprecated for any purposes. 
+v0.7.0 comes with new functionalities, improved performance, potential issue fix, and more robust input loading. All previous releases shall be deprecated for any purposes. 
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding use cases in the following section.
@@ -46,9 +46,9 @@ import path4gmns as pg
 load_demand = False
 network = pg.read_network(load_demand)
 
-print('\nshortest path (node id) from node 1 to node 2 is '
+print('\nshortest path (node id) from node 1 to node 2 '
       +network.find_shortest_path(1, 2))
-print('\nshortest path (link id) from node 1 to node 2 is '
+print('\nshortest path (link id) from node 1 to node 2 '
       +network.find_shortest_path(1, 2, 'link'))
 ```
 
@@ -60,9 +60,9 @@ import path4gmns as pg
 load_demand = False
 network = pg.read_network(load_demand, input_dir='data/Chicago_Sketch')
 
-print('\nshortest path (node id) from node 1 to node 2 is '
+print('\nshortest path (node id) from node 1 to node 2 '
       +network.find_shortest_path(1, 2))
-print('\nshortest path (link id) from node 1 to node 2 is '
+print('\nshortest path (link id) from node 1 to node 2 '
       +network.find_shortest_path(1, 2, 'link'))
 ```
 
@@ -77,29 +77,25 @@ network.find_path_for_agents()
 
 agent_id = 300
 print('\norigin node id of agent is '
-      +str(network.get_agent_orig_node_id(agent_id)))
-
+      f'{network.get_agent_orig_node_id(agent_id)}')
 print('destination node id of agent is '
-      +str(network.get_agent_dest_node_id(agent_id)))
-
-print('shortest path (node id) of agent is '
-      +str(network.get_agent_node_path(agent_id)))
-
-print('shortest path (link id) of agent is '
-      +str(network.get_agent_link_path(agent_id)))
+      f'{network.get_agent_dest_node_id(agent_id)}')
+print('shortest path (node id) of agent '
+      f'{network.get_agent_node_path(agent_id)}')
+print('shortest path (link id) of agent '
+      f'{network.get_agent_link_path(agent_id)}')
 
 agent_id = 1000
 print('\norigin node id of agent is '
-      +str(network.get_agent_orig_node_id(agent_id)))
-
+      f'{network.get_agent_orig_node_id(agent_id)}')
 print('destination node id of agent is '
-      +str(network.get_agent_dest_node_id(agent_id)))
+      f'{network.get_agent_dest_node_id(agent_id)}')
+print('shortest path (node id) of agent '
+      f'{network.get_agent_node_path(agent_id)}')
+print('shortest path (link id) of agent '
+      f'{network.get_agent_link_path(agent_id)}')
 
-print('shortest path (node id) of agent is '
-      +str(network.get_agent_node_path(agent_id)))
-
-print('shortest path (link id) of agent is '
-      +str(network.get_agent_link_path(agent_id)))
+pg.output_agent_paths(network)
 ```
 
 ### Perform Path-Based UE Traffic Assignment using the Python Column-Generation Module
@@ -123,7 +119,7 @@ pg.output_link_performance(network)
 print('\npath finding results can be found in agent.csv')
 ```
 
-v0.7.0a1 now supports loading columns/paths from existing files (generated from either the Python module or DTALite) and continue the column-generation procedure from where you left. Please **skip the assignment stage** and go directly to column pool optimization by setting **assignment_num = 0**.
+Starting from v0.7.0a1, Path4GMNS supports loading columns/paths from existing files (generated from either the Python module or DTALite) and continue the column-generation procedure from where you left. Please **skip the assignment stage** and go directly to column pool optimization by setting **assignment_num = 0**.
 
 ```python
 import path4gmns as pg
@@ -152,7 +148,7 @@ DTALite has the following four assignment modes to choose.
 
       0: Link-based UE
       1: Path-based UE
-      2: UE + DTA and simulation
+      2: UE + DTA
       3: ODME
 
 The next example demonstrates how to perform path-based UE (i.e., mode 1) using DTALite from Path4GMNS.
@@ -245,8 +241,7 @@ st = time()
 pg.evaluate_accessibility(network)
 
 print('complete accessibility evaluation.\n')
-print('processing time of accessibility evaluation:{0: .2f}'
-      .format(time()-st)+'s')
+print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
 print('accessibility matrices can be found in accessibility.csv '
       'and accessibility_aggregated.csv')
 ```
@@ -268,14 +263,10 @@ multimodal = False
 pg.evaluate_accessiblity(network, multimodal)
 
 print('complete accessibility evaluation.\n')
-print('processing time of accessibility evaluation:{0: .2f}'
-      .format(time()-st)+'s')
+print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
 print('accessibility matrices can be found in accessibility.csv '
       'and accessibility_aggregated.csv')
 ```
-
-**Waring**: you may encounter **memory issue** to evaluate accessibility on a large network under the current implementation, which is not memory efficient for this functionality. It may be replaced with an advanced implementation using virtual centroids and connectors in the future.
-
 ## Build Path4GMNS from Source
 
 If you would like to test the latest features of Path4GMNS or have a compatible version to a specific operating system or an architecture, you can build the package from source and install it offline, where **Python 3.x** is required.
@@ -302,11 +293,11 @@ As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Envi
 # from the root directory of PATH4GMNS
 $ python setup.py sdist bdist_wheel
 $ cd dist
-# or python -m pip instal pypath4gmns-0.7.0a1-py3-none-any.whl
-$ python -m pip install path4gmns-0.7.0a1.tar.gz
+# or python -m pip instal pypath4gmns-0.7.0-py3-none-any.whl
+$ python -m pip install path4gmns-0.7.0.tar.gz
 ```
 
-Here, 0.7.0a1 is the version number. Replace it with the one specified in setup.py.
+Here, 0.7.0 is the version number. Replace it with the one specified in setup.py.
 
 ## Benchmarks
 Coming soon.
@@ -314,15 +305,17 @@ Coming soon.
 ## Upcoming Features
 - [x] Read and output node and link geometries (v0.6.0)
 - [x] Set up individual agents from aggregated OD demand only when it is needed (v0.6.0)
+- [x] Provide a setting file in yaml to let users control key parameters (v0.6.0)
+- [x] Support for multi-demand-period and multi-agent-type (v0.6.0)
 - [x] Load columns/paths from existing runs and continue path-base UE (v0.7.0a1)
 - [x] Download the predefined GMNS test data sets to usrs' local machines when needed (v0.7.0a1)
 - [x] Calculate and show up multimodal accessibilities (v0.7.0a1)
+- [x] Add allowed use in terms of agent type (i.e., transportation mode) for links (v0.7.0a1)
+- [x] Apply advanced and faster implementation on accessibility evaluation using virtual centroids and connectors (v0.7.0)
+- [x] Get accessible nodes and links given mode and time budget (v0.7.0)
 - [ ] Visualize individual column/paths on user's call
 - [ ] Let users modify the network topology in a simple way by adding/removing nodes and links
 - [ ] Enable manipulations on the overall travel demand and the demand between an OD pair
-- [x] Support for multi-demand-period and multi-agent-type (v0.6.0)
-- [x] Add allowed use in terms of agent type (i.e., transportation mode) for links (v0.7.0a1)
-- [x] Provide a setting file in yaml to let users control key parameters (v0.6.0)
 - [ ] Adopt parallel computing to further boost the performance
 
 ## Implementation Notes

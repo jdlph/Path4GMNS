@@ -10,9 +10,9 @@ def test_find_shortest_path():
     load_demand = False
     network = pg.read_network(load_demand)
 
-    print('\nshortest path (node id) from node 1 to node 2 is '
+    print('\nshortest path (node id) from node 1 to node 2 '
           +network.find_shortest_path(1, 2))
-    print('\nshortest path (link id) from node 1 to node 2 is '
+    print('\nshortest path (link id) from node 1 to node 2 '
           +network.find_shortest_path(1, 2, 'link'))
 
 
@@ -29,9 +29,9 @@ def test_find_shortest_path_for_agents():
           f'{network.get_agent_orig_node_id(agent_id)}')
     print('destination node id of agent is '
           f'{network.get_agent_dest_node_id(agent_id)}')
-    print('shortest path (node id) of agent is '
+    print('shortest path (node id) of agent '
           f'{network.get_agent_node_path(agent_id)}')
-    print('shortest path (link id) of agent is '
+    print('shortest path (link id) of agent '
           f'{network.get_agent_link_path(agent_id)}')
 
     agent_id = 1000
@@ -39,9 +39,9 @@ def test_find_shortest_path_for_agents():
           f'{network.get_agent_orig_node_id(agent_id)}')
     print('destination node id of agent is '
           f'{network.get_agent_dest_node_id(agent_id)}')
-    print('shortest path (node id) of agent is '
+    print('shortest path (node id) of agent '
           f'{network.get_agent_node_path(agent_id)}')
-    print('shortest path (link id) of agent is '
+    print('shortest path (link id) of agent '
           f'{network.get_agent_link_path(agent_id)}')
 
     pg.output_agent_paths(network)
@@ -112,7 +112,7 @@ def test_loading_columns():
 
 def test_accessibility():
     network = pg.read_network()
-    
+
     print('\nstart accessibility evaluation\n')
     st = time()
 
