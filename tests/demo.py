@@ -53,15 +53,15 @@ def test_column_generation_py():
     print('\nstart column generation\n')
     st = time()
 
-    iter_num = 20
-    column_update_num = 20
+    iter_num = 10
+    column_update_num = 10
     pg.perform_network_assignment(1, iter_num, column_update_num, network)
 
     print(f'processing time of column generation: {time()-st:.2f} s'
           f' for {iter_num} assignment iterations and '
           f'{column_update_num} iterations in column generation')
 
-    pg.output_columns(network)
+    pg.output_columns(network, False)
     pg.output_link_performance(network)
 
     print('\npath finding results can be found in agent.csv')
@@ -157,4 +157,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(1)
+    demo_mode(3)

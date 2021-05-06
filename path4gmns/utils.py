@@ -661,14 +661,13 @@ def load_columns(ui, input_dir='.'):
         update_links_using_columns(ui)
 
 
-def output_columns(ui, output_dir='.'):
+def output_columns(ui, output_geometry=True, output_dir='.'):
     with open(output_dir+'/agent.csv', 'w',  newline='') as fp:
-        network = ui._base_assignment
+        base = ui._base_assignment
 
-        nodes = network.get_nodes()
-        links = network.get_links()
-        zones = network.get_zones()
-        column_pool = network.get_column_pool()
+        nodes = base.get_nodes()
+        links = base.get_links()
+        column_pool = base.get_column_pool()
 
         writer = csv.writer(fp)
 
@@ -689,52 +688,58 @@ def output_columns(ui, output_dir='.'):
         writer.writerow(line)
 
         path_sep = ';'
-
         i = 0
-        for oz_id in zones:
-            for dz_id in zones:
-                for at in network.get_agent_types():
-                    for dp in network.get_demand_periods():
-                        if (at.get_id(), dp.get_id(), oz_id, dz_id) not in column_pool.keys():
-                            continue
+        for k, cv in column_pool.items():
+            if cv.get_od_volume() <= 0:
+                continue
 
-                        cv = column_pool[(at.get_id(), dp.get_id(), oz_id, dz_id)]
+            # k = (at_id, dp_id, oz_id, dz_id)
+            at_id = k[0]
+            dp_id = k[1]
+            oz_id = k[2]
+            dz_id = k[3]
 
-                        for col in cv.get_columns().values():
-                            i += 1
-                            node_seq = path_sep.join(
-                                str(nodes[x].get_node_id()) for x in reversed(col.nodes)
-                            )
-                            link_seq = path_sep.join(
-                                str(links[x].get_link_id()) for x in reversed(col.links)
-                            )
-                            geometry = ', '.join(
-                                nodes[x].get_coordinate() for x in reversed(col.nodes)
-                            )
-                            geometry = 'LINESTRING (' + geometry + ')'
+            at_str = base.get_agent_type_str(at_id)
+            dp_str = base.get_demand_period_str(dp_id)
 
-                            line = [i,
-                                    oz_id,
-                                    dz_id,
-                                    col.get_seq_no(),
-                                    at.get_type(),
-                                    dp.get_period(),
-                                    col.get_volume(),
-                                    col.get_toll(),
-                                    col.get_travel_time(),
-                                    col.get_distance(),
-                                    node_seq,
-                                    link_seq,
-                                    geometry]
+            for col in cv.get_columns().values():
+                i += 1
+                node_seq = path_sep.join(
+                    str(nodes[x].get_node_id()) for x in reversed(col.nodes)
+                )
+                link_seq = path_sep.join(
+                    str(links[x].get_link_id()) for x in reversed(col.links)
+                )
 
-                            writer.writerow(line)
+                geometry = ''
+                if output_geometry:
+                    geometry = ', '.join(
+                        nodes[x].get_coordinate() for x in reversed(col.nodes)
+                    )
+                    geometry = 'LINESTRING (' + geometry + ')'
+
+                line = [i,
+                        oz_id,
+                        dz_id,
+                        col.get_seq_no(),
+                        at_str,
+                        dp_str,
+                        col.get_volume(),
+                        col.get_toll(),
+                        col.get_travel_time(),
+                        col.get_distance(),
+                        node_seq,
+                        link_seq,
+                        geometry]
+
+                writer.writerow(line)
 
 
 def output_link_performance(ui, output_dir='.'):
     with open(output_dir+'/link_performance.csv', 'w',  newline='') as fp:
-        network = ui._base_assignment
+        base = ui._base_assignment
 
-        links = network.get_links()
+        links = base.get_links()
 
         writer = csv.writer(fp)
 
@@ -754,7 +759,7 @@ def output_link_performance(ui, output_dir='.'):
         writer.writerow(line)
 
         for link in links:
-            for dp in network.get_demand_periods():
+            for dp in base.get_demand_periods():
                 avg_travel_time = link.get_period_avg_travel_time(dp.get_id())
                 speed = link.get_length() / (max(0.001, avg_travel_time) / 60)
 
@@ -794,9 +799,9 @@ def output_agent_paths(ui, output_dir='.'):
 
         writer.writerow(line)
 
-        network = ui._base_assignment
-        nodes = network.get_nodes()
-        agents = network.get_agents()
+        base = ui._base_assignment
+        nodes = base.get_nodes()
+        agents = base.get_agents()
         agents.sort(key=lambda agent: agent.get_orig_node_id())
 
         pre_dest_node_id = -1
@@ -827,8 +832,8 @@ def output_agent_paths(ui, output_dir='.'):
                     'N/A',
                     'N/A',
                     a.get_path_cost(),
-                    network.get_agent_node_path(agent_id),
-                    network.get_agent_link_path(agent_id),
+                    base.get_agent_node_path(agent_id),
+                    base.get_agent_link_path(agent_id),
                     geometry]
 
             writer.writerow(line)

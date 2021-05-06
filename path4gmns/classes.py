@@ -1089,6 +1089,7 @@ class AccessNetwork(Network):
                     + link.get_toll() / min(0.001, vot) * 60
                 )
 
+
 class Assignment:
 
     def __init__(self):
@@ -1129,6 +1130,18 @@ class Assignment:
 
     def get_demand_period(self, dp_str):
         return self.demand_periods[self.get_demand_period_id(dp_str)]
+
+    def get_agent_type_str(self, at_id):
+        try:
+            return self.agent_types[at_id].get_type()
+        except KeyError:
+            raise Exception('NO agent type id: '+at_id)
+
+    def get_demand_period_str(self, dp_id):
+        try:
+            return self.demand_periods[dp_id].get_period()
+        except KeyError:
+            raise Exception('NO demand period id: '+dp_id)
 
     def update_demands(self, d):
         self.demands.append(d)
@@ -1322,6 +1335,7 @@ class Assignment:
         return [
             self.accessnetwork.get_pred_link_id(x) for x in nodes
         ]
+
 
 class UI:
     """ an abstract class only with user interfaces """
