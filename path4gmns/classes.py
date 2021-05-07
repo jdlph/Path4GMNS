@@ -432,7 +432,7 @@ class Network:
             print('Please provide a valid agent id, which shall be a\
                   positive integer!')
 
-    def get_agent_node_path(self, agent_id):
+    def get_agent_node_path(self, agent_id, path_only):
         """ return the sequence of node IDs along the agent path
 
         developer's note: consider changing its name to
@@ -447,9 +447,12 @@ class Network:
                 str(self.external_node_id_dict[x]) for x in reversed(agent.node_path)
             )
 
-        return f'distance: {agent.get_path_cost():.2f} | node path: {path}'
+        if path_only:
+            return path
+        else:
+            return f'distance: {agent.get_path_cost():.2f} | node path: {path}'
 
-    def get_agent_link_path(self, agent_id):
+    def get_agent_link_path(self, agent_id, path_only):
         """ return the sequence of link IDs along the agent path
 
         developer's note: consider changing its name to
@@ -464,7 +467,10 @@ class Network:
             self.link_list[x].get_link_id() for x in reversed(agent.link_path)
         )
 
-        return f'distance: {agent.get_path_cost():.2f} | link path: {path}'
+        if path_only:
+            return path
+        else:
+            return f'distance: {agent.get_path_cost():.2f} | link path: {path}'
 
     def get_agent_orig_node_id(self, agent_id):
         """ return the origin node id of agent """
@@ -1200,19 +1206,19 @@ class Assignment:
         """
         return self.network.get_agent_dest_node_id(agent_id)
 
-    def get_agent_node_path(self, agent_id):
+    def get_agent_node_path(self, agent_id, path_only=False):
         """ return the sequence of node IDs along the agent path
 
         exception will be handled by  _get_agent() in class Network
         """
-        return self.network.get_agent_node_path(agent_id)
+        return self.network.get_agent_node_path(agent_id, path_only)
 
-    def get_agent_link_path(self, agent_id):
+    def get_agent_link_path(self, agent_id, path_only=False):
         """ return the sequence of link IDs along the agent path
 
         exception will be handled by  _get_agent() in class Network
         """
-        return self.network.get_agent_link_path(agent_id)
+        return self.network.get_agent_link_path(agent_id, path_only)
 
     def find_path_for_agents(self):
         """ find and set up shortest path for each agent """

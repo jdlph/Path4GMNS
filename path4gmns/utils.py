@@ -832,8 +832,8 @@ def output_agent_paths(ui, output_dir='.'):
                     'N/A',
                     'N/A',
                     a.get_path_cost(),
-                    base.get_agent_node_path(agent_id),
-                    base.get_agent_link_path(agent_id),
+                    base.get_agent_node_path(agent_id, True),
+                    base.get_agent_link_path(agent_id, True),
                     geometry]
 
             writer.writerow(line)
