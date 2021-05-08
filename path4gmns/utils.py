@@ -779,7 +779,7 @@ def output_link_performance(ui, output_dir='.'):
                 writer.writerow(line)
 
 
-def output_agent_paths(ui, output_dir='.'):
+def output_agent_paths(ui, output_geometry=True, output_dir='.'):
     with open(output_dir+'/agent_paths.csv', 'w',  newline='') as f:
         writer = csv.writer(f)
 
@@ -816,11 +816,12 @@ def output_agent_paths(ui, output_dir='.'):
             if not a.get_node_path():
                continue
 
-            geometry = ', '.join(
-                nodes[x].get_coordinate() for x in reversed(a.get_node_path())
-            )
-
-            geometry = 'LINESTRING (' + geometry + ')'
+            geometry = ''
+            if output_geometry:
+                geometry = ', '.join(
+                    nodes[x].get_coordinate() for x in reversed(a.get_node_path())
+                )
+                geometry = 'LINESTRING (' + geometry + ')'
 
             line = [agent_id,
                     a.get_orig_zone_id(),

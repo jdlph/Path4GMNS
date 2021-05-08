@@ -44,6 +44,9 @@ def test_find_shortest_path_for_agents():
     print('shortest path (link id) of agent, '
           f'{network.get_agent_link_path(agent_id)}')
 
+    # output unique agent paths to a csv file
+    # if you do not want to include geometry info in the output file,
+    # you can do pg.output_agent_paths(network, False)
     pg.output_agent_paths(network)
 
 
@@ -113,7 +116,8 @@ def test_loading_columns():
 
 
 def test_accessibility():
-    network = pg.read_network()
+    load_demand = False
+    network = pg.read_network(load_demand)
 
     print('\nstart accessibility evaluation\n')
     st = time()
@@ -123,7 +127,7 @@ def test_accessibility():
     print('complete accessibility evaluation.\n')
     print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
     print('accessibility matrices can be found in accessibility.csv '
-          'and accessibility_aggregated.csv')
+          'and accessibility_aggregated.csv\n')
 
     # get accessible nodes and links starting from node 1 with a 5-minitue 
     # time window for the default mode auto (i.e., 'p')
@@ -166,4 +170,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(3)
+    demo_mode(2)

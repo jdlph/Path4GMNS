@@ -96,6 +96,9 @@ print('shortest path (node id) of agent, '
 print('shortest path (link id) of agent, '
       f'{network.get_agent_link_path(agent_id)}')
 
+# output unique agent paths to a csv file
+# if you do not want to include geometry info in the output file,
+# you can do pg.output_agent_paths(network, False)
 pg.output_agent_paths(network)
 ```
 
@@ -114,6 +117,8 @@ column_update_num = 10
 
 pg.perform_network_assignment(mode, assignment_num, column_update_num, network)
 
+# if you do not want to include geometry info in the output file,
+# you can do pg.output_columns(network, False)
 pg.output_columns(network)
 pg.output_link_performance(network)
 
@@ -138,8 +143,6 @@ column_update_num = 10
 
 pg.perform_network_assignment(mode, assignment_num, column_update_num, network)
 
-# if you do not want to include geometry info in the output file,
-# you can do pg.output_columns(network, False)
 pg.output_columns(network)
 pg.output_link_performance(network)
 
@@ -276,7 +279,7 @@ You can also get the accessible nodes and links within a time budget given a mod
 ```python
 import path4gmns as pg
 
-# you do not need to load demand file to only evaluate accessibility
+# you do not need to load demand file to evaluate accessibility
 load_demand = False
 network = pg.read_network(load_demand)
 
