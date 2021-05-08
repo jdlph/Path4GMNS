@@ -65,7 +65,7 @@ def test_column_generation_py():
           f'{column_update_num} iterations in column generation')
 
     # if you do not want to include geometry info in the output file,
-    # you can do pg.output_columns(network, False)
+    # use pg.output_columns(network, False)
     pg.output_columns(network)
     pg.output_link_performance(network)
 

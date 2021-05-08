@@ -98,7 +98,7 @@ print('shortest path (link id) of agent, '
 
 # output unique agent paths to a csv file
 # if you do not want to include geometry info in the output file,
-# you can do pg.output_agent_paths(network, False)
+# use pg.output_agent_paths(network, False)
 pg.output_agent_paths(network)
 ```
 
@@ -118,7 +118,7 @@ column_update_num = 10
 pg.perform_network_assignment(mode, assignment_num, column_update_num, network)
 
 # if you do not want to include geometry info in the output file,
-# you can do pg.output_columns(network, False)
+# use pg.output_columns(network, False)
 pg.output_columns(network)
 pg.output_link_performance(network)
 
@@ -132,7 +132,7 @@ import path4gmns as pg
 
 network = pg.read_network()
 # you can specify the input directory
-# like pg.load_columns(network, 'data/Chicago_Sketch')
+# e.g., pg.load_columns(network, 'data/Chicago_Sketch')
 pg.load_columns(network)
 
 # path-based UE
@@ -237,7 +237,7 @@ If pyyaml is not installed or settings.yml is not provided, one demand period (A
 ```python
 import path4gmns as pg
 
-# you do not need to load demand file to evaluate accessibility
+# no need to load demand file for accessibility evaluation
 load_demand = False
 network = pg.read_network(load_demand)
 
@@ -257,7 +257,7 @@ Two formats of accessibility will be outputed: accessibility between each OD pai
 ```python
 import path4gmns as pg
 
-# you do not need to load demand file to evaluate accessibility
+# no need to load demand file for accessibility evaluation
 load_demand = False
 network = pg.read_network(load_demand)
 
@@ -279,7 +279,7 @@ You can also get the accessible nodes and links within a time budget given a mod
 ```python
 import path4gmns as pg
 
-# you do not need to load demand file to evaluate accessibility
+# no need to load demand file for accessibility evaluation
 load_demand = False
 network = pg.read_network(load_demand)
 
