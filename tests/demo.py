@@ -10,9 +10,9 @@ def test_find_shortest_path():
     load_demand = False
     network = pg.read_network(load_demand)
 
-    print('\nshortest path (node id) from node 1 to node 2 '
+    print('\nshortest path (node id) from node 1 to node 2, '
           +network.find_shortest_path(1, 2))
-    print('\nshortest path (link id) from node 1 to node 2 '
+    print('\nshortest path (link id) from node 1 to node 2, '
           +network.find_shortest_path(1, 2, 'link'))
 
 
@@ -29,9 +29,9 @@ def test_find_shortest_path_for_agents():
           f'{network.get_agent_orig_node_id(agent_id)}')
     print('destination node id of agent is '
           f'{network.get_agent_dest_node_id(agent_id)}')
-    print('shortest path (node id) of agent '
+    print('shortest path (node id) of agent, '
           f'{network.get_agent_node_path(agent_id)}')
-    print('shortest path (link id) of agent '
+    print('shortest path (link id) of agent, '
           f'{network.get_agent_link_path(agent_id)}')
 
     agent_id = 1000
@@ -39,9 +39,9 @@ def test_find_shortest_path_for_agents():
           f'{network.get_agent_orig_node_id(agent_id)}')
     print('destination node id of agent is '
           f'{network.get_agent_dest_node_id(agent_id)}')
-    print('shortest path (node id) of agent '
+    print('shortest path (node id) of agent, '
           f'{network.get_agent_node_path(agent_id)}')
-    print('shortest path (link id) of agent '
+    print('shortest path (link id) of agent, '
           f'{network.get_agent_link_path(agent_id)}')
 
     pg.output_agent_paths(network)
@@ -61,7 +61,9 @@ def test_column_generation_py():
           f' for {iter_num} assignment iterations and '
           f'{column_update_num} iterations in column generation')
 
-    pg.output_columns(network, False)
+    # if you do not want to include geometry info in the output file,
+    # you can do pg.output_columns(network, False)
+    pg.output_columns(network)
     pg.output_link_performance(network)
 
     print('\npath finding results can be found in agent.csv')
@@ -123,8 +125,15 @@ def test_accessibility():
     print('accessibility matrices can be found in accessibility.csv '
           'and accessibility_aggregated.csv')
 
+    # get accessible nodes and links starting from node 1 with a 5-minitue 
+    # time window for the default mode auto (i.e., 'p')
     network.get_accessible_nodes(1, 5)
     network.get_accessible_links(1, 5)
+
+    # get accessible nodes and links starting from node 1 with a 15-minitue
+    # time window for mode walk (i.e., 'w')
+    network.get_accessible_nodes(1, 15, 'w')
+    network.get_accessible_links(1, 15, 'w')
 
 
 def demo_mode(mode):
@@ -157,4 +166,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(2)
+    demo_mode(3)

@@ -21,7 +21,7 @@ If you need a specific version of Path4GMNS, say, 0.7.0,
 $ pip install path4gmns==0.7.0
 ```
 
-v0.7.0 comes with new functionalities, improved performance, potential issue fix, and more robust input loading. All previous releases shall be deprecated for any purposes. 
+v0.7.0 comes with new functionalities, improved performance, and potential issue fix. All previous releases shall be deprecated for any purposes.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding use cases in the following section.
@@ -46,9 +46,9 @@ import path4gmns as pg
 load_demand = False
 network = pg.read_network(load_demand)
 
-print('\nshortest path (node id) from node 1 to node 2 '
+print('\nshortest path (node id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2))
-print('\nshortest path (link id) from node 1 to node 2 '
+print('\nshortest path (link id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2, 'link'))
 ```
 
@@ -60,15 +60,16 @@ import path4gmns as pg
 load_demand = False
 network = pg.read_network(load_demand, input_dir='data/Chicago_Sketch')
 
-print('\nshortest path (node id) from node 1 to node 2 '
+print('\nshortest path (node id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2))
-print('\nshortest path (link id) from node 1 to node 2 '
+print('\nshortest path (link id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2, 'link'))
 ```
 
 ### Find Shortest Paths for All Individual Agents
 Path4GMNS is capable of calculating and constructing the (static) shortest paths for all agents. Individual agents will be automatically set up using the aggregated travel demand between each OD pair within find_path_for_agents() on its first call.
 
+The unique agent paths can be outputed to a csv file as shown in the example below.
 ```python
 import path4gmns as pg
 
@@ -80,9 +81,9 @@ print('\norigin node id of agent is '
       f'{network.get_agent_orig_node_id(agent_id)}')
 print('destination node id of agent is '
       f'{network.get_agent_dest_node_id(agent_id)}')
-print('shortest path (node id) of agent '
+print('shortest path (node id) of agent, '
       f'{network.get_agent_node_path(agent_id)}')
-print('shortest path (link id) of agent '
+print('shortest path (link id) of agent, '
       f'{network.get_agent_link_path(agent_id)}')
 
 agent_id = 1000
@@ -90,9 +91,9 @@ print('\norigin node id of agent is '
       f'{network.get_agent_orig_node_id(agent_id)}')
 print('destination node id of agent is '
       f'{network.get_agent_dest_node_id(agent_id)}')
-print('shortest path (node id) of agent '
+print('shortest path (node id) of agent, '
       f'{network.get_agent_node_path(agent_id)}')
-print('shortest path (link id) of agent '
+print('shortest path (link id) of agent, '
       f'{network.get_agent_link_path(agent_id)}')
 
 pg.output_agent_paths(network)
@@ -137,6 +138,8 @@ column_update_num = 10
 
 pg.perform_network_assignment(mode, assignment_num, column_update_num, network)
 
+# if you do not want to include geometry info in the output file,
+# you can do pg.output_columns(network, False)
 pg.output_columns(network)
 pg.output_link_performance(network)
 
@@ -231,7 +234,7 @@ If pyyaml is not installed or settings.yml is not provided, one demand period (A
 ```python
 import path4gmns as pg
 
-# you do not need to load demand file to only evaluate accessibility
+# you do not need to load demand file to evaluate accessibility
 load_demand = False
 network = pg.read_network(load_demand)
 
@@ -251,7 +254,7 @@ Two formats of accessibility will be outputed: accessibility between each OD pai
 ```python
 import path4gmns as pg
 
-# you do not need to load demand file to only evaluate accessibility
+# you do not need to load demand file to evaluate accessibility
 load_demand = False
 network = pg.read_network(load_demand)
 
@@ -267,6 +270,27 @@ print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
 print('accessibility matrices can be found in accessibility.csv '
       'and accessibility_aggregated.csv')
 ```
+
+You can also get the accessible nodes and links within a time budget given a mode. Similar to the accessibility evalution, the selected mode must come from settings.yml.
+
+```python
+import path4gmns as pg
+
+# you do not need to load demand file to only evaluate accessibility
+load_demand = False
+network = pg.read_network(load_demand)
+
+# get accessible nodes and links starting from node 1 with a 5-minitue
+# time window for the default mode auto (i.e., 'p')
+network.get_accessible_nodes(1, 5)
+network.get_accessible_links(1, 5)
+
+# get accessible nodes and links starting from node 1 with a 15-minitue
+# time window for mode walk (i.e., 'w')
+network.get_accessible_nodes(1, 15, 'w')
+network.get_accessible_links(1, 15, 'w')
+```
+
 ## Build Path4GMNS from Source
 
 If you would like to test the latest features of Path4GMNS or have a compatible version to a specific operating system or an architecture, you can build the package from source and install it offline, where **Python 3.x** is required.
@@ -309,13 +333,13 @@ Coming soon.
 - [x] Support for multi-demand-period and multi-agent-type (v0.6.0)
 - [x] Load columns/paths from existing runs and continue path-base UE (v0.7.0a1)
 - [x] Download the predefined GMNS test data sets to usrs' local machines when needed (v0.7.0a1)
-- [x] Calculate and show up multimodal accessibilities (v0.7.0a1)
 - [x] Add allowed use in terms of agent type (i.e., transportation mode) for links (v0.7.0a1)
-- [x] Apply advanced and faster implementation on accessibility evaluation using virtual centroids and connectors (v0.7.0)
+- [x] Calculate and show up multimodal accessibilities (v0.7.0a1)
+- [x] Apply lightweight and faster implementation on accessibility evaluation using virtual centroids and connectors (v0.7.0)
 - [x] Get accessible nodes and links given mode and time budget (v0.7.0)
-- [ ] Visualize individual column/paths on user's call
 - [ ] Let users modify the network topology in a simple way by adding/removing nodes and links
 - [ ] Enable manipulations on the overall travel demand and the demand between an OD pair
+- [ ] Visualize individual column/paths on user's call
 - [ ] Adopt parallel computing to further boost the performance
 
 ## Implementation Notes
