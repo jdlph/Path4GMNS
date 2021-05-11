@@ -384,7 +384,7 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, ui)
         # loop through all nodes on the base network
         _assignment(A.get_spnetworks(), column_pool, i)
 
-    print('\nprocessing time of assignment:{0: .2f}'.format(time()-st)+ 's\n')
+    print(f'\nprocessing time of assignment: {time()-st:.2f} s')
 
     _optimize_column_pool(column_pool, links, ats, dps, column_update_num)
 

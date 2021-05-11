@@ -133,12 +133,12 @@ def read_nodes(input_dir,
         for line in reader:
             # set up node_id, which should be an integer
             node_id = _convert_str_to_int(line['node_id'])
-            if not node_id:
+            if node_id is None:
                 continue
 
             # set up zone_id, which should be an integer
             zone_id = _convert_str_to_int(line['zone_id'])
-            if not zone_id:
+            if zone_id is None:
                 zone_id = -1
 
             # treat them as string
@@ -190,15 +190,15 @@ def read_links(input_dir,
 
             # check the validility
             from_node_id = _convert_str_to_int(line['from_node_id'])
-            if not from_node_id:
+            if from_node_id is None:
                 continue
 
             to_node_id =_convert_str_to_int(line['to_node_id'])
-            if not to_node_id:
+            if to_node_id is None:
                 continue
 
             length = _convert_str_to_float(line['length'])
-            if not length:
+            if length is None:
                 continue
 
             # pass validility check
@@ -215,20 +215,20 @@ def read_links(input_dir,
             # if they are not None, convert them to the corresponding types
             # if they are None's, set them using the default values
             lanes = _convert_str_to_int(line['lanes'])
-            if not lanes:
+            if lanes is None:
                 lanes = 1
 
             link_type = _convert_str_to_int(line['link_type'])
-            if not link_type:
+            if link_type is None:
                 link_type = 1
 
             free_speed = _convert_str_to_int(line['free_speed'])
-            if not free_speed:
+            if free_speed is None:
                 free_speed = 60
 
             # issue: int??
             capacity = _convert_str_to_int(line['capacity'])
-            if not capacity:
+            if capacity is None:
                 capacity = 49500
 
             # if link.csv does not have no column 'allowed_uses',
@@ -377,12 +377,12 @@ def read_demand(input_dir,
         for line in reader:
             # invalid origin zone id, discard it
             oz_id = _convert_str_to_int(line['o_zone_id'])
-            if not oz_id:
+            if oz_id is None:
                 continue
 
             # invalid destinationzone id, discard it
             dz_id = _convert_str_to_int(line['d_zone_id'])
-            if not dz_id:
+            if dz_id is None:
                 continue
 
             # o_zone_id does not exist in node.csv, discard it
@@ -394,7 +394,7 @@ def read_demand(input_dir,
                 continue
 
             volume = _convert_str_to_float(line['volume'])
-            if not volume:
+            if volume is None:
                 continue
 
             # set up volume for ColumnVec
@@ -544,24 +544,24 @@ def load_columns(ui, input_dir='.'):
         for line in reader:
             # critical info
             oz_id = _convert_str_to_int(line['o_zone_id'])
-            if not oz_id:
+            if oz_id is None:
                 continue
 
             dz_id = _convert_str_to_int(line['d_zone_id'])
-            if not dz_id:
+            if dz_id is None:
                 continue
 
             node_seq = line['node_sequence']
-            if not node_seq:
+            if node_seq is None:
                 continue
 
             link_seq = line['link_sequence']
-            if not link_seq:
+            if link_seq is None:
                 continue
 
             # non-critical info
             agent_id = _convert_str_to_int(line['agent_id'])
-            if not agent_id:
+            if agent_id is None:
                 agent_id = last_agent_id + 1
 
             last_agent_id = agent_id
@@ -582,19 +582,19 @@ def load_columns(ui, input_dir='.'):
                 dp = A.get_demand_period_id(dp)
 
             vol = _convert_str_to_float(line['volume'])
-            if not vol:
+            if vol is None:
                 continue
 
             toll = _convert_str_to_float(line['toll'])
-            if not toll:
+            if toll is None:
                 toll = 0
 
             tt = _convert_str_to_float(line['travel_time'])
-            if not tt:
+            if tt is None:
                 tt = 0
 
             dist = _convert_str_to_float(line['distance'])
-            if not dist:
+            if dist is None:
                 dist = 0
 
             # it could be empty
