@@ -441,6 +441,10 @@ class Network:
         agent_no = agent_id - 1
         agent = self._get_agent(agent_no)
 
+        path_cost = agent.get_path_cost()
+        if path_cost >= MAX_LABEL_COST:
+            return f'distance: infinitity | path: '
+
         path = ''
         if agent.node_path:
             path = ';'.join(
@@ -450,7 +454,7 @@ class Network:
         if path_only:
             return path
         else:
-            return f'distance: {agent.get_path_cost():.2f} | node path: {path}'
+            return f'distance: {path_cost:.2f} | node path: {path}'
 
     def get_agent_link_path(self, agent_id, path_only):
         """ return the sequence of link IDs along the agent path
@@ -461,6 +465,10 @@ class Network:
         agent_no = agent_id - 1
         agent = self._get_agent(agent_no)
 
+        path_cost = agent.get_path_cost()
+        if path_cost >= MAX_LABEL_COST:
+            return f'distance: infinitity | path: '
+        
         path = ''
         if agent.link_path:
             path = ';'.join(
@@ -470,7 +478,7 @@ class Network:
         if path_only:
             return path
         else:
-            return f'distance: {agent.get_path_cost():.2f} | link path: {path}'
+            return f'distance: {path_cost:.2f} | link path: {path}'
 
     def get_agent_orig_node_id(self, agent_id):
         """ return the origin node id of agent """

@@ -77,9 +77,10 @@ def test_column_generation_dtalite():
     print('start column generation using DTALite')
     st = time()
 
+    mode = 1
     iter_num = 20
     column_update_num = 20
-    pg.perform_network_assignment_DTALite(1, iter_num, column_update_num)
+    pg.perform_network_assignment_DTALite(mode, iter_num, column_update_num)
 
     print(f'processing time of column generation: {time()-st:.2f} s'
           f' for {iter_num} assignment iterations and '

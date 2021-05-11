@@ -282,12 +282,16 @@ def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
 
     single_source_shortest_path(G, from_node_id, engine_type='c')
 
-    # return list(output_path_sequence(G, from_node_id, to_node_id, seq_type))
+    path_cost = _get_path_cost(G, to_node_id)
+
+    if path_cost >= MAX_LABEL_COST:
+        return f'distance: infinitity | path: '
+
     path = ';'.join(
         str(x) for x in output_path_sequence(G, to_node_id, seq_type)
     )
 
-    return f'distance: {_get_path_cost(G, to_node_id):.2f} | path: {path}'
+    return f'distance: {path_cost:.2f} | path: {path}'
 
 
 def find_path_for_agents(G, column_pool, engine_type='c'):
