@@ -363,7 +363,9 @@ def read_demand(input_dir,
                 agent_type_id,
                 demand_period_id,
                 zone_to_node_dict,
-                column_pool):
+                column_pool,
+                nodes,
+                id_to_no_dict):
 
     """ step 3:read input_agent """
     with open(input_dir+'/'+file, 'r', encoding='utf-8') as fp:
@@ -406,6 +408,34 @@ def read_demand(input_dir,
                 continue
 
             total_agents += int(volume + 1)
+
+            # precheck on connectivity of each OD pair
+            # at least one node in O must have outgoing links
+            has_outgoing_links_ = False
+
+            for node_id in zone_to_node_dict[oz_id]:
+                node_no = id_to_no_dict[node_id]
+                node = nodes[node_no]
+                if node.has_outgoing_links():
+                    has_outgoing_links_ = True
+                    break
+
+            if not has_outgoing_links_:
+                print(f'WARNING! {oz_id} has no outgoing links to route volume')
+                continue
+
+            # at least one node in D must have incoming links
+            has_incoming_links_ = False
+
+            for node_id in zone_to_node_dict[dz_id]:
+                node_no = id_to_no_dict[node_id]
+                node = nodes[node_no]
+                if node.has_incoming_links():
+                    has_incoming_links_ = True
+                    break
+
+            if not has_incoming_links_:
+                print(f'WARNING! {dz_id} has no incoming links to route volume')
 
     print(f"the number of agents is {total_agents}")
 
@@ -517,7 +547,9 @@ def read_network(load_demand='true', input_dir='.'):
                         at,
                         dp,
                         network.zone_to_nodes_dict,
-                        assignm.column_pool)
+                        assignm.column_pool,
+                        network.node_list,
+                        network.internal_node_seq_no_dict)
 
     network.update(assignm.get_agent_type_count(),
                    assignm.get_demand_period_count())

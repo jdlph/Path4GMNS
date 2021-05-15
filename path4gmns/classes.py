@@ -27,6 +27,9 @@ class Node:
     def has_outgoing_links(self):
         return len(self.outgoing_link_list) > 0
 
+    def has_incoming_links(self):
+        return len(self.incoming_link_list) > 0
+
     def get_zone_id(self):
         return self.zone_id
 
