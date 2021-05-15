@@ -18,6 +18,9 @@ __all__ = [
 ]
 
 
+_zone_degrees = []
+
+
 def _convert_str_to_int(str):
     """
     TypeError will take care the case that str is None
@@ -175,12 +178,16 @@ def read_links(input_dir,
                nodes,
                id_to_no_dict,
                link_id_dict,
+               zone_size,
                agent_type_size,
                demand_period_size):
 
     """ step 2: read input_link """
     with open(input_dir+'/link.csv', 'r', encoding='utf-8') as fp:
         print('read link.csv')
+
+        global _zone_degrees
+        _zone_degrees = [0] * zone_size
 
         reader = csv.DictReader(fp)
         link_seq_no = 0
@@ -349,9 +356,29 @@ def read_links(input_dir,
                 link.vdfperiods.append(vdf)
 
             # set up outgoing links and incoming links
-            nodes[from_node_no].add_outgoing_link(link)
-            nodes[to_node_no].add_incoming_link(link)
+            from_node = nodes[from_node_no]
+            to_node = nodes[to_node_no]
+            from_node.add_outgoing_link(link)
+            to_node.add_incoming_link(link)
             links.append(link)
+            
+            # set up zone degrees
+            # 0: isolated, has neither outgoing links nor incoming links
+            # 1: has at least one outgoing link
+            # 2: has at least one incoming link
+            # 3: has both outgoing and incoming links
+            oz_id = from_node.get_zone_id()
+            dz_id = to_node.get_zone_id()
+            
+            if _zone_degrees[oz_id] == 0:
+                _zone_degrees = 1
+            elif _zone_degrees[oz_id] == 2:
+                _zone_degrees = 3
+
+            if _zone_degrees[dz_id] == 0:
+                _zone_degrees = 2
+            elif _zone_degrees[dz_id] == 1:
+                _zone_degrees = 3
 
             link_seq_no += 1
 
@@ -411,30 +438,12 @@ def read_demand(input_dir,
 
             # precheck on connectivity of each OD pair
             # at least one node in O must have outgoing links
-            has_outgoing_links_ = False
-
-            for node_id in zone_to_node_dict[oz_id]:
-                node_no = id_to_no_dict[node_id]
-                node = nodes[node_no]
-                if node.has_outgoing_links():
-                    has_outgoing_links_ = True
-                    break
-
-            if not has_outgoing_links_:
+            if _zone_degrees[oz_id] == 0 or _zone_degrees[oz_id] == 2:
                 print(f'WARNING! {oz_id} has no outgoing links to route volume')
                 continue
 
             # at least one node in D must have incoming links
-            has_incoming_links_ = False
-
-            for node_id in zone_to_node_dict[dz_id]:
-                node_no = id_to_no_dict[node_id]
-                node = nodes[node_no]
-                if node.has_incoming_links():
-                    has_incoming_links_ = True
-                    break
-
-            if not has_incoming_links_:
+            if _zone_degrees[dz_id] == 0 or _zone_degrees[dz_id] == 1:
                 print(f'WARNING! {dz_id} has no incoming links to route volume')
 
     print(f"the number of agents is {total_agents}")
