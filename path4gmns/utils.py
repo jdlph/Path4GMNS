@@ -18,7 +18,45 @@ __all__ = [
 ]
 
 
+# for precheck on connectivity of each OD pair
 _zone_degrees = []
+
+
+def _initialize_zone_degrees(zone_size):
+    assert(zone_size > 0)
+
+    global _zone_degrees
+    _zone_degrees = [0] * zone_size
+
+
+def _update_orig_zone(oz_id):
+    global _zone_degrees
+
+    if _zone_degrees[oz_id] == 0:
+        _zone_degrees[oz_id] = 1
+    elif _zone_degrees[oz_id] == 2:
+        _zone_degrees[oz_id] = 3
+
+
+def _update_dest_zone(dz_id):
+    global _zone_degrees
+
+    if _zone_degrees[dz_id] == 0:
+        _zone_degrees[dz_id] = 2
+    elif _zone_degrees[dz_id] == 1:
+        _zone_degrees[dz_id] = 3
+
+
+def _check_connectivity(oz_id, dz_id):
+    # at least one node in O must have outgoing links
+    if _zone_degrees[oz_id] == 0 or _zone_degrees[oz_id] == 2:
+        print(f'WARNING! {oz_id} has no outgoing links to route volume'
+              f'between OD: {oz_id} --> {dz_id}')
+
+    # at least one node in D must have incoming links
+    if _zone_degrees[dz_id] == 0 or _zone_degrees[dz_id] == 1:
+        print(f'WARNING! {dz_id} has no incoming links to route volume'
+              f'between OD: {oz_id} --> {dz_id}')
 
 
 def _convert_str_to_int(str):
@@ -180,14 +218,15 @@ def read_links(input_dir,
                link_id_dict,
                zone_size,
                agent_type_size,
-               demand_period_size):
+               demand_period_size,
+               load_demand):
 
     """ step 2: read input_link """
     with open(input_dir+'/link.csv', 'r', encoding='utf-8') as fp:
         print('read link.csv')
 
-        global _zone_degrees
-        _zone_degrees = [0] * zone_size
+        if load_demand:
+            _initialize_zone_degrees(zone_size)
 
         reader = csv.DictReader(fp)
         link_seq_no = 0
@@ -367,18 +406,11 @@ def read_links(input_dir,
             # 1: has at least one outgoing link
             # 2: has at least one incoming link
             # 3: has both outgoing and incoming links
-            oz_id = from_node.get_zone_id()
-            dz_id = to_node.get_zone_id()
-            
-            if _zone_degrees[oz_id] == 0:
-                _zone_degrees = 1
-            elif _zone_degrees[oz_id] == 2:
-                _zone_degrees = 3
-
-            if _zone_degrees[dz_id] == 0:
-                _zone_degrees = 2
-            elif _zone_degrees[dz_id] == 1:
-                _zone_degrees = 3
+            if load_demand:
+                oz_id = from_node.get_zone_id()
+                dz_id = to_node.get_zone_id()
+                _update_orig_zone(oz_id)
+                _update_dest_zone(dz_id)
 
             link_seq_no += 1
 
@@ -390,9 +422,7 @@ def read_demand(input_dir,
                 agent_type_id,
                 demand_period_id,
                 zone_to_node_dict,
-                column_pool,
-                nodes,
-                id_to_no_dict):
+                column_pool):
 
     """ step 3:read input_agent """
     with open(input_dir+'/'+file, 'r', encoding='utf-8') as fp:
@@ -437,14 +467,8 @@ def read_demand(input_dir,
             total_agents += int(volume + 1)
 
             # precheck on connectivity of each OD pair
-            # at least one node in O must have outgoing links
-            if _zone_degrees[oz_id] == 0 or _zone_degrees[oz_id] == 2:
-                print(f'WARNING! {oz_id} has no outgoing links to route volume')
-                continue
+            _check_connectivity(oz_id, dz_id)
 
-            # at least one node in D must have incoming links
-            if _zone_degrees[dz_id] == 0 or _zone_degrees[dz_id] == 1:
-                print(f'WARNING! {dz_id} has no incoming links to route volume')
 
     print(f"the number of agents is {total_agents}")
 
@@ -544,8 +568,10 @@ def read_network(load_demand='true', input_dir='.'):
                network.node_list,
                network.internal_node_seq_no_dict,
                network.link_id_dict,
+               network.get_zone_size(),
                assignm.get_agent_type_count(),
-               assignm.get_demand_period_count())
+               assignm.get_demand_period_count(),
+               load_demand)
 
     if load_demand:
         for d in assignm.get_demands():
@@ -556,9 +582,7 @@ def read_network(load_demand='true', input_dir='.'):
                         at,
                         dp,
                         network.zone_to_nodes_dict,
-                        assignm.column_pool,
-                        network.node_list,
-                        network.internal_node_seq_no_dict)
+                        assignm.column_pool)
 
     network.update(assignm.get_agent_type_count(),
                    assignm.get_demand_period_count())

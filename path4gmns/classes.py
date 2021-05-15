@@ -521,6 +521,9 @@ class Network:
     def get_zones(self):
         return self.zones
 
+    def get_zone_size(self):
+        return len(self.zone_to_nodes_dict)
+
     def get_from_node_no_arr(self):
         return self.from_node_no_array
 
