@@ -1,5 +1,5 @@
-import csv
 import os
+import csv
 import threading
 
 from .classes import Node, Link, Network, Column, ColumnVec, VDFPeriod, \
@@ -47,16 +47,23 @@ def _update_dest_zone(dz_id):
         _zone_degrees[dz_id] = 3
 
 
-def _check_connectivity(oz_id, dz_id):
+def _are_od_connected(oz_id, dz_id):
+    connected = True
+
     # at least one node in O must have outgoing links
     if _zone_degrees[oz_id] == 0 or _zone_degrees[oz_id] == 2:
-        print(f'WARNING! {oz_id} has no outgoing links to route volume'
+        connected = False
+        print(f'WARNING! {oz_id} has no outgoing links to route volume '
               f'between OD: {oz_id} --> {dz_id}')
 
     # at least one node in D must have incoming links
     if _zone_degrees[dz_id] == 0 or _zone_degrees[dz_id] == 1:
-        print(f'WARNING! {dz_id} has no incoming links to route volume'
+        if connected:
+            connected = False
+        print(f'WARNING! {dz_id} has no incoming links to route volume '
               f'between OD: {oz_id} --> {dz_id}')
+
+    return connected
 
 
 def _convert_str_to_int(str):
@@ -400,7 +407,7 @@ def read_links(input_dir,
             from_node.add_outgoing_link(link)
             to_node.add_incoming_link(link)
             links.append(link)
-            
+
             # set up zone degrees
             # 0: isolated, has neither outgoing links nor incoming links
             # 1: has at least one outgoing link
@@ -456,19 +463,19 @@ def read_demand(input_dir,
             if volume is None:
                 continue
 
+            if volume == 0:
+                continue
+
+            # precheck on connectivity of each OD pair
+            if not _are_od_connected(oz_id, dz_id):
+                continue
+
             # set up volume for ColumnVec
             if (at, dp, oz_id, dz_id) not in column_pool.keys():
                 column_pool[(at, dp, oz_id, dz_id)] = ColumnVec()
             column_pool[(at, dp, oz_id, dz_id)].od_vol += volume
 
-            if volume == 0:
-                continue
-
             total_agents += int(volume + 1)
-
-            # precheck on connectivity of each OD pair
-            _check_connectivity(oz_id, dz_id)
-
 
     print(f"the number of agents is {total_agents}")
 
@@ -799,6 +806,14 @@ def output_columns(ui, output_geometry=True, output_dir='.'):
 
                 writer.writerow(line)
 
+        if output_dir == '.':
+            print('\ncheck agent.csv in '
+                  +os.getcwd()+' for path finding results')
+        else:
+            print('\ncheck agent.csv in '
+                  +os.path.join(os.getcwd(), output_dir)
+                  +' for path finding results')
+
 
 def output_link_performance(ui, output_dir='.'):
     with open(output_dir+'/link_performance.csv', 'w',  newline='') as fp:
@@ -842,6 +857,14 @@ def output_link_performance(ui, output_dir='.'):
                         '']
 
                 writer.writerow(line)
+
+        if output_dir == '.':
+            print('\ncheck link_performance.csv in '
+                  +os.getcwd()+' for link performance')
+        else:
+            print('\ncheck link_performance.csv in '
+                  +os.path.join(os.getcwd(), output_dir)
+                  +' for link performance')
 
 
 def output_agent_paths(ui, output_geometry=True, output_dir='.'):
@@ -903,3 +926,11 @@ def output_agent_paths(ui, output_geometry=True, output_dir='.'):
                     geometry]
 
             writer.writerow(line)
+
+        if output_dir == '.':
+            print('\ncheck agent_paths.csv in '
+                   +os.getcwd()+' for unique agent paths')
+        else:
+            print('\ncheck agent_paths.csv in '
+                  +os.path.join(os.getcwd(), output_dir)
+                  +' for unique agent paths')

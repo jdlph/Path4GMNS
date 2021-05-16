@@ -1,3 +1,4 @@
+import os
 import csv
 import threading
 
@@ -73,6 +74,14 @@ def _output_accessibility(min_travel_times, output_dir='.'):
             line = [k[0], '', k[1], '', v, '']
             writer.writerow(line)
 
+        if output_dir == '.':
+            print('\ncheck accessibility.csv in '
+                  +os.getcwd()+' for accessibility matrix')
+        else:
+            print('\ncheck accessibility.csv in '
+                  +os.path.join(os.getcwd(), output_dir)
+                  +' for accessibility matrix')
+
 
 def _output_accessibility_aggregated(min_travel_times, interval_num,
                                      zones, ats, output_dir='.'):
@@ -114,6 +123,14 @@ def _output_accessibility_aggregated(min_travel_times, interval_num,
                 line = [oz, '', atype.get_type()]
                 line.extend(counts)
                 writer.writerow(line)
+
+        if output_dir == '.':
+            print('\ncheck accessibility_aggregated.csv in '
+                  +os.getcwd()+' for aggregated accessibility matrix')
+        else:
+            print('\ncheck accessibility_aggregated.csv in '
+                  +os.path.join(os.getcwd(), output_dir)
+                  +' for aggregated accessibility matrix')
 
 
 def evaluate_accessibility(ui, multimodal=True, output_dir='.'):
