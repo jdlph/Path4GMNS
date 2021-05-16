@@ -19,6 +19,10 @@ __all__ = [
 
 
 # for precheck on connectivity of each OD pair
+# 0: isolated, has neither outgoing links nor incoming links
+# 1: has at least one outgoing link
+# 2: has at least one incoming link
+# 3: has both outgoing and incoming links
 _zone_degrees = []
 
 
@@ -409,10 +413,6 @@ def read_links(input_dir,
             links.append(link)
 
             # set up zone degrees
-            # 0: isolated, has neither outgoing links nor incoming links
-            # 1: has at least one outgoing link
-            # 2: has at least one incoming link
-            # 3: has both outgoing and incoming links
             if load_demand:
                 oz_id = from_node.get_zone_id()
                 dz_id = to_node.get_zone_id()
@@ -477,7 +477,10 @@ def read_demand(input_dir,
 
             total_agents += int(volume + 1)
 
-    print(f"the number of agents is {total_agents}")
+        print(f"the number of agents is {total_agents}")
+
+        if total_agents == 0:
+            raise Exception('NO VALID OD VOLUME!! DOUBLE CHECK YOUR demand.csv')
 
 
 def _auto_setup(assignment):
