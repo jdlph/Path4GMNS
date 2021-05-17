@@ -12,16 +12,16 @@ Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path e
 4. evaluating multimodal accessibility.
 
 ## Installation
-Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.7.0/), and can be installed using
+Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.7.1/), and can be installed using
 ```
 $ pip install path4gmns
 ```
-If you need a specific version of Path4GMNS, say, 0.7.0,
+If you need a specific version of Path4GMNS, say, 0.7.1,
 ```
-$ pip install path4gmns==0.7.0
+$ pip install path4gmns==0.7.1
 ```
 
-v0.7.0 comes with new functionalities, improved performance, and potential issue fix. All previous releases shall be deprecated for any purposes.
+v0.7.1 comes with potential issue fixes. All previous releases shall be deprecated for any purposes.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding use cases in the following section.
@@ -121,8 +121,6 @@ pg.perform_network_assignment(mode, assignment_num, column_update_num, network)
 # use pg.output_columns(network, False)
 pg.output_columns(network)
 pg.output_link_performance(network)
-
-print('\npath finding results can be found in agent.csv')
 ```
 
 Starting from v0.7.0a1, Path4GMNS supports loading columns/paths from existing files (generated from either the Python module or DTALite) and continue the column-generation procedure from where you left. Please **skip the assignment stage** and go directly to column pool optimization by setting **assignment_num = 0**.
@@ -145,8 +143,6 @@ pg.perform_network_assignment(mode, assignment_num, column_update_num, network)
 
 pg.output_columns(network)
 pg.output_link_performance(network)
-
-print('\npath finding results can be found in agent.csv')
 ```
 
 ### Perform Path-Based UE Traffic Assignment using DTALite
@@ -248,8 +244,6 @@ pg.evaluate_accessibility(network)
 
 print('complete accessibility evaluation.\n')
 print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
-print('accessibility matrices can be found in accessibility.csv '
-      'and accessibility_aggregated.csv')
 ```
 
 Two formats of accessibility will be outputed: accessibility between each OD pair in terms of free flow travel time (accessibility.csv) and aggregated accessibility as to the number of accessible zones from each zone for each transportation mode specified in settings.yml given a budget time (up to 240 minutes) (accessibility_aggregated.csv). The following example is to evaluate accessibility only under the default mode (i.e. mode auto or agent type passenger).
@@ -270,8 +264,6 @@ pg.evaluate_accessiblity(network, multimodal)
 
 print('complete accessibility evaluation.\n')
 print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
-print('accessibility matrices can be found in accessibility.csv '
-      'and accessibility_aggregated.csv')
 ```
 
 You can also get the accessible nodes and links within a time budget given a mode. Similar to the accessibility evalution, the selected mode must come from settings.yml.

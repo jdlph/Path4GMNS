@@ -27,6 +27,9 @@ class Node:
     def has_outgoing_links(self):
         return len(self.outgoing_link_list) > 0
 
+    def has_incoming_links(self):
+        return len(self.incoming_link_list) > 0
+
     def get_zone_id(self):
         return self.zone_id
 
@@ -517,6 +520,9 @@ class Network:
 
     def get_zones(self):
         return self.zones
+
+    def get_zone_size(self):
+        return len(self.zone_to_nodes_dict)
 
     def get_from_node_no_arr(self):
         return self.from_node_no_array

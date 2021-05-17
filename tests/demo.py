@@ -56,8 +56,8 @@ def test_column_generation_py():
     print('\nstart column generation\n')
     st = time()
 
-    iter_num = 10
-    column_update_num = 10
+    iter_num = 20
+    column_update_num = 20
     pg.perform_network_assignment(1, iter_num, column_update_num, network)
 
     print(f'processing time of column generation: {time()-st:.2f} s'
@@ -68,8 +68,6 @@ def test_column_generation_py():
     # use pg.output_columns(network, False)
     pg.output_columns(network)
     pg.output_link_performance(network)
-
-    print('\npath finding results can be found in agent.csv')
 
 
 def test_column_generation_dtalite():
@@ -113,8 +111,6 @@ def test_loading_columns():
     pg.output_columns(network)
     pg.output_link_performance(network)
 
-    print('\npath finding results can be found in agent.csv')
-
 
 def test_accessibility():
     load_demand = False
@@ -127,8 +123,6 @@ def test_accessibility():
 
     print('complete accessibility evaluation.\n')
     print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
-    print('accessibility matrices can be found in accessibility.csv '
-          'and accessibility_aggregated.csv\n')
 
     # get accessible nodes and links starting from node 1 with a 5-minitue 
     # time window for the default mode auto (i.e., 'p')
@@ -171,4 +165,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(4)
+    demo_mode(2)
