@@ -318,7 +318,7 @@ def _assignment(spnetworks, column_pool, iter_num):
         _assignment_core(spn, column_pool, iter_num)
 
 
-def perform_network_assignment(assignment_mode, iter_num, column_update_num, ui):
+def perform_network_assignment_py(assignment_mode, iter_num, column_update_num, ui):
     """ perform network assignemnt using the selected assignment mode
 
     WARNING

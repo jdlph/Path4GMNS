@@ -58,7 +58,7 @@ def test_column_generation_py():
 
     iter_num = 20
     column_update_num = 20
-    pg.perform_network_assignment(1, iter_num, column_update_num, network)
+    pg.perform_network_assignment_py(1, iter_num, column_update_num, network)
 
     print(f'processing time of column generation: {time()-st:.2f} s'
           f' for {iter_num} assignment iterations and '
@@ -102,7 +102,7 @@ def test_loading_columns():
 
     iter_num = 0
     column_update_num = 10
-    pg.perform_network_assignment(1, iter_num, column_update_num, network)
+    pg.perform_network_assignment_py(1, iter_num, column_update_num, network)
 
     print(f'processing time of column generation: {time()-st:.2f} s'
           f' for {iter_num} assignment iterations and '

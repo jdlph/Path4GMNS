@@ -1,5 +1,5 @@
+import os
 import ctypes
-import os.path
 from sys import platform
 
 
@@ -71,4 +71,8 @@ def perform_network_assignment_DTALite(assignment_mode,
                                        iter_num,
                                        column_update_num)
 
-    print('\nDTALite run completes')
+    print(
+        f'\nDTALite run completes'
+        f'\check link_performance.csv in '+os.getcwd()+' for link performance'
+        f'\check agent_paths.csv in '+os.getcwd()+' for unique agent paths'
+    )

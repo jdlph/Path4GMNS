@@ -1,10 +1,9 @@
 from .accessibility import *
-from .colgen import *
-from .dtaapi import *
 from .utils import *
+from .ui import *
 
 
-__version__ = '0.7.1'
+__version__ = '0.7.2'
 
 
 # print out the current version
