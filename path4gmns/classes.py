@@ -1441,7 +1441,6 @@ class UI:
         print(f'number of accessible nodes is {len(nodes)}')
         print(f'accessible nodes are: {node_strs}')
 
-
     def get_accessible_links(self, source_node_id, time_budget, mode='p'):
         """ get the accessible links from a node given mode and time budget
 
