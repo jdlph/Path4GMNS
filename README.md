@@ -110,12 +110,11 @@ import path4gmns as pg
 
 network = pg.read_network()
 
-# path-based UE
-mode = 1
 assignment_num = 20
 column_update_num = 10
 
-pg.perform_network_assignment(mode, assignment_num, column_update_num, network)
+# path-based UE only
+pg.perform_column_generation(assignment_num, column_update_num, network)
 
 # if you do not want to include geometry info in the output file,
 # use pg.output_columns(network, False)
@@ -133,13 +132,11 @@ network = pg.read_network()
 # e.g., pg.load_columns(network, 'data/Chicago_Sketch')
 pg.load_columns(network)
 
-# path-based UE
-mode = 1
 # we recommend NOT doing assignemnt again after loading columns
 assignment_num = 0
 column_update_num = 10
 
-pg.perform_network_assignment(mode, assignment_num, column_update_num, network)
+pg.perform_column_generation(assignment_num, column_update_num, network)
 
 pg.output_columns(network)
 pg.output_link_performance(network)
