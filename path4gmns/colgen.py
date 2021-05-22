@@ -5,7 +5,7 @@ from .classes import Column
 from .consts import MIN_OD_VOL
 
 
-__all__ = ['perform_network_assignment']
+__all__ = ['perform_network_assignment_py']
 
 
 def _update_generalized_link_cost(spnetworks):

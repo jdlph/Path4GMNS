@@ -1,6 +1,7 @@
 from .accessibility import *
+from .colgen import *
+from .dtaapi import *
 from .utils import *
-from .asgmtapi import *
 
 
 __version__ = '0.7.2'
