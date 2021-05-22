@@ -265,6 +265,7 @@ class Network:
         # the following two are IDs rather than objects
         self._agent_type_size = 1
         self._demand_period_size = 1
+        self.agent_type_str = 'a'
 
     def update(self, agent_type_size, demand_period_size):
         self.node_size = len(self.node_list)
@@ -563,7 +564,7 @@ class Network:
     def get_agent_type_str(self):
         """ for allowed uses in single_source_shortest_path()"""
         # convert it to C char
-        return 'a'.encode()
+        return self.agent_type_str.encode()
 
     def get_link_seq_no(self, id):
         return self.link_id_dict[id]
@@ -574,6 +575,9 @@ class Network:
     def get_last_thru_node(self):
         """ node no of the first potential centroid """
         return self.get_node_size()
+
+    def set_agent_type_str(self, at_str):
+        self.agent_type_str = at_str
 
 
 class Column:
@@ -1234,15 +1238,21 @@ class Assignment:
         """
         return self.network.get_agent_link_path(agent_id, path_only)
 
-    def find_path_for_agents(self):
+    def find_path_for_agents(self, mode):
         """ find and set up shortest path for each agent """
+        # reset agent type str or mode according to user's input
+        self.network.set_agent_type_str(mode)
+
         find_path_for_agents(self.network, self.column_pool)
 
-    def find_shortest_path(self, from_node_id, to_node_id, seq_type='node'):
+    def find_shortest_path(self, from_node_id, to_node_id, mode, seq_type='node'):
         """ call find_shortest_path() from path.py
 
         exceptions will be handled in find_shortest_path()
         """
+        # reset agent type str or mode according to user's input
+        self.network.set_agent_type_str(mode)
+
         return find_shortest_path(self.network, from_node_id,
                                   to_node_id, seq_type)
 
@@ -1389,11 +1399,11 @@ class UI:
         """ return the sequence of link IDs along the agent path """
         return self._base_assignment.get_agent_link_path(agent_id)
 
-    def find_path_for_agents(self):
+    def find_path_for_agents(self, mode='a'):
         """ find and set up shortest path for each agent """
-        return self._base_assignment.find_path_for_agents()
+        return self._base_assignment.find_path_for_agents(mode)
 
-    def find_shortest_path(self, from_node_id, to_node_id, seq_type='node'):
+    def find_shortest_path(self, from_node_id, to_node_id, mode='a', seq_type='node'):
         """ return shortest path between from_node_id and to_node_id
 
         Parameters
@@ -1414,6 +1424,7 @@ class UI:
         return self._base_assignment.find_shortest_path(
             from_node_id,
             to_node_id,
+            mode,
             seq_type
         )
 

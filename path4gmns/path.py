@@ -67,21 +67,21 @@ def _optimal_label_correcting_CAPI(G,
     initialized in shortest_path() even the source node has no outgoing links.
     """
     _cdll.shortest_path_n(origin_node_no,
-                        G.get_node_size(),
-                        G.get_from_node_no_arr(),
-                        G.get_to_node_no_arr(),
-                        G.get_first_links(),
-                        G.get_last_links(),
-                        G.get_sorted_link_no_arr(),
-                        G.get_allowed_uses(),
-                        G.get_link_costs(),
-                        G.get_node_label_costs(),
-                        G.get_node_preds(),
-                        G.get_link_preds(),
-                        G.get_queue_next(),
-                        G.get_agent_type_str(),
-                        G.get_last_thru_node(),
-                        departure_time)
+                          G.get_node_size(),
+                          G.get_from_node_no_arr(),
+                          G.get_to_node_no_arr(),
+                          G.get_first_links(),
+                          G.get_last_links(),
+                          G.get_sorted_link_no_arr(),
+                          G.get_allowed_uses(),
+                          G.get_link_costs(),
+                          G.get_node_label_costs(),
+                          G.get_node_preds(),
+                          G.get_link_preds(),
+                          G.get_queue_next(),
+                          G.get_agent_type_str(),
+                          G.get_last_thru_node(),
+                          departure_time)
 
 
 def _single_source_shortest_path_fifo(G, origin_node_no):

@@ -13,7 +13,12 @@ def test_find_shortest_path():
     print('\nshortest path (node id) from node 1 to node 2, '
           +network.find_shortest_path(1, 2))
     print('\nshortest path (link id) from node 1 to node 2, '
-          +network.find_shortest_path(1, 2, 'link'))
+          +network.find_shortest_path(1, 2, seq_type='link'))
+
+    print('\nshortest path (node id) from node 1 to node 2, '
+          +network.find_shortest_path(1, 2, mode='w'))
+    print('\nshortest path (link id) from node 1 to node 2, '
+          +network.find_shortest_path(1, 2, mode='w', seq_type='link'))
 
 
 def test_find_shortest_path_for_agents():
@@ -165,4 +170,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(3)
+    demo_mode(1)
