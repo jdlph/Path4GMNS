@@ -8,4 +8,4 @@ __version__ = '0.7.2'
 
 
 # print out the current version
-print('path4gmns, version '+__version__)
+print(f'path4gmns, version {__version__}')

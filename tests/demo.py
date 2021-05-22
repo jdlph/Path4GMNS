@@ -124,7 +124,10 @@ def test_accessibility():
     print('\nstart accessibility evaluation\n')
     st = time()
 
-    pg.evaluate_accessibility(network)
+    # multimodal accessibility evaluation
+    # pg.evaluate_accessibility(network)
+    # accessibility evalutation for a target mode
+    pg.evaluate_accessibility(network, multimodal=False, mode='p')
 
     print('complete accessibility evaluation.\n')
     print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
@@ -170,4 +173,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(1)
+    demo_mode(6)

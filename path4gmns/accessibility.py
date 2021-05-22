@@ -133,7 +133,7 @@ def _output_accessibility_aggregated(min_travel_times, interval_num,
                   +' for aggregated accessibility matrix')
 
 
-def evaluate_accessibility(ui, multimodal=True, output_dir='.'):
+def evaluate_accessibility(ui, multimodal=True, mode='p', output_dir='.'):
     base = ui._base_assignment
     zones = base.get_zones()
     ats = base.get_agent_types()
@@ -149,7 +149,7 @@ def evaluate_accessibility(ui, multimodal=True, output_dir='.'):
             if max_min_ > max_min:
                 max_min = max_min_
     else:
-        at = base.get_agent_type('p')
+        at = base.get_agent_type(mode)
         max_min = _update_min_travel_time(an, at, min_travel_times)
 
     interval_num = _get_interval_id(min(max_min, MAX_TIME_BUDGET)) + 1
