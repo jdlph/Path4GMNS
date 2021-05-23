@@ -125,9 +125,9 @@ def test_accessibility():
     st = time()
 
     # multimodal accessibility evaluation
-    # pg.evaluate_accessibility(network)
+    pg.evaluate_accessibility(network)
     # accessibility evalutation for a target mode
-    pg.evaluate_accessibility(network, multimodal=False, mode='p')
+    # pg.evaluate_accessibility(network, multimodal=False, mode='p')
 
     print('complete accessibility evaluation.\n')
     print(f'processing time of accessibility evaluation: {time()-st:.2f} s')

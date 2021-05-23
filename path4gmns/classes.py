@@ -265,7 +265,7 @@ class Network:
         # the following two are IDs rather than objects
         self._agent_type_size = 1
         self._demand_period_size = 1
-        self.agent_type_str = 'a'
+        self.agent_type_str = 'all'
 
     def update(self, agent_type_size, demand_period_size):
         self.node_size = len(self.node_list)
@@ -336,8 +336,9 @@ class Network:
             last_link_from[i] = j
 
         # setup allowed uses
-        allowed_uses = [''] * link_size
-        self._setup_allowed_use(allowed_uses)
+        # allowed_uses = [''] * link_size
+        # self._setup_allowed_use(allowed_uses)
+        allowed_uses = [link.allowed_uses for link in self.link_list]
 
         # set up arrays using ctypes
         int_arr_node = ctypes.c_int * node_size
@@ -709,6 +710,9 @@ class AgentType:
     def get_id(self):
         return self.id
 
+    def get_name(self):
+        return self.name
+
     def get_vot(self):
         return self.vot
 
@@ -941,7 +945,7 @@ class AccessNetwork(Network):
         self.node_size = base.get_node_size()
         self.link_size = base.get_link_size()
         self.centroids = []
-        self.agent_type_str = 'a'
+        self.agent_type_str = 'all'
         self.pre_source_node_id = -1
         if add_cc:
             self._add_centroids_connectors()
@@ -1027,7 +1031,7 @@ class AccessNetwork(Network):
         mode : please choose one of the following three, 'p', 'w', and 'b', 
         which are in settings.yml.
         """
-        assert(mode in ['p', 'w', 'b', 'a'])
+        # assert(mode in ['p', 'w', 'b', 'a'])
         self.agent_type_str = mode
 
     def set_source_node_id(self, node_id):
@@ -1128,10 +1132,18 @@ class Assignment:
         self.memory_blocks = 4
         self.map_at_id = {}
         self.map_dp_id = {}
+        self.map_name_at = {}
 
     def update_agent_types(self, at):
+        if at.get_type_str() == 'a':
+            raise Exception('a is reserved. Please choose another single char for type in agent type!')
+        
+        if len(at.get_type_str()) > 1:
+            raise Exception('Please choose a single char for type in agent type!')            
+
         self.agent_types.append(at)
         self.map_at_id[at.get_type_str()] = at.get_id()
+        self.map_name_at[at.get_name()] = at.get_type_str()
 
     def update_demand_periods(self, dp):
         self.demand_periods.append(dp)
@@ -1213,14 +1225,14 @@ class Assignment:
     def get_agent_orig_node_id(self, agent_id):
         """ return the origin node id of an agent
 
-        exception will be handled by  _get_agent() in class Network
+        exception will be handled by _get_agent() in class Network
         """
         return self.network.get_agent_orig_node_id(agent_id)
 
     def get_agent_dest_node_id(self, agent_id):
         """ return the destnation node id of an agent
 
-        exception will be handled by  _get_agent() in class Network
+        exception will be handled by _get_agent() in class Network
         """
         return self.network.get_agent_dest_node_id(agent_id)
 
@@ -1238,6 +1250,16 @@ class Assignment:
         """
         return self.network.get_agent_link_path(agent_id, path_only)
 
+    def _convert_mode(self, mode):
+        """convert mode to the corresponding single-char agent type string"""
+        if mode in self.map_at_id:
+            return mode
+
+        if mode in self.map_name_at:
+            return self.map_name_at[mode]
+
+        raise Exception('Please provide a valid mode!')
+    
     def find_path_for_agents(self, mode):
         """ find and set up shortest path for each agent """
         # reset agent type str or mode according to user's input
@@ -1399,11 +1421,11 @@ class UI:
         """ return the sequence of link IDs along the agent path """
         return self._base_assignment.get_agent_link_path(agent_id)
 
-    def find_path_for_agents(self, mode='a'):
+    def find_path_for_agents(self, mode='all'):
         """ find and set up shortest path for each agent """
         return self._base_assignment.find_path_for_agents(mode)
 
-    def find_shortest_path(self, from_node_id, to_node_id, mode='a', seq_type='node'):
+    def find_shortest_path(self, from_node_id, to_node_id, mode='all', seq_type='node'):
         """ return shortest path between from_node_id and to_node_id
 
         Parameters
@@ -1428,7 +1450,7 @@ class UI:
             seq_type
         )
 
-    def get_accessible_nodes(self, source_node_id, time_budget, mode='a'):
+    def get_accessible_nodes(self, source_node_id, time_budget, mode='all'):
         """ get the accessible nodes from a node given mode and time budget
 
         Parameters

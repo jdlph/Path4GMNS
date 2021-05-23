@@ -11,7 +11,10 @@
  */
 
 #include <cwchar>
+#include <cstring>
 #include "path_engine.h"
+
+using std::wcsstr;
 
 void shortest_path(int o_node_no,
                    int node_size,
@@ -131,12 +134,13 @@ void shortest_path_n(int o_node_no,
                      int* node_pred,
                      int* link_pred,
                      int* deque_next,
-                     const char mode,
+                     const wchar_t* mode,
                      int last_thru_node,
                      int departure_time)
 {
     // construct and initialize the following three on the first call only
     static constexpr int invalid = -1, was_in_deque = -7;
+    static constexpr wchar_t all_mode[] = L"all";
 
     // initialization
     for (int node_no = 0; node_no < node_size; ++node_no)
@@ -170,7 +174,9 @@ void shortest_path_n(int o_node_no,
 
                 // if mode == 'a', we are doing static shortest path calculation using distance and all links shall be considered;
                 // otherwise, mode shall be in link's allowed uses or the allowed uses are for all modes (i.e., a)
-                if (mode != 'a' && !std::wcschr(allowed_uses[link_seq_no], mode) && !std::wcschr(allowed_uses[link_seq_no], 'a'))
+                // if (mode != "all" && !std::wcschr(allowed_uses[link_seq_no], mode) && !std::wcschr(allowed_uses[link_seq_no], 'a'))
+                //     continue;
+                if (mode != all_mode && !wcsstr(allowed_uses[link_seq_no], mode) && !wcsstr(allowed_uses[link_seq_no], all_mode))
                     continue;
 
                 double new_cost = label_cost[current_node] + link_cost[link_seq_no];
