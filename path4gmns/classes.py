@@ -712,7 +712,7 @@ class AgentType:
     def get_vot(self):
         return self.vot
 
-    def get_type(self):
+    def get_type_str(self):
         return self.type
 
     def get_pce(self):
@@ -861,7 +861,7 @@ class SPNetwork(Network):
 
     def get_agent_type_str(self):
         # convert it to C char
-        return self.agent_type.get_type().encode()
+        return self.agent_type.get_type_str().encode()
 
     def get_demand_period(self):
         return self.demand_period
@@ -1098,7 +1098,7 @@ class AccessNetwork(Network):
         vot = at.get_vot()
         ffs = at.get_free_flow_speed()
 
-        if at.get_type().startswith('p'):
+        if at.get_type_str().startswith('p'):
             for link in self.get_links():
                 self.link_cost_array[link.get_seq_no()] = (
                     link.get_free_flow_travel_time()
@@ -1131,7 +1131,7 @@ class Assignment:
 
     def update_agent_types(self, at):
         self.agent_types.append(at)
-        self.map_at_id[at.get_type()] = at.get_id()
+        self.map_at_id[at.get_type_str()] = at.get_id()
 
     def update_demand_periods(self, dp):
         self.demand_periods.append(dp)
@@ -1157,7 +1157,7 @@ class Assignment:
 
     def get_agent_type_str(self, at_id):
         try:
-            return self.agent_types[at_id].get_type()
+            return self.agent_types[at_id].get_type_str()
         except KeyError:
             raise Exception('NO agent type id: '+at_id)
 

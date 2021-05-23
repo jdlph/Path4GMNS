@@ -32,7 +32,7 @@ def _update_min_travel_time(an, at, min_travel_times):
     # _update_generalized_link_cost_a(an, at)
     an.update_generalized_link_cost(at)
 
-    at_str = at.get_type()
+    at_str = at.get_type_str()
     max_min = 0
     for c in an.get_centroids():
         node_id = c.get_node_id()
@@ -104,7 +104,7 @@ def _output_accessibility_aggregated(min_travel_times, interval_num,
                 continue
 
             for atype in ats:
-                at_str = atype.get_type()
+                at_str = atype.get_type_str()
                 # number of accessible zones from oz for each agent type
                 counts = [0] * interval_num
                 for dz in zones:
@@ -120,7 +120,7 @@ def _output_accessibility_aggregated(min_travel_times, interval_num,
                         counts[id] += 1
                         id += 1
                 # output assessiblity
-                line = [oz, '', atype.get_type()]
+                line = [oz, '', atype.get_type_str()]
                 line.extend(counts)
                 writer.writerow(line)
 
@@ -144,7 +144,7 @@ def evaluate_accessibility(ui, multimodal=True, mode='p', output_dir='.'):
     min_travel_times = {}
     if multimodal:
         for at in ats:
-            an.set_target_mode(at.get_type())
+            an.set_target_mode(at.get_type_str())
             max_min_ = _update_min_travel_time(an, at, min_travel_times)
             if max_min_ > max_min:
                 max_min = max_min_
