@@ -1130,9 +1130,9 @@ class Assignment:
         self.spnetworks = []
         self.accessnetwork = None
         self.memory_blocks = 4
-        self.map_at_id = {}
-        self.map_dp_id = {}
-        self.map_name_at = {}
+        self.map_atstr_id = {}
+        self.map_dpstr_id = {}
+        self.map_name_atstr = {}
 
     def update_agent_types(self, at):
         if at.get_type_str() == 'a':
@@ -1142,22 +1142,22 @@ class Assignment:
             raise Exception('Please choose a single char for type in agent type!')            
 
         self.agent_types.append(at)
-        self.map_at_id[at.get_type_str()] = at.get_id()
-        self.map_name_at[at.get_name()] = at.get_type_str()
+        self.map_atstr_id[at.get_type_str()] = at.get_id()
+        self.map_name_atstr[at.get_name()] = at.get_type_str()
 
     def update_demand_periods(self, dp):
         self.demand_periods.append(dp)
-        self.map_dp_id[dp.get_period()] = dp.get_id()
+        self.map_dpstr_id[dp.get_period()] = dp.get_id()
 
     def get_agent_type_id(self, at_str):
         try:
-            return self.map_at_id[at_str]
+            return self.map_atstr_id[at_str]
         except KeyError:
             raise Exception('NO agent type: '+at_str)
 
     def get_demand_period_id(self, dp_str):
         try:
-            return self.map_dp_id[dp_str]
+            return self.map_dpstr_id[dp_str]
         except KeyError:
             raise Exception('NO demand period: '+dp_str)
 
@@ -1252,11 +1252,12 @@ class Assignment:
 
     def _convert_mode(self, mode):
         """convert mode to the corresponding agent type name"""
-        if mode in self.map_at_id:
-            return mode
+        if mode in self.map_atstr_id:
+            at = self.get_agent_type(mode)
+            return at.get_name()
 
-        if mode in self.map_name_at:
-            return self.map_name_at[mode]
+        if mode in self.map_name_atstr:
+            return mode
 
         raise Exception('Please provide a valid mode!')
     
