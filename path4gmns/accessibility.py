@@ -53,7 +53,7 @@ def _update_min_travel_time(an, at, min_travel_times):
     return max_min
 
 
-def _output_accessibility(min_travel_times, output_dir='.'):
+def _output_accessibility(min_travel_times, mode='p', output_dir='.'):
     """ output accessibility for each OD pair (i.e., travel time) """
     with open(output_dir+'/accessibility.csv', 'w',  newline='') as f:
         headers = ['o_zone_id', 'o_zone_name',
@@ -67,7 +67,7 @@ def _output_accessibility(min_travel_times, output_dir='.'):
         # under mode 'p' (i.e., auto)
         for k, v in min_travel_times.items():
             # k = (from_zone_id, to_zone_id, at_type_str)
-            if k[2] != 'p':
+            if k[2] != mode:
                 continue
 
             # output assessiblity
@@ -136,13 +136,14 @@ def _output_accessibility_aggregated(min_travel_times, interval_num,
 def evaluate_accessibility(ui, multimodal=True, mode='p', output_dir='.'):
     base = ui._base_assignment
     zones = base.get_zones()
-    ats = base.get_agent_types()
 
     an = AccessNetwork(base.network)
+    ats = None
 
     max_min = 0
     min_travel_times = {}
     if multimodal:
+        ats = base.get_agent_types()
         for at in ats:
             an.set_target_mode(at.get_type_str())
             max_min_ = _update_min_travel_time(an, at, min_travel_times)
@@ -150,7 +151,9 @@ def evaluate_accessibility(ui, multimodal=True, mode='p', output_dir='.'):
                 max_min = max_min_
     else:
         at = base.get_agent_type(mode)
+        an.set_target_mode(at.get_type_str())
         max_min = _update_min_travel_time(an, at, min_travel_times)
+        ats = [at]
 
     interval_num = _get_interval_id(min(max_min, MAX_TIME_BUDGET)) + 1
 
