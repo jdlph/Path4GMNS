@@ -145,13 +145,13 @@ def evaluate_accessibility(ui, multimodal=True, mode='p', output_dir='.'):
     if multimodal:
         ats = base.get_agent_types()
         for at in ats:
-            an.set_target_mode(at.get_type_str())
+            an.set_target_mode(at.get_name())
             max_min_ = _update_min_travel_time(an, at, min_travel_times)
             if max_min_ > max_min:
                 max_min = max_min_
     else:
         at = base.get_agent_type(mode)
-        an.set_target_mode(at.get_type_str())
+        an.set_target_mode(at.get_name())
         max_min = _update_min_travel_time(an, at, min_travel_times)
         ats = [at]
 
@@ -159,7 +159,7 @@ def evaluate_accessibility(ui, multimodal=True, mode='p', output_dir='.'):
 
     t = threading.Thread(
         target=_output_accessibility,
-        args=(min_travel_times, output_dir,))
+        args=(min_travel_times, mode, output_dir))
     t.start()
 
     t = threading.Thread(

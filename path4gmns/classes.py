@@ -562,7 +562,7 @@ class Network:
     def get_link(self, seq_no):
         return self.link_list[seq_no]
 
-    def get_agent_type_str(self):
+    def get_agent_type_name(self):
         """ for allowed uses in single_source_shortest_path()"""
         # convert it to C char
         return self.agent_type_str.encode()
@@ -863,7 +863,7 @@ class SPNetwork(Network):
     def get_agent_type(self):
         return self.agent_type
 
-    def get_agent_type_str(self):
+    def get_agent_type_name(self):
         # convert it to C char
         return self.agent_type.get_type_str().encode()
 
@@ -1037,7 +1037,7 @@ class AccessNetwork(Network):
     def set_source_node_id(self, node_id):
         self.pre_source_node_id = node_id
 
-    def get_agent_type_str(self):
+    def get_agent_type_name(self):
         return self.agent_type_str.encode()
 
     def get_centroids(self):
@@ -1359,6 +1359,7 @@ class Assignment:
             self.accessnetwork.set_source_node_id(source_node_id)
             run_sp = True
 
+        mode = self._convert_mode(mode)
         if self.accessnetwork.agent_type_str != mode:
             self.accessnetwork.set_target_mode(mode)
             at = self.get_agent_type(mode)

@@ -79,7 +79,7 @@ def _optimal_label_correcting_CAPI(G,
                           G.get_node_preds(),
                           G.get_link_preds(),
                           G.get_queue_next(),
-                          G.get_agent_type_str(),
+                          G.get_agent_type_name(),
                           G.get_last_thru_node(),
                           departure_time)
 
