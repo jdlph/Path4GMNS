@@ -585,7 +585,7 @@ def read_network(load_demand='true', input_dir='.'):
 
     if load_demand:
         for d in assignm.get_demands():
-            at = assignm.get_agent_type_id(d.get_agent_type())
+            at = assignm.get_agent_type_id(d.get_agent_type_str())
             dp = assignm.get_demand_period_id(d.get_period())
             read_demand(input_dir,
                         d.get_file_name(),

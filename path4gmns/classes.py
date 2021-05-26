@@ -748,7 +748,7 @@ class Demand:
     def __init__(self, id=0, period='AM', agent_type='p', file='demand.csv'):
         self.id = id
         self.period = period
-        self.agent_type = agent_type
+        self.agent_type_str = agent_type
         self.file = file
 
     def get_id(self):
@@ -760,8 +760,8 @@ class Demand:
     def get_period(self):
         return self.period
 
-    def get_agent_type(self):
-        return self.agent_type
+    def get_agent_type_str(self):
+        return self.agent_type_str
 
 
 class VDFPeriod:
@@ -1251,7 +1251,7 @@ class Assignment:
         return self.network.get_agent_link_path(agent_id, path_only)
 
     def _convert_mode(self, mode):
-        """convert mode to the corresponding single-char agent type string"""
+        """convert mode to the corresponding agent type name"""
         if mode in self.map_at_id:
             return mode
 
@@ -1300,7 +1300,7 @@ class Assignment:
                 continue
 
             for d in self.demands:
-                at = self.get_agent_type(d.get_agent_type())
+                at = self.get_agent_type(d.get_agent_type_str())
                 dp = self.get_demand_period(d.get_period())
                 if z - 1 < self.memory_blocks:
                     sp = SPNetwork(self.network, at, dp)
