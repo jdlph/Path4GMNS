@@ -409,3 +409,20 @@ def update_links_using_columns(network):
                                                 False)
 
     _update_link_travel_time_and_cost(links)
+
+
+def perform_network_assignment(assignment_mode, iter_num, column_update_num, ui):
+    """DEPRECATED Column Generation API
+    
+    Have it here for existing users who already get used to it.
+    """
+    print('This function has been deprecated, and will be removed later!'
+          'Please use perform_column_generation() instead.')
+
+    if assignment_mode != 1:
+        raise Exception(
+            'NOT implemented yet!'
+            'Please please use perform_network_assignment_DTALite().'
+        )
+
+    perform_column_generation(iter_num, column_update_num, ui)
