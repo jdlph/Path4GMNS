@@ -52,7 +52,7 @@ _cdll.shortest_path.argtypes = [
     ctypes.POINTER(ctypes.c_int),
     ctypes.POINTER(ctypes.c_int),
     ctypes.POINTER(ctypes.c_int),
-    ctypes.c_char,
+    ctypes.c_wchar_p,
     ctypes.c_int,
     ctypes.c_int
 ]
@@ -284,7 +284,7 @@ def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
 
     path_cost = _get_path_cost(G, to_node_id)
 
-    if path_cost >= MAX_LABEL_COST:
+    if path_cost == MAX_LABEL_COST:
         return f'distance: infinitity | path: '
 
     path = ';'.join(

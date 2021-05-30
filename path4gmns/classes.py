@@ -565,7 +565,8 @@ class Network:
     def get_agent_type_name(self):
         """ for allowed uses in single_source_shortest_path()"""
         # convert it to C char
-        return self.agent_type_name.encode()
+        # return self.agent_type_name.encode()
+        return self.agent_type_name
 
     def get_link_seq_no(self, id):
         return self.link_id_dict[id]
@@ -577,8 +578,8 @@ class Network:
         """ node no of the first potential centroid """
         return self.get_node_size()
 
-    def set_agent_type_name(self, at_str):
-        self.agent_type_name = at_str
+    def set_agent_type_name(self, at_name):
+        self.agent_type_name = at_name
 
 
 class Column:

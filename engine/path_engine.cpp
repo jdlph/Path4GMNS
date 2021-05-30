@@ -15,6 +15,7 @@
 #include "path_engine.h"
 
 using std::wcsstr;
+using std::wcscmp;
 
 void shortest_path(int o_node_no,
                    int node_size,
@@ -172,11 +173,9 @@ void shortest_path_n(int o_node_no,
                 int link_seq_no = sorted_link_no_arr[k];
                 int new_node = to_node_no_arr[link_seq_no];
 
-                // if mode == 'a', we are doing static shortest path calculation using distance and all links shall be considered;
-                // otherwise, mode shall be in link's allowed uses or the allowed uses are for all modes (i.e., a)
-                // if (mode != "all" && !std::wcschr(allowed_uses[link_seq_no], mode) && !std::wcschr(allowed_uses[link_seq_no], 'a'))
-                //     continue;
-                if (mode != all_mode && !wcsstr(allowed_uses[link_seq_no], mode) && !wcsstr(allowed_uses[link_seq_no], all_mode))
+                // if mode is "all", we are doing static shortest path calculation using distance and all links shall be considered;
+                // otherwise, mode shall be in link's allowed uses or the allowed uses are for all modes (i.e., "all")
+                if (wcscmp(mode, all_mode) != 0 && !wcsstr(allowed_uses[link_seq_no], mode) && !wcsstr(allowed_uses[link_seq_no], all_mode))
                     continue;
 
                 double new_cost = label_cost[current_node] + link_cost[link_seq_no];
