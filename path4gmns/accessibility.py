@@ -150,8 +150,9 @@ def evaluate_accessibility(ui, multimodal=True, mode='p', output_dir='.'):
             if max_min_ > max_min:
                 max_min = max_min_
     else:
-        at = base.get_agent_type(mode)
-        an.set_target_mode(at.get_name())
+        at_name, at_str = base._convert_mode(mode)
+        an.set_target_mode(at_name)
+        at = base.get_agent_type(at_str)
         max_min = _update_min_travel_time(an, at, min_travel_times)
         ats = [at]
 

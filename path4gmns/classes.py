@@ -1134,20 +1134,26 @@ class Assignment:
         self.map_dpstr_id = {}
         self.map_name_atstr = {}
 
-    def update_agent_types(self, at):
-        # if at.get_type_str() == 'a':
-        #     raise Exception('a is reserved. Please choose another single char for type in agent type!')
+    def update_agent_types(self, at):       
+        if at.get_type_str() not in self.map_atstr_id:
+            self.map_atstr_id[at.get_type_str()] = at.get_id()
+        else:
+            raise Exception('agent type is not unique:'+at.get_type_str())
         
-        # if len(at.get_type_str()) > 1:
-        #     raise Exception('Please choose a single char for type in agent type!')            
+        if at.get_name() not in self.map_name_atstr:
+            self.map_name_atstr[at.get_name()] = at.get_type_str()
+        else:
+            raise Exception('agent type name is not unique:'+at.get_name())
 
         self.agent_types.append(at)
-        self.map_atstr_id[at.get_type_str()] = at.get_id()
-        self.map_name_atstr[at.get_name()] = at.get_type_str()
 
     def update_demand_periods(self, dp):
+        if dp.get_period() not in self.map_dpstr_id:
+            self.map_dpstr_id[dp.get_period()] = dp.get_id()
+        else:
+            raise Exception('demand period is not unique:'+dp.get_period())
+
         self.demand_periods.append(dp)
-        self.map_dpstr_id[dp.get_period()] = dp.get_id()
 
     def get_agent_type_id(self, at_str):
         try:
@@ -1259,12 +1265,18 @@ class Assignment:
         if mode in self.map_name_atstr:
             return mode, self.map_name_atstr[mode]
 
+        # for distance-based shortest path calculation only
+        # it shall not be used with any accessibility evaluations
+        if mode == 'all':
+            return mode, mode
+
         raise Exception('Please provide a valid mode!')
     
     def find_path_for_agents(self, mode):
         """ find and set up shortest path for each agent """
         # reset agent type str or mode according to user's input
-        self.network.set_agent_type_name(mode)
+        at_name, _ = self._convert_mode(mode)
+        self.network.set_agent_type_name(at_name)
 
         find_path_for_agents(self.network, self.column_pool)
 
@@ -1274,7 +1286,8 @@ class Assignment:
         exceptions will be handled in find_shortest_path()
         """
         # reset agent type str or mode according to user's input
-        self.network.set_agent_type_name(mode)
+        at_name, _ = self._convert_mode(mode)
+        self.network.set_agent_type_name(at_name)
 
         return find_shortest_path(self.network, from_node_id,
                                   to_node_id, seq_type)
