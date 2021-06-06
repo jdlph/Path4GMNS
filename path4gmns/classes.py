@@ -473,7 +473,7 @@ class Network:
         path_cost = agent.get_path_cost()
         if path_cost >= MAX_LABEL_COST:
             return f'distance: infinitity | path: '
-        
+
         path = ''
         if agent.link_path:
             path = ';'.join(
@@ -564,8 +564,6 @@ class Network:
 
     def get_agent_type_name(self):
         """ for allowed uses in single_source_shortest_path()"""
-        # convert it to C char
-        # return self.agent_type_name.encode()
         return self.agent_type_name
 
     def get_link_seq_no(self, id):
@@ -866,7 +864,7 @@ class SPNetwork(Network):
 
     def get_agent_type_name(self):
         # convert it to C char
-        return self.agent_type.get_name().encode()
+        return self.agent_type.get_name()
 
     def get_demand_period(self):
         return self.demand_period
@@ -1029,7 +1027,7 @@ class AccessNetwork(Network):
 
         Parameters
         ----------
-        mode : please choose one of the following three, 'p', 'w', and 'b', 
+        mode : please choose one of the following three, 'p', 'w', and 'b',
         which are in settings.yml.
         """
         # assert(mode in ['p', 'w', 'b', 'a'])
@@ -1039,7 +1037,7 @@ class AccessNetwork(Network):
         self.pre_source_node_id = node_id
 
     def get_agent_type_name(self):
-        return self.agent_type_name.encode()
+        return self.agent_type_name
 
     def get_centroids(self):
         return self.centroids
@@ -1135,12 +1133,12 @@ class Assignment:
         self.map_dpstr_id = {}
         self.map_name_atstr = {}
 
-    def update_agent_types(self, at):       
+    def update_agent_types(self, at):
         if at.get_type_str() not in self.map_atstr_id:
             self.map_atstr_id[at.get_type_str()] = at.get_id()
         else:
             raise Exception('agent type is not unique:'+at.get_type_str())
-        
+
         if at.get_name() not in self.map_name_atstr:
             self.map_name_atstr[at.get_name()] = at.get_type_str()
         else:
@@ -1272,7 +1270,7 @@ class Assignment:
             return mode, mode
 
         raise Exception('Please provide a valid mode!')
-    
+
     def find_path_for_agents(self, mode):
         """ find and set up shortest path for each agent """
         # reset agent type str or mode according to user's input

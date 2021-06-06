@@ -4,24 +4,26 @@ Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path e
 
 1. finding (static) shortest path between two nodes;
 2. constructing shortest paths for all individual agents;
-3. performing various multimodal traffic assignments including
-   * Link-based User-Equilibrium (UE),
-   * Path-based UE,
-   * UE + Dynamic Traffic Assignment (DTA),
-   * Origin-Destination Matrix Estimation (ODME);
+3. performing path-based User-Equilibrium (UE) traffic assignment;
 4. evaluating multimodal accessibility.
 
+Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jdlph/DTALite) to conduct various multimodal traffic assignments including,
+   * Link-based UE,
+   * Path-based UE,
+   * UE + Dynamic Traffic Assignment (DTA),
+   * Origin-Destination Matrix Estimation (ODME).
+
 ## Installation
-Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.7.1/), and can be installed using
+Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.7.2/), and can be installed using
 ```
 $ pip install path4gmns
 ```
-If you need a specific version of Path4GMNS, say, 0.7.1,
+If you need a specific version of Path4GMNS, say, 0.7.2,
 ```
-$ pip install path4gmns==0.7.1
+$ pip install path4gmns==0.7.2
 ```
 
-v0.7.1 comes with potential issue fixes. All previous releases shall be deprecated for any purposes.
+v0.7.2 comes with bug fixes, new functionalities, and new interfaces. All previous releases shall be deprecated for any purposes.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding use cases in the following section.
@@ -66,6 +68,21 @@ print('\nshortest path (link id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2, 'link'))
 ```
 
+Retrieving the shortest path between any two (different) nodes under a specific mode is now available under v0.7.2.
+```python
+import path4gmns as pg
+
+load_demand = False
+network = pg.read_network(load_demand)
+
+print('\nshortest path (node id) from node 1 to node 2, '
+      +network.find_shortest_path(1, 2, mode='w'))
+print('\nshortest path (link id) from node 1 to node 2, '
+      +network.find_shortest_path(1, 2, mode='w', seq_type='link'))
+```
+
+The mode passed to find_shortest_path() must be defined in settings.yaml, which could be either the type or the name. Take the above sample code for example, the type 'w' and its name 'walk' are both valid and equivalent to each other. See **Perform Multimodal Accessibility Evaluation** for more information.
+
 ### Find Shortest Paths for All Individual Agents
 Path4GMNS is capable of calculating and constructing the (static) shortest paths for all agents. Individual agents will be automatically set up using the aggregated travel demand between each OD pair within find_path_for_agents() on its first call.
 
@@ -102,8 +119,22 @@ print('shortest path (link id) of agent, '
 pg.output_agent_paths(network)
 ```
 
+v0.7.2 features finding agent paths under a specific mode defined in settings.yaml. The following example demostrates this new functionality under mode walk (i.e., w).
+```python
+import path4gmns as pg
+
+network = pg.read_network()
+network.find_path_for_agents()
+
+# or equivalently network.find_path_for_agents('walk')
+network.find_path_for_agents('w')
+
+# retrieving the origin, the destination, and the shortest path of a given agent 
+# is exactly the same as before as well as outputing all unique agent paths
+```
+
 ### Perform Path-Based UE Traffic Assignment using the Python Column-Generation Module
-The Python column-generation module only implements path-based UE (i.e., mode 1). If you need other assignment modes, e.g., link-based UE or DTA, please use perform_network_assignment_DTALite().
+The Python column-generation module only implements path-based UE. If you need other assignment modes, e.g., link-based UE or DTA, please use perform_network_assignment_DTALite().
 
 ```python
 import path4gmns as pg
@@ -121,6 +152,8 @@ pg.perform_column_generation(assignment_num, column_update_num, network)
 pg.output_columns(network)
 pg.output_link_performance(network)
 ```
+
+**NOTE THAT** you can still use the legacy _pg.perform_network_assignment(assignment_mode=1, assignment_num, column_update_num, network)_ to perform the same functionality here. But it has been **deprecated**, and will be removed later.
 
 Starting from v0.7.0a1, Path4GMNS supports loading columns/paths from existing files (generated from either the Python module or DTALite) and continue the column-generation procedure from where you left. Please **skip the assignment stage** and go directly to column pool optimization by setting **assignment_num = 0**.
 
@@ -142,7 +175,7 @@ pg.output_columns(network)
 pg.output_link_performance(network)
 ```
 
-### Perform Path-Based UE Traffic Assignment using DTALite
+### Perform Traffic Assignment using DTALite
 DTALite has the following four assignment modes to choose.
 
       0: Link-based UE
@@ -255,9 +288,11 @@ network = pg.read_network(load_demand)
 print('\nstart accessibility evaluation\n')
 st = time()
 
-multimodal = False
-
-pg.evaluate_accessiblity(network, multimodal)
+pg.evaluate_accessiblity(network, multimodal=False)
+# the default is under mode auto (i.e., p)
+# if you would like to evaluate accessibility under a target mode, say walk, then
+# pg.evaluate_accessibility(network, multimodal=False, mode='w')
+# or equivalently pg.evaluate_accessibility(network, multimodal=False, mode='walk')
 
 print('complete accessibility evaluation.\n')
 print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
@@ -281,6 +316,9 @@ network.get_accessible_links(1, 5)
 # time window for mode walk (i.e., 'w')
 network.get_accessible_nodes(1, 15, 'w')
 network.get_accessible_links(1, 15, 'w')
+# the following two work equivalently as their counterparts above
+# network.get_accessible_nodes(1, 15, 'walk')
+# network.get_accessible_links(1, 15, 'walk')
 ```
 
 ## Build Path4GMNS from Source
@@ -309,11 +347,11 @@ As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Envi
 # from the root directory of PATH4GMNS
 $ python setup.py sdist bdist_wheel
 $ cd dist
-# or python -m pip instal pypath4gmns-0.7.0-py3-none-any.whl
-$ python -m pip install path4gmns-0.7.0.tar.gz
+# or python -m pip instal pypath4gmns-0.7.2-py3-none-any.whl
+$ python -m pip install path4gmns-0.7.2.tar.gz
 ```
 
-Here, 0.7.0 is the version number. Replace it with the one specified in setup.py.
+Here, 0.7.2 is the version number. Replace it with the one specified in setup.py.
 
 ## Benchmarks
 Coming soon.
@@ -329,6 +367,7 @@ Coming soon.
 - [x] Calculate and show up multimodal accessibilities (v0.7.0a1)
 - [x] Apply lightweight and faster implementation on accessibility evaluation using virtual centroids and connectors (v0.7.0)
 - [x] Get accessible nodes and links given mode and time budget (v0.7.0)
+- [x] Retrieve shortest paths under multimodal allowed uses (v0.7.2)
 - [ ] Let users modify the network topology in a simple way by adding/removing nodes and links
 - [ ] Enable manipulations on the overall travel demand and the demand between an OD pair
 - [ ] Visualize individual column/paths on user's call

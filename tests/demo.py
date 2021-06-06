@@ -15,6 +15,8 @@ def test_find_shortest_path():
     print('\nshortest path (link id) from node 1 to node 2, '
           +network.find_shortest_path(1, 2, seq_type='link'))
 
+    # retrieve the shortest path under a specific mode (which must be defined
+    # in settings.yaml)
     print('\nshortest path (node id) from node 1 to node 2, '
           +network.find_shortest_path(1, 2, mode='w'))
     print('\nshortest path (link id) from node 1 to node 2, '
@@ -25,6 +27,9 @@ def test_find_shortest_path_for_agents():
     network = pg.read_network()
 
     st = time()
+    # find agent paths under a specific mode defined in settings.yaml,
+    # say, w (i.e., walk)
+    # network.find_path_for_agents('w') or network.find_path_for_agents('walk')
     network.find_path_for_agents()
     print('\nprocessing time of finding shortest paths for all agents: '
           f'{time()-st:.2f} s')
@@ -63,6 +68,9 @@ def test_column_generation_py():
 
     iter_num = 20
     column_update_num = 20
+    # pg.perform_network_assignment(assignment_mode=1, assignment_num,
+    #                               column_update_num, network)
+    # has been deprecated starting from v0.7.2, and will be removed later.
     pg.perform_column_generation(iter_num, column_update_num, network)
 
     print(f'processing time of column generation: {time()-st:.2f} s'
@@ -107,6 +115,9 @@ def test_loading_columns():
 
     iter_num = 0
     column_update_num = 10
+    # pg.perform_network_assignment(assignment_mode=1, assignment_num,
+    #                               column_update_num, network)
+    # has been deprecated starting from v0.7.2, and will be removed in later.
     pg.perform_column_generation(iter_num, column_update_num, network)
 
     print(f'processing time of column generation: {time()-st:.2f} s'
@@ -132,7 +143,7 @@ def test_accessibility():
     print('complete accessibility evaluation.\n')
     print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
 
-    # get accessible nodes and links starting from node 1 with a 5-minitue 
+    # get accessible nodes and links starting from node 1 with a 5-minitue
     # time window for the default mode auto (i.e., 'p')
     network.get_accessible_nodes(1, 5)
     network.get_accessible_links(1, 5)

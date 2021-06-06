@@ -44,11 +44,11 @@ def perform_network_assignment_DTALite(assignment_mode,
         1: Path-based UE, generates link performance file and agent path file
         2: UE + dynamic traffic assignment (DTA), generates link performance file and agent path file
         3: ODME
-    
+
     iter_num
         number of assignment iterations to be performed before optimizing
         column pool
-    
+
     column_update_iter
         number of iterations to be performed on optimizing column pool
 
