@@ -224,11 +224,7 @@ $ brew install libomp
 
 ### Perform Multimodal Accessibility Evaluation
 
-The current implemenation under v0.7.0a1 supprts accessibility evaluation for the following three modes. More modes will be added in the future to accommodate the full set of allowed uses for links as specified by GMNS. Note that you can restrict the allowed uses (modes) on each link by adding a field of "allowed_uses" to link.csv following the example [here](https://github.com/zephyr-data-specs/GMNS/blob/master/Small_Network_Examples/Cambridge_v090/link.csv). Othewise, links are open to all modes.
-
-      1. passenger (i.e., auto)
-      2. bike
-      3. walk
+The current implemenation supprts accessibility evaluation for any modes defined in settings.yml. Note that you can restrict the allowed uses (modes) on each link by adding a field of "allowed_uses" to link.csv following the example [here](https://github.com/zephyr-data-specs/GMNS/blob/master/Small_Network_Examples/Cambridge_v090/link.csv). Othewise, links are open to all modes.
 
 In order to perform multimodal accessibility evaluation, the corresponding modes (i.e., agent types) must be presented in [settings.yml](https://github.com/jdlph/Path4GMNS/blob/master/tests/settings.yml). It will be parsed by [pyyaml](https://pypi.org/project/PyYAML/) (5.1 or higher) to the Python engine at run-time. **Note that demand.csv is not necessary for accessibility evaluation**.
 
