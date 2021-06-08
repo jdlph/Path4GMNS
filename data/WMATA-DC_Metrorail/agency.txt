@@ -1,3 +1,0 @@
-agency_id,agency_name,agency_url,agency_timezone,agency_lang,agency_phone
-DC,"DC Circulator","http://www.dccirculator.com",America/New_York,en,"202-567-3040"
-MET,"MET","http://www.wmata.com/tripplanner",America/New_York,en,"202-637-7000"
