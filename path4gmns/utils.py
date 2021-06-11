@@ -23,7 +23,7 @@ __all__ = [
 # 1: has at least one outgoing link
 # 2: has at least one incoming link
 # 3: has both outgoing and incoming links
-_zone_degrees = []
+_zone_degrees = {}
 
 
 def _initialize_zone_degrees(zone_size):
@@ -34,34 +34,45 @@ def _initialize_zone_degrees(zone_size):
 
 
 def _update_orig_zone(oz_id):
-    global _zone_degrees
-
-    if _zone_degrees[oz_id] == 0:
+    # global _zone_degrees
+    if oz_id not in _zone_degrees:
         _zone_degrees[oz_id] = 1
     elif _zone_degrees[oz_id] == 2:
         _zone_degrees[oz_id] = 3
 
+    # if _zone_degrees[oz_id] == 0:
+    #     _zone_degrees[oz_id] = 1
+    # elif _zone_degrees[oz_id] == 2:
+    #     _zone_degrees[oz_id] = 3
+
 
 def _update_dest_zone(dz_id):
-    global _zone_degrees
+    # global _zone_degrees
 
-    if _zone_degrees[dz_id] == 0:
+    if dz_id not in _zone_degrees:
         _zone_degrees[dz_id] = 2
     elif _zone_degrees[dz_id] == 1:
         _zone_degrees[dz_id] = 3
+
+    # if _zone_degrees[dz_id] == 0:
+    #     _zone_degrees[dz_id] = 2
+    # elif _zone_degrees[dz_id] == 1:
+    #     _zone_degrees[dz_id] = 3
 
 
 def _are_od_connected(oz_id, dz_id):
     connected = True
 
     # at least one node in O must have outgoing links
-    if _zone_degrees[oz_id] == 0 or _zone_degrees[oz_id] == 2:
+    # if _zone_degrees[oz_id] == 0 or _zone_degrees[oz_id] == 2:
+    if oz_id not in _zone_degrees or _zone_degrees[oz_id] == 2:
         connected = False
         print(f'WARNING! {oz_id} has no outgoing links to route volume '
               f'between OD: {oz_id} --> {dz_id}')
 
     # at least one node in D must have incoming links
-    if _zone_degrees[dz_id] == 0 or _zone_degrees[dz_id] == 1:
+    # if _zone_degrees[dz_id] == 0 or _zone_degrees[dz_id] == 1:
+    if dz_id not in _zone_degrees or _zone_degrees[dz_id] == 1:
         if connected:
             connected = False
         print(f'WARNING! {dz_id} has no incoming links to route volume '
@@ -236,8 +247,8 @@ def read_links(input_dir,
     with open(input_dir+'/link.csv', 'r', encoding='utf-8') as fp:
         print('read link.csv')
 
-        if load_demand:
-            _initialize_zone_degrees(zone_size)
+        # if load_demand:
+        #     _initialize_zone_degrees(zone_size)
 
         reader = csv.DictReader(fp)
         link_seq_no = 0
