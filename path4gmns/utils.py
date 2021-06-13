@@ -6,6 +6,7 @@ from .classes import Node, Link, Network, Column, ColumnVec, VDFPeriod, \
                      AgentType, DemandPeriod, Demand, Assignment, UI
 
 from .colgen import update_links_using_columns
+from .consts import SMALL_DIVISOR
 
 
 __all__ = [
@@ -26,52 +27,30 @@ __all__ = [
 _zone_degrees = {}
 
 
-def _initialize_zone_degrees(zone_size):
-    assert(zone_size > 0)
-
-    global _zone_degrees
-    _zone_degrees = [0] * zone_size
-
-
 def _update_orig_zone(oz_id):
-    # global _zone_degrees
     if oz_id not in _zone_degrees:
         _zone_degrees[oz_id] = 1
     elif _zone_degrees[oz_id] == 2:
         _zone_degrees[oz_id] = 3
 
-    # if _zone_degrees[oz_id] == 0:
-    #     _zone_degrees[oz_id] = 1
-    # elif _zone_degrees[oz_id] == 2:
-    #     _zone_degrees[oz_id] = 3
-
 
 def _update_dest_zone(dz_id):
-    # global _zone_degrees
-
     if dz_id not in _zone_degrees:
         _zone_degrees[dz_id] = 2
     elif _zone_degrees[dz_id] == 1:
         _zone_degrees[dz_id] = 3
-
-    # if _zone_degrees[dz_id] == 0:
-    #     _zone_degrees[dz_id] = 2
-    # elif _zone_degrees[dz_id] == 1:
-    #     _zone_degrees[dz_id] = 3
 
 
 def _are_od_connected(oz_id, dz_id):
     connected = True
 
     # at least one node in O must have outgoing links
-    # if _zone_degrees[oz_id] == 0 or _zone_degrees[oz_id] == 2:
     if oz_id not in _zone_degrees or _zone_degrees[oz_id] == 2:
         connected = False
         print(f'WARNING! {oz_id} has no outgoing links to route volume '
               f'between OD: {oz_id} --> {dz_id}')
 
     # at least one node in D must have incoming links
-    # if _zone_degrees[dz_id] == 0 or _zone_degrees[dz_id] == 1:
     if dz_id not in _zone_degrees or _zone_degrees[dz_id] == 1:
         if connected:
             connected = False
@@ -247,9 +226,6 @@ def read_links(input_dir,
     with open(input_dir+'/link.csv', 'r', encoding='utf-8') as fp:
         print('read link.csv')
 
-        # if load_demand:
-        #     _initialize_zone_degrees(zone_size)
-
         reader = csv.DictReader(fp)
         link_seq_no = 0
         for line in reader:
@@ -391,7 +367,7 @@ def read_links(input_dir,
                         VDF_fftt = float(VDF_fftt)
                 except (KeyError, TypeError):
                     # set it up using length and free_speed from link
-                    VDF_fftt = length / max(0.001, free_speed) * 60
+                    VDF_fftt = length / max(SMALL_DIVISOR, free_speed) * 60
 
                 try:
                     VDF_cap = line[header_vdf_cap]
@@ -855,7 +831,7 @@ def output_link_performance(ui, output_dir='.'):
         for link in links:
             for dp in base.get_demand_periods():
                 avg_travel_time = link.get_period_avg_travel_time(dp.get_id())
-                speed = link.get_length() / (max(0.001, avg_travel_time) / 60)
+                speed = link.get_length() / (max(SMALL_DIVISOR, avg_travel_time) / 60)
 
                 line = [link.get_link_id(),
                         link.get_from_node_id(),

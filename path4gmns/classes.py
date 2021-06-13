@@ -4,7 +4,7 @@ from random import choice
 
 from .path import find_path_for_agents, find_shortest_path, \
                   single_source_shortest_path
-from .consts import MAX_LABEL_COST
+from .consts import MAX_LABEL_COST, SMALL_DIVISOR
 
 
 __all__ = ['UI']
@@ -81,7 +81,7 @@ class Link:
         self.type = link_type
         # length:km, free_speed: km/h
         self.free_flow_travel_time_in_min = (
-            length / max(0.001, free_speed) * 60
+            length / max(SMALL_DIVISOR, free_speed) * 60
         )
         # capacity is lane capacity per hour
         self.link_capacity = capacity * lanes
@@ -148,7 +148,7 @@ class Link:
     def get_generalized_cost(self, tau, value_of_time):
         return (
             self.travel_time_by_period[tau]
-            + self.toll / max(0.001, value_of_time) * 60
+            + self.toll / max(SMALL_DIVISOR, value_of_time) * 60
         )
 
     def reset_period_flow_vol(self, tau):
@@ -790,7 +790,7 @@ class VDFPeriod:
 
     def run_bpr(self, vol):
         vol = max(0, vol)
-        self.voc = vol / max(0.00001, self.capacity)
+        self.voc = vol / max(SMALL_DIVISOR, self.capacity)
 
         self.marginal_base = (
             self.fftt
@@ -1106,14 +1106,14 @@ class AccessNetwork(Network):
                 self.link_cost_array[link.get_seq_no()] = (
                     link.get_free_flow_travel_time()
                     + link.get_route_choice_cost()
-                    + link.get_toll() / min(0.001, vot) * 60
+                    + link.get_toll() / min(SMALL_DIVISOR, vot) * 60
                 )
         else:
             for link in self.get_links():
                 self.link_cost_array[link.get_seq_no()] = (
-                    (link.get_length() / max(0.001, ffs) * 60)
+                    (link.get_length() / max(SMALL_DIVISOR, ffs) * 60)
                     + link.get_route_choice_cost()
-                    + link.get_toll() / min(0.001, vot) * 60
+                    + link.get_toll() / min(SMALL_DIVISOR, vot) * 60
                 )
 
 

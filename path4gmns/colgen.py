@@ -2,7 +2,7 @@ from time import time
 
 from .path import single_source_shortest_path
 from .classes import Column
-from .consts import MIN_OD_VOL
+from .consts import MIN_OD_VOL, MAX_LABEL_COST, SMALL_DIVISOR
 
 
 __all__ = ['perform_column_generation']
@@ -23,7 +23,7 @@ def _update_generalized_link_cost(spnetworks):
             sp.link_cost_array[link.get_seq_no()] = (
             link.get_period_travel_time(tau)
             + link.get_route_choice_cost()
-            + link.get_toll() / min(0.001, vot) * 60
+            + link.get_toll() / min(SMALL_DIVISOR, vot) * 60
         )
 
 
@@ -110,7 +110,7 @@ def _update_column_gradient_cost_and_flow(column_pool,
         tau = k[1]
 
         column_num = cv.get_column_num()
-        least_gradient_cost = 999999
+        least_gradient_cost = MAX_LABEL_COST
         least_gradient_cost_path_seq_no = -1
         least_gradient_cost_path_node_sum = -1
 
@@ -155,7 +155,7 @@ def _update_column_gradient_cost_and_flow(column_pool,
                 )
                 col.set_gradient_cost_rel_diff(
                     col.get_gradient_cost_abs_diff()
-                    / max(0.0001, least_gradient_cost)
+                    / max(SMALL_DIVISOR, least_gradient_cost)
                 )
 
                 total_gap += (
