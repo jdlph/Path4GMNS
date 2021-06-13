@@ -136,6 +136,7 @@ void shortest_path_n(int o_node_no,
                      int* link_pred,
                      int* deque_next,
                      const wchar_t* mode,
+                     int max_label_cost,
                      int last_thru_node,
                      int departure_time)
 {
@@ -149,7 +150,7 @@ void shortest_path_n(int o_node_no,
         // dueue_next is the implementation of scan eligible list for active nodes in label correcting
         deque_next[node_no] = invalid;
         // label cost, make it consistent with the python implemenation
-        label_cost[node_no] = 99999;
+        label_cost[node_no] = max_label_cost;
         link_pred[node_no] = invalid;
         node_pred[node_no] = invalid;
     }

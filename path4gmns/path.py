@@ -54,6 +54,7 @@ _cdll.shortest_path.argtypes = [
     ctypes.POINTER(ctypes.c_int),
     ctypes.c_wchar_p,
     ctypes.c_int,
+    ctypes.c_int,
     ctypes.c_int
 ]
 
@@ -80,6 +81,7 @@ def _optimal_label_correcting_CAPI(G,
                           G.get_link_preds(),
                           G.get_queue_next(),
                           G.get_agent_type_name(),
+                          MAX_LABEL_COST,
                           G.get_last_thru_node(),
                           departure_time)
 
