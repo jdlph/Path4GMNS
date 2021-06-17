@@ -217,7 +217,6 @@ def read_links(input_dir,
                nodes,
                id_to_no_dict,
                link_id_dict,
-               zone_size,
                agent_type_size,
                demand_period_size,
                load_demand):
@@ -565,7 +564,6 @@ def read_network(load_demand='true', input_dir='.'):
                network.node_list,
                network.internal_node_seq_no_dict,
                network.link_id_dict,
-               network.get_zone_size(),
                assignm.get_agent_type_count(),
                assignm.get_demand_period_count(),
                load_demand)
