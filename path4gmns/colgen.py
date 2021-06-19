@@ -194,9 +194,9 @@ def _optimize_column_pool(column_pool,
                           links,
                           agent_types,
                           demand_periods,
-                          colum_update_num):
+                          column_update_num):
 
-    for i in range(colum_update_num):
+    for i in range(column_update_num):
         print(f"current iteration number in column generation: {i}")
         _update_column_gradient_cost_and_flow(column_pool,
                                               links,

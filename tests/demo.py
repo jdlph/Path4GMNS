@@ -7,8 +7,7 @@ def test_download_sample_data_sets():
 
 
 def test_find_shortest_path():
-    load_demand = False
-    network = pg.read_network(load_demand)
+    network = pg.read_network(load_demand=False)
 
     print('\nshortest path (node id) from node 1 to node 2, '
           +network.find_shortest_path(1, 2))
@@ -129,8 +128,7 @@ def test_loading_columns():
 
 
 def test_accessibility():
-    load_demand = False
-    network = pg.read_network(load_demand)
+    network = pg.read_network(load_demand=False)
 
     print('\nstart accessibility evaluation\n')
     st = time()
@@ -184,4 +182,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(6)
+    demo_mode(3)

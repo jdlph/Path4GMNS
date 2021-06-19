@@ -45,8 +45,7 @@ Find the (static) shortest path (based on distance) and output it in the format 
 ```python
 import path4gmns as pg
 
-load_demand = False
-network = pg.read_network(load_demand)
+network = pg.read_network(load_demand=False)
 
 print('\nshortest path (node id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2))
@@ -59,8 +58,7 @@ You can specify the absolute path or the relative path from your cwd in read_net
 ```python
 import path4gmns as pg
 
-load_demand = False
-network = pg.read_network(load_demand, input_dir='data/Chicago_Sketch')
+network = pg.read_network(load_demand=False, input_dir='data/Chicago_Sketch')
 
 print('\nshortest path (node id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2))
@@ -72,8 +70,7 @@ Retrieving the shortest path between any two (different) nodes under a specific 
 ```python
 import path4gmns as pg
 
-load_demand = False
-network = pg.read_network(load_demand)
+network = pg.read_network(load_demand=False)
 
 print('\nshortest path (node id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2, mode='w'))
@@ -260,8 +257,7 @@ If pyyaml is not installed or settings.yml is not provided, one demand period (A
 import path4gmns as pg
 
 # no need to load demand file for accessibility evaluation
-load_demand = False
-network = pg.read_network(load_demand)
+network = pg.read_network(load_demand=False)
 
 print('\nstart accessibility evaluation\n')
 st = time()
@@ -278,8 +274,7 @@ Two formats of accessibility will be outputed: accessibility between each OD pai
 import path4gmns as pg
 
 # no need to load demand file for accessibility evaluation
-load_demand = False
-network = pg.read_network(load_demand)
+network = pg.read_network(load_demand=False)
 
 print('\nstart accessibility evaluation\n')
 st = time()
@@ -300,8 +295,7 @@ You can also get the accessible nodes and links within a time budget given a mod
 import path4gmns as pg
 
 # no need to load demand file for accessibility evaluation
-load_demand = False
-network = pg.read_network(load_demand)
+network = pg.read_network(load_demand=False)
 
 # get accessible nodes and links starting from node 1 with a 5-minitue
 # time window for the default mode auto (i.e., 'p')
