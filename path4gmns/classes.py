@@ -1109,6 +1109,18 @@ class AccessNetwork(Network):
         link_no = self.link_predecessor[self.get_node_no(node_id)]
         return self.link_list[link_no].get_link_id()
 
+    def get_sp_distance(self, node_no):
+        """ get the shortest path distance """
+        dist = 0
+        while node_no >= 0:
+            link_seq_no = self.link_predecessor[node_no]
+            if link_seq_no >= 0:
+                dist += self.get_link(link_seq_no).get_length()
+
+            node_no = self.node_predecessor[node_no]
+
+        return dist
+
     def update_generalized_link_cost(self, at):
         """ update generalized link costs to calculate accessibility """
         vot = at.get_vot()

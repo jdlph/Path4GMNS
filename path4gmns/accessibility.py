@@ -29,7 +29,6 @@ def _get_interval_id(t):
 
 
 def _update_min_travel_time(an, at, min_travel_times):
-    # _update_generalized_link_cost_a(an, at)
     an.update_generalized_link_cost(at)
 
     at_str = at.get_type_str()
@@ -45,7 +44,9 @@ def _update_min_travel_time(an, at, min_travel_times):
             node_no = c_.get_node_no()
             to_zone_id = c_.get_zone_id()
             min_tt = an.get_node_label_cost(node_no)
-            min_travel_times[(zone_id, to_zone_id, at_str)] = min_tt
+            # this function will dramatically slow down the whole process
+            min_dist = an.get_sp_distance(node_no)
+            min_travel_times[(zone_id, to_zone_id, at_str)] = min_tt, min_dist
 
             if min_tt < MAX_LABEL_COST and max_min < min_tt:
                 max_min = min_tt
@@ -58,7 +59,8 @@ def _output_accessibility(min_travel_times, zones, mode='p', output_dir='.'):
     with open(output_dir+'/accessibility.csv', 'w',  newline='') as f:
         headers = ['o_zone_id', 'o_zone_name',
                    'd_zone_id', 'd_zone_name',
-                   'accessibility', 'geometry']
+                   'accessibility', 'distance',
+                   'geometry']
 
         writer = csv.writer(f)
         writer.writerow(headers)
@@ -77,7 +79,7 @@ def _output_accessibility(min_travel_times, zones, mode='p', output_dir='.'):
             coord_dz = zones[k[1]]
             geo = 'LINESTRING (' + coord_oz + ', ' + coord_dz + ')'
 
-            line = [k[0], '', k[1], '', v, geo]
+            line = [k[0], '', k[1], '', v[0], v[1], geo]
             writer.writerow(line)
 
         if output_dir == '.':
@@ -117,7 +119,7 @@ def _output_accessibility_aggregated(min_travel_times, interval_num,
                     if (oz, dz, at_str) not in min_travel_times.keys():
                         continue
 
-                    min_tt = min_travel_times[(oz, dz, at_str)]
+                    min_tt = min_travel_times[(oz, dz, at_str)][0]
                     if min_tt >= MAX_LABEL_COST:
                         continue
 
@@ -142,8 +144,6 @@ def _output_accessibility_aggregated(min_travel_times, interval_num,
 
 def evaluate_accessibility(ui, multimodal=True, mode='p', output_dir='.'):
     base = ui._base_assignment
-    # zones = base.get_zones()
-
     an = AccessNetwork(base.network)
     ats = None
 
