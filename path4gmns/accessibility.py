@@ -28,8 +28,8 @@ def _get_interval_id(t):
     return int(t/(MIN_TIME_BUDGET+BUDGET_TIME_INTVL)) + 1
 
 
-def _update_min_travel_time(an, at, min_travel_times):
-    an.update_generalized_link_cost(at)
+def _update_min_travel_time(an, at, min_travel_times, time_dependent, demand_period_id):
+    an.update_generalized_link_cost(at, time_dependent, demand_period_id)
 
     at_str = at.get_type_str()
     max_min = 0
@@ -142,7 +142,7 @@ def _output_accessibility_aggregated(min_travel_times, interval_num,
                   +' for aggregated accessibility matrix')
 
 
-def evaluate_accessibility(ui, multimodal=True, mode='p', output_dir='.'):
+def evaluate_accessibility(ui, multimodal=True, mode='p', time_dependent=False, demand_period_id=0, output_dir='.'):
     base = ui._base_assignment
     an = AccessNetwork(base.network)
     ats = None
@@ -158,14 +158,14 @@ def evaluate_accessibility(ui, multimodal=True, mode='p', output_dir='.'):
         ats = base.get_agent_types()
         for at in ats:
             an.set_target_mode(at.get_name())
-            max_min_ = _update_min_travel_time(an, at, min_travel_times)
+            max_min_ = _update_min_travel_time(an, at, min_travel_times, time_dependent, demand_period_id)
             if max_min_ > max_min:
                 max_min = max_min_
     else:
         at_name, at_str = base._convert_mode(mode)
         an.set_target_mode(at_name)
         at = base.get_agent_type(at_str)
-        max_min = _update_min_travel_time(an, at, min_travel_times)
+        max_min = _update_min_travel_time(an, at, min_travel_times, time_dependent, demand_period_id)
         ats = [at]
 
     interval_num = _get_interval_id(min(max_min, MAX_TIME_BUDGET)) + 1

@@ -146,6 +146,13 @@ class Link:
     def get_period_voc(self, tau):
         return self.vdfperiods[tau].get_voc()
 
+    def get_period_fftt(self, tau):
+        try:
+            return self.vdfperiods[tau].get_fftt()
+        except IndexError:
+            raise Exception(f'NO such demand period id: {tau}!'
+                            ' Check your input demand_period_id')
+
     def get_period_avg_travel_time(self, tau):
         return self.vdfperiods[tau].get_avg_travel_time()
 
@@ -792,6 +799,9 @@ class VDFPeriod:
     def get_voc(self):
         return self.voc
 
+    def get_fftt(self):
+        return self.fftt
+
     def run_bpr(self, vol):
         vol = max(0, vol)
         self.voc = vol / max(SMALL_DIVISOR, self.capacity)
@@ -1121,25 +1131,38 @@ class AccessNetwork(Network):
 
         return dist
 
-    def update_generalized_link_cost(self, at):
+    def update_generalized_link_cost(self, at, time_dependent, demand_period_id):
         """ update generalized link costs to calculate accessibility """
         vot = at.get_vot()
-        ffs = at.get_free_flow_speed()
 
-        if at.get_type_str().startswith('p'):
+        if time_dependent:
             for link in self.get_links():
+                # do not update connectors
+                if link.get_link_id().startswith('conn_'):
+                    continue
+
                 self.link_cost_array[link.get_seq_no()] = (
-                    link.get_free_flow_travel_time()
+                    link.get_period_fftt(demand_period_id)
                     + link.get_route_choice_cost()
                     + link.get_toll() / min(SMALL_DIVISOR, vot) * 60
                 )
         else:
-            for link in self.get_links():
-                self.link_cost_array[link.get_seq_no()] = (
-                    (link.get_length() / max(SMALL_DIVISOR, ffs) * 60)
-                    + link.get_route_choice_cost()
-                    + link.get_toll() / min(SMALL_DIVISOR, vot) * 60
-                )
+            if at.get_type_str().startswith('p'):
+                for link in self.get_links():
+                    self.link_cost_array[link.get_seq_no()] = (
+                        link.get_free_flow_travel_time()
+                        + link.get_route_choice_cost()
+                        + link.get_toll() / min(SMALL_DIVISOR, vot) * 60
+                    )
+            else:
+                ffs = at.get_free_flow_speed()
+                
+                for link in self.get_links():
+                    self.link_cost_array[link.get_seq_no()] = (
+                        (link.get_length() / max(SMALL_DIVISOR, ffs) * 60)
+                        + link.get_route_choice_cost()
+                        + link.get_toll() / min(SMALL_DIVISOR, vot) * 60
+                    )
 
 
 class Assignment:
@@ -1378,7 +1401,7 @@ class Assignment:
     def get_node_label_cost(self, node_no):
         return self.accessnetwork.get_node_label_cost(node_no)
 
-    def get_accessible_nodes(self, source_node_id, time_budget, mode):
+    def get_accessible_nodes(self, source_node_id, time_budget, mode, time_dependent, tau):
         if source_node_id not in self.network.internal_node_seq_no_dict.keys():
             raise Exception(f"Node ID: {source_node_id} not in the network")
 
@@ -1400,7 +1423,7 @@ class Assignment:
         if self.accessnetwork.agent_type_name != at_name:
             self.accessnetwork.set_target_mode(at_name)
             at = self.get_agent_type(at_str)
-            self.accessnetwork.update_generalized_link_cost(at)
+            self.accessnetwork.update_generalized_link_cost(at, time_dependent, tau)
             run_sp = True
 
         if run_sp:
@@ -1419,9 +1442,9 @@ class Assignment:
 
         return nodes
 
-    def get_accessible_links(self, source_node_id, time_budget, mode):
+    def get_accessible_links(self, source_node_id, time_budget, mode, time_dependent, tau):
         # node id's
-        nodes = self.get_accessible_nodes(source_node_id, time_budget, mode)
+        nodes = self.get_accessible_nodes(source_node_id, time_budget, mode, time_dependent, tau)
         # convert to link id's
         return [
             self.accessnetwork.get_pred_link_id(x) for x in nodes
@@ -1489,7 +1512,7 @@ class UI:
             seq_type
         )
 
-    def get_accessible_nodes(self, source_node_id, time_budget, mode='p'):
+    def get_accessible_nodes(self, source_node_id, time_budget, mode='p', time_dependent=False, tau=0):
         """ get the accessible nodes from a node given mode and time budget
 
         Parameters
@@ -1506,14 +1529,16 @@ class UI:
         """
         nodes = self._base_assignment.get_accessible_nodes(source_node_id,
                                                            time_budget,
-                                                           mode)
+                                                           mode,
+                                                           time_dependent,
+                                                           tau)
 
         node_strs = ';'.join(str(x) for x in nodes)
 
         print(f'number of accessible nodes is {len(nodes)}')
         print(f'accessible nodes are: {node_strs}')
 
-    def get_accessible_links(self, source_node_id, time_budget, mode='p'):
+    def get_accessible_links(self, source_node_id, time_budget, mode='p', time_dependent=False, tau=0):
         """ get the accessible links from a node given mode and time budget
 
         Parameters
@@ -1530,7 +1555,9 @@ class UI:
         """
         links = self._base_assignment.get_accessible_links(source_node_id,
                                                            time_budget,
-                                                           mode)
+                                                           mode,
+                                                           time_dependent,
+                                                           tau)
 
         link_strs = ';'.join(str(x) for x in links)
 

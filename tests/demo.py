@@ -135,7 +135,7 @@ def test_accessibility():
     st = time()
 
     # multimodal accessibility evaluation
-    pg.evaluate_accessibility(network)
+    pg.evaluate_accessibility(network, time_dependent=True, demand_period_id=1)
     # accessibility evalutation for a target mode
     # pg.evaluate_accessibility(network, multimodal=False, mode='p')
 
