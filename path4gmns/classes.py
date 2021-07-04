@@ -256,9 +256,9 @@ class Network:
         self.node_size = 0
         self.link_size = 0
         self.agent_size = 0
-        # key: external node id, value:internal node id
+        # key: node id, value: node seq no
         self.internal_node_seq_no_dict = {}
-        # key: internal node id, value:external node id
+        # key: node seq no, value: node id
         self.external_node_id_dict = {}
         # map link id to link seq no
         self.link_id_dict = {}

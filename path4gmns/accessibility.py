@@ -128,7 +128,7 @@ def _output_accessibility_aggregated(min_travel_times, interval_num,
                         counts[id] += 1
                         id += 1
                 # output assessiblity
-                geo = 'LINESTRING (' + coord + ')'
+                geo = 'POINT (' + coord + ')'
                 line = [oz, geo, atype.get_type_str()]
                 line.extend(counts)
                 writer.writerow(line)

@@ -66,8 +66,8 @@ def test_column_generation_py():
     print('\nstart column generation\n')
     st = time()
 
-    iter_num = 20
-    column_update_num = 20
+    iter_num = 10
+    column_update_num = 10
     # pg.perform_network_assignment(assignment_mode=1, assignment_num,
     #                               column_update_num, network)
     # has been deprecated starting from v0.7.2, and will be removed later.
@@ -135,7 +135,7 @@ def test_accessibility():
     st = time()
 
     # multimodal accessibility evaluation
-    pg.evaluate_accessibility(network, time_dependent=True, demand_period_id=1)
+    pg.evaluate_accessibility(network, time_dependent=True, demand_period_id=0)
     # accessibility evalutation for a target mode
     # pg.evaluate_accessibility(network, multimodal=False, mode='p')
 
@@ -183,4 +183,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(6)
+    demo_mode(3)
