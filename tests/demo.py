@@ -60,6 +60,7 @@ def test_find_shortest_path_for_agents():
 
 
 def test_column_generation_py():
+    # network = pg.read_network(input_dir='C:/Users/jdlph/Desktop/Chicago_Regional')
     network = pg.read_network()
 
     print('\nstart column generation\n')
@@ -182,4 +183,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(4)
+    demo_mode(6)

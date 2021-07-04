@@ -48,6 +48,10 @@ class Node:
     def add_incoming_link(self, link):
         self.incoming_link_list.append(link)
 
+    def update_coordinate(self, args):
+        self.coord_x = args[0]
+        self.coord_y = args[1]
+
 
 class Link:
 
@@ -966,6 +970,8 @@ class AccessNetwork(Network):
             # create a centroid
             node_id = 'c_' + str(z)
             centroid = Node(node_seq_no, node_id, z)
+            centroid.update_coordinate(self._get_zone_coord(z))
+
             self.node_list.append(centroid)
             self.centroids.append(centroid)
 
@@ -1021,6 +1027,13 @@ class AccessNetwork(Network):
 
     def get_nodes_from_zone(self, zone_id):
         return self.base.zone_to_nodes_dict[zone_id]
+
+    def _get_zone_coord(self, zone_id):
+        """ coordinate of each zone is from its first node """
+        node_id = self.get_nodes_from_zone(zone_id)[0]
+        node_seq_no = self.base.get_node_no(node_id)
+        node = self.base.get_nodes()[node_seq_no]
+        return node.coord_x, node.coord_y
 
     def set_target_mode(self, mode):
         """ set up the target mode for accessibility evaluation

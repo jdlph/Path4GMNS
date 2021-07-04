@@ -53,7 +53,7 @@ def _update_min_travel_time(an, at, min_travel_times):
     return max_min
 
 
-def _output_accessibility(min_travel_times, mode='p', output_dir='.'):
+def _output_accessibility(min_travel_times, zones, mode='p', output_dir='.'):
     """ output accessibility for each OD pair (i.e., travel time) """
     with open(output_dir+'/accessibility.csv', 'w',  newline='') as f:
         headers = ['o_zone_id', 'o_zone_name',
@@ -71,7 +71,13 @@ def _output_accessibility(min_travel_times, mode='p', output_dir='.'):
                 continue
 
             # output assessiblity
-            line = [k[0], '', k[1], '', v, '']
+            # no exception handlings here as min_travel_times is constructed 
+            # directly using an.get_centroids()
+            coord_oz = zones[k[0]]
+            coord_dz = zones[k[1]]
+            geo = 'LINESTRING (' + coord_oz + ', ' + coord_dz + ')'
+
+            line = [k[0], '', k[1], '', v, geo]
             writer.writerow(line)
 
         if output_dir == '.':
@@ -99,7 +105,7 @@ def _output_accessibility_aggregated(min_travel_times, interval_num,
         writer.writerow(headers)
 
         # calculate accessibility
-        for oz in zones:
+        for oz, coord in zones.items():
             if oz == -1:
                 continue
 
@@ -107,7 +113,7 @@ def _output_accessibility_aggregated(min_travel_times, interval_num,
                 at_str = atype.get_type_str()
                 # number of accessible zones from oz for each agent type
                 counts = [0] * interval_num
-                for dz in zones:
+                for dz in zones.keys():
                     if (oz, dz, at_str) not in min_travel_times.keys():
                         continue
 
@@ -120,7 +126,8 @@ def _output_accessibility_aggregated(min_travel_times, interval_num,
                         counts[id] += 1
                         id += 1
                 # output assessiblity
-                line = [oz, '', atype.get_type_str()]
+                geo = 'LINESTRING (' + coord + ')'
+                line = [oz, geo, atype.get_type_str()]
                 line.extend(counts)
                 writer.writerow(line)
 
@@ -135,10 +142,15 @@ def _output_accessibility_aggregated(min_travel_times, interval_num,
 
 def evaluate_accessibility(ui, multimodal=True, mode='p', output_dir='.'):
     base = ui._base_assignment
-    zones = base.get_zones()
+    # zones = base.get_zones()
 
     an = AccessNetwork(base.network)
     ats = None
+
+    # map zone id to zone centroid coordinate 
+    zones = {}
+    for c in an.get_centroids():
+        zones[c.get_zone_id()] = c.get_coordinate()
 
     max_min = 0
     min_travel_times = {}
@@ -160,7 +172,7 @@ def evaluate_accessibility(ui, multimodal=True, mode='p', output_dir='.'):
 
     t = threading.Thread(
         target=_output_accessibility,
-        args=(min_travel_times, mode, output_dir))
+        args=(min_travel_times, zones, mode, output_dir))
     t.start()
 
     t = threading.Thread(
