@@ -60,7 +60,6 @@ def test_find_shortest_path_for_agents():
 
 
 def test_column_generation_py():
-    # network = pg.read_network(input_dir='C:/Users/jdlph/Desktop/Chicago_Regional')
     network = pg.read_network()
 
     print('\nstart column generation\n')
@@ -135,7 +134,7 @@ def test_accessibility():
     st = time()
 
     # multimodal accessibility evaluation
-    pg.evaluate_accessibility(network, time_dependent=True, demand_period_id=0)
+    pg.evaluate_accessibility(network)
     # accessibility evalutation for a target mode
     # pg.evaluate_accessibility(network, multimodal=False, mode='p')
 
@@ -151,6 +150,19 @@ def test_accessibility():
     # time window for mode walk (i.e., 'w')
     network.get_accessible_nodes(1, 15, 'w')
     network.get_accessible_links(1, 15, 'w')
+
+    # time-dependent accessibility under the default mode auto (i.e., p)
+    # for demand period 0 (i.e., VDF_fftt1 in link.csv will be used in the
+    # evaluation)
+    # pg.evaluate_accessiblity(network, multimodal=False, time_dependent=True)
+
+    # get accessible nodes and links starting from node 1 with a 5-minitue
+    # time window for the default mode auto (i.e., 'p') for demand period 0 
+    # network.get_accessible_nodes(1, 5, time_dependent=True)
+
+    # get accessible nodes and links starting from node 1 with a 15-minitue
+    # time window for mode walk (i.e., 'w') for demand period 0
+    # network.get_accessible_nodes(1, 15, 'w', time_dependent=True)
 
 
 def demo_mode(mode):

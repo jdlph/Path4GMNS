@@ -1050,8 +1050,7 @@ class AccessNetwork(Network):
 
         Parameters
         ----------
-        mode : please choose one of the following three, 'p', 'w', and 'b',
-        which are in settings.yml.
+        mode : agent name which is in settings.yml.
         """
         # assert(mode in ['p', 'w', 'b', 'a'])
         self.agent_type_name = mode
@@ -1156,7 +1155,7 @@ class AccessNetwork(Network):
                     )
             else:
                 ffs = at.get_free_flow_speed()
-                
+
                 for link in self.get_links():
                     self.link_cost_array[link.get_seq_no()] = (
                         (link.get_length() / max(SMALL_DIVISOR, ffs) * 60)
@@ -1401,7 +1400,8 @@ class Assignment:
     def get_node_label_cost(self, node_no):
         return self.accessnetwork.get_node_label_cost(node_no)
 
-    def get_accessible_nodes(self, source_node_id, time_budget, mode, time_dependent, tau):
+    def get_accessible_nodes(self, source_node_id, time_budget,
+                             mode, time_dependent, tau):
         if source_node_id not in self.network.internal_node_seq_no_dict.keys():
             raise Exception(f"Node ID: {source_node_id} not in the network")
 
@@ -1423,7 +1423,9 @@ class Assignment:
         if self.accessnetwork.agent_type_name != at_name:
             self.accessnetwork.set_target_mode(at_name)
             at = self.get_agent_type(at_str)
-            self.accessnetwork.update_generalized_link_cost(at, time_dependent, tau)
+            self.accessnetwork.update_generalized_link_cost(at,
+                                                            time_dependent,
+                                                            tau)
             run_sp = True
 
         if run_sp:
@@ -1442,9 +1444,11 @@ class Assignment:
 
         return nodes
 
-    def get_accessible_links(self, source_node_id, time_budget, mode, time_dependent, tau):
+    def get_accessible_links(self, source_node_id, time_budget,
+                             mode, time_dependent, tau):
         # node id's
-        nodes = self.get_accessible_nodes(source_node_id, time_budget, mode, time_dependent, tau)
+        nodes = self.get_accessible_nodes(source_node_id, time_budget,
+                                          mode, time_dependent, tau)
         # convert to link id's
         return [
             self.accessnetwork.get_pred_link_id(x) for x in nodes
@@ -1487,16 +1491,28 @@ class UI:
         """ find and set up shortest path for each agent """
         return self._base_assignment.find_path_for_agents(mode)
 
-    def find_shortest_path(self, from_node_id, to_node_id, mode='all', seq_type='node'):
+    def find_shortest_path(self, from_node_id, to_node_id,
+                           mode='all', seq_type='node'):
         """ return shortest path between from_node_id and to_node_id
 
         Parameters
         ----------
-        from_node_id: the starting node id
-        to_node_id  : the ending node id
-        seq_type    : 'node' or 'link'. You will get the shortest path in
-                      sequence of either node IDs or link IDs. The default is
-                      'node'
+        from_node_id
+            the starting node id
+
+        to_node_id
+            the ending node id
+
+        seq_type
+            'node' or 'link'. You will get the shortest path in sequence of
+            either node IDs or link IDs. The default is 'node'.
+
+        mode
+            the target transportation mode which is defined in settings.yml. It
+            can be either agent type or its name. For example, 'w' and 'walk'
+            are equivalent inputs.
+
+            The default is 'all', which means that links are open to all modes.
 
         Outputs
         -------
@@ -1512,15 +1528,43 @@ class UI:
             seq_type
         )
 
-    def get_accessible_nodes(self, source_node_id, time_budget, mode='p', time_dependent=False, tau=0):
+    def get_accessible_nodes(self,
+                             source_node_id,
+                             time_budget,
+                             mode='p',
+                             time_dependent=False,
+                             demand_period_id=0):
         """ get the accessible nodes from a node given mode and time budget
 
         Parameters
         ----------
-        source_node_id: the starting node id for evaluation
-        time_budget: the amount of time to travel in minutes
-        mode: transportation mode, please choose one of the following three, \
-              'p', 'w', and 'b', which are in settings.yml.
+        source_node_id
+            the starting node id for evaluation
+
+        time_budget
+            the amount of time to travel in minutes
+
+        mode
+            the target transportation mode which is defined in settings.yml. It
+            can be either agent type or its name. For example, 'w' and 'walk'
+            are equivalent inputs. Its default value is 'p' (i.e., mode auto).
+
+        time_dependent
+            True or False. Its default value is False.
+
+            If True, the accessibility will be evaluated using the period link
+            free-flow travel time (i.e., VDF_fftt). In other words, the
+            accessibility is time-dependent.
+
+            If False, the accessibility will be evaluated using the link length
+            and the free flow travel speed of each mode.
+
+        demand_period_id
+            The sequence number of demand period listed in demand_periods in
+            settings.yml. demand_period_id of the first demand_period is 0.
+
+            Use it with time_dependent when there are multiple demand periods.
+            Its default value is 0.
 
         Outputs
         -------
@@ -1531,22 +1575,34 @@ class UI:
                                                            time_budget,
                                                            mode,
                                                            time_dependent,
-                                                           tau)
+                                                           demand_period_id)
 
         node_strs = ';'.join(str(x) for x in nodes)
 
         print(f'number of accessible nodes is {len(nodes)}')
         print(f'accessible nodes are: {node_strs}')
 
-    def get_accessible_links(self, source_node_id, time_budget, mode='p', time_dependent=False, tau=0):
+    def get_accessible_links(self,
+                             source_node_id,
+                             time_budget,
+                             mode='p',
+                             time_dependent=False,
+                             demand_period_id=0):
         """ get the accessible links from a node given mode and time budget
 
         Parameters
         ----------
-        source_node_id: the starting node id for evaluation
-        time_budget: the amount of time to travel in minutes
-        mode: transportation mode, please choose one of the following three, \
-              'p', 'w', and 'b', which are in settings.yml.
+        source_node_id
+            the starting node id for evaluation
+
+        time_budget
+            the amount of time to travel in minutes
+
+        mode
+            the target transportation mode which is defined in settings.yml. It
+            can be either agent type or its name. For example, 'w' and 'walk'
+            are equivalent inputs.
+
 
         Outputs
         -------
@@ -1557,7 +1613,7 @@ class UI:
                                                            time_budget,
                                                            mode,
                                                            time_dependent,
-                                                           tau)
+                                                           demand_period_id)
 
         link_strs = ';'.join(str(x) for x in links)
 

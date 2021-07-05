@@ -14,16 +14,16 @@ Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jd
    * Origin-Destination Matrix Estimation (ODME).
 
 ## Installation
-Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.7.2/), and can be installed using
+Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.7.3/), and can be installed using
 ```
 $ pip install path4gmns
 ```
-If you need a specific version of Path4GMNS, say, 0.7.2,
+If you need a specific version of Path4GMNS, say, 0.7.3,
 ```
-$ pip install path4gmns==0.7.2
+$ pip install path4gmns==0.7.3
 ```
 
-v0.7.2 comes with bug fixes, new functionalities, and new interfaces. All previous releases shall be deprecated for any purposes.
+v0.7.3 comes with bug fixes and new functionalities. All previous releases shall be deprecated for any purposes.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding use cases in the following section.
@@ -66,7 +66,7 @@ print('\nshortest path (link id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2, 'link'))
 ```
 
-Retrieving the shortest path between any two (different) nodes under a specific mode is now available under v0.7.2.
+Retrieving the shortest path between any two (different) nodes under a specific mode is now available under v0.7.2 or higher.
 ```python
 import path4gmns as pg
 
@@ -116,7 +116,7 @@ print('shortest path (link id) of agent, '
 pg.output_agent_paths(network)
 ```
 
-v0.7.2 features finding agent paths under a specific mode defined in settings.yaml. The following example demostrates this new functionality under mode walk (i.e., w).
+v0.7.2 or higher features finding agent paths under a specific mode defined in settings.yaml. The following example demostrates this new functionality under mode walk (i.e., w).
 ```python
 import path4gmns as pg
 
@@ -126,7 +126,7 @@ network.find_path_for_agents()
 # or equivalently network.find_path_for_agents('walk')
 network.find_path_for_agents('w')
 
-# retrieving the origin, the destination, and the shortest path of a given agent 
+# retrieving the origin, the destination, and the shortest path of a given agent
 # is exactly the same as before as well as outputing all unique agent paths
 ```
 
@@ -268,7 +268,7 @@ print('complete accessibility evaluation.\n')
 print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
 ```
 
-Two formats of accessibility will be outputed: accessibility between each OD pair in terms of free flow travel time (accessibility.csv) and aggregated accessibility as to the number of accessible zones from each zone for each transportation mode specified in settings.yml given a budget time (up to 240 minutes) (accessibility_aggregated.csv). The following example is to evaluate accessibility only under the default mode (i.e. mode auto or agent type passenger).
+Two formats of accessibility will be outputed: accessibility between each OD pair in terms of free flow travel time (accessibility.csv) and aggregated accessibility as to the number of accessible zones from each zone for each transportation mode specified in settings.yml given a budget time (up to 240 minutes) (accessibility_aggregated.csv). The following example is to evaluate accessibility only under the default mode (i.e., mode auto or agent type passenger).
 
 ```python
 import path4gmns as pg
@@ -311,6 +311,60 @@ network.get_accessible_links(1, 15, 'w')
 # network.get_accessible_links(1, 15, 'walk')
 ```
 
+### When Time-Dependent Link Travel Time Matters
+Link travel time is crucial in calculating accessibility. In the classic accessibility analysis, evalutaion networks are usually considered to be static in terms of link travel time, which is determined by link length and link free-flow speed under a specific mode. The free-flow speed comes from either link.csv or settings.yml (both are denoted as 'free_speed'). When they are different, the minimum of these two will be adopted. The cases demonstrated above are all falling within this category.
+
+Link travel time varies over time so does accessibility. When the time-dependent accessibility is of interested, time-dependent link travel time (i.e., VDF_fftt from a given demand period in link.csv) will come into play by overwriting the static link free-flow speed above. This new feature is now part of v0.7.3 and is illustrated as below.
+
+```python
+import path4gmns as pg
+
+# no need to load demand file for accessibility evaluation
+network = pg.read_network(load_demand=False)
+
+print('\nstart accessibility evaluation\n')
+st = time()
+
+# time-dependent accessibility under the default mode auto (i.e., p)
+# for demand period 0 (i.e., VDF_fftt1 in link.csv will be used in the evaluation)
+pg.evaluate_accessiblity(network, multimodal=False, time_dependent=True)
+
+# if you would like to evaluate accessibility under a different demand period
+# (say 1, which must be defined in settings.yml along with VDF_fftt2 in link.csv), then
+# pg.evaluate_accessiblity(network, multimodal=False, time_dependent=True, demand_period_id=1)
+
+# if you would like to evaluate accessibility under a target mode, say walk, then
+# pg.evaluate_accessibility(network, multimodal=False, mode='w', time_dependent=True)
+# or equivalently pg.evaluate_accessibility(network, multimodal=False, mode='walk', time_dependent=True)
+
+print('complete accessibility evaluation.\n')
+print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
+```
+
+While VDF_fftt begins with 1 (i.e., VDF_fftt1), the argument demand_period_id, corresponding to the sequence number of demand period appeared in demand_periods in settings.yml, starts from 0. So 'demand_period_id=1' indicates that 'VDF_fftt2' will be used.
+
+**As VDF_fftt in link.csv can only accommodate one mode, time-dependent accessibility evaluation will require the user to prepare mode-specific link.csv with dedicated VDF_fftt and allowed_uses**. That's the reason that multimodal=False is always enforced in these examples.
+
+Retrieve the time-dependent accessible nodes and links is similar to evaluate time-dependent accessibility by simply passing time_dependent and demand_period_id to get_accessible_nodes() and get_accessible_links()
+```python
+import path4gmns as pg
+
+# no need to load demand file for accessibility evaluation
+network = pg.read_network(load_demand=False)
+
+# get accessible nodes and links starting from node 1 with a 5-minitue
+# time window for the default mode auto (i.e., 'p') for demand period 0
+network.get_accessible_nodes(1, 5, time_dependent=True)
+# get accessible nodes and links starting from node 1 with a 5-minitue
+# time window for the default mode auto (i.e., 'p') for demand period 1 if it is defined
+network.get_accessible_links(1, 5, time_dependent=True, demand_period_id=1)
+
+# get accessible nodes and links starting from node 1 with a 15-minitue
+# time window for mode walk (i.e., 'w') for demand periods 0 and 1 respectively
+network.get_accessible_nodes(1, 15, 'w', time_dependent=True)
+network.get_accessible_links(1, 15, 'w', time_dependent=True, demand_period_id=1)
+```
+
 ## Build Path4GMNS from Source
 
 If you would like to test the latest features of Path4GMNS or have a compatible version to a specific operating system or an architecture, you can build the package from source and install it offline, where **Python 3.x** is required.
@@ -337,11 +391,11 @@ As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Envi
 # from the root directory of PATH4GMNS
 $ python setup.py sdist bdist_wheel
 $ cd dist
-# or python -m pip instal pypath4gmns-0.7.2-py3-none-any.whl
-$ python -m pip install path4gmns-0.7.2.tar.gz
+# or python -m pip instal pypath4gmns-0.7.3-py3-none-any.whl
+$ python -m pip install path4gmns-0.7.3.tar.gz
 ```
 
-Here, 0.7.2 is the version number. Replace it with the one specified in setup.py.
+Here, 0.7.3 is the version number. Replace it with the one specified in setup.py.
 
 ## Benchmarks
 Coming soon.
@@ -358,6 +412,7 @@ Coming soon.
 - [x] Apply lightweight and faster implementation on accessibility evaluation using virtual centroids and connectors (v0.7.0)
 - [x] Get accessible nodes and links given mode and time budget (v0.7.0)
 - [x] Retrieve shortest paths under multimodal allowed uses (v0.7.2)
+- [x] Time-dependent accessibility evaluation (v0.7.3)
 - [ ] Let users modify the network topology in a simple way by adding/removing nodes and links
 - [ ] Enable manipulations on the overall travel demand and the demand between an OD pair
 - [ ] Visualize individual column/paths on user's call
@@ -367,6 +422,6 @@ Coming soon.
 
 The column generation scheme in Path4GMNS is an equivalent **single-processing implementation** as its [DTALite](https://github.com/jdlph/DTALite/tree/main/src_cpp) multiprocessing counterpart. **Note that the results (i.e., column pool and trajectory for an agent) from Path4GMNS and DTALite are comparable but likely not identical as the shortest paths are usually not unique and subjected to implementations**. This subtle difference should be gone and the link performances should be consistent if the iterations on both assignment and column generation are large enough. You can always compare the results (i.e., link_performance.csv) from Path4GMNS and DTALite given the same network and demand.
 
-The whole package is implemented towards **high performance**. The core shortest-path engine is implemented in C++ (deque implementation of the modified label correcting algorithm) along with the equivalent Python implementations for demonstrations. To achieve the maximum efficiency, we use a fixed-length array as the deque (rather than the STL deque) and combine the scan eligible list (represented as deque) with the node presence status. Along with the minimum and fast argument interfacing between the underlying C++ path engine and the upper Python modules, its running time is comparable to the pure C++-based DTALite. If you have an extremely large network and/or have requirement on CPU time, we recommend using DTALite to fully utilze its parallel computing feature.
+The whole package is implemented towards **high performance**. The core shortest-path engine is implemented in C++ (deque implementation of the modified label correcting algorithm) along with the equivalent Python implementations for demonstration. To achieve the maximum efficiency, we use a fixed-length array as the deque (rather than the STL deque) and combine the scan eligible list (represented as deque) with the node presence status. Along with the minimum and fast argument interfacing between the underlying C++ path engine and the upper Python modules, its running time is comparable to the pure C++-based DTALite for small- and medium-size networks (e.g., the Chicago Sketch Network). If you have an extremely large network and/or have requirement on CPU time, we recommend using DTALite to fully utilze its parallel computing feature.
 
-An easy and smooth installation process by **low dependency** is one of our major design goals. The core Python modules in Path4GMNS only require a handful of components from the Python standard library (e.g., csv, cytpes, and so on) with no any third-party libraries/packages. On the C++ side, the precompiled path engine as shared libraries are embedded to make this package portable across three major desktop environments (i.e., Windows, macOS, and Linux) and its source is implemented in C++11 with no dependency. Users can easily build the path engine from the source code towards the target system if it is not listed as one of the three.
+An easy and smooth installation process by **low dependency** is one of our major design goals. The core Python modules in Path4GMNS only require a handful of components from the Python standard library (e.g., csv, cytpes, and so on) with no any third-party libraries/packages. On the C++ side, the precompiled path engine as shared libraries are embedded to make this package portable across three major desktop environments (i.e., Windows, macOS, and Linux) and its source is implemented in C++11 with no dependency. Users can easily build the path engine from the source code towards their target system if it is not listed above as one of the three.
