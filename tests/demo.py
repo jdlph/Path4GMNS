@@ -154,10 +154,14 @@ def test_accessibility():
     # time-dependent accessibility under the default mode auto (i.e., p)
     # for demand period 0 (i.e., VDF_fftt1 in link.csv will be used in the
     # evaluation)
-    # pg.evaluate_accessiblity(network, multimodal=False, time_dependent=True)
+    # pg.evaluate_accessibility(network, multimodal=False, time_dependent=True)
+
+    # it is equivalent to
+    # pg.evaluate_accessibility(network, multimodal=False,
+    #                           time_dependent=True, demand_period_id=0)
 
     # get accessible nodes and links starting from node 1 with a 5-minitue
-    # time window for the default mode auto (i.e., 'p') for demand period 0 
+    # time window for the default mode auto (i.e., 'p') for demand period 0
     # network.get_accessible_nodes(1, 5, time_dependent=True)
 
     # get accessible nodes and links starting from node 1 with a 15-minitue
@@ -195,4 +199,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(3)
+    demo_mode(6)

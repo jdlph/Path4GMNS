@@ -279,7 +279,7 @@ network = pg.read_network(load_demand=False)
 print('\nstart accessibility evaluation\n')
 st = time()
 
-pg.evaluate_accessiblity(network, multimodal=False)
+pg.evaluate_accessibility(network, multimodal=False)
 # the default is under mode auto (i.e., p)
 # if you would like to evaluate accessibility under a target mode, say walk, then
 # pg.evaluate_accessibility(network, multimodal=False, mode='w')
@@ -312,9 +312,9 @@ network.get_accessible_links(1, 15, 'w')
 ```
 
 ### When Time-Dependent Link Travel Time Matters
-Link travel time is crucial in calculating accessibility. In the classic accessibility analysis, evalutaion networks are usually considered to be static in terms of link travel time, which is determined by link length and link free-flow speed under a specific mode. The free-flow speed comes from either link.csv or settings.yml (both are denoted as 'free_speed'). When they are different, the minimum of these two will be adopted. The cases demonstrated above are all falling within this category.
+Link travel time is crucial in calculating accessibility. In the classic accessibility analysis, evalutaion networks are usually considered to be static in terms of link travel time, which is determined by link length and link free-flow speed under a specific mode. The free-flow speed comes from either link.csv or settings.yml (both are denoted as "free_speed"). When they are different, the minimum of these two will be adopted. The cases demonstrated above are all falling within this category.
 
-Link travel time varies over time so does accessibility. When the time-dependent accessibility is of interested, time-dependent link travel time (i.e., VDF_fftt from a given demand period in link.csv) will come into play by overwriting the static link free-flow speed above. This new feature is now part of v0.7.3 and is illustrated as below.
+Link travel time varies over time so does accessibility. When the time-dependent accessibility is of interested, time-dependent link travel time (i.e., VDF_fftt from a given demand period in link.csv) will come into play by overwriting the (static) link free-flow speed. This new feature is now part of v0.7.3 and is illustrated as below.
 
 ```python
 import path4gmns as pg
@@ -327,25 +327,22 @@ st = time()
 
 # time-dependent accessibility under the default mode auto (i.e., p)
 # for demand period 0 (i.e., VDF_fftt1 in link.csv will be used in the evaluation)
-pg.evaluate_accessiblity(network, multimodal=False, time_dependent=True)
+pg.evaluate_accessibility(network, multimodal=False, time_dependent=True)
 
 # if you would like to evaluate accessibility under a different demand period
 # (say 1, which must be defined in settings.yml along with VDF_fftt2 in link.csv), then
-# pg.evaluate_accessiblity(network, multimodal=False, time_dependent=True, demand_period_id=1)
+pg.evaluate_accessibility(network, multimodal=False, time_dependent=True, demand_period_id=1)
 
 # if you would like to evaluate accessibility under a target mode, say walk, then
-# pg.evaluate_accessibility(network, multimodal=False, mode='w', time_dependent=True)
-# or equivalently pg.evaluate_accessibility(network, multimodal=False, mode='walk', time_dependent=True)
-
-print('complete accessibility evaluation.\n')
-print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
+pg.evaluate_accessibility(network, multimodal=False, mode='w', time_dependent=True)
 ```
 
-While VDF_fftt begins with 1 (i.e., VDF_fftt1), the argument demand_period_id, corresponding to the sequence number of demand period appeared in demand_periods in settings.yml, starts from 0. So 'demand_period_id=1' indicates that 'VDF_fftt2' will be used.
+While VDF_fftt begins with 1 (i.e., VDF_fftt1), the argument demand_period_id, corresponding to the sequence number of demand period appeared in demand_periods in settings.yml, starts from 0. So "demand_period_id=0" indicates that VDF_fftt1 will be used (and so on and so forth).
 
-**As VDF_fftt in link.csv can only accommodate one mode, time-dependent accessibility evaluation will require the user to prepare mode-specific link.csv with dedicated VDF_fftt and allowed_uses**. That's the reason that multimodal=False is always enforced in these examples.
+**As VDF_fftt in link.csv can only accommodate one mode, time-dependent accessibility evaluation will require the user to prepare a mode-specific link.csv with dedicated VDF_fftt and allowed_uses**. That's the reason that "multimodal=False" is always enforced in these examples.
 
-Retrieve the time-dependent accessible nodes and links is similar to evaluate time-dependent accessibility by simply passing time_dependent and demand_period_id to get_accessible_nodes() and get_accessible_links()
+Retrieve the time-dependent accessible nodes and links is similar to evaluate time-dependent accessibility by simply passing time_dependent and demand_period_id to get_accessible_nodes() and get_accessible_links().
+
 ```python
 import path4gmns as pg
 
@@ -355,6 +352,7 @@ network = pg.read_network(load_demand=False)
 # get accessible nodes and links starting from node 1 with a 5-minitue
 # time window for the default mode auto (i.e., 'p') for demand period 0
 network.get_accessible_nodes(1, 5, time_dependent=True)
+
 # get accessible nodes and links starting from node 1 with a 5-minitue
 # time window for the default mode auto (i.e., 'p') for demand period 1 if it is defined
 network.get_accessible_links(1, 5, time_dependent=True, demand_period_id=1)

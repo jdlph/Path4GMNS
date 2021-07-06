@@ -555,14 +555,14 @@ def read_network(load_demand='true', input_dir='.'):
 
     read_nodes(input_dir,
                network.node_list,
-               network.internal_node_seq_no_dict,
-               network.external_node_id_dict,
+               network.node_id_to_no_dict,
+               network.node_no_to_id_dict,
                network.zone_to_nodes_dict)
 
     read_links(input_dir,
                network.link_list,
                network.node_list,
-               network.internal_node_seq_no_dict,
+               network.node_id_to_no_dict,
                network.link_id_dict,
                assignm.get_agent_type_count(),
                assignm.get_demand_period_count(),

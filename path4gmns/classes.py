@@ -12,12 +12,12 @@ __all__ = ['UI']
 
 class Node:
 
-    def __init__(self, node_seq_no, external_node_id, zone_id, x='', y=''):
+    def __init__(self, node_seq_no, node_id, zone_id, x='', y=''):
         """ the attributes of node  """
-        # external_node_id: user defined node id from input
-        self.node_seq_no = node_seq_no
         # node_seq_no: internal node index used for calculation
-        self.external_node_id = external_node_id
+        self.node_seq_no = node_seq_no
+        # node_id: user defined node id from input
+        self.node_id = node_id
         self.outgoing_link_list = []
         self.incoming_link_list = []
         self.zone_id = zone_id
@@ -34,7 +34,7 @@ class Node:
         return self.zone_id
 
     def get_node_id(self):
-        return self.external_node_id
+        return self.node_id
 
     def get_node_no(self):
         return self.node_seq_no
@@ -76,8 +76,8 @@ class Link:
         self.link_seq_no = link_seq_no
         self.from_node_seq_no = from_node_no
         self.to_node_seq_no = to_node_no
-        self.external_from_node = from_node_id
-        self.external_to_node = to_node_id
+        self.from_node_id = from_node_id
+        self.to_node_id = to_node_id
         # length is mile or km
         self.length = length
         self.lanes = lanes
@@ -117,10 +117,10 @@ class Link:
         return self.link_seq_no
 
     def get_from_node_id(self):
-        return self.external_from_node
+        return self.from_node_id
 
     def get_to_node_id(self):
-        return self.external_to_node
+        return self.to_node_id
 
     def get_length(self):
         return self.length
@@ -257,9 +257,9 @@ class Network:
         self.link_size = 0
         self.agent_size = 0
         # key: node id, value: node seq no
-        self.internal_node_seq_no_dict = {}
+        self.node_id_to_no_dict = {}
         # key: node seq no, value: node id
-        self.external_node_id_dict = {}
+        self.node_no_to_id_dict = {}
         # map link id to link seq no
         self.link_id_dict = {}
         # td:time-dependent, key:simulation time interval,
@@ -464,7 +464,7 @@ class Network:
         path = ''
         if agent.node_path:
             path = ';'.join(
-                str(self.external_node_id_dict[x]) for x in reversed(agent.node_path)
+                str(self.node_no_to_id_dict[x]) for x in reversed(agent.node_path)
             )
 
         if path_only:
@@ -517,7 +517,7 @@ class Network:
         return self.zone_to_nodes_dict[zone_id]
 
     def get_node_no(self, node_id):
-        return self.internal_node_seq_no_dict[node_id]
+        return self.node_id_to_no_dict[node_id]
 
     def get_node_size(self):
         return self.node_size
@@ -953,8 +953,8 @@ class AccessNetwork(Network):
         self.base = base
         self.node_list = self.base.get_nodes()
         self.link_list = self.base.get_links()
-        self.map_id_to_no = self.base.internal_node_seq_no_dict
-        self.map_no_to_id = self.base.external_node_id_dict
+        self.map_id_to_no = self.base.node_id_to_no_dict
+        self.map_no_to_id = self.base.node_no_to_id_dict
         self.node_size = base.get_node_size()
         self.link_size = base.get_link_size()
         self.centroids = []
@@ -1402,7 +1402,7 @@ class Assignment:
 
     def get_accessible_nodes(self, source_node_id, time_budget,
                              mode, time_dependent, tau):
-        if source_node_id not in self.network.internal_node_seq_no_dict.keys():
+        if source_node_id not in self.network.node_id_to_no_dict.keys():
             raise Exception(f"Node ID: {source_node_id} not in the network")
 
         assert(time_budget>=0)

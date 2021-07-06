@@ -248,7 +248,7 @@ def output_path_sequence(G, to_node_id, type='node'):
     Note that this function returns GENERATOR rather than list.
     """
     path = []
-    current_node_seq_no = G.internal_node_seq_no_dict[to_node_id]
+    current_node_seq_no = G.node_id_to_no_dict[to_node_id]
 
     if type.startswith('node'):
         # retrieve the sequence backwards
@@ -257,7 +257,7 @@ def output_path_sequence(G, to_node_id, type='node'):
             current_node_seq_no = G.node_predecessor[current_node_seq_no]
         # reverse the sequence
         for node_seq_no in reversed(path):
-            yield G.external_node_id_dict[node_seq_no]
+            yield G.node_no_to_id_dict[node_seq_no]
     else:
         # retrieve the sequence backwards
         current_link_seq_no = G.link_predecessor[current_node_seq_no]
@@ -271,15 +271,15 @@ def output_path_sequence(G, to_node_id, type='node'):
 
 
 def _get_path_cost(G, to_node_id):
-    to_node_no = G.internal_node_seq_no_dict[to_node_id]
+    to_node_no = G.node_id_to_no_dict[to_node_id]
 
     return G.node_label_cost[to_node_no]
 
 
 def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
-    if from_node_id not in G.internal_node_seq_no_dict.keys():
+    if from_node_id not in G.node_id_to_no_dict.keys():
         raise Exception(f"Node ID: {from_node_id} not in the network")
-    if to_node_id not in G.internal_node_seq_no_dict.keys():
+    if to_node_id not in G.node_id_to_no_dict.keys():
         raise Exception(f"Node ID: {to_node_id} not in the network")
 
     single_source_shortest_path(G, from_node_id, engine_type='c')
@@ -319,9 +319,9 @@ def find_path_for_agents(G, column_pool, engine_type='c'):
         if from_node_id == to_node_id:
             continue
 
-        if from_node_id not in G.internal_node_seq_no_dict.keys():
+        if from_node_id not in G.node_id_to_no_dict.keys():
             raise Exception(f"Node ID: {from_node_id} not in the network")
-        if to_node_id not in G.internal_node_seq_no_dict.keys():
+        if to_node_id not in G.node_id_to_no_dict.keys():
             raise Exception(f"Node ID: {to_node_id} not in the network")
 
         # simple caching strategy
@@ -334,7 +334,7 @@ def find_path_for_agents(G, column_pool, engine_type='c'):
         node_path = []
         link_path = []
 
-        current_node_seq_no = G.internal_node_seq_no_dict[to_node_id]
+        current_node_seq_no = G.node_id_to_no_dict[to_node_id]
         # set up the cost
         agent.path_cost = G.node_label_cost[current_node_seq_no]
 
