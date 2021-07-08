@@ -287,29 +287,6 @@ class Network:
         self._agent_type_size = agent_type_size
         self._demand_period_size = demand_period_size
 
-    @staticmethod
-    def convert_allowed_use(au):
-        if au.lower().startswith('auto'):
-            return 'p'
-        elif au.lower().startswith('bike'):
-            return 'b'
-        elif au.lower().startswith('walk'):
-            return 'w'
-        elif au.lower().startswith('all'):
-            return 'a'
-        else:
-            raise Exception('allowed use type is not in the predefined list!')
-
-    def _setup_allowed_use(self, allowed_uses):
-        for i, link in enumerate(self.link_list):
-            modes = link.allowed_uses.split(',')
-            if not modes:
-                continue
-
-            allowed_uses[i] = ''.join(
-                Network.convert_allowed_use(m) for m in modes
-            )
-
     def allocate_for_CAPI(self):
         # execute only on the first call
         if self.has_capi_allocated:
@@ -948,7 +925,6 @@ class SPNetwork(Network):
 
 class AccessNetwork(Network):
     """ network for accessibility evaluation """
-
     def __init__(self, base, add_cc=True):
         self.base = base
         self.node_list = self.base.get_nodes()

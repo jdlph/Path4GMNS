@@ -222,14 +222,22 @@ def evaluate_accessibility(ui,
         ats = base.get_agent_types()
         for at in ats:
             an.set_target_mode(at.get_name())
-            max_min_ = _update_min_travel_time(an, at, min_travel_times, time_dependent, demand_period_id)
+            max_min_ = _update_min_travel_time(an,
+                                               at,
+                                               min_travel_times,
+                                               time_dependent,
+                                               demand_period_id)
             if max_min_ > max_min:
                 max_min = max_min_
     else:
         at_name, at_str = base._convert_mode(mode)
         an.set_target_mode(at_name)
         at = base.get_agent_type(at_str)
-        max_min = _update_min_travel_time(an, at, min_travel_times, time_dependent, demand_period_id)
+        max_min = _update_min_travel_time(an,
+                                          at,
+                                          min_travel_times,
+                                          time_dependent,
+                                          demand_period_id)
         ats = [at]
 
     interval_num = _get_interval_id(min(max_min, MAX_TIME_BUDGET)) + 1

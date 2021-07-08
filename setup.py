@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="path4gmns",
-    version="0.7.3",
+    version="0.7.4",
     author="Dr. Xuesong Zhou, Dr. Peiheng Li",
     author_email="xzhou74@asu.edu, jdlph@hotmail.com",
     description="An open-source, cross-platform, lightweight, and fast Python\
