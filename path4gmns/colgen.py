@@ -23,7 +23,7 @@ def _update_generalized_link_cost(spnetworks):
             sp.link_cost_array[link.get_seq_no()] = (
             link.get_period_travel_time(tau)
             + link.get_route_choice_cost()
-            + link.get_toll() / min(SMALL_DIVISOR, vot) * 60
+            + link.get_toll() / max(SMALL_DIVISOR, vot) * 60
         )
 
 
