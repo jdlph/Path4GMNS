@@ -1119,7 +1119,7 @@ class AccessNetwork(Network):
                 self.link_cost_array[link.get_seq_no()] = (
                     link.get_period_fftt(demand_period_id)
                     + link.get_route_choice_cost()
-                    + link.get_toll() / min(SMALL_DIVISOR, vot) * 60
+                    + link.get_toll() / max(SMALL_DIVISOR, vot) * 60
                 )
         else:
             if at.get_type_str().startswith('p'):
@@ -1127,7 +1127,7 @@ class AccessNetwork(Network):
                     self.link_cost_array[link.get_seq_no()] = (
                         link.get_free_flow_travel_time()
                         + link.get_route_choice_cost()
-                        + link.get_toll() / min(SMALL_DIVISOR, vot) * 60
+                        + link.get_toll() / max(SMALL_DIVISOR, vot) * 60
                     )
             else:
                 ffs = at.get_free_flow_speed()
@@ -1136,7 +1136,7 @@ class AccessNetwork(Network):
                     self.link_cost_array[link.get_seq_no()] = (
                         (link.get_length() / max(SMALL_DIVISOR, ffs) * 60)
                         + link.get_route_choice_cost()
-                        + link.get_toll() / min(SMALL_DIVISOR, vot) * 60
+                        + link.get_toll() / max(SMALL_DIVISOR, vot) * 60
                     )
 
 
