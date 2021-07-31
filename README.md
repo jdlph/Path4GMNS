@@ -423,3 +423,27 @@ The column generation scheme in Path4GMNS is an equivalent **single-processing i
 The whole package is implemented towards **high performance**. The core shortest-path engine is implemented in C++ (deque implementation of the modified label correcting algorithm) along with the equivalent Python implementations for demonstration. To achieve the maximum efficiency, we use a fixed-length array as the deque (rather than the STL deque) and combine the scan eligible list (represented as deque) with the node presence status. Along with the minimum and fast argument interfacing between the underlying C++ path engine and the upper Python modules, its running time is comparable to the pure C++-based DTALite for small- and medium-size networks (e.g., the Chicago Sketch Network). If you have an extremely large network and/or have requirement on CPU time, we recommend using DTALite to fully utilze its parallel computing feature.
 
 An easy and smooth installation process by **low dependency** is one of our major design goals. The core Python modules in Path4GMNS only require a handful of components from the Python standard library (e.g., csv, cytpes, and so on) with no any third-party libraries/packages. On the C++ side, the precompiled path engine as shared libraries are embedded to make this package portable across three major desktop environments (i.e., Windows, macOS, and Linux) and its source is implemented in C++11 with no dependency. Users can easily build the path engine from the source code towards their target system if it is not listed above as one of the three.
+
+## Make contributions for Path4GMNS
+
+### Write documentation
+You can add text to enhance the readability and let more people know about this package. Specifically, you can add instructions in README.md and add docstrings in the source code.
+
+A reference for writing docstrings can be found at: https://docs.python-guide.org/writing/documentation/#writing-docstrings
+
+Procedure for submitting your contribution:
+
+1.Fork the Path4GMNS repository (https://github.com/jdlph/Path4GMNS)
+
+2.Write or fix the documentation and docstrings.
+
+3.Commit a pull request to allow maintainers (Dr. Zhou and Dr. Li) to review and merge the changes. Note that ALL changes (pull requests) shall go to the dev branch before merging into master for release.
+
+### Fix bugs
+If you or other people find any bug, it provides an opportunity for you to fix them.
+
+### Report bugs
+If you find any bug and cannot fix them, you can still report it to let maintainers and others know and fix them. You are encouraged to commit an issue to the repository of Path4GMNS package. When reporting bugs, please try to elaborate the information of the bugs including your operating system name and version, any details about your local setup, and detailed steps to reproduce the bug.
+
+### Submit feedback
+You can either arrange your feedback into a document like WORD or submit an issue. If you want to propose a feature, you shall explain in detail how it would work.
