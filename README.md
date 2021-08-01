@@ -416,6 +416,14 @@ Coming soon.
 - [ ] Visualize individual column/paths on user's call
 - [ ] Adopt parallel computing to further boost the performance
 
+## Contribute
+
+Any contributions are welcomed including advise new applications of Path4GMNS, enhance documentation (this guideline and [docstrings](https://docs.python-guide.org/writing/documentation/#writing-docstrings) in the source code), refactor and/or optimize the source code, report and/or resolve potential issues/bugs, suggest and/or add new functionalities, etc.
+
+Path4GMNS has a very simple workflow setup, i.e., **master for release (on both GitHub and PyPI) and dev for development**. If you would like to work directly on the source code (and probably the documentation), please make sure that **the destination branch of your pull request is dev**, i.e., all potential changes/updates shall go to the dev branch before merging into master for release.
+
+You are encouraged to join our Slack workspace for more dicussions and collaborations. [Drop us an email](xzhou74@asu.edu;jdlph@hotmail.com) for invitation.
+
 ## Implementation Notes
 
 The column generation scheme in Path4GMNS is an equivalent **single-processing implementation** as its [DTALite](https://github.com/jdlph/DTALite/tree/main/src_cpp) multiprocessing counterpart. **Note that the results (i.e., column pool and trajectory for an agent) from Path4GMNS and DTALite are comparable but likely not identical as the shortest paths are usually not unique and subjected to implementations**. This subtle difference should be gone and the link performances should be consistent if the iterations on both assignment and column generation are large enough. You can always compare the results (i.e., link_performance.csv) from Path4GMNS and DTALite given the same network and demand.
@@ -424,26 +432,7 @@ The whole package is implemented towards **high performance**. The core shortest
 
 An easy and smooth installation process by **low dependency** is one of our major design goals. The core Python modules in Path4GMNS only require a handful of components from the Python standard library (e.g., csv, cytpes, and so on) with no any third-party libraries/packages. On the C++ side, the precompiled path engine as shared libraries are embedded to make this package portable across three major desktop environments (i.e., Windows, macOS, and Linux) and its source is implemented in C++11 with no dependency. Users can easily build the path engine from the source code towards their target system if it is not listed above as one of the three.
 
-## Make contributions for Path4GMNS
+## References
+Lu, C. C., Mahmassani, H. S., Zhou, X. (2009). Equivalent gap function-based reformulation and solution algorithm for the dynamic user equilibrium problem. Transportation Research Part B: Methodological, 43, 345-364.
 
-### Write documentation
-You can add text to enhance the readability and let more people know about this package. Specifically, you can add instructions in README.md and add docstrings in the source code.
-
-A reference for writing docstrings can be found at: https://docs.python-guide.org/writing/documentation/#writing-docstrings
-
-Procedure for submitting your contribution:
-
-1.Fork the Path4GMNS repository (https://github.com/jdlph/Path4GMNS)
-
-2.Write or fix the documentation and docstrings.
-
-3.Commit a pull request to allow maintainers (Dr. Zhou and Dr. Li) to review and merge the changes. Note that ALL changes (pull requests) shall go to the dev branch before merging into master for release.
-
-### Fix bugs
-If you or other people find any bug, it provides an opportunity for you to fix them.
-
-### Report bugs
-If you find any bug and cannot fix them, you can still report it to let maintainers and others know and fix them. You are encouraged to commit an issue to the repository of Path4GMNS package. When reporting bugs, please try to elaborate the information of the bugs including your operating system name and version, any details about your local setup, and detailed steps to reproduce the bug.
-
-### Submit feedback
-You can either arrange your feedback into a document like WORD or submit an issue. If you want to propose a feature, you shall explain in detail how it would work.
+Jayakrishnan, R., Tsai, W. K., Prashker, J. N., Rajadyaksha, S. (1994) [A Faster Path-Based Algorithm for Traffic Assignment](https://escholarship.org/uc/item/2hf4541x) (Working Paper UCTC No. 191). The University of California Transportation Center.
