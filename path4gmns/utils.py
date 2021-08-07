@@ -167,7 +167,7 @@ def read_nodes(input_dir,
                zone_to_node_dict):
 
     """ step 1: read input_node """
-    with open(input_dir+'/node.csv', 'r', encoding='utf-8') as fp:
+    with open(input_dir+'/node.csv', 'r') as fp:
         print('read node.csv')
 
         reader = csv.DictReader(fp)
@@ -222,7 +222,7 @@ def read_links(input_dir,
                load_demand):
 
     """ step 2: read input_link """
-    with open(input_dir+'/link.csv', 'r', encoding='utf-8') as fp:
+    with open(input_dir+'/link.csv', 'r') as fp:
         print('read link.csv')
 
         reader = csv.DictReader(fp)
@@ -418,7 +418,7 @@ def read_demand(input_dir,
                 column_pool):
 
     """ step 3:read input_agent """
-    with open(input_dir+'/'+file, 'r', encoding='utf-8') as fp:
+    with open(input_dir+'/'+file, 'r') as fp:
         print('read demand.csv')
 
         at = agent_type_id
@@ -592,7 +592,7 @@ def read_network(load_demand='true', input_dir='.'):
 
 def load_columns(ui, input_dir='.'):
     """ developer note: do we use agent.csv to set up network? """
-    with open(input_dir+'/agent.csv', 'r', encoding='utf-8') as f:
+    with open(input_dir+'/agent.csv', 'r') as f:
         print('read agent.csv')
 
         A = ui._base_assignment
