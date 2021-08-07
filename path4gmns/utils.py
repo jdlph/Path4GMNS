@@ -250,7 +250,7 @@ def read_links(input_dir,
                 from_node_no = id_to_no_dict[from_node_id]
                 to_node_no = id_to_no_dict[to_node_id]
             except KeyError:
-                print(f"EXCEPTION: Node ID {from_node_no} "
+                print(f"EXCEPTION: Node ID {from_node_id} "
                       f"or/and Node ID {to_node_id} NOT IN THE NETWORK!!")
                 continue
 
