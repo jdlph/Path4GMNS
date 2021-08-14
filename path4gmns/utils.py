@@ -202,14 +202,14 @@ def read_nodes(input_dir,
 
             node_seq_no += 1
 
-        print(f"the number of nodes is {node_seq_no}")
+        print(f'the number of nodes is {node_seq_no}')
 
         zone_size = len(zone_to_node_dict)
         # do not count virtual zone with id as -1
         if -1 in zone_to_node_dict.keys():
             zone_size -= 1
 
-        print(f"the number of zones is {zone_size}")
+        print(f'the number of zones is {zone_size}')
 
 
 def read_links(input_dir,
@@ -250,8 +250,8 @@ def read_links(input_dir,
                 from_node_no = id_to_no_dict[from_node_id]
                 to_node_no = id_to_no_dict[to_node_id]
             except KeyError:
-                print(f"EXCEPTION: Node ID {from_node_id} "
-                      f"or/and Node ID {to_node_id} NOT IN THE NETWORK!!")
+                print(f'EXCEPTION: Node ID {from_node_id} '
+                      f'or/and Node ID {to_node_id} NOT IN THE NETWORK!!')
                 continue
 
             # for the following attributes,
@@ -407,7 +407,7 @@ def read_links(input_dir,
 
             link_seq_no += 1
 
-        print(f"the number of links is {link_seq_no}")
+        print(f'the number of links is {link_seq_no}')
 
 
 def read_demand(input_dir,
@@ -463,7 +463,7 @@ def read_demand(input_dir,
 
             total_agents += int(volume + 1)
 
-        print(f"the number of agents is {total_agents}")
+        print(f'the number of agents is {total_agents}')
 
         if total_agents == 0:
             raise Exception('NO VALID OD VOLUME!! DOUBLE CHECK YOUR demand.csv')

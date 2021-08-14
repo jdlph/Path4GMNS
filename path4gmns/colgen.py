@@ -5,7 +5,7 @@ from .classes import Column
 from .consts import MIN_OD_VOL, MAX_LABEL_COST, SMALL_DIVISOR
 
 
-__all__ = ['perform_column_generation']
+__all__ = ['perform_column_generation', 'perform_network_assignment']
 
 
 def _update_generalized_link_cost(spnetworks):
@@ -197,7 +197,7 @@ def _optimize_column_pool(column_pool,
                           column_update_num):
 
     for i in range(column_update_num):
-        print(f"current iteration number in column generation: {i}")
+        print(f'current iteration number in column generation: {i}')
         _update_column_gradient_cost_and_flow(column_pool,
                                               links,
                                               agent_types,
@@ -363,7 +363,7 @@ def perform_column_generation(iter_num, column_update_num, ui):
     st = time()
 
     for i in range(iter_num):
-        print(f"current iteration number in assignment: {i}")
+        print(f'current iteration number in assignment: {i}')
         _update_link_travel_time_and_cost(links)
 
         _reset_and_update_link_vol_based_on_columns(column_pool,

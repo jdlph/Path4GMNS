@@ -278,9 +278,9 @@ def _get_path_cost(G, to_node_id):
 
 def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
     if from_node_id not in G.node_id_to_no_dict.keys():
-        raise Exception(f"Node ID: {from_node_id} not in the network")
+        raise Exception(f'Node ID: {from_node_id} not in the network')
     if to_node_id not in G.node_id_to_no_dict.keys():
-        raise Exception(f"Node ID: {to_node_id} not in the network")
+        raise Exception(f'Node ID: {to_node_id} not in the network')
 
     single_source_shortest_path(G, from_node_id, engine_type='c')
 
@@ -320,9 +320,9 @@ def find_path_for_agents(G, column_pool, engine_type='c'):
             continue
 
         if from_node_id not in G.node_id_to_no_dict.keys():
-            raise Exception(f"Node ID: {from_node_id} not in the network")
+            raise Exception(f'Node ID: {from_node_id} not in the network')
         if to_node_id not in G.node_id_to_no_dict.keys():
-            raise Exception(f"Node ID: {to_node_id} not in the network")
+            raise Exception(f'Node ID: {to_node_id} not in the network')
 
         # simple caching strategy
         # if the current from_node_id is the same as from_node_id_prev,

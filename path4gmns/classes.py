@@ -415,7 +415,7 @@ class Network:
         #     agent.agent_seq_no = i
 
         self.agent_size = len(self.agent_list)
-        print(f"the number of agents is {self.agent_size}")
+        print(f'the number of agents is {self.agent_size}')
 
     def _get_agent(self, agent_no):
         """ retrieve agent using agent_no """
@@ -848,7 +848,7 @@ class SPNetwork(Network):
         try:
             return self.node_id_to_no[node_id]
         except KeyError:
-            raise(f"EXCEPTION: Node ID {node_id} NOT IN THE NETWORK!!")
+            raise(f'EXCEPTION: Node ID {node_id} NOT IN THE NETWORK!!')
 
     def get_agent_type(self):
         return self.agent_type
@@ -1028,7 +1028,6 @@ class AccessNetwork(Network):
         ----------
         mode : agent name which is in settings.yml.
         """
-        # assert(mode in ['p', 'w', 'b', 'a'])
         self.agent_type_name = mode
 
     def set_source_node_id(self, node_id):
@@ -1379,7 +1378,7 @@ class Assignment:
     def get_accessible_nodes(self, source_node_id, time_budget,
                              mode, time_dependent, tau):
         if source_node_id not in self.network.node_id_to_no_dict.keys():
-            raise Exception(f"Node ID: {source_node_id} not in the network")
+            raise Exception(f'Node ID: {source_node_id} not in the network')
 
         assert(time_budget>=0)
 
