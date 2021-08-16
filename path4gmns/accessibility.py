@@ -96,12 +96,12 @@ def _output_accessibility_aggregated(min_travel_times, interval_num,
     """ output aggregated accessibility matrix for each agent type """
 
     with open(output_dir+'/accessibility_aggregated.csv', 'w',  newline='') as f:
-        time_bugets = [
+        time_budgets = [
             'TT_'+str(MIN_TIME_BUDGET+BUDGET_TIME_INTVL*i) for i in range(interval_num)
         ]
 
         headers = ['zone_id', 'geometry', 'mode']
-        headers.extend(time_bugets)
+        headers.extend(time_budgets)
 
         writer = csv.writer(f)
         writer.writerow(headers)
