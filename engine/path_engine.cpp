@@ -17,6 +17,7 @@
 using std::wcsstr;
 using std::wcscmp;
 
+// keep it as legacy support for other packages using this old engine
 void shortest_path(int o_node_no,
                    int node_size,
                    const int* from_node_no_arr,
