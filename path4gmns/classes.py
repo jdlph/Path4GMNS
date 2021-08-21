@@ -305,7 +305,7 @@ class Network:
         to_node_no_array = [link.to_node_seq_no for link in self.link_list]
         link_cost_array = [link.cost for link in self.link_list]
 
-        # initialize others as numpy arrays directly
+        # initialize others
         queue_next = [0] * node_size
         first_link_from = [-1] * node_size
         last_link_from = [-1] * node_size
@@ -324,8 +324,6 @@ class Network:
             last_link_from[i] = j
 
         # setup allowed uses
-        # allowed_uses = [''] * link_size
-        # self._setup_allowed_use(allowed_uses)
         allowed_uses = [link.allowed_uses for link in self.link_list]
 
         # set up arrays using ctypes
@@ -569,7 +567,7 @@ class Network:
 
 
 class Column:
-
+    """ column is path """
     def __init__(self, seq_no=-1):
         self.seq_no = seq_no
         self.vol = 0
@@ -656,7 +654,13 @@ class Column:
 
 
 class ColumnVec:
+    """ column pool for (at, dp, oz, dz)
 
+    where, at is agent type id,
+           dp is demand period id,
+           oz is origin zone id,
+           dz is destination zone id.
+    """
     def __init__(self):
         self.od_vol = 0
         self.route_fixed = False
@@ -1257,7 +1261,7 @@ class Assignment:
         return self.network.get_agent_orig_node_id(agent_id)
 
     def get_agent_dest_node_id(self, agent_id):
-        """ return the destnation node id of an agent
+        """ return the destination node id of an agent
 
         exception will be handled by _get_agent() in class Network
         """
@@ -1451,7 +1455,7 @@ class UI:
         return self._base_assignment.get_agent_orig_node_id(agent_id)
 
     def get_agent_dest_node_id(self, agent_id):
-        """ return the destnation node id of an agent """
+        """ return the destination node id of an agent """
         return self._base_assignment.get_agent_dest_node_id(agent_id)
 
     def get_agent_node_path(self, agent_id):

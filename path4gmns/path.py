@@ -38,7 +38,7 @@ else:
 _cdll = ctypes.cdll.LoadLibrary(_dll_file)
 
 # set up the argument types for the shortest path function in dll.
-_cdll.shortest_path.argtypes = [
+_cdll.shortest_path_n.argtypes = [
     ctypes.c_int,
     ctypes.c_int,
     ctypes.POINTER(ctypes.c_int),
