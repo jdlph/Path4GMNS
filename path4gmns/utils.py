@@ -472,7 +472,7 @@ def read_demand(input_dir,
 def _auto_setup(assignment):
     """ automatically set up one demand period and one agent type
 
-    The two objects will be set up using the default construnctors using the
+    The two objects will be set up using the default constructors using the
     default values. See class DemandPeriod and class AgentType for details
     """
     at = AgentType()
