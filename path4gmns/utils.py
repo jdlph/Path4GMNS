@@ -432,7 +432,7 @@ def read_demand(input_dir,
             if oz_id is None:
                 continue
 
-            # invalid destinationzone id, discard it
+            # invalid destination zone id, discard it
             dz_id = _convert_str_to_int(line['d_zone_id'])
             if dz_id is None:
                 continue
