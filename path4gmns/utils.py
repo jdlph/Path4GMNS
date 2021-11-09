@@ -533,7 +533,7 @@ def read_settings(input_dir, assignment):
 
     except ImportError:
         # just in case user does not have pyyaml installed
-        print('Please intall pyyaml next time!')
+        print('Please install pyyaml next time!')
         print('Engine will set up one demand period and one agent type using '
               'default values for you, which might NOT reflect your case!\n')
         _auto_setup(assignment)
