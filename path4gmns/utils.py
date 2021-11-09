@@ -195,7 +195,7 @@ def read_nodes(input_dir,
             id_to_no_dict[node_id] = node_seq_no
             no_to_id_dict[node_seq_no] = node_id
 
-            # associate node_id to corresponding zone
+            # associate node_id with corresponding zone
             if zone_id not in zone_to_node_dict.keys():
                 zone_to_node_dict[zone_id] = []
             zone_to_node_dict[zone_id].append(node_id)
