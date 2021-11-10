@@ -295,7 +295,7 @@ def read_links(input_dir,
 
             link_id_dict[link_id] = link_seq_no
 
-            # construct link ojbect
+            # construct link object
             link = Link(link_id,
                         link_seq_no,
                         from_node_no,
