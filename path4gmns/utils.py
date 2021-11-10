@@ -275,9 +275,9 @@ def read_links(input_dir,
                 capacity = 49500
 
             # if link.csv does not have no column 'allowed_uses',
-            # set allowed_uses to 'auto'
+            # set allowed_uses to 'all'
             # developer's note:
-            # we may need to change this implemenation as we cannot deal with
+            # we may need to change this implementation as we cannot deal with
             # cases a link which is not open to any modes
             try:
                 allowed_uses = line['allowed_uses']
