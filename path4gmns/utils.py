@@ -323,9 +323,9 @@ def read_links(input_dir,
 
                 # case i: link.csv does not VDF attributes at all
                 # case ii: link.csv only has partial VDF attributes
-                # under case i, we will set up only one VDFPeriod ojbect using
+                # under case i, we will set up only one VDFPeriod object using
                 # default values
-                # under case ii, we will set up some VDFPeriod ojbects up to
+                # under case ii, we will set up some VDFPeriod objects up to
                 # the number of complete set of VDF_alpha, VDF_beta, and VDF_mu
                 try:
                     VDF_alpha = line[header_vdf_alpha]
