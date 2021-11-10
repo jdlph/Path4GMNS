@@ -814,7 +814,7 @@ class SPNetwork(Network):
         self.demand_period = dp
 
         # this is necessary for each instance of SPNetwork
-        # to retrieve network topoloy
+        # to retrieve network topology
         if not base.has_capi_allocated:
             base.allocate_for_CAPI()
 
