@@ -231,7 +231,7 @@ def read_links(input_dir,
             # it can be an empty string
             link_id = line['link_id']
 
-            # check the validility
+            # check the validity
             from_node_id = _convert_str_to_int(line['from_node_id'])
             if from_node_id is None:
                 continue
@@ -244,7 +244,7 @@ def read_links(input_dir,
             if length is None:
                 continue
 
-            # pass validility check
+            # pass validity check
 
             try:
                 from_node_no = id_to_no_dict[from_node_id]
