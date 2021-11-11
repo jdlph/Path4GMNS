@@ -419,7 +419,7 @@ def read_demand(input_dir,
 
     """ step 3:read input_agent """
     with open(input_dir+'/'+file, 'r') as fp:
-        print('read ' + file)  # show message  
+        print('read '+file)
 
         at = agent_type_id
         dp = demand_period_id

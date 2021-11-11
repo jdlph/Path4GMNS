@@ -727,9 +727,6 @@ class DemandPeriod:
     def get_id(self):
         return self.id
 
-    def get_file_name(self):
-        return self.file
-
     def get_period(self):
         return self.period
 
