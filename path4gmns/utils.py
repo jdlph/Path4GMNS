@@ -195,7 +195,7 @@ def read_nodes(input_dir,
             id_to_no_dict[node_id] = node_seq_no
             no_to_id_dict[node_seq_no] = node_id
 
-            # associate node_id to corresponding zone
+            # associate node_id with corresponding zone
             if zone_id not in zone_to_node_dict.keys():
                 zone_to_node_dict[zone_id] = []
             zone_to_node_dict[zone_id].append(node_id)
@@ -231,7 +231,7 @@ def read_links(input_dir,
             # it can be an empty string
             link_id = line['link_id']
 
-            # check the validility
+            # check the validity
             from_node_id = _convert_str_to_int(line['from_node_id'])
             if from_node_id is None:
                 continue
@@ -244,7 +244,7 @@ def read_links(input_dir,
             if length is None:
                 continue
 
-            # pass validility check
+            # pass validity check
 
             try:
                 from_node_no = id_to_no_dict[from_node_id]
@@ -275,9 +275,9 @@ def read_links(input_dir,
                 capacity = 49500
 
             # if link.csv does not have no column 'allowed_uses',
-            # set allowed_uses to 'auto'
+            # set allowed_uses to 'all'
             # developer's note:
-            # we may need to change this implemenation as we cannot deal with
+            # we may need to change this implementation as we cannot deal with
             # cases a link which is not open to any modes
             try:
                 allowed_uses = line['allowed_uses']
@@ -295,7 +295,7 @@ def read_links(input_dir,
 
             link_id_dict[link_id] = link_seq_no
 
-            # construct link ojbect
+            # construct link object
             link = Link(link_id,
                         link_seq_no,
                         from_node_no,
@@ -323,9 +323,9 @@ def read_links(input_dir,
 
                 # case i: link.csv does not VDF attributes at all
                 # case ii: link.csv only has partial VDF attributes
-                # under case i, we will set up only one VDFPeriod ojbect using
+                # under case i, we will set up only one VDFPeriod object using
                 # default values
-                # under case ii, we will set up some VDFPeriod ojbects up to
+                # under case ii, we will set up some VDFPeriod objects up to
                 # the number of complete set of VDF_alpha, VDF_beta, and VDF_mu
                 try:
                     VDF_alpha = line[header_vdf_alpha]
@@ -419,7 +419,7 @@ def read_demand(input_dir,
 
     """ step 3:read input_agent """
     with open(input_dir+'/'+file, 'r') as fp:
-        print('read demand.csv')
+        print('read ' + file)  # show message  
 
         at = agent_type_id
         dp = demand_period_id
@@ -432,7 +432,7 @@ def read_demand(input_dir,
             if oz_id is None:
                 continue
 
-            # invalid destinationzone id, discard it
+            # invalid destination zone id, discard it
             dz_id = _convert_str_to_int(line['d_zone_id'])
             if dz_id is None:
                 continue
@@ -472,7 +472,7 @@ def read_demand(input_dir,
 def _auto_setup(assignment):
     """ automatically set up one demand period and one agent type
 
-    The two objects will be set up using the default construnctors using the
+    The two objects will be set up using the default constructors using the
     default values. See class DemandPeriod and class AgentType for details
     """
     at = AgentType()
@@ -524,7 +524,7 @@ def read_settings(input_dir, assignment):
             demands = settings['demand_files']
             for i, d in enumerate(demands):
                 demand_file = d['file_name']
-                # demand_format_tpye = d['format_type']
+                # demand_format_type = d['format_type']
                 demand_period = d['period']
                 demand_type = d['agent_type']
 
@@ -533,7 +533,7 @@ def read_settings(input_dir, assignment):
 
     except ImportError:
         # just in case user does not have pyyaml installed
-        print('Please intall pyyaml next time!')
+        print('Please install pyyaml next time!')
         print('Engine will set up one demand period and one agent type using '
               'default values for you, which might NOT reflect your case!\n')
         _auto_setup(assignment)
