@@ -434,7 +434,7 @@ An easy and smooth installation process by **low dependency** is one of our majo
 
 ## How to Cite
 
-Peiheng Li, Xuesong Simon Zhou. *Path4GMNS*. https://github.com/jdlph/Path4GMNS. Accessed Month, Day, Year.
+Li, P. and Zhou, X. (2022, January 6). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## References
 Lu, C. C., Mahmassani, H. S., Zhou, X. (2009). Equivalent gap function-based reformulation and solution algorithm for the dynamic user equilibrium problem. Transportation Research Part B: Methodological, 43, 345-364.
