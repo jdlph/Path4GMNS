@@ -135,7 +135,7 @@ def test_accessibility():
 
     # multimodal accessibility evaluation
     pg.evaluate_accessibility(network)
-    # accessibility evalutation for a target mode
+    # accessibility evaluation for a target mode
     # pg.evaluate_accessibility(network, multimodal=False, mode='p')
 
     print('complete accessibility evaluation.\n')
