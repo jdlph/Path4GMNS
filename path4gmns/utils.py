@@ -314,12 +314,13 @@ def read_links(input_dir,
 
             # VDF Attributes
             for i in range(demand_period_size):
-                header_vdf_alpha = 'VDF_alpha' + str(i+1)
-                header_vdf_beta = 'VDF_beta' + str(i+1)
-                header_vdf_mu = 'VDF_mu' + str(i+1)
-                header_vdf_fftt = 'VDF_fftt' + str(i+1)
-                header_vdf_cap = 'VDF_cap' + str(i+1)
-                header_vdf_phf = 'VDF_phf' + str(i+1)
+                dp_id_str = str(i+1)
+                header_vdf_alpha = 'VDF_alpha' + dp_id_str
+                header_vdf_beta = 'VDF_beta' + dp_id_str
+                header_vdf_mu = 'VDF_mu' + dp_id_str
+                header_vdf_fftt = 'VDF_fftt' + dp_id_str
+                header_vdf_cap = 'VDF_cap' + dp_id_str
+                header_vdf_phf = 'VDF_phf' + dp_id_str
 
                 # case i: link.csv does not VDF attributes at all
                 # case ii: link.csv only has partial VDF attributes
@@ -882,15 +883,14 @@ def output_agent_paths(ui, output_geometry=True, output_dir='.'):
 
         pre_dest_node_id = -1
         for a in agents:
+            if not a.get_node_path():
+               continue
+
             if a.get_dest_node_id() == pre_dest_node_id:
                 continue
 
             pre_dest_node_id = a.get_dest_node_id()
-
             agent_id = a.get_id()
-
-            if not a.get_node_path():
-               continue
 
             geometry = ''
             if output_geometry:
