@@ -112,10 +112,8 @@ def _update_column_gradient_cost_and_flow(column_pool,
         column_num = cv.get_column_num()
         least_gradient_cost = MAX_LABEL_COST
         least_gradient_cost_path_seq_no = -1
-        # least_gradient_cost_path_node_sum = -1
 
-        # for node_sum, col in cv.get_columns().items():
-        for seq_no, col in cv.get_columns().items():        
+        for col in cv.get_columns().values():
             path_toll = 0
             path_gradient_cost = 0
             path_travel_time = 0
@@ -142,7 +140,6 @@ def _update_column_gradient_cost_and_flow(column_pool,
             if path_gradient_cost < least_gradient_cost:
                 least_gradient_cost = path_gradient_cost
                 least_gradient_cost_path_seq_no = col.get_seq_no()
-                # least_gradient_cost_path_node_sum = seq_no
 
         if column_num >= 2:
             total_switched_out_path_vol = 0
@@ -181,7 +178,6 @@ def _update_column_gradient_cost_and_flow(column_pool,
                 total_switched_out_path_vol += col.get_switch_volume()
 
         if least_gradient_cost_path_seq_no != -1:
-            # col = cv.get_column(least_gradient_cost_path_node_sum)
             col = cv.get_column(least_gradient_cost_path_seq_no)
             col.increase_volume(total_switched_out_path_vol)
             # total_gap_count += (
@@ -250,12 +246,10 @@ def _backtrace_shortest_path_tree(orig_node_no,
         link_path = []
 
         dist = 0
-        # node_sum = 0
         current_node_seq_no = i
         # retrieve the sequence backwards
         while current_node_seq_no >= 0:
             node_path.append(current_node_seq_no)
-            # node_sum += current_node_seq_no
 
             current_link_seq_no = link_preds[current_node_seq_no]
             if current_link_seq_no >= 0:
@@ -268,24 +262,13 @@ def _backtrace_shortest_path_tree(orig_node_no,
         if not link_path:
             continue
 
-        # if node_sum not in cv.path_node_seq_map.keys():
-        # if link_path not in cv.path_node_seq_map.values():
-        #     path_seq_no = cv.get_column_num()
-        #     col = Column(path_seq_no)
-        #     col.set_toll(node_label_costs[i])
-        #     col.nodes = [x for x in node_path]
-        #     col.links = [x for x in link_path]
-        #     col.set_distance(dist)
-        #     cv.add_new_column(path_seq_no, col)
-
-        # cv.get_column(node_sum).increase_volume(vol)
         existing = False
         for col in cv.get_columns().values():
             if col.get_links() == link_path:
-                existing = True
                 col.increase_volume(vol)
+                existing = True
                 break
-        
+
         if not existing:
             path_seq_no = cv.get_column_num()
             col = Column(path_seq_no)
@@ -293,7 +276,7 @@ def _backtrace_shortest_path_tree(orig_node_no,
             col.nodes = [x for x in node_path]
             col.links = [x for x in link_path]
             col.set_distance(dist)
-            cv.add_new_column(path_seq_no, col)   
+            cv.add_new_column(path_seq_no, col)
 
 
 def _update_column_travel_time(column_pool, links):

@@ -681,8 +681,8 @@ class ColumnVec:
     def get_column(self, k):
         return self.path_node_seq_map[k]
 
-    def add_new_column(self, node_sum, col):
-        self.path_node_seq_map[node_sum] = col
+    def add_new_column(self, k, col):
+        self.path_node_seq_map[k] = col
 
 
 class AgentType:
