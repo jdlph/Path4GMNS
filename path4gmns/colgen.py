@@ -272,10 +272,11 @@ def _backtrace_shortest_path_tree(orig_node_no,
         if not existing:
             path_seq_no = cv.get_column_num()
             col = Column(path_seq_no)
+            col.set_volume(vol)
+            col.set_distance(dist)
             col.set_toll(node_label_costs[i])
             col.nodes = [x for x in node_path]
             col.links = [x for x in link_path]
-            col.set_distance(dist)
             cv.add_new_column(path_seq_no, col)
 
 
@@ -295,7 +296,7 @@ def _update_column_travel_time(column_pool, links):
             col.set_travel_time(travel_time)
 
 
-def _assignment_core(spn, column_pool, iter_num):
+def _generate(spn, column_pool, iter_num):
 
     for node_id in spn.get_orig_nodes():
         single_source_shortest_path(spn, node_id)
@@ -312,11 +313,11 @@ def _assignment_core(spn, column_pool, iter_num):
                                       iter_num)
 
 
-def _assignment(spnetworks, column_pool, iter_num):
+def _generate_column_pool(spnetworks, column_pool, iter_num):
     # single processing
     # it could be multiprocessing
     for spn in spnetworks:
-        _assignment_core(spn, column_pool, iter_num)
+        _generate(spn, column_pool, iter_num)
 
 
 def perform_column_generation(iter_num, column_update_num, ui):
@@ -377,7 +378,7 @@ def perform_column_generation(iter_num, column_update_num, ui):
         _update_generalized_link_cost(A.get_spnetworks())
 
         # loop through all nodes on the base network
-        _assignment(A.get_spnetworks(), column_pool, i)
+        _generate_column_pool(A.get_spnetworks(), column_pool, i)
 
     print(f'\nprocessing time of assignment: {time()-st:.2f} s')
 
