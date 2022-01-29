@@ -10,9 +10,10 @@
  * Follow C++ coding style (++i rather than i++) and the {} style in AgentLite
  */
 
-#include <cwchar>
-#include <cstring>
 #include "path_engine.h"
+
+#include <cstring>
+#include <cwchar>
 
 using std::wcsstr;
 using std::wcscmp;
@@ -51,13 +52,12 @@ void shortest_path(int o_node_no,
         node_pred[node_no] = invalid;
     }
 
-    int current_node, deque_head, deque_tail;
-
     // SEList initialization
-    current_node = o_node_no;
+    int current_node = o_node_no;
+    int deque_head = invalid;
+    int deque_tail = invalid;
     label_cost[current_node] = departure_time;
     deque_next[current_node] = was_in_deque;
-    deque_head = deque_tail = invalid;
 
     // label correcting
     while (current_node != invalid && current_node != was_in_deque)
@@ -156,13 +156,12 @@ void shortest_path_n(int o_node_no,
         node_pred[node_no] = invalid;
     }
 
-    int current_node, deque_head, deque_tail;
-
     // SEList initialization
-    current_node = o_node_no;
+    int current_node = o_node_no;
+    int deque_head = invalid;
+    int deque_tail = invalid;
     label_cost[current_node] = departure_time;
     deque_next[current_node] = was_in_deque;
-    deque_head = deque_tail = invalid;
 
     // label correcting
     while (current_node != invalid && current_node != was_in_deque)
