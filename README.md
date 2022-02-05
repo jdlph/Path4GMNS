@@ -14,16 +14,16 @@ Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jd
    * Origin-Destination Matrix Estimation (ODME).
 
 ## Installation
-Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.7.5/), and can be installed using
+Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.8.0/), and can be installed using
 ```
 $ pip install path4gmns
 ```
-If you need a specific version of Path4GMNS, say, 0.7.5,
+If you need a specific version of Path4GMNS, say, 0.8.0,
 ```
-$ pip install path4gmns==0.7.5
+$ pip install path4gmns==0.8.0
 ```
 
-v0.7.5 comes with bug fixes. All previous releases shall be deprecated for any purposes.
+v0.8.0 comes with performance improvement. All previous releases shall be deprecated for any purposes.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding use cases in the following section.
@@ -138,11 +138,11 @@ import path4gmns as pg
 
 network = pg.read_network()
 
-assignment_num = 20
+column_gen_num = 20
 column_update_num = 10
 
 # path-based UE only
-pg.perform_column_generation(assignment_num, column_update_num, network)
+pg.perform_column_generation(column_gen_num, column_update_num, network)
 
 # if you do not want to include geometry info in the output file,
 # use pg.output_columns(network, False)
@@ -150,9 +150,9 @@ pg.output_columns(network)
 pg.output_link_performance(network)
 ```
 
-**NOTE THAT** you can still use the legacy _pg.perform_network_assignment(assignment_mode=1, assignment_num, column_update_num, network)_ to perform the same functionality here. But it has been **deprecated**, and will be removed later.
+**NOTE THAT** you can still use the legacy _pg.perform_network_assignment(assignment_mode=1, column_gen_num, column_update_num, network)_ to perform the same functionality here. But it has been **deprecated**, and will be removed later.
 
-Starting from v0.7.0a1, Path4GMNS supports loading columns/paths from existing files (generated from either the Python module or DTALite) and continue the column-generation procedure from where you left. Please **skip the assignment stage** and go directly to column pool optimization by setting **assignment_num = 0**.
+Starting from v0.7.0a1, Path4GMNS supports loading columns/paths from existing files (generated from either the Python module or DTALite) and continue the column-generation procedure from where you left. Please **skip the column generation stage** and go directly to column pool optimization by setting **column_gen_num = 0**.
 
 ```python
 import path4gmns as pg
@@ -163,10 +163,10 @@ network = pg.read_network()
 pg.load_columns(network)
 
 # we recommend NOT doing assignemnt again after loading columns
-assignment_num = 0
+column_gen_num = 0
 column_update_num = 10
 
-pg.perform_column_generation(assignment_num, column_update_num, network)
+pg.perform_column_generation(column_gen_num, column_update_num, network)
 
 pg.output_columns(network)
 pg.output_link_performance(network)
@@ -190,10 +190,10 @@ import path4gmns as pg
 
 # path-based UE
 mode = 1
-assignment_num = 10
+column_gen_num = 10
 column_update_num = 10
 
-pg.perform_network_assignment_DTALite(mode, assignment_num, column_update_num)
+pg.perform_network_assignment_DTALite(mode, column_gen_num, column_update_num)
 
 # no need to call output_columns() and output_link_performance()
 # since outputs will be processed within DTALite
@@ -389,11 +389,11 @@ As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Envi
 # from the root directory of PATH4GMNS
 $ python setup.py sdist bdist_wheel
 $ cd dist
-# or python -m pip instal pypath4gmns-0.7.5-py3-none-any.whl
-$ python -m pip install path4gmns-0.7.5.tar.gz
+# or python -m pip instal pypath4gmns-0.8.0-py3-none-any.whl
+$ python -m pip install path4gmns-0.8.0.tar.gz
 ```
 
-Here, 0.7.4 is the version number. Replace it with the one specified in setup.py.
+Here, 0.8.0 is the version number. Replace it with the one specified in setup.py.
 
 ## Benchmarks
 Coming soon.
@@ -411,6 +411,7 @@ Coming soon.
 - [x] Get accessible nodes and links given mode and time budget (v0.7.0)
 - [x] Retrieve shortest paths under multimodal allowed uses (v0.7.2)
 - [x] Time-dependent accessibility evaluation (v0.7.3)
+- [x] Deprecate node_sum as hash key in column generation (v0.8.0)
 - [ ] Let users modify the network topology in a simple way by adding/removing nodes and links
 - [ ] Enable manipulations on the overall travel demand and the demand between an OD pair
 - [ ] Visualize individual column/paths on user's call
@@ -426,15 +427,22 @@ You are encouraged to join our Slack workspace for more dicussions and collabora
 
 ## Implementation Notes
 
-The column generation scheme in Path4GMNS is an equivalent **single-processing implementation** as its [DTALite](https://github.com/jdlph/DTALite/tree/main/src_cpp) multiprocessing counterpart. **Note that the results (i.e., column pool and trajectory for an agent) from Path4GMNS and DTALite are comparable but likely not identical as the shortest paths are usually not unique and subjected to implementations**. This subtle difference should be gone and the link performances should be consistent if the iterations on both assignment and column generation are large enough. You can always compare the results (i.e., link_performance.csv) from Path4GMNS and DTALite given the same network and demand.
+The column generation scheme in Path4GMNS is an equivalent **single-processing implementation** as its [DTALite](https://github.com/jdlph/DTALite/tree/main/src_cpp) multiprocessing counterpart. **Note that** the results (i.e., column pool and trajectory for an agent) from Path4GMNS and DTALite are comparable but likely not identical as the shortest paths are usually not unique and subjected to implementations. This difference shall be subtle and the link performances shall be consistent if the iterations of column generation and column update are both large enough. You can always compare the results (i.e., link_performance.csv) from Path4GMNS and DTALite given the same network and demand.
 
 The whole package is implemented towards **high performance**. The core shortest-path engine is implemented in C++ (deque implementation of the modified label correcting algorithm) along with the equivalent Python implementations for demonstration. To achieve the maximum efficiency, we use a fixed-length array as the deque (rather than the STL deque) and combine the scan eligible list (represented as deque) with the node presence status. Along with the minimum and fast argument interfacing between the underlying C++ path engine and the upper Python modules, its running time is comparable to the pure C++-based DTALite for small- and medium-size networks (e.g., the Chicago Sketch Network). If you have an extremely large network and/or have requirement on CPU time, we recommend using DTALite to fully utilze its parallel computing feature.
 
-An easy and smooth installation process by **low dependency** is one of our major design goals. The core Python modules in Path4GMNS only require a handful of components from the Python standard library (e.g., csv, ctypes, and so on) with no any third-party libraries/packages. On the C++ side, the precompiled path engine as shared libraries are embedded to make this package portable across three major desktop environments (i.e., Windows, macOS, and Linux) and its source is implemented in C++11 with no dependency. Users can easily build the path engine from the source code towards their target system if it is not listed above as one of the three.
+An easy and smooth installation process by **low dependency** is one of our major design goals. The core Python modules in Path4GMNS only require a handful of components from the Python standard library (e.g., csv, ctypes, and so on) with no any third-party libraries/packages. On the C++ side, the precompiled path engines as shared libraries are embedded to make this package portable across three major desktop environments (i.e., Windows, macOS, and Linux) and its source is implemented in C++11 with no dependency. Users can easily build the path engine from the source code towards their target system if it is not listed above as one of the three.
+
+### More on the Column-Generation Module
+The column generation module first identifies new columns (i.e., paths) between each OD pair at each iteration and adds them into the column pool before optimizing (i.e., adjusting column flows to achieve the equilibrium state). The original implementations in both DTALite and Path4GMNS (prior to v0.8.0) rely on node sum (as hash key) to check the unqiueness of each identifed column, which is simply the summation of node sequence numbers over nodes along a column. However, it cannot guaranttee a non-existing column will always be added to the column pool as different columns may share the same sum and we persume a one-to-one mapping from node sum to column rather than an array of slots for different columns with the same node sum. An example would be 0->1->4->5 and 0->2->3->5, where 0 to 5 are node sequence numbers. One of them will be precluded from the column pool.
+
+In order to resolve this issue, we have deprecated node sum, and introduced a side-by-side comparison between an newly identified and each exsiting one in the pool column in Path4GMNS. As majority of columns between an OD pair differ in the number of nodes, this comparison can be very efficently. Slight improvements are observed in both running time and convergence gap over the original implementation.
+
+DTALite uses arrays rather than STL containers to store columns. These arrays are fixed in size (1,000), which prevent a fast filtering-out using the number of nodes as described above. For two (long) columns only different in the last few nodes, the side-by-side comparison has to be conducted until the very end and ruins the performance of DTALite. Thus, we decide **NOT TO ADOPT** this updated implementation to DTALite but do expect it in the future release of DTALite after [refactoring](https://github.com/jdlph/DTALite#refactoring).
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2022, January 6). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2022, Februrary 5). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## References
 Lu, C. C., Mahmassani, H. S., Zhou, X. (2009). Equivalent gap function-based reformulation and solution algorithm for the dynamic user equilibrium problem. Transportation Research Part B: Methodological, 43, 345-364.

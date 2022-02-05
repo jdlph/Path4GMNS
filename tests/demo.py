@@ -65,16 +65,16 @@ def test_column_generation_py():
     print('\nstart column generation\n')
     st = time()
 
-    iter_num = 10
+    column_gen_num = 10
     column_update_num = 10
     # pg.perform_network_assignment(assignment_mode=1, assignment_num,
     #                               column_update_num, network)
     # has been deprecated starting from v0.7.2, and will be removed later.
-    pg.perform_column_generation(iter_num, column_update_num, network)
+    pg.perform_column_generation(column_gen_num, column_update_num, network)
 
     print(f'processing time of column generation: {time()-st:.2f} s'
-          f' for {iter_num} assignment iterations and '
-          f'{column_update_num} iterations in column generation')
+          f' for {column_gen_num} iterations in column generation and '
+          f'{column_update_num} iterations in column update')
 
     # if you do not want to include geometry info in the output file,
     # use pg.output_columns(network, False)
@@ -88,13 +88,13 @@ def test_column_generation_dtalite():
     st = time()
 
     mode = 1
-    iter_num = 20
+    column_gen_num = 20
     column_update_num = 20
-    pg.perform_network_assignment_DTALite(mode, iter_num, column_update_num)
+    pg.perform_network_assignment_DTALite(mode, column_gen_num, column_update_num)
 
     print(f'processing time of column generation: {time()-st:.2f} s'
-          f' for {iter_num} assignment iterations and '
-          f'{column_update_num} iterations in column generation')
+          f' for {column_gen_num} iterations in column generation and '
+          f'{column_update_num} iterations in column update')
 
     print('\npath finding results can be found in agent.csv')
 
@@ -112,16 +112,16 @@ def test_loading_columns():
     print('\nstart column generation\n')
     st = time()
 
-    iter_num = 0
+    column_gen_num = 0
     column_update_num = 10
-    # pg.perform_network_assignment(assignment_mode=1, assignment_num,
+    # pg.perform_network_assignment(assignment_mode=1, column_gen_num,
     #                               column_update_num, network)
     # has been deprecated starting from v0.7.2, and will be removed in later.
-    pg.perform_column_generation(iter_num, column_update_num, network)
+    pg.perform_column_generation(column_gen_num, column_update_num, network)
 
     print(f'processing time of column generation: {time()-st:.2f} s'
-          f' for {iter_num} assignment iterations and '
-          f'{column_update_num} iterations in column generation')
+          f' for {column_gen_num} iterations in column generation and '
+          f'{column_update_num} iterations in column update')
 
     pg.output_columns(network)
     pg.output_link_performance(network)
@@ -199,4 +199,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(3)
+    demo_mode(4)

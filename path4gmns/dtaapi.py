@@ -24,7 +24,7 @@ _dtalite_engine.network_assignment.argtypes = [ctypes.c_int,
 
 
 def perform_network_assignment_DTALite(assignment_mode,
-                                       iter_num,
+                                       column_gen_num,
                                        column_update_num):
     """ python interface to call DTALite (precompiled as shared library)
 
@@ -45,9 +45,8 @@ def perform_network_assignment_DTALite(assignment_mode,
         2: UE + dynamic traffic assignment (DTA), generates link performance file and agent path file
         3: ODME
 
-    iter_num
-        number of assignment iterations to be performed before optimizing
-        column pool
+    column_gen_num
+        number of iterations to be performed before on generating column pool
 
     column_update_iter
         number of iterations to be performed on optimizing column pool
@@ -69,13 +68,13 @@ def perform_network_assignment_DTALite(assignment_mode,
     # make sure assignment_mode is right
     assert(assignment_mode in [0, 1, 2, 3])
     # make sure iteration numbers are both non-negative
-    assert(iter_num>=0)
+    assert(column_gen_num>=0)
     assert(column_update_num>=0)
 
     print('\nDTALite run starts')
 
     _dtalite_engine.network_assignment(assignment_mode,
-                                       iter_num,
+                                       column_gen_num,
                                        column_update_num)
 
     print(

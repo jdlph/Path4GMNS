@@ -318,7 +318,7 @@ def _generate_column_pool(spnetworks, column_pool, iter_num):
         _generate(spn, column_pool, iter_num)
 
 
-def perform_column_generation(iter_num, column_update_num, ui):
+def perform_column_generation(column_gen_num, column_update_num, ui):
     """ perform network assignemnt using the selected assignment mode
 
     WARNING
@@ -329,11 +329,11 @@ def perform_column_generation(iter_num, column_update_num, ui):
 
     Parameters
     ----------
-    iter_num
-        number of assignment iterations to be performed before optimizing
+    column_gen_num
+        number of iterations to be performed on generating column pool
         column pool
 
-    column_update_iter
+    column_update_num
         number of iterations to be performed on optimizing column pool
 
     ui
@@ -349,7 +349,7 @@ def perform_column_generation(iter_num, column_update_num, ui):
         ink_performance.csv)
     """
     # make sure iteration numbers are both non-negative
-    assert(iter_num>=0)
+    assert(column_gen_num>=0)
     assert(column_update_num>=0)
 
     # base assignment
@@ -362,7 +362,7 @@ def perform_column_generation(iter_num, column_update_num, ui):
 
     st = time()
 
-    for i in range(iter_num):
+    for i in range(column_gen_num):
         print(f'current iteration number in assignment: {i}')
         _update_link_travel_time_and_cost(links)
 
@@ -385,7 +385,7 @@ def perform_column_generation(iter_num, column_update_num, ui):
     _reset_and_update_link_vol_based_on_columns(column_pool,
                                                 links,
                                                 dps,
-                                                iter_num,
+                                                column_gen_num,
                                                 False)
 
     _update_link_travel_time_and_cost(links)
@@ -411,7 +411,7 @@ def update_links_using_columns(network):
     _update_link_travel_time_and_cost(links)
 
 
-def perform_network_assignment(assignment_mode, iter_num, column_update_num, ui):
+def perform_network_assignment(assignment_mode, column_gen_num, column_update_num, ui):
     """DEPRECATED Column Generation API
 
     Keep it here as legacy support for existing users who already get used to it
@@ -425,4 +425,4 @@ def perform_network_assignment(assignment_mode, iter_num, column_update_num, ui)
             'Please please use perform_network_assignment_DTALite().'
         )
 
-    perform_column_generation(iter_num, column_update_num, ui)
+    perform_column_generation(column_gen_num, column_update_num, ui)
