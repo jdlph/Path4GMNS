@@ -281,7 +281,6 @@ def _backtrace_shortest_path_tree(orig_node_no,
 
 
 def _update_column_travel_time(column_pool, links):
-
     for k, cv in column_pool.items():
         if cv.get_od_volume() <= 0:
             continue
@@ -297,7 +296,6 @@ def _update_column_travel_time(column_pool, links):
 
 
 def _generate(spn, column_pool, iter_num):
-
     for node_id in spn.get_orig_nodes():
         single_source_shortest_path(spn, node_id)
 
