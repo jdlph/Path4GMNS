@@ -319,7 +319,7 @@ def _generate_column_pool(spnetworks, column_pool, iter_num):
 
 
 def perform_column_generation(column_gen_num, column_update_num, ui):
-    """ perform network assignemnt using the selected assignment mode
+    """ perform network assignment using the selected assignment mode
 
     WARNING
     -------

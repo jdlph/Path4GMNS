@@ -94,7 +94,7 @@ def _download_url(url, filename, loc_dir):
     try:
         import requests
     except ImportError:
-        print('please print requests to preceed downloading!!')
+        print('please print requests to proceed downloading!!')
 
     try:
         r = requests.get(url)
@@ -600,7 +600,7 @@ def load_columns(ui, input_dir='.'):
 
         reader = csv.DictReader(f)
 
-        # just in case agent_id was not outputed
+        # just in case agent_id was not output
         last_agent_id = 0
         for line in reader:
             # critical info

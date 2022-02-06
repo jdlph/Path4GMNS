@@ -83,7 +83,7 @@ The mode passed to find_shortest_path() must be defined in settings.yaml, which 
 ### Find Shortest Paths for All Individual Agents
 Path4GMNS is capable of calculating and constructing the (static) shortest paths for all agents. Individual agents will be automatically set up using the aggregated travel demand between each OD pair within find_path_for_agents() on its first call.
 
-The unique agent paths can be outputed to a csv file as shown in the example below.
+The unique agent paths can be output to a csv file as shown in the example below.
 ```python
 import path4gmns as pg
 
@@ -116,7 +116,7 @@ print('shortest path (link id) of agent, '
 pg.output_agent_paths(network)
 ```
 
-v0.7.2 or higher features finding agent paths under a specific mode defined in settings.yaml. The following example demostrates this new functionality under mode walk (i.e., w).
+v0.7.2 or higher features finding agent paths under a specific mode defined in settings.yaml. The following example demonstrates this new functionality under mode walk (i.e., w).
 ```python
 import path4gmns as pg
 
@@ -127,7 +127,7 @@ network.find_path_for_agents()
 network.find_path_for_agents('w')
 
 # retrieving the origin, the destination, and the shortest path of a given agent
-# is exactly the same as before as well as outputing all unique agent paths
+# is exactly the same as before as well as outputting all unique agent paths
 ```
 
 ### Perform Path-Based UE Traffic Assignment using the Python Column-Generation Module
@@ -162,7 +162,7 @@ network = pg.read_network()
 # e.g., pg.load_columns(network, 'data/Chicago_Sketch')
 pg.load_columns(network)
 
-# we recommend NOT doing assignemnt again after loading columns
+# we recommend NOT doing assignment again after loading columns
 column_gen_num = 0
 column_update_num = 10
 
@@ -221,7 +221,7 @@ $ brew install libomp
 
 ### Perform Multimodal Accessibility Evaluation
 
-The current implemenation supprts accessibility evaluation for any modes defined in settings.yml. Note that you can restrict the allowed uses (modes) on each link by adding a field of "allowed_uses" to link.csv following the example [here](https://github.com/zephyr-data-specs/GMNS/blob/master/Small_Network_Examples/Cambridge_v090/link.csv). Othewise, links are open to all modes.
+The current implementation supports accessibility evaluation for any modes defined in settings.yml. Note that you can restrict the allowed uses (modes) on each link by adding a field of "allowed_uses" to link.csv following the example [here](https://github.com/zephyr-data-specs/GMNS/blob/master/Small_Network_Examples/Cambridge_v090/link.csv). Otherwise, links are open to all modes.
 
 In order to perform multimodal accessibility evaluation, the corresponding modes (i.e., agent types) must be presented in [settings.yml](https://github.com/jdlph/Path4GMNS/blob/master/tests/settings.yml). It will be parsed by [pyyaml](https://pypi.org/project/PyYAML/) (5.1 or higher) to the Python engine at run-time. **Note that demand.csv is not necessary for accessibility evaluation**.
 
@@ -268,7 +268,7 @@ print('complete accessibility evaluation.\n')
 print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
 ```
 
-Two formats of accessibility will be outputed: accessibility between each OD pair in terms of free flow travel time (accessibility.csv) and aggregated accessibility as to the number of accessible zones from each zone for each transportation mode specified in settings.yml given a budget time (up to 240 minutes) (accessibility_aggregated.csv). The following example is to evaluate accessibility only under the default mode (i.e., mode auto or agent type passenger).
+Two formats of accessibility will be output: accessibility between each OD pair in terms of free flow travel time (accessibility.csv) and aggregated accessibility as to the number of accessible zones from each zone for each transportation mode specified in settings.yml given a budget time (up to 240 minutes) (accessibility_aggregated.csv). The following example is to evaluate accessibility only under the default mode (i.e., mode auto or agent type passenger).
 
 ```python
 import path4gmns as pg
@@ -289,7 +289,7 @@ print('complete accessibility evaluation.\n')
 print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
 ```
 
-You can also get the accessible nodes and links within a time budget given a mode. Similar to the accessibility evalution, the selected mode must come from settings.yml.
+You can also get the accessible nodes and links within a time budget given a mode. Similar to the accessibility evaluation, the selected mode must come from settings.yml.
 
 ```python
 import path4gmns as pg
@@ -297,12 +297,12 @@ import path4gmns as pg
 # no need to load demand file for accessibility evaluation
 network = pg.read_network(load_demand=False)
 
-# get accessible nodes and links starting from node 1 with a 5-minitue
+# get accessible nodes and links starting from node 1 with a 5-minute
 # time window for the default mode auto (i.e., 'p')
 network.get_accessible_nodes(1, 5)
 network.get_accessible_links(1, 5)
 
-# get accessible nodes and links starting from node 1 with a 15-minitue
+# get accessible nodes and links starting from node 1 with a 15-minute
 # time window for mode walk (i.e., 'w')
 network.get_accessible_nodes(1, 15, 'w')
 network.get_accessible_links(1, 15, 'w')
@@ -312,7 +312,7 @@ network.get_accessible_links(1, 15, 'w')
 ```
 
 ### When Time-Dependent Link Travel Time Matters
-Link travel time is crucial in calculating accessibility. In the classic accessibility analysis, evalutaion networks are usually considered to be static in terms of link travel time, which is determined by link length and link free-flow speed under a specific mode. The free-flow speed comes from either link.csv or settings.yml (both are denoted as "free_speed"). When they are different, the minimum of these two will be adopted. The cases demonstrated above are all falling within this category.
+Link travel time is crucial in calculating accessibility. In the classic accessibility analysis, evaluation networks are usually considered to be static in terms of link travel time, which is determined by link length and link free-flow speed under a specific mode. The free-flow speed comes from either link.csv or settings.yml (both are denoted as "free_speed"). When they are different, the minimum of these two will be adopted. The cases demonstrated above are all falling within this category.
 
 Link travel time varies over time so does accessibility. When the time-dependent accessibility is of interested, time-dependent link travel time (i.e., VDF_fftt from a given demand period in link.csv) will come into play by overwriting the (static) link free-flow speed. This new feature is now part of v0.7.3 and is illustrated as below.
 
@@ -349,15 +349,15 @@ import path4gmns as pg
 # no need to load demand file for accessibility evaluation
 network = pg.read_network(load_demand=False)
 
-# get accessible nodes and links starting from node 1 with a 5-minitue
+# get accessible nodes and links starting from node 1 with a 5-minute
 # time window for the default mode auto (i.e., 'p') for demand period 0
 network.get_accessible_nodes(1, 5, time_dependent=True)
 
-# get accessible nodes and links starting from node 1 with a 5-minitue
+# get accessible nodes and links starting from node 1 with a 5-minute
 # time window for the default mode auto (i.e., 'p') for demand period 1 if it is defined
 network.get_accessible_links(1, 5, time_dependent=True, demand_period_id=1)
 
-# get accessible nodes and links starting from node 1 with a 15-minitue
+# get accessible nodes and links starting from node 1 with a 15-minute
 # time window for mode walk (i.e., 'w') for demand periods 0 and 1 respectively
 network.get_accessible_nodes(1, 15, 'w', time_dependent=True)
 network.get_accessible_links(1, 15, 'w', time_dependent=True, demand_period_id=1)
@@ -377,7 +377,7 @@ $ cd build
 $ cmake ..
 $ cmake --build .
 ```
-The last command can be replaced with $ make if your target system has Make installed. See [here](https://github.com/jdlph/DTALite) for details on how to build DTALite. After they are successfully compiled, move them to Path4GMSN/path4gmns/bin.
+The last command can be replaced with $ make if your target system has Make installed. See [here](https://github.com/jdlph/DTALite) for details on how to build DTALite. After they are successfully compiled, move them to Path4GMNS/path4gmns/bin.
 
 ***Caveat***
 
@@ -404,14 +404,14 @@ Coming soon.
 - [x] Provide a setting file in yaml to let users control key parameters (v0.6.0)
 - [x] Support for multi-demand-period and multi-agent-type (v0.6.0)
 - [x] Load columns/paths from existing runs and continue path-base UE (v0.7.0a1)
-- [x] Download the predefined GMNS test data sets to usrs' local machines when needed (v0.7.0a1)
+- [x] Download the predefined GMNS test data sets to users' local machines when needed (v0.7.0a1)
 - [x] Add allowed use in terms of agent type (i.e., transportation mode) for links (v0.7.0a1)
 - [x] Calculate and show up multimodal accessibilities (v0.7.0a1)
 - [x] Apply lightweight and faster implementation on accessibility evaluation using virtual centroids and connectors (v0.7.0)
 - [x] Get accessible nodes and links given mode and time budget (v0.7.0)
 - [x] Retrieve shortest paths under multimodal allowed uses (v0.7.2)
 - [x] Time-dependent accessibility evaluation (v0.7.3)
-- [x] Deprecate node_sum as hash key in column generation (v0.8.0)
+- [x] Deprecate node_sum as hash index in column generation (v0.8.0)
 - [ ] Let users modify the network topology in a simple way by adding/removing nodes and links
 - [ ] Enable manipulations on the overall travel demand and the demand between an OD pair
 - [ ] Visualize individual column/paths on user's call
@@ -423,26 +423,26 @@ Any contributions are welcomed including advise new applications of Path4GMNS, e
 
 Path4GMNS has a very simple workflow setup, i.e., **master for release (on both GitHub and PyPI) and dev for development**. If you would like to work directly on the source code (and probably the documentation), please make sure that **the destination branch of your pull request is dev**, i.e., all potential changes/updates shall go to the dev branch before merging into master for release.
 
-You are encouraged to join our Slack workspace for more dicussions and collaborations. [Drop us an email](xzhou74@asu.edu;jdlph@hotmail.com) for invitation.
+You are encouraged to join our Slack workspace for more discussions and collaborations. [Drop us an email](xzhou74@asu.edu;jdlph@hotmail.com) for invitation.
 
 ## Implementation Notes
 
 The column generation scheme in Path4GMNS is an equivalent **single-processing implementation** as its [DTALite](https://github.com/jdlph/DTALite/tree/main/src_cpp) multiprocessing counterpart. **Note that** the results (i.e., column pool and trajectory for an agent) from Path4GMNS and DTALite are comparable but likely not identical as the shortest paths are usually not unique and subjected to implementations. This difference shall be subtle and the link performances shall be consistent if the iterations of column generation and column update are both large enough. You can always compare the results (i.e., link_performance.csv) from Path4GMNS and DTALite given the same network and demand.
 
-The whole package is implemented towards **high performance**. The core shortest-path engine is implemented in C++ (deque implementation of the modified label correcting algorithm) along with the equivalent Python implementations for demonstration. To achieve the maximum efficiency, we use a fixed-length array as the deque (rather than the STL deque) and combine the scan eligible list (represented as deque) with the node presence status. Along with the minimum and fast argument interfacing between the underlying C++ path engine and the upper Python modules, its running time is comparable to the pure C++-based DTALite for small- and medium-size networks (e.g., the Chicago Sketch Network). If you have an extremely large network and/or have requirement on CPU time, we recommend using DTALite to fully utilze its parallel computing feature.
+The whole package is implemented towards **high performance**. The core shortest-path engine is implemented in C++ (deque implementation of the modified label correcting algorithm) along with the equivalent Python implementations for demonstration. To achieve the maximum efficiency, we use a fixed-length array as the deque (rather than the STL deque) and combine the scan eligible list (represented as deque) with the node presence status. Along with the minimum and fast argument interfacing between the underlying C++ path engine and the upper Python modules, its running time is comparable to the pure C++-based DTALite for small- and medium-size networks (e.g., the Chicago Sketch Network). If you have an extremely large network and/or have requirement on CPU time, we recommend using DTALite to fully utilize its parallel computing feature.
 
 An easy and smooth installation process by **low dependency** is one of our major design goals. The core Python modules in Path4GMNS only require a handful of components from the Python standard library (e.g., csv, ctypes, and so on) with no any third-party libraries/packages. On the C++ side, the precompiled path engines as shared libraries are embedded to make this package portable across three major desktop environments (i.e., Windows, macOS, and Linux) and its source is implemented in C++11 with no dependency. Users can easily build the path engine from the source code towards their target system if it is not listed above as one of the three.
 
 ### More on the Column-Generation Module
-The column generation module first identifies new columns (i.e., paths) between each OD pair at each iteration and adds them into the column pool before optimizing (i.e., adjusting column flows to achieve the equilibrium state). The original implementations in both DTALite and Path4GMNS (prior to v0.8.0) rely on node sum (as hash key) to check the unqiueness of each identifed column, which is simply the summation of node sequence numbers over nodes along a column. However, it cannot guaranttee a non-existing column will always be added to the column pool as different columns may share the same sum and we persume a one-to-one mapping from node sum to column rather than an array of slots for different columns with the same node sum. An example would be 0->1->4->5 and 0->2->3->5, where 0 to 5 are node sequence numbers. One of them will be precluded from the column pool.
+The column generation module first identifies new columns (i.e., paths) between each OD pair at each iteration and adds them into the column pool before optimizing (i.e., shifting flows among columns to achieve the equilibrium state). The original implementations in both DTALite and Path4GMNS (prior to v0.8.0) rely on node sum as the unique key (or hash index) to differentiate columns, which is simply the summation of node sequence numbers over nodes along a column. However, it cannot guarantee that a non-existing column will always be added to the column pool as different columns may share the same node sum (and we presume a one-to-one mapping from node sum to column rather than an array of slots for different columns with the same node sum). An example would be 0->1->4->5 and 0->2->3->5, where 0 to 5 are node sequence numbers. One of the columns will be precluded from the column pool.
 
-In order to resolve this issue, we have deprecated node sum, and introduced a side-by-side comparison between an newly identified and each exsiting one in the pool column in Path4GMNS. As majority of columns between an OD pair differ in the number of nodes, this comparison can be very efficently. Slight improvements are observed in both running time and convergence gap over the original implementation.
+In order to resolve this issue, we have deprecated node sum, and introduced a side-by-side comparison between an newly identified and each existing one in the pool column in Path4GMNS only. As columns between an OD pair are largely different in number of nodes, this comparison can be very efficiently. Slight improvements are actually observed in both running time and convergence gap over the original implementation.
 
-DTALite uses arrays rather than STL containers to store columns. These arrays are fixed in size (1,000), which prevent a fast filtering-out using the number of nodes as described above. For two (long) columns only different in the last few nodes, the side-by-side comparison has to be conducted until the very end and ruins the performance of DTALite. Thus, we decide **NOT TO ADOPT** this updated implementation to DTALite but do expect it in the future release of DTALite after [refactoring](https://github.com/jdlph/DTALite#refactoring).
+DTALite uses arrays rather than STL containers to store columns. These arrays are fixed in size (1,000), which prevents a fast filtering using the number of nodes as described above. For two (long) columns only different in the last few nodes, the side-by-side comparison has to be continued until the very end and ruins the performance. Thus, we decide **NOT TO ADOPT** this updated implementation to DTALite but do expect it in the future release after [refactoring](https://github.com/jdlph/DTALite#refactoring).
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2022, Februrary 5). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2022, February 6). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## References
 Lu, C. C., Mahmassani, H. S., Zhou, X. (2009). Equivalent gap function-based reformulation and solution algorithm for the dynamic user equilibrium problem. Transportation Research Part B: Methodological, 43, 345-364.

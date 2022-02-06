@@ -1,5 +1,5 @@
 /**
- * The following deque implementation is motivated by and modified from the efficient implementiation by Dr. Hillel Bar-Gera
+ * The following deque implementation is motivated by and modified from the efficient implementation by Dr. Hillel Bar-Gera
  *
  *     http://www.bgu.ac.il/~bargera/tntp/
  *     http://www.bgu.ac.il/~bargera/tntp/FW.zip
@@ -38,7 +38,7 @@ void shortest_path(int o_node_no,
 {
     // construct and initialize the following three on the first call only
     static constexpr int invalid = -1, was_in_deque = -7;
-    // used t filter out the TAZ based centriods
+    // used t filter out the TAZ based centroids
     // static constexpr int first_thru_node = 0;
 
     // initialization
@@ -166,7 +166,7 @@ void shortest_path_n(int o_node_no,
     // label correcting
     while (current_node != invalid && current_node != was_in_deque)
     {
-        // used t filter out the TAZ based centriods
+        // used t filter out the TAZ based centroids
         if (current_node <= last_thru_node || current_node == o_node_no)
         {
             for (int k = first_link_from[current_node]; k < last_link_from[current_node]; ++k)

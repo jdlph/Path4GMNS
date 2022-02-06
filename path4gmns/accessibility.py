@@ -72,7 +72,7 @@ def _output_accessibility(min_travel_times, zones, mode='p', output_dir='.'):
             if k[2] != mode:
                 continue
 
-            # output assessiblity
+            # output accessibility
             # no exception handlings here as min_travel_times is constructed
             # directly using an.get_centroids()
             coord_oz = zones[k[0]]
@@ -127,7 +127,7 @@ def _output_accessibility_aggregated(min_travel_times, interval_num,
                     while id < interval_num:
                         counts[id] += 1
                         id += 1
-                # output assessiblity
+                # output accessibility
                 geo = 'POINT (' + coord + ')'
                 line = [oz, geo, atype.get_type_str()]
                 line.extend(counts)
@@ -159,12 +159,12 @@ def evaluate_accessibility(ui,
         True or False. Its default value is True. It will only affect the
         output to accessibility_aggregated.csv.
 
-        If True, the accessiblity evalution will be conducted
+        If True, the accessibility evaluation will be conducted
         for all the modes defined in settings.yml. The number of accessible
         zones from each zone under each defined mode given a budget time (up
         to 240 minutes) will be outputted to accessibility_aggregated.csv.
 
-        If False, the accessiblity evalution will be only conducted against the
+        If False, the accessibility evaluation will be only conducted against the
         target mode. The number of accessible zones from each zone under the
         target mode given a budget time (up to 240 minutes) will be outputted
         to accessibility_aggregated.csv.
@@ -193,7 +193,7 @@ def evaluate_accessibility(ui,
 
     output_dir
         The directory path where accessibility_aggregated.csv and
-        accessibility.csv are outputed. The default is the current working
+        accessibility.csv are output. The default is the current working
         directory (CDW).
 
 

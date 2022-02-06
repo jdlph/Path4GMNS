@@ -188,7 +188,7 @@ class Link:
 
 
 class Agent:
-    """ individual agent derived from aggragted demand between an OD pair
+    """ individual agent derived from aggregated demand between an OD pair
 
     agent_id: integer starts from 1
     agent_seq_no: internal agent index starting from 0 used for calculation
@@ -272,7 +272,7 @@ class Network:
         self.link_predecessor = None
         # added for CG
         self.zones = None
-        self.has_capi_allocated = False
+        self.capi_allocated = False
         # the following two are IDs rather than objects
         self._agent_type_size = 1
         self._demand_period_size = 1
@@ -289,7 +289,7 @@ class Network:
 
     def allocate_for_CAPI(self):
         # execute only on the first call
-        if self.has_capi_allocated:
+        if self.capi_allocated:
             return
 
         node_size = self.node_size
@@ -346,7 +346,7 @@ class Network:
         self.queue_next = int_arr_node(*queue_next)
         self.allowed_uses = char_arr_link(*allowed_uses)
 
-        self.has_capi_allocated = True
+        self.capi_allocated = True
 
     def setup_agents(self, column_pool):
         agent_id = 1
@@ -434,7 +434,7 @@ class Network:
 
         path_cost = agent.get_path_cost()
         if path_cost >= MAX_LABEL_COST:
-            return f'distance: infinitity | path: '
+            return f'distance: infinity | path: '
 
         path = ''
         if agent.node_path:
@@ -458,7 +458,7 @@ class Network:
 
         path_cost = agent.get_path_cost()
         if path_cost >= MAX_LABEL_COST:
-            return f'distance: infinitity | path: '
+            return f'distance: infinity | path: '
 
         path = ''
         if agent.link_path:
@@ -812,7 +812,7 @@ class SPNetwork(Network):
 
         # this is necessary for each instance of SPNetwork
         # to retrieve network topology
-        if not base.has_capi_allocated:
+        if not base.capi_allocated:
             base.allocate_for_CAPI()
 
         # set up attributes unique to each instance
@@ -837,7 +837,7 @@ class SPNetwork(Network):
         # zone sequence no
         self.orig_zones = []
         self.node_id_to_no = {}
-        self.has_capi_allocated = True
+        self.capi_allocated = True
 
     def add_orig_nodes(self, nodes):
         self.orig_nodes.extend(nodes)
@@ -939,7 +939,7 @@ class AccessNetwork(Network):
         self.pre_source_node_id = -1
         if add_cc:
             self._add_centroids_connectors()
-        self.has_capi_allocated = False
+        self.capi_allocated = False
         super().allocate_for_CAPI()
 
     def _add_centroids_connectors(self):
