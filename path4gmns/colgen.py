@@ -378,7 +378,7 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
         # loop through all nodes on the base network
         _generate_column_pool(A.get_spnetworks(), column_pool, i)
 
-    print(f'\nprocessing time of assignment: {time()-st:.2f} s')
+    print(f'\nprocessing time of generating columns: {time()-st:.2f} s')
 
     _optimize_column_pool(column_pool, links, ats, dps, column_update_num)
 

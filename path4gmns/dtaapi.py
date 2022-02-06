@@ -77,8 +77,8 @@ def perform_network_assignment_DTALite(assignment_mode,
                                        column_gen_num,
                                        column_update_num)
 
+    print('\nDTALite run completes\n')
     print(
-        f'\nDTALite run completes'
-        f'\ncheck link_performance.csv in '+os.getcwd()+' for link performance'
-        f'\ncheck agent.csv in '+os.getcwd()+' for unique agent paths'
+        f'check link_performance.csv in '+os.getcwd()+' for link performance\n'
+        f'check agent.csv in '+os.getcwd()+' for unique agent paths\n'
     )
