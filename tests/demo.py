@@ -109,7 +109,7 @@ def test_loading_columns():
 
     print(f'processing time of loading columns: {time()-st:.2f} s')
 
-    print('\nstart column generation\n')
+    print('\nstart column generation')
     st = time()
 
     column_gen_num = 0
@@ -199,4 +199,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(2)
+    demo_mode(5)

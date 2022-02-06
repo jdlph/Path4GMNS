@@ -616,8 +616,12 @@ class Column:
         return self.gradient_cost_rel_diff
 
     def get_links(self):
-        """ return link seq no """
+        """ return link path """
         return self.links
+
+    def get_nodes(self):
+        """ return node path """
+        return self.nodes
 
     def set_distance(self, d):
         self.dist = d

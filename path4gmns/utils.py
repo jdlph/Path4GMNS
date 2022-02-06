@@ -676,9 +676,15 @@ def load_columns(ui, input_dir='.'):
                     f'INVALID NODE PATH found for agent id: {agent_id}'
                 )
 
-            node_sum = sum(node_path)
+            # deprecate node_sum and adopt the same implementation in colgen.py
+            existing = False
+            for col in cv.get_columns().values():
+                if col.get_nodes() == node_path:
+                    col.increase_volume(vol)
+                    existing = True
+                    break
 
-            if node_sum not in cv.path_node_seq_map.keys():
+            if not existing:
                 path_seq_no = cv.get_column_num()
                 col = Column(path_seq_no)
 
@@ -707,6 +713,7 @@ def load_columns(ui, input_dir='.'):
                     )
 
                 # the following four are non-critical info
+                col.set_volume(vol)
                 col.set_toll(toll)
                 col.set_travel_time(tt)
                 col.set_geometry(geo)
@@ -715,9 +722,7 @@ def load_columns(ui, input_dir='.'):
                     sum(A.get_link(x).get_length() for x in col.links)
                 col.set_distance(dist)
 
-                cv.add_new_column(node_sum, col)
-
-            cv.get_column(node_sum).increase_volume(vol)
+                cv.add_new_column(path_seq_no, col)
 
         update_links_using_columns(ui)
 
