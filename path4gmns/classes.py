@@ -352,57 +352,53 @@ class Network:
         agent_id = 1
         agent_no = 0
 
-        for orig in self.zones:
-            for dest in self.zones:
-                for at in range(self._agent_type_size):
-                    for dp in range(self._demand_period_size):
-                        if (at, dp, orig, dest) not in column_pool.keys():
-                                continue
+        for k, cv in column_pool.items():
+            if cv.get_od_volume() <= 0:
+                continue
 
-                        cv = column_pool[(at, dp, orig, dest)]
+            # k= (at, dp, orig, dest)
+            at = k[0]
+            orig = k[2]
+            dest = k[3]
 
-                        if cv.get_od_volume() <= 0:
-                            continue
+            vol = int(cv.get_od_volume()+1)
+            for _ in range(vol):
+                # construct agent using valid record
+                agent = Agent(agent_id,
+                              agent_no,
+                              at,
+                              orig,
+                              dest)
 
-                        vol = int(cv.get_od_volume()+1)
+                # step 1 generate o_node_id and d_node_id randomly
+                # according to o_zone_id and d_zone_id
+                agent.o_node_id = choice(
+                    self.zone_to_nodes_dict[orig]
+                )
+                agent.d_node_id = choice(
+                    self.zone_to_nodes_dict[dest]
+                )
 
-                        for _ in range(vol):
-                            # construct agent using valid record
-                            agent = Agent(agent_id,
-                                          agent_no,
-                                          at,
-                                          orig,
-                                          dest)
+                # step 2 update agent_id and agent_seq_no
+                agent_id += 1
+                agent_no += 1
 
-                            # step 1 generate o_node_id and d_node_id randomly
-                            # according to o_zone_id and d_zone_id
-                            agent.o_node_id = choice(
-                                self.zone_to_nodes_dict[orig]
-                            )
-                            agent.d_node_id = choice(
-                                self.zone_to_nodes_dict[dest]
-                            )
+                # step 3: update the g_simulation_start_time_in_min and
+                # g_simulation_end_time_in_min
+                # if agent.departure_time_in_min < g_simulation_start_time_in_min:
+                #     g_simulation_start_time_in_min = agent.departure_time_in_min
+                # if agent.departure_time_in_min > g_simulation_end_time_in_min:
+                #     g_simulation_end_time_in_min = agent.departure_time_in_min
 
-                            # step 2 update agent_id and agent_seq_no
-                            agent_id += 1
-                            agent_no += 1
+                #step 4: add the agent to the time dependent agent list
+                # departure_time = agent.get_dep_simu_intvl()
+                # if departure_time not in self.agent_td_list_dict.keys():
+                #     self.agent_td_list_dict[departure_time] = []
+                # self.agent_td_list_dict[departure_time].append(
+                #     agent.get_seq_no()
+                # )
 
-                            # step 3: update the g_simulation_start_time_in_min and
-                            # g_simulation_end_time_in_min
-                            # if agent.departure_time_in_min < g_simulation_start_time_in_min:
-                            #     g_simulation_start_time_in_min = agent.departure_time_in_min
-                            # if agent.departure_time_in_min > g_simulation_end_time_in_min:
-                            #     g_simulation_end_time_in_min = agent.departure_time_in_min
-
-                            #step 4: add the agent to the time dependent agent list
-                            # departure_time = agent.get_dep_simu_intvl()
-                            # if departure_time not in self.agent_td_list_dict.keys():
-                            #     self.agent_td_list_dict[departure_time] = []
-                            # self.agent_td_list_dict[departure_time].append(
-                            #     agent.get_seq_no()
-                            # )
-
-                            self.agent_list.append(agent)
+                self.agent_list.append(agent)
 
         # 03/22/21, comment out until departure time is enabled
         # in the future release
