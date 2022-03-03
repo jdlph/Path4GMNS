@@ -678,15 +678,15 @@ def load_columns(ui, input_dir='.'):
 
             # deprecate node_sum and adopt the same implementation in colgen.py
             existing = False
-            for col in cv.get_columns().values():
+            for col in cv.get_columns():
                 if col.get_nodes() == node_path:
                     col.increase_volume(vol)
                     existing = True
                     break
 
             if not existing:
-                path_seq_no = cv.get_column_num()
-                col = Column(path_seq_no)
+                path_id = cv.get_column_num()
+                col = Column(path_id)
 
                 try:
                     col.nodes = [A.get_node_no(x) for x in node_path]
@@ -722,7 +722,7 @@ def load_columns(ui, input_dir='.'):
                     sum(A.get_link(x).get_length() for x in col.links)
                 col.set_distance(dist)
 
-                cv.add_new_column(path_seq_no, col)
+                cv.add_new_column(col)
 
         update_links_using_columns(ui)
 
@@ -768,7 +768,7 @@ def output_columns(ui, output_geometry=True, output_dir='.'):
             at_str = base.get_agent_type_str(at_id)
             dp_str = base.get_demand_period_str(dp_id)
 
-            for col in cv.get_columns().values():
+            for col in cv.get_columns():
                 i += 1
                 node_seq = path_sep.join(
                     str(nodes[x].get_node_id()) for x in reversed(col.nodes)
@@ -787,7 +787,7 @@ def output_columns(ui, output_geometry=True, output_dir='.'):
                 line = [i,
                         oz_id,
                         dz_id,
-                        col.get_seq_no(),
+                        col.get_id(),
                         at_str,
                         dp_str,
                         col.get_volume(),

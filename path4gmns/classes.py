@@ -564,8 +564,8 @@ class Network:
 
 class Column:
     """ column is path """
-    def __init__(self, seq_no=-1):
-        self.seq_no = seq_no
+    def __init__(self, id=-1):
+        self.id = id
         self.vol = 0
         self.dist = 0
         self.toll = 0
@@ -584,8 +584,8 @@ class Column:
     def get_node_num(self):
         return len(self.nodes)
 
-    def get_seq_no(self):
-        return self.seq_no
+    def get_id(self):
+        return self.id
 
     def get_distance(self):
         return self.dist
@@ -664,7 +664,7 @@ class ColumnVec:
     def __init__(self):
         self.od_vol = 0
         self.route_fixed = False
-        self.path_node_seq_map = {}
+        self.node_seq_paths = []
 
     def is_route_fixed(self):
         return self.route_fixed
@@ -673,16 +673,16 @@ class ColumnVec:
         return self.od_vol
 
     def get_column_num(self):
-        return len(self.path_node_seq_map)
+        return len(self.node_seq_paths)
 
     def get_columns(self):
-        return self.path_node_seq_map
+        return self.node_seq_paths
 
     def get_column(self, k):
-        return self.path_node_seq_map[k]
+        return self.node_seq_paths[k]
 
-    def add_new_column(self, k, col):
-        self.path_node_seq_map[k] = col
+    def add_new_column(self, col):
+        self.node_seq_paths.append(col)
 
 
 class AgentType:
