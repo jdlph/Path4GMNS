@@ -905,23 +905,23 @@ class SPNetwork(Network):
 
     # the following five are unique to each SPNetwork
     def get_node_preds(self):
-        return self.node_predecessor
+        return super().get_node_preds()
 
     def get_link_preds(self):
-        return self.link_predecessor
+        return super().get_link_preds()
 
     def get_node_label_costs(self):
-        return self.node_label_cost
+        return super().get_node_label_costs()
 
     def get_link_costs(self):
-        return self.link_cost_array
+        return super().get_link_costs()
 
     def get_queue_next(self):
-        return self.queue_next
+        return super().get_queue_next()
 
     def get_last_thru_node(self):
         """ node no of the first potential centroid """
-        return self.get_node_size()
+        return super().get_last_thru_node()
 
 
 class AccessNetwork(Network):
@@ -1044,46 +1044,46 @@ class AccessNetwork(Network):
         return self.map_id_to_no[node_id]
 
     def get_node_size(self):
-        return self.node_size
+        return super().get_node_size()
 
     def get_link_size(self):
-        return self.link_size
+        return super().get_link_size()
 
     def get_from_node_no_arr(self):
-        return self.from_node_no_array
+        return super().get_from_node_no_arr()
 
     def get_to_node_no_arr(self):
-        return self.to_node_no_array
+        return super().get_to_node_no_arr()
 
     def get_first_links(self):
-        return self.first_link_from
+        return super().get_first_links()
 
     def get_last_links(self):
-        return self.last_link_from
+        return super().get_last_links()
 
     def get_sorted_link_no_arr(self):
-        return self.sorted_link_no_array
+        return super().get_sorted_link_no_arr()
 
     def get_node_preds(self):
-        return self.node_predecessor
+        return super().get_node_preds()
 
     def get_link_preds(self):
-        return self.link_predecessor
+        return super().get_link_preds()
 
     def get_node_label_costs(self):
-        return self.node_label_cost
+        return super().get_node_label_costs()
 
     def get_node_label_cost(self, node_no):
         return self.node_label_cost[node_no]
 
     def get_link_costs(self):
-        return self.link_cost_array
+        return super().get_link_costs()
 
     def get_queue_next(self):
-        return self.queue_next
+        return super().get_queue_next()
 
     def get_allowed_uses(self):
-        return self.allowed_uses
+        return super().get_allowed_uses()
 
     def get_last_thru_node(self):
         """ node no of the first centroid """
