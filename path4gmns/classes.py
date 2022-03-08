@@ -684,6 +684,12 @@ class ColumnVec:
     def add_new_column(self, col):
         self.node_seq_paths.append(col)
 
+    def set_volume(self, vol):
+        self.od_vol = vol
+
+    def increase_volume(self, vol):
+        self.od_vol += vol
+
 
 class AgentType:
 

@@ -415,7 +415,6 @@ Coming soon.
 - [ ] Let users modify the network topology in a simple way by adding/removing nodes and links
 - [ ] Enable manipulations on the overall travel demand and the demand between an OD pair
 - [ ] Visualize individual column/paths on user's call
-- [ ] Adopt parallel computing to further boost the performance
 
 ## Contribute
 

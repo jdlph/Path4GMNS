@@ -460,7 +460,7 @@ def read_demand(input_dir,
             # set up volume for ColumnVec
             if (at, dp, oz_id, dz_id) not in column_pool.keys():
                 column_pool[(at, dp, oz_id, dz_id)] = ColumnVec()
-            column_pool[(at, dp, oz_id, dz_id)].od_vol += volume
+            column_pool[(at, dp, oz_id, dz_id)].increase_volume(volume)
 
             total_agents += int(volume + 1)
 
@@ -468,6 +468,97 @@ def read_demand(input_dir,
 
         if total_agents == 0:
             raise Exception('NO VALID OD VOLUME!! DOUBLE CHECK YOUR demand.csv')
+
+
+def read_zones(input_dir, nodes, zone_to_node_dict):
+    """ read zone.csv to set up zone_to_node_dict """
+    with open(input_dir+'/zone.csv', 'r') as fp:
+        print('read zone.csv')
+
+        reader = csv.DictReader(fp)
+        for line in reader:
+            zone_id = _convert_str_to_int(line['zone_id'])
+            if zone_id is None:
+                continue
+
+            nodes = line['access_node_vector']
+            if nodes is None:
+                continue
+
+            try:
+                node_ids = [int(x) for x in nodes.split(';') if x]
+            except ValueError:
+                raise Exception(
+                    f'INVALID ACCESS NODES for zone id: {zone_id}'
+                )
+
+            if zone_id not in zone_to_node_dict.keys():
+                zone_to_node_dict[zone_id] = [x for x in node_ids]
+            else:
+                raise Exception('DUPLICATE zone id: {zone_id}')
+
+        print(f'the number of zones is {zone_to_node_dict.len()}')
+
+
+def read_demand_matrix(input_dir, agent_type_id, demand_period_id,
+                       zone_to_node_dict, column_pool):
+    """ read demand matrix from input_matrix """
+    with open(input_dir+'/input_matrix.csv', 'r') as fp:
+        print('read input_matrix.csv')
+
+        at = agent_type_id
+        dp = demand_period_id
+
+        total_agents = 0
+
+        reader = csv.DictReader(fp)
+        for line in reader:
+            oz_id = _convert_str_to_int(line['od'])
+            if oz_id is None:
+                continue
+
+            for dz_str, vol_str in line:
+                dz_id = _convert_str_to_int(dz_str)
+                if dz_id is None:
+                    continue
+
+                if oz_id == dz_id:
+                    continue
+
+                # o_zone_id does not exist in node.csv, discard it
+                if oz_id not in zone_to_node_dict.keys():
+                    continue
+
+                # d_zone_id does not exist in node.csv, discard it
+                if dz_id not in zone_to_node_dict.keys():
+                    continue
+
+                vol = _convert_str_to_float(vol_str)
+                if vol is None:
+                    continue
+
+                if vol == 0:
+                    continue
+
+                if not _are_od_connected(oz_id, dz_id):
+                    continue
+
+                if (at, dp, oz_id, dz_id) not in column_pool.keys():
+                    column_pool[(at, dp, oz_id, dz_id)] = ColumnVec()
+                    column_pool[(at, dp, oz_id, dz_id)].set_volume(vol)
+                else:
+                    raise Exception(
+                        f'DUPLICATE OD pair found between {oz_id} and {dz_id}'
+                    )
+
+                total_agents += int(vol + 1)
+
+            print(f'the number of agents is {total_agents}')
+
+            if total_agents == 0:
+                raise Exception(
+                    'NO VALID OD VOLUME!! DOUBLE CHECK YOUR input_matrix.csv'
+                )
 
 
 def _auto_setup(assignment):
@@ -668,7 +759,7 @@ def load_columns(ui, input_dir='.'):
 
             node_path = None
             try:
-                # if x is only needed for columns generated from DTALite,
+                # "if x" check is only needed for columns generated from DTALite,
                 # which have the trailing ';' and leads to '' after split
                 node_path = [int(x) for x in node_seq.split(';') if x]
             except ValueError:
