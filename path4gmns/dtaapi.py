@@ -3,20 +3,31 @@ import ctypes
 from sys import platform
 
 
-__all__ = ['perform_network_assignment_DTALite']
+__all__ = [
+    'perform_network_assignment_DTALite',
+    'generate_default_settings',
+    'generate_zones',
+    'generate_demand',
+    'perform_cbi',
+    'perform_cbsa'
+]
 
 
 if platform.startswith('win32'):
-    _dll_file = os.path.join(os.path.dirname(__file__), 'bin/DTALite.dll')
+    _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite.dll')
+    _dlsim_dll = os.path.join(os.path.dirname(__file__), 'bin/DLSim.dll')
 elif platform.startswith('linux'):
-    _dll_file = os.path.join(os.path.dirname(__file__), 'bin/DTALite.so')
+    _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite.so')
+    _dlsim_dll = os.path.join(os.path.dirname(__file__), 'bin/DLSim.so')
 elif platform.startswith('darwin'):
-    _dll_file = os.path.join(os.path.dirname(__file__), 'bin/DTALite.dylib')
+    _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite.dylib')
+    _dlsim_dll = os.path.join(os.path.dirname(__file__), 'bin/DLSim.dylib')
 else:
     raise Exception('Please build the shared library compatible to your OS\
                     using source files')
 
-_dtalite_engine = ctypes.cdll.LoadLibrary(_dll_file)
+_dtalite_engine = ctypes.cdll.LoadLibrary(_dtalite_dll)
+_dlsim_engine = ctypes.cdll.LoadLibrary(_dlsim_dll)
 
 _dtalite_engine.network_assignment.argtypes = [ctypes.c_int,
                                                ctypes.c_int,
@@ -28,7 +39,7 @@ def perform_network_assignment_DTALite(assignment_mode,
                                        column_update_num):
     """ python interface to call DTALite (precompiled as shared library)
 
-    perform network assignemnt using the selected assignment mode
+    perform network assignment using the selected assignment mode
 
     WARNING
     -------
@@ -82,3 +93,45 @@ def perform_network_assignment_DTALite(assignment_mode,
         f'check link_performance.csv in '+os.getcwd()+' for link performance\n'
         f'check agent.csv in '+os.getcwd()+' for unique agent paths\n'
     )
+
+
+def perform_network_assignment_DTALite():
+    """ perform network assignment using settings from settings.csv
+    
+    The underlying DLSim engine will be called rather than DTALite.
+
+    It will only need node.csv and link.csv to run:
+    - if there is no settings.csv, a default settings.csv will be generated;
+    - if there is no zone.csv, a zone.csv will be synthesized;
+    - if there is no demand.csv, a sef of demand files will be synthesized.
+    """
+    _dlsim_engine.perform_network_assignment()
+
+
+def generate_default_settings():
+    """ automatically generate default settings.csv if it is not provided """
+    _dlsim_engine.generate_default_settings()
+
+
+def generate_zones():
+    """ automatically generate zone.csv if it is not provided """
+    _dlsim_engine.generate_zones()
+
+
+def generate_demand():
+    """ automatically generate a set of demand files if demand.csv is not provided 
+    
+    Path4GMNS will only use input_matrix.csv as input to set up demand. See 
+    read_demand_matrix() in utils.py for details.
+    """
+    _dlsim_engine.generate_demand()
+
+
+def perform_cbi():
+    """ cbi mode in DLSim-MRM """
+    _dlsim_engine.perform_cbi()
+
+
+def perform_cbsa():
+    """ cbsa mode in DLSim-MRM """
+    _dlsim_engine.perform_cbsa()
