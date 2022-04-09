@@ -100,7 +100,7 @@ void shortest_path(int o_node_no,
                     {
                         if (deque_tail != invalid)
                         {
-                            // deuqe is not empty
+                            // deque is not empty
                             deque_next[deque_tail] = new_node;
                             deque_tail = new_node;
                         }
@@ -209,7 +209,7 @@ void shortest_path_n(int o_node_no,
                     {
                         if (deque_tail != invalid)
                         {
-                            // deuqe is not empty
+                            // deque is not empty
                             deque_next[deque_tail] = new_node;
                             deque_tail = new_node;
                         }

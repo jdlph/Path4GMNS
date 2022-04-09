@@ -263,7 +263,6 @@ def _backtrace_shortest_path_tree(orig_node_no,
             col = Column(path_id)
             col.set_volume(vol)
             col.set_distance(dist)
-            # col.set_toll(node_label_costs[i])
             col.nodes = [x for x in node_path]
             col.links = [x for x in link_path]
             cv.add_new_column(col)
