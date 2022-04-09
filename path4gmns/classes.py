@@ -2,9 +2,9 @@ import ctypes
 from copy import deepcopy
 from random import choice
 
+from .consts import MAX_LABEL_COST, SMALL_DIVISOR
 from .path import find_path_for_agents, find_shortest_path, \
                   single_source_shortest_path
-from .consts import MAX_LABEL_COST, SMALL_DIVISOR
 
 
 __all__ = ['UI']
@@ -175,7 +175,7 @@ class Link:
     # def increase_period_agent_vol(self, tau, agent_type, v):
     #     self.vol_by_period_by_at[tau][agent_type] += v
 
-    def calculate_td_vdfunction(self):
+    def calculate_td_vdf(self):
         for tau in range(self.demand_period_size):
             self.travel_time_by_period[tau] = (
                 self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau])

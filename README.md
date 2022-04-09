@@ -363,6 +363,9 @@ network.get_accessible_nodes(1, 15, 'w', time_dependent=True)
 network.get_accessible_links(1, 15, 'w', time_dependent=True, demand_period_id=1)
 ```
 
+## Benchmarks
+Coming soon.
+
 ## Build Path4GMNS from Source
 
 If you would like to test the latest features of Path4GMNS or have a compatible version to a specific operating system or an architecture, you can build the package from source and install it offline, where **Python 3.x** is required.
@@ -395,9 +398,6 @@ $ python -m pip install path4gmns-0.8.1.tar.gz
 
 Here, 0.8.1 is the version number. Replace it with the one specified in setup.py.
 
-## Benchmarks
-Coming soon.
-
 ## Implementation Notes
 
 The column generation scheme in Path4GMNS is an equivalent **single-processing implementation** as its [DTALite](https://github.com/jdlph/DTALite/tree/main/src_cpp) multiprocessing counterpart. **Note that** the results (i.e., column pool and trajectory for an agent) from Path4GMNS and DTALite are comparable but likely not identical as the shortest paths are usually not unique and subjected to implementations. This difference shall be subtle and the link performances shall be consistent if the iterations of column generation and column update are both large enough. You can always compare the results (i.e., link_performance.csv) from Path4GMNS and DTALite given the same network and demand.
@@ -428,9 +428,9 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 12. Time-dependent accessibility evaluation (v0.7.3)
 13. Fix crucial bug in accessibility evaluation (v0.7.5)
 14. Deprecate node_sum as hash index in column generation (v0.8.0)
-15. Conduct code optimization include class ColumnVec, setup_agents() in class Network, column generation module (i.e., colgen.py)
+15. Conduct code optimization over class ColumnVec, setup_agents() in class Network, and column generation module (i.e., colgen.py) (v0.8.1)
 
-Details update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
+Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
 
 
 ## Contribute

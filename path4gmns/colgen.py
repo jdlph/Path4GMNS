@@ -2,7 +2,7 @@ from time import time
 
 from .path import single_source_shortest_path
 from .classes import Column
-from .consts import MIN_OD_VOL, MAX_LABEL_COST, SMALL_DIVISOR
+from .consts import MAX_LABEL_COST, SMALL_DIVISOR
 
 
 __all__ = ['perform_column_generation', 'perform_network_assignment']
@@ -27,7 +27,7 @@ def _update_generalized_link_cost(spnetworks):
 
 def _update_link_travel_time_and_cost(links):
     for link in links:
-        link.calculate_td_vdfunction()
+        link.calculate_td_vdf()
         # Peiheng, 04/05/21, not needed for the current implementation
         # for dp in demand_periods:
         #     tau = dp.get_id()
@@ -60,18 +60,18 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
         tau = k[1]
 
         for col in cv.get_columns():
-            link_vol_contributed_by_path_vol = col.get_volume()
+            path_vol = col.get_volume()
             for i in col.links:
                 pce_ratio = 1
                 links[i].increase_period_flow_vol(
                     tau,
-                    link_vol_contributed_by_path_vol * pce_ratio
+                    path_vol * pce_ratio
                 )
                 # Peiheng, 04/05/21, not needed for the current implementation
                 # links[i].increase_period_agent_vol(
                 #     tau,
                 #     at,
-                #     link_vol_contributed_by_path_vol
+                #     path_vol
                 # )
 
             if not cv.is_route_fixed() and is_path_vol_self_reducing:
@@ -200,7 +200,6 @@ def _backtrace_shortest_path_tree(orig_node_no,
                                   links,
                                   node_preds,
                                   link_preds,
-                                  node_label_costs,
                                   agent_type,
                                   demand_period,
                                   column_pool,
@@ -235,17 +234,17 @@ def _backtrace_shortest_path_tree(orig_node_no,
         link_path = []
 
         dist = 0
-        current_node_seq_no = i
+        curr_node_seq_no = i
         # retrieve the sequence backwards
-        while current_node_seq_no >= 0:
-            node_path.append(current_node_seq_no)
+        while curr_node_seq_no >= 0:
+            node_path.append(curr_node_seq_no)
 
-            current_link_seq_no = link_preds[current_node_seq_no]
-            if current_link_seq_no >= 0:
-                link_path.append(current_link_seq_no)
-                dist += links[current_link_seq_no].length
+            curr_link_seq_no = link_preds[curr_node_seq_no]
+            if curr_link_seq_no >= 0:
+                link_path.append(curr_link_seq_no)
+                dist += links[curr_link_seq_no].length
 
-            current_node_seq_no = node_preds[current_node_seq_no]
+            curr_node_seq_no = node_preds[curr_node_seq_no]
 
         # make sure this is a valid path
         if not link_path:
@@ -289,7 +288,6 @@ def _generate(spn, column_pool, iter_num):
                                       spn.get_links(),
                                       spn.get_node_preds(),
                                       spn.get_link_preds(),
-                                      spn.get_node_label_costs(),
                                       spn.get_agent_type().get_id(),
                                       spn.get_demand_period().get_id(),
                                       column_pool,
