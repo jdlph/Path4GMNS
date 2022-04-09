@@ -21,10 +21,8 @@ def _update_generalized_link_cost(spnetworks):
 
         for link in sp.get_links():
             sp.link_cost_array[link.get_seq_no()] = (
-            link.get_period_travel_time(tau)
-            + link.get_route_choice_cost()
-            + link.get_toll() / max(SMALL_DIVISOR, vot) * 60
-        )
+                link.get_generalized_cost(tau, vot)
+            )
 
 
 def _update_link_travel_time_and_cost(links):
@@ -48,19 +46,16 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
         return
 
     for link in links:
-        for dperiod in demand_periods:
-            tau = dperiod.get_id()
+        for dp in demand_periods:
+            tau = dp.get_id()
             link.reset_period_flow_vol(tau)
             # Peiheng, 04/05/21, not needed for the current implementation
             # link.queue_length_by_slot[tau] = 0
-            # for atype in agent_types:
-            #     link.reset_period_agent_vol(tau, atype.get_id())
+            # for at in agent_types:
+            #     link.reset_period_agent_vol(tau, at.get_id())
 
 
     for k, cv in column_pool.items():
-        if cv.get_od_volume() <= 0:
-            continue
-
         # k= (at, tau, oz_id, dz_id)
         tau = k[1]
 
@@ -102,9 +97,6 @@ def _update_column_gradient_cost_and_flow(column_pool,
     # total_gap_count = 0
 
     for k, cv in column_pool.items():
-        if cv.get_od_volume() <= 0:
-            continue
-
         # k= (at, tau, oz_id, dz_id)
         vot = agent_types[k[0]].get_vot()
         tau = k[1]
@@ -237,9 +229,6 @@ def _backtrace_shortest_path_tree(orig_node_no,
             continue
 
         od_vol = cv.get_od_volume()
-        if od_vol <= MIN_OD_VOL:
-            continue
-
         vol = od_vol * k_path_prob
 
         node_path = []
@@ -274,7 +263,7 @@ def _backtrace_shortest_path_tree(orig_node_no,
             col = Column(path_id)
             col.set_volume(vol)
             col.set_distance(dist)
-            col.set_toll(node_label_costs[i])
+            # col.set_toll(node_label_costs[i])
             col.nodes = [x for x in node_path]
             col.links = [x for x in link_path]
             cv.add_new_column(col)
@@ -282,9 +271,6 @@ def _backtrace_shortest_path_tree(orig_node_no,
 
 def _update_column_travel_time(column_pool, links):
     for k, cv in column_pool.items():
-        if cv.get_od_volume() <= 0:
-            continue
-
         # k = (at, dp, oz, dz)
         dp = k[1]
 

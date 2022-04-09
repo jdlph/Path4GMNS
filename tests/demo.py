@@ -65,8 +65,8 @@ def test_column_generation_py():
     print('\nstart column generation\n')
     st = time()
 
-    column_gen_num = 10
-    column_update_num = 10
+    column_gen_num = 20
+    column_update_num = 20
     # pg.perform_network_assignment(assignment_mode=1, assignment_num,
     #                               column_update_num, network)
     # has been deprecated starting from v0.7.2, and will be removed later.
@@ -199,4 +199,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(5)
+    demo_mode(3)

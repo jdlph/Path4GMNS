@@ -1,10 +1,12 @@
 /**
- * The following deque implementation is motivated by and modified from the efficient implementation by Dr. Hillel Bar-Gera
+ * The following deque implementation is motivated by and modified from the efficient implementation
+ * by Dr. Hillel Bar-Gera
  *
  *     http://www.bgu.ac.il/~bargera/tntp/
  *     http://www.bgu.ac.il/~bargera/tntp/FW.zip
  *
- * Similar implementations can be also found in DYNASMART system designed by Dr. Hani Mahmassani and the original code of DTALite by Dr. Xuesong Zhou
+ * Similar implementations can be also found in DYNASMART system designed by Dr. Hani Mahmassani and
+ * the original code of DTALite by Dr. Xuesong Zhou
  *
  * With constexpr, it is a C++ function (which requires C++11 or higher) rather than a pure C function
  * Follow C++ coding style (++i rather than i++) and the {} style in AgentLite
@@ -39,7 +41,6 @@ void shortest_path(int o_node_no,
     // construct and initialize the following three on the first call only
     static constexpr int invalid = -1, was_in_deque = -7;
     // used t filter out the TAZ based centroids
-    // static constexpr int first_thru_node = 0;
 
     // initialization
     for (int node_no = 0; node_no < node_size; ++node_no)
@@ -69,9 +70,12 @@ void shortest_path(int o_node_no,
                 int link_seq_no = sorted_link_no_arr[k];
                 int new_node = to_node_no_arr[link_seq_no];
 
-                // if mode == 'a', we are doing static shortest path calculation using distance and all links shall be considered;
-                // otherwise, mode shall be in link's allowed uses or the allowed uses are for all modes (i.e., a)
-                if (mode != 'a' && !std::wcschr(allowed_uses[link_seq_no], mode) && !std::wcschr(allowed_uses[link_seq_no], 'a'))
+                // if mode == 'a', we are doing static shortest path calculation using distance and
+                // all links shall be considered; otherwise, mode shall be in link's allowed uses or
+                // the allowed uses are for all modes (i.e., a)
+                if (mode != 'a'
+                    && !wcschr(allowed_uses[link_seq_no], mode)
+                    && !wcschr(allowed_uses[link_seq_no], 'a'))
                     continue;
 
                 double new_cost = label_cost[current_node] + link_cost[link_seq_no];
@@ -90,7 +94,8 @@ void shortest_path(int o_node_no,
                         if (deque_tail == invalid)
                             deque_tail = new_node;
                     }
-                    // If the new node_indiex is not in the queue, and wasn't there before, add it at the end of the queue.
+                    // If the new node_indiex is not in the queue, and wasn't there before,
+                    // add it at the end of the queue.
                     else if (deque_next[new_node] == invalid && new_node != deque_tail)
                     {
                         if (deque_tail != invalid)
@@ -174,9 +179,12 @@ void shortest_path_n(int o_node_no,
                 int link_seq_no = sorted_link_no_arr[k];
                 int new_node = to_node_no_arr[link_seq_no];
 
-                // if mode is "all", we are doing static shortest path calculation using distance and all links shall be considered;
-                // otherwise, mode shall be in link's allowed uses or the allowed uses are for all modes (i.e., "all")
-                if (wcscmp(mode, all_mode) != 0 && !wcsstr(allowed_uses[link_seq_no], mode) && !wcsstr(allowed_uses[link_seq_no], all_mode))
+                // if mode is "all", we are doing static shortest path calculation using distance
+                // and all links shall be considered; otherwise, mode shall be in link's allowed uses
+                //  or the allowed uses are for all modes (i.e., "all")
+                if (wcscmp(mode, all_mode) != 0
+                    && !wcsstr(allowed_uses[link_seq_no], mode)
+                    && !wcsstr(allowed_uses[link_seq_no], all_mode))
                     continue;
 
                 double new_cost = label_cost[current_node] + link_cost[link_seq_no];
@@ -195,7 +203,8 @@ void shortest_path_n(int o_node_no,
                         if (deque_tail == invalid)
                             deque_tail = new_node;
                     }
-                    // If the new node_indiex is not in the queue, and wasn't there before, add it at the end of the queue.
+                    // If the new node_indiex is not in the queue, and wasn't there before,
+                    // add it at the end of the queue.
                     else if (deque_next[new_node] == invalid && new_node != deque_tail)
                     {
                         if (deque_tail != invalid)
@@ -226,4 +235,3 @@ void shortest_path_n(int o_node_no,
         if (deque_tail == current_node)
             deque_tail = invalid;
     }
-}

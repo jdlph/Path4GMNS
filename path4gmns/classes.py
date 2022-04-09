@@ -159,6 +159,7 @@ class Link:
     def get_generalized_cost(self, tau, value_of_time):
         return (
             self.travel_time_by_period[tau]
+            + self.route_choice_cost
             + self.toll / max(SMALL_DIVISOR, value_of_time) * 60
         )
 
