@@ -62,10 +62,11 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
         for col in cv.get_columns():
             path_vol = col.get_volume()
             for i in col.links:
-                pce_ratio = 1
+                # 04/10/22, remove it from now on as it is not in need
+                # pce_ratio = 1 and path_vol * pce_ratio
                 links[i].increase_period_flow_vol(
                     tau,
-                    path_vol * pce_ratio
+                    path_vol
                 )
                 # Peiheng, 04/05/21, not needed for the current implementation
                 # links[i].increase_period_agent_vol(
@@ -74,7 +75,7 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
                 #     path_vol
                 # )
 
-            if not cv.is_route_fixed() and is_path_vol_self_reducing:
+            if is_path_vol_self_reducing and not cv.is_route_fixed():
                 col.vol *= iter_num / (iter_num + 1)
 
 
@@ -111,6 +112,10 @@ def _update_column_gradient_cost_and_flow(column_pool,
             path_travel_time = 0
             # i is link sequence no
             for i in col.get_links():
+                # 04/10/22, code optimization,
+                # we only need to compute two of them
+                # as generalized cost = toll + route choice cost + travel time
+                # and route choice cost is always zero in the current implementation
                 path_toll += links[i].get_toll()
                 path_travel_time += (
                     links[i].travel_time_by_period[tau]
@@ -166,8 +171,9 @@ def _update_column_gradient_cost_and_flow(column_pool,
                      * col.get_gradient_cost_rel_diff())
                 )
 
-                col.set_switch_volume(previous_path_vol - col.get_volume())
-                total_switched_out_path_vol += col.get_switch_volume()
+                total_switched_out_path_vol += (
+                    previous_path_vol - col.get_volume()
+                )
 
         if least_gradient_cost_path_id != -1:
             col = cv.get_column(least_gradient_cost_path_id)
@@ -252,6 +258,9 @@ def _backtrace_shortest_path_tree(orig_node_no,
 
         existing = False
         for col in cv.get_columns():
+            if col.get_distance() != dist:
+                continue
+
             if col.get_links() == link_path:
                 col.increase_volume(vol)
                 existing = True

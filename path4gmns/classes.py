@@ -571,7 +571,6 @@ class Column:
         self.dist = 0
         self.toll = 0
         self.travel_time = 0
-        self.switch_vol = 0
         self.gradient_cost = 0
         self.gradient_cost_abs_diff = 0
         self.gradient_cost_rel_diff = 0
@@ -599,9 +598,6 @@ class Column:
 
     def get_travel_time(self):
         return self.travel_time
-
-    def get_switch_volume(self):
-        return self.switch_vol
 
     def get_gradient_cost(self):
         return self.gradient_cost
@@ -631,9 +627,6 @@ class Column:
 
     def set_travel_time(self, tt):
         self.travel_time = tt
-
-    def set_switch_volume(self, sv):
-        self.switch_vol = sv
 
     def set_gradient_cost(self, c):
         self.gradient_cost = c
