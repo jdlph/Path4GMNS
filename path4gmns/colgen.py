@@ -107,25 +107,12 @@ def _update_column_gradient_cost_and_flow(column_pool,
         least_gradient_cost_path_id = -1
 
         for col in cv.get_columns():
-            path_toll = 0
             path_gradient_cost = 0
-            path_travel_time = 0
             # i is link sequence no
-            for i in col.get_links():
-                # 04/10/22, code optimization,
-                # we only need to compute two of them
-                # as generalized cost = toll + route choice cost + travel time
-                # and route choice cost is always zero in the current implementation
-                path_toll += links[i].get_toll()
-                path_travel_time += (
-                    links[i].travel_time_by_period[tau]
-                )
-                path_gradient_cost += (
-                    links[i].get_generalized_cost(tau, vot)
-                )
+            path_gradient_cost = sum(
+                links[i].get_generalized_cost(tau, vot) for i in col.links
+            )
 
-            col.set_toll(path_toll)
-            col.set_travel_time(path_travel_time)
             col.set_gradient_cost(path_gradient_cost)
 
             if column_num == 1:
@@ -276,7 +263,8 @@ def _backtrace_shortest_path_tree(orig_node_no,
             cv.add_new_column(col)
 
 
-def _update_column_travel_time(column_pool, links):
+def _update_column_attributes(column_pool, links):
+    """ update toll and travel time for each column """
     for k, cv in column_pool.items():
         # k = (at, dp, oz, dz)
         dp = k[1]
@@ -286,6 +274,11 @@ def _update_column_travel_time(column_pool, links):
                 links[j].travel_time_by_period[dp] for j in col.links
             )
             col.set_travel_time(travel_time)
+
+            path_toll = sum(
+                links[j].get_toll() for j in col.links
+            )
+            col.set_toll(path_toll)
 
 
 def _generate(spn, column_pool, iter_num):
@@ -382,7 +375,7 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
 
     _update_link_travel_time_and_cost(links)
 
-    _update_column_travel_time(column_pool, links)
+    _update_column_attributes(column_pool, links)
 
 
 def update_links_using_columns(network):
