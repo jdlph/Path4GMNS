@@ -1,7 +1,6 @@
 # Path4GMNS
 [![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)]()
- [![Downloads](https://pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.8.1-brightgreen)](https://img.shields.io/badge/release-v0.8.1-brightgreen)
-
+ [![Downloads](https://pepy.tech/badge/path4gmns)]() [![GitHub release](https://img.shields.io/badge/release-v0.8.2-brightgreen)]()
 
 Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding static shortest paths for simple analyses, its main functionality is to provide an efficient and flexible framework for column-based (path-based) modeling and applications in transportation (e.g., activity-based demand modeling). Path4GMNS supports, in short,
 
@@ -17,16 +16,16 @@ Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jd
    * Origin-Destination Matrix Estimation (ODME).
 
 ## Installation
-Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.8.1/), and can be installed using
+Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.8.2/), and can be installed using
 ```
 $ pip install path4gmns
 ```
-If you need a specific version of Path4GMNS, say, 0.8.1,
+If you need a specific version of Path4GMNS, say, 0.8.2,
 ```
-$ pip install path4gmns==0.8.1
+$ pip install path4gmns==0.8.2
 ```
 
-v0.8.1 comes with performance improvement. All previous releases shall be deprecated for any purposes.
+v0.8.2 comes with major performance improvement in column generation module. All previous releases shall be **deprecated**.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding use cases in the following section.
@@ -395,11 +394,11 @@ As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Envi
 # from the root directory of PATH4GMNS
 $ python setup.py sdist bdist_wheel
 $ cd dist
-# or python -m pip instal pypath4gmns-0.8.1-py3-none-any.whl
-$ python -m pip install path4gmns-0.8.1.tar.gz
+# or python -m pip instal pypath4gmns-0.8.2-py3-none-any.whl
+$ python -m pip install path4gmns-0.8.2.tar.gz
 ```
 
-Here, 0.8.1 is the version number. Replace it with the one specified in setup.py.
+Here, 0.8.2 is the version number. Replace it with the one specified in setup.py.
 
 ## Implementation Notes
 
@@ -432,9 +431,9 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 13. Fix crucial bug in accessibility evaluation (v0.7.5)
 14. Deprecate node_sum as hash index in column generation (v0.8.0)
 15. Optimize class ColumnVec, setup_agents() in class Network, and column generation module (i.e., colgen.py) (v0.8.1)
+16. Deep code optimization in column generation module with significant performance improvement (v0.8.2)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
-
 
 ## Contribute
 
@@ -446,7 +445,7 @@ You are encouraged to join our Slack workspace for more discussions and collabor
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2022, April 9). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2022, April 30). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## References
 Lu, C. C., Mahmassani, H. S., Zhou, X. (2009). Equivalent gap function-based reformulation and solution algorithm for the dynamic user equilibrium problem. Transportation Research Part B: Methodological, 43, 345-364.
