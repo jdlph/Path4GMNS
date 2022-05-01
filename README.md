@@ -1,6 +1,6 @@
 # Path4GMNS
-[![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)]()
- [![Downloads](https://pepy.tech/badge/path4gmns)]() [![GitHub release](https://img.shields.io/badge/release-v0.8.2-brightgreen)]()
+[![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)
+ [![Downloads](https://pepy.tech/badge/path4gmns)](https://pepy.tech/badge/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.8.2-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen)
 
 Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding static shortest paths for simple analyses, its main functionality is to provide an efficient and flexible framework for column-based (path-based) modeling and applications in transportation (e.g., activity-based demand modeling). Path4GMNS supports, in short,
 
