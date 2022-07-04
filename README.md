@@ -225,7 +225,7 @@ $ brew install libomp
 
 The current implementation supports accessibility evaluation for any modes defined in settings.yml. Note that you can restrict the allowed uses (modes) on each link by adding a field of "allowed_uses" to link.csv following the example [here](https://github.com/zephyr-data-specs/GMNS/blob/master/Small_Network_Examples/Cambridge_v090/link.csv). Otherwise, links are open to all modes.
 
-In order to perform multimodal accessibility evaluation, the corresponding modes (i.e., agent types) must be presented in [settings.yml](https://github.com/jdlph/Path4GMNS/blob/master/tests/settings.yml). It will be parsed by [pyyaml](https://pypi.org/project/PyYAML/) (5.1 or higher) to the Python engine at run-time. **Note that demand.csv is not necessary for accessibility evaluation**.
+In order to perform multimodal accessibility evaluation, the corresponding modes (i.e., agent types) must be presented in [settings.yml](https://github.com/jdlph/Path4GMNS/blob/master/tests/settings.yml). It will be parsed by [pyyaml](https://pypi.org/project/PyYAML/) (5.1 or higher) to the Python engine at run-time. **Note that demand.csv is not necessary for accessibility evaluation**. Starting from v0.8.3, a flag named "use_free_speed" is added to each agent in settings.yml. If its value is false, the link free flow speed will be used in evaluating the link travel time and thus the accessibility. Otherwise, the free_speed will be taken as default.
 
 ```yaml
 agents:
@@ -235,12 +235,14 @@ agents:
     flow_type: 0
     pce: 1
     free_speed: 60
+    use_free_speed: false
   - type: w
     name: walk
     vot: 10
     flow_type: 0
     pce: 1
     free_speed: 10
+    use_free_speed: true
 
 demand_periods:
   - period: AM
