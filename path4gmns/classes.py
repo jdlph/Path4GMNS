@@ -688,7 +688,7 @@ class ColumnVec:
 class AgentType:
 
     def __init__(self, id=0, type='p', name='passenger',
-                 vot=10, flow_type=0, pce=1, ffs=60):
+                 vot=10, flow_type=0, pce=1, ffs=60, use_ffs=False):
         """ default constructor """
         self.id = id
         self.type = type
@@ -697,6 +697,7 @@ class AgentType:
         self.flow_type = flow_type
         self.pce = pce
         self.ffs = ffs
+        self.use_ffs = use_ffs
 
     def get_id(self):
         return self.id
@@ -1122,19 +1123,19 @@ class AccessNetwork(Network):
                     + link.get_toll() / max(SMALL_DIVISOR, vot) * 60
                 )
         else:
-            if at.get_type_str().startswith('p'):
-                for link in self.get_links():
-                    self.link_cost_array[link.get_seq_no()] = (
-                        link.get_free_flow_travel_time()
-                        + link.get_route_choice_cost()
-                        + link.get_toll() / max(SMALL_DIVISOR, vot) * 60
-                    )
-            else:
+            if at.use_ffs:
                 ffs = at.get_free_flow_speed()
 
                 for link in self.get_links():
                     self.link_cost_array[link.get_seq_no()] = (
                         (link.get_length() / max(SMALL_DIVISOR, ffs) * 60)
+                        + link.get_route_choice_cost()
+                        + link.get_toll() / max(SMALL_DIVISOR, vot) * 60
+                    )
+            else:
+                for link in self.get_links():
+                    self.link_cost_array[link.get_seq_no()] = (
+                        link.get_free_flow_travel_time()
                         + link.get_route_choice_cost()
                         + link.get_toll() / max(SMALL_DIVISOR, vot) * 60
                     )

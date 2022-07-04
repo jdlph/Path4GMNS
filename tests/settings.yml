@@ -7,12 +7,14 @@ agents:
     flow_type: 0
     pce: 1
     free_speed: 60
+    use_free_speed: false
   - type: w
     name: walk
     vot: 10
     flow_type: 0
     pce: 1
     free_speed: 10
+    use_free_speed: false
 
 demand_periods:
   - period: AM
