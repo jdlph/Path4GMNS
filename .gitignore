@@ -8,5 +8,6 @@ engine_cpp/build/
 tests/agent.csv
 tests/link_performance.csv
 tests/agent_paths.csv
+tests/equity*.csv
 accessibility*.csv
 **log*

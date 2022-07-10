@@ -164,7 +164,8 @@ def read_nodes(input_dir,
                nodes,
                id_to_no_dict,
                no_to_id_dict,
-               zone_to_node_dict):
+               zone_to_node_dict,
+               zone_bin_index):
 
     """ step 1: read input_node """
     with open(input_dir+'/node.csv', 'r') as fp:
@@ -195,9 +196,21 @@ def read_nodes(input_dir,
             id_to_no_dict[node_id] = node_seq_no
             no_to_id_dict[node_seq_no] = node_id
 
+            # bin_index for equity evaluation
+            try:
+                bin_index = _convert_str_to_int(line['bin_index'])
+                if bin_index is None:
+                    bin_index = 0
+            except KeyError:
+                bin_index = 0
+
             # associate node_id with corresponding zone
             if zone_id not in zone_to_node_dict.keys():
                 zone_to_node_dict[zone_id] = []
+                # only take the value of bin_index from the first node
+                # associated with each zone
+                zone_bin_index[zone_id] = bin_index
+
             zone_to_node_dict[zone_id].append(node_id)
 
             node_seq_no += 1
@@ -651,7 +664,8 @@ def read_network(load_demand='true', input_dir='.'):
                network.node_list,
                network.node_id_to_no_dict,
                network.node_no_to_id_dict,
-               network.zone_to_nodes_dict)
+               network.zone_to_nodes_dict,
+               network.zone_bin_index)
 
     read_links(input_dir,
                network.link_list,

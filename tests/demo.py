@@ -169,6 +169,18 @@ def test_accessibility():
     # network.get_accessible_nodes(1, 15, 'w', time_dependent=True)
 
 
+def test_equity():
+    network = pg.read_network(load_demand=False)
+
+    print('\nstart equity evaluation\n')
+    st = time()
+    # multimodal accessibility evaluation
+    pg.evaluate_equity(network, time_budget=30)
+
+    print('complete equity evaluation.\n')
+    print(f'processing time of equity evaluation: {time()-st:.2f} s')
+
+
 def demo_mode(mode):
     print(f'the selected mode is {mode}\n')
 
@@ -192,11 +204,14 @@ def demo_mode(mode):
         # option 5: load columns generated from option 3 or 4
         # on Chicago network
         test_loading_columns()
-    else:
+    elif mode == 6:
         # option 6: evaluate multimodal accessibility on Chicago network
         test_accessibility()
+    else:
+        # option 7: evaluate multimodal equity on Chicago network
+        test_equity()
 
 
 if __name__=="__main__":
 
-    demo_mode(6)
+    demo_mode(7)

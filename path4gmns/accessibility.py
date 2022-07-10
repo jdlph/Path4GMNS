@@ -2,13 +2,15 @@ import os
 import csv
 import threading
 
+from requests import head
+
 from .classes import AccessNetwork
 from .path import single_source_shortest_path
 from .consts import MAX_LABEL_COST, MIN_TIME_BUDGET, \
                     BUDGET_TIME_INTVL, MAX_TIME_BUDGET
 
 
-__all__ = ['evaluate_accessibility']
+__all__ = ['evaluate_accessibility', 'evaluate_equity']
 
 
 def _get_interval_id(t):
@@ -253,3 +255,97 @@ def evaluate_accessibility(ui,
         args=(min_travel_times, interval_num, zones, ats, output_dir)
     )
     t.start()
+
+
+def evaluate_equity(ui, multimodal=True, mode='p', time_dependent=False,
+                    demand_period_id=0, time_budget=60, output_dir='.'):
+    """ evaluate equity for each zone under a time budget """
+    with open(output_dir+'/equity_'+str(time_budget)+'min.csv', 'w',  newline='') as f:
+        headers = ['bin_index', 'mode', 'zones',
+                   'min_accessibility', 'zone_id',
+                   'max_accessibility', 'zone_id',
+                   'mean_accessibility']
+        writer = csv.writer(f)
+        writer.writerow(headers)
+
+        base = ui._base_assignment
+        an = AccessNetwork(base.network)
+        ats = None
+
+        min_travel_times = {}
+        equity_metrics = {}
+        equity_zones = {}
+
+        if multimodal:
+            ats = base.get_agent_types()
+            for at in ats:
+                an.set_target_mode(at.get_name())
+                _update_min_travel_time(an,
+                                        at,
+                                        min_travel_times,
+                                        time_dependent,
+                                        demand_period_id)
+        else:
+            at_name, at_str = base._convert_mode(mode)
+            an.set_target_mode(at_name)
+            at = base.get_agent_type(at_str)
+            _update_min_travel_time(an,
+                                    at,
+                                    min_travel_times,
+                                    time_dependent,
+                                    demand_period_id)
+            ats = [at]
+
+        for oz, bin_index in an.get_zone_bin_indices().items():
+            if oz == -1:
+                continue
+
+            for at in ats:
+                at_str = at.get_type_str()
+
+                count = 0
+                for dz in an.get_zone_bin_indices().keys():
+                    if (oz, dz, at_str) not in min_travel_times.keys():
+                        continue
+
+                    min_tt = min_travel_times[(oz, dz, at_str)][0]
+                    if min_tt > time_budget:
+                        continue
+
+                    count += 1
+
+                if (bin_index, at_str) not in equity_metrics.keys():
+                    equity_metrics[(bin_index, at_str)] = [count, oz, count, oz, count]
+                    equity_zones[(bin_index, at_str)] = []
+                equity_zones[(bin_index, at_str)].append(oz)
+
+                # 0: 'min_accessibility', 1: 'zone_id', 2: 'max_accessibility',
+                # 3: 'zone_id', 4: 'mean_accessibility',
+                # where 0 to 4 are indices of each element of equity_metrics.
+                if count < equity_metrics[(bin_index, at_str)][0]:
+                    equity_metrics[(bin_index, at_str)][0] = count
+                    equity_metrics[(bin_index, at_str)][1] = oz
+                elif count > equity_metrics[(bin_index, at_str)][2]:
+                    equity_metrics[(bin_index, at_str)][2] = count
+                    equity_metrics[(bin_index, at_str)][3] = oz
+
+                equity_metrics[(bin_index, at_str)][4] += count
+
+        for k, v in equity_metrics.items():
+            try:
+                avg = round(v[4] / len(equity_zones[k]), 2)
+                zones = ', '.join(str(x) for x in equity_zones[k])
+                line = [k[0], k[1], zones, v[0], v[1], v[2], v[3], avg]
+            except ZeroDivisionError:
+                continue
+
+            writer.writerow(line)
+
+        if output_dir == '.':
+            print('\ncheck equity.csv in '
+                    +os.getcwd()
+                    +' for equity evaluation')
+        else:
+            print('\ncheck equity.csv in '
+                    +os.path.join(os.getcwd(), output_dir)
+                    +' for equity evaluation')

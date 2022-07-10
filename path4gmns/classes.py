@@ -268,6 +268,8 @@ class Network:
         self.agent_td_list_dict = {}
         # key: zone id, value: node id list
         self.zone_to_nodes_dict = {}
+        # key: zone id, value: bin_index
+        self.zone_bin_index = {}
         self.node_label_cost = None
         self.node_predecessor = None
         self.link_predecessor = None
@@ -1022,6 +1024,9 @@ class AccessNetwork(Network):
         node_seq_no = self.base.get_node_no(node_id)
         node = self.base.get_nodes()[node_seq_no]
         return node.coord_x, node.coord_y
+
+    def get_zone_bin_indices(self):
+        return self.base.zone_bin_index
 
     def set_target_mode(self, mode):
         """ set up the target mode for accessibility evaluation
