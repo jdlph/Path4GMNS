@@ -688,7 +688,7 @@ class ColumnVec:
 class AgentType:
 
     def __init__(self, id=0, type='p', name='passenger',
-                 vot=10, flow_type=0, pce=1, ffs=60, use_ffs=False):
+                 vot=10, flow_type=0, pce=1, ffs=60, use_link_ffs=True):
         """ default constructor """
         self.id = id
         self.type = type
@@ -697,7 +697,7 @@ class AgentType:
         self.flow_type = flow_type
         self.pce = pce
         self.ffs = ffs
-        self.use_ffs = use_ffs
+        self.use_link_ffs = use_link_ffs
 
     def get_id(self):
         return self.id
@@ -1123,7 +1123,7 @@ class AccessNetwork(Network):
                     + link.get_toll() / max(SMALL_DIVISOR, vot) * 60
                 )
         else:
-            if at.use_ffs:
+            if not at.use_link_ffs:
                 ffs = at.get_free_flow_speed()
 
                 for link in self.get_links():

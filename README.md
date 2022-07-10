@@ -16,16 +16,16 @@ Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jd
    * Origin-Destination Matrix Estimation (ODME).
 
 ## Installation
-Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.8.2/), and can be installed using
+Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.8.3/), and can be installed using
 ```
 $ pip install path4gmns
 ```
-If you need a specific version of Path4GMNS, say, 0.8.2,
+If you need a specific version of Path4GMNS, say, 0.8.3,
 ```
-$ pip install path4gmns==0.8.2
+$ pip install path4gmns==0.8.3
 ```
 
-v0.8.2 comes with major performance improvement in column generation module. All previous releases shall be **deprecated**.
+v0.8.3 comes with enhancement in accessibility evaluation. All previous releases shall be **deprecated**.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding use cases in the following section.
@@ -225,7 +225,7 @@ $ brew install libomp
 
 The current implementation supports accessibility evaluation for any modes defined in settings.yml. Note that you can restrict the allowed uses (modes) on each link by adding a field of "allowed_uses" to link.csv following the example [here](https://github.com/zephyr-data-specs/GMNS/blob/master/Small_Network_Examples/Cambridge_v090/link.csv). Otherwise, links are open to all modes.
 
-In order to perform multimodal accessibility evaluation, the corresponding modes (i.e., agent types) must be presented in [settings.yml](https://github.com/jdlph/Path4GMNS/blob/master/tests/settings.yml). It will be parsed by [pyyaml](https://pypi.org/project/PyYAML/) (5.1 or higher) to the Python engine at run-time. **Note that demand.csv is not necessary for accessibility evaluation**. Starting from v0.8.3, a flag named "use_free_speed" is added to each agent in settings.yml. If its value is false, the link free flow speed will be used in evaluating the link travel time and thus the accessibility. Otherwise, the free_speed will be taken as default.
+In order to perform multimodal accessibility evaluation, the corresponding modes (i.e., agent types) must be presented in [settings.yml](https://github.com/jdlph/Path4GMNS/blob/master/tests/settings.yml). It will be parsed by [pyyaml](https://pypi.org/project/PyYAML/) (5.1 or higher) to the Python engine at run-time. **Note that demand.csv is not necessary for accessibility evaluation**. Starting from v0.8.3, a flag named "use_link_ffs" is added to each agent in settings.yml. If its value is true, the link free flow speed (from link.csv) will be used in evaluating the link travel time and thus the accessibility. Otherwise, the free_speed of each agent will be taken as default.
 
 ```yaml
 agents:
@@ -235,14 +235,14 @@ agents:
     flow_type: 0
     pce: 1
     free_speed: 60
-    use_free_speed: false
+    use_link_ffs: true
   - type: w
     name: walk
     vot: 10
     flow_type: 0
     pce: 1
     free_speed: 10
-    use_free_speed: true
+    use_link_ffs: false
 
 demand_periods:
   - period: AM
@@ -396,11 +396,11 @@ As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Envi
 # from the root directory of PATH4GMNS
 $ python setup.py sdist bdist_wheel
 $ cd dist
-# or python -m pip instal pypath4gmns-0.8.2-py3-none-any.whl
-$ python -m pip install path4gmns-0.8.2.tar.gz
+# or python -m pip instal pypath4gmns-0.8.3-py3-none-any.whl
+$ python -m pip install path4gmns-0.8.3.tar.gz
 ```
 
-Here, 0.8.2 is the version number. Replace it with the one specified in setup.py.
+Here, 0.8.3 is the version number. Replace it with the one specified in setup.py.
 
 ## Implementation Notes
 
@@ -434,6 +434,7 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 14. Deprecate node_sum as hash index in column generation (v0.8.0)
 15. Optimize class ColumnVec, setup_agents() in class Network, and column generation module (i.e., colgen.py) (v0.8.1)
 16. Deep code optimization in column generation module with significant performance improvement (v0.8.2)
+17. Let users control which speed to use in accessibility evaluation (either the free speed of an agent specified in settings.yml or the link free flow speed defined in link.csv) (v0.8.3)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
 

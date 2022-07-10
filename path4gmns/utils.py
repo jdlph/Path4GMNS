@@ -592,7 +592,7 @@ def read_settings(input_dir, assignment):
                 agent_flow_type = a['flow_type']
                 agent_pce = a['pce']
                 agent_ffs = a['free_speed']
-                agent_use_ffs = a['use_free_speed']
+                agent_use_link_ffs = a['use_link_ffs']
 
                 at = AgentType(i,
                                agent_type,
@@ -601,7 +601,7 @@ def read_settings(input_dir, assignment):
                                agent_flow_type,
                                agent_pce,
                                agent_ffs,
-                               agent_use_ffs)
+                               agent_use_link_ffs)
 
                 assignment.update_agent_types(at)
 
