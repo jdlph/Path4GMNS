@@ -25,7 +25,7 @@ If you need a specific version of Path4GMNS, say, 0.8.3,
 $ pip install path4gmns==0.8.3
 ```
 
-v0.8.3 comes with enhancement in accessibility evaluation. All previous releases shall be **deprecated**.
+v0.8.3 comes with accessibility evaluation enhancement and equity evaluation. All previous releases shall be **deprecated**.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding use cases in the following section.
@@ -366,6 +366,32 @@ network.get_accessible_links(1, 5, time_dependent=True, demand_period_id=1)
 network.get_accessible_nodes(1, 15, 'w', time_dependent=True)
 network.get_accessible_links(1, 15, 'w', time_dependent=True, demand_period_id=1)
 ```
+### Evaluate Equity
+
+Transportation equity is accessibility with respect to different demographics. Path4GMNS provides the following simple info and statistics on equity given a time budget and a segmentation of zones (e.g., zones can be grouped into a set of bins according to income level and each zone will have a unique bin index).
+
+1. accessible zones.
+2. min accessibility. Each zone has a list of accessible zones given a time budget and a transportation mode. This metric refers to the zone with the minimum number of accessible zones. This number and the zone ID will both be output. Note that there could be multiple zones with the same minimum number of accessible zones and only the first zone will be in the output.
+3. max accessibility.
+4. mean accessibility. The average number of accessible zones over a bin of zones (corresponding to a specific demographic) given a time budget and a transportation mode.
+
+They can be obtained via Path4GMNS of v0.8.3 or higher in a way very similar to the process of evaluating accessibility.
+
+```python
+import path4gmns as pg
+
+network = pg.read_network(load_demand=False)
+
+print('\nstart equity evaluation\n')
+st = time()
+# multimodal equity evaluation under default time budget (60 min)
+pg.evaluate_equity(network)
+# equity evaluation for a target mode with time budget as 30 min
+# pg.evaluate_equity(network, multimodal=False, mode='p', time_budget=30)
+
+print('complete equity evaluation.\n')
+print(f'processing time of equity evaluation: {time()-st:.2f} s')
+```
 
 ## Benchmarks
 Coming soon.
@@ -388,7 +414,7 @@ The last command can be replaced with $ make if your target system has Make inst
 
 ***Caveat***
 
-As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Environment) generators, e.g., Visual Studio and Xcode, you will need to manually update the build type from debug to release in your IDE and build your target from there.
+As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Environment) generators, e.g., Visual Studio and Xcode, you will need to manually update the build type from **debug** to **release** in your IDE and build your target from there.
 
 ### 2. Build and Install the Python Package
 
@@ -434,7 +460,8 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 14. Deprecate node_sum as hash index in column generation (v0.8.0)
 15. Optimize class ColumnVec, setup_agents() in class Network, and column generation module (i.e., colgen.py) (v0.8.1)
 16. Deep code optimization in column generation module with significant performance improvement (v0.8.2)
-17. Let users control which speed to use in accessibility evaluation (either the free speed of an agent specified in settings.yml or the link free flow speed defined in link.csv) (v0.8.3)
+17. Let users choose which speed to use in accessibility evaluation (either the free speed of an agent specified in settings.yml or the link free flow speed defined in link.csv) (v0.8.3)
+18. Supports transportation equity evaluation (v0.8.3)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
 

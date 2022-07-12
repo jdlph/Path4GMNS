@@ -172,10 +172,12 @@ def test_accessibility():
 def test_equity():
     network = pg.read_network(load_demand=False)
 
-    print('\nstart equity evaluation\n')
+    print('\nstart equity evaluation')
     st = time()
-    # multimodal accessibility evaluation
-    pg.evaluate_equity(network, time_budget=30)
+    # multimodal equity evaluation under default time budget (60 min)
+    pg.evaluate_equity(network)
+    # equity evaluation for a target mode with time budget as 30 min
+    # pg.evaluate_equity(network, multimodal=False, mode='p', time_budget=30)
 
     print('complete equity evaluation.\n')
     print(f'processing time of equity evaluation: {time()-st:.2f} s')

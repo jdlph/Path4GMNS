@@ -197,12 +197,13 @@ def read_nodes(input_dir,
             no_to_id_dict[node_seq_no] = node_id
 
             # bin_index for equity evaluation
+            bin_index = 0
             try:
                 bin_index = _convert_str_to_int(line['bin_index'])
                 if bin_index is None:
                     bin_index = 0
             except KeyError:
-                bin_index = 0
+                pass
 
             # associate node_id with corresponding zone
             if zone_id not in zone_to_node_dict.keys():

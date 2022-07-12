@@ -319,8 +319,8 @@ def evaluate_equity(ui, multimodal=True, mode='p', time_dependent=False,
                     equity_zones[(bin_index, at_str)] = []
                 equity_zones[(bin_index, at_str)].append(oz)
 
-                # 0: 'min_accessibility', 1: 'zone_id', 2: 'max_accessibility',
-                # 3: 'zone_id', 4: 'mean_accessibility',
+                # 0: min_accessibility, 1: zone_id, 2: max_accessibility,
+                # 3: zone_id, 4: cumulative count,
                 # where 0 to 4 are indices of each element of equity_metrics.
                 if count < equity_metrics[(bin_index, at_str)][0]:
                     equity_metrics[(bin_index, at_str)][0] = count
@@ -343,9 +343,9 @@ def evaluate_equity(ui, multimodal=True, mode='p', time_dependent=False,
 
         if output_dir == '.':
             print('\ncheck equity.csv in '
-                    +os.getcwd()
-                    +' for equity evaluation')
+                  +os.getcwd()
+                  +' for equity evaluation')
         else:
             print('\ncheck equity.csv in '
-                    +os.path.join(os.getcwd(), output_dir)
-                    +' for equity evaluation')
+                  +os.path.join(os.getcwd(), output_dir)
+                  +' for equity evaluation')
