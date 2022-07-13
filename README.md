@@ -25,7 +25,7 @@ If you need a specific version of Path4GMNS, say, 0.8.3,
 $ pip install path4gmns==0.8.3
 ```
 
-v0.8.3 comes with accessibility evaluation enhancement and equity evaluation. All previous releases shall be **deprecated**.
+v0.8.3 comes with equity evaluation and enhancement in accessibility evaluation. All previous releases shall be **deprecated**.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding use cases in the following section.
@@ -475,7 +475,7 @@ You are encouraged to join our Slack workspace for more discussions and collabor
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2022, July 11). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2022, July 12). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## References
 Lu, C. C., Mahmassani, H. S., Zhou, X. (2009). Equivalent gap function-based reformulation and solution algorithm for the dynamic user equilibrium problem. Transportation Research Part B: Methodological, 43, 345-364.
