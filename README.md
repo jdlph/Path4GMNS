@@ -315,7 +315,7 @@ network.get_accessible_links(1, 15, 'w')
 # network.get_accessible_links(1, 15, 'walk')
 ```
 
-### When Time-Dependent Link Travel Time Matters
+#### When Time-Dependent Link Travel Time Matters
 Link travel time is crucial in calculating accessibility. In the classic accessibility analysis, evaluation networks are usually considered to be static in terms of link travel time, which is determined by link length and link free-flow speed under a specific mode. The free-flow speed comes from either link.csv or settings.yml (both are denoted as "free_speed"). When they are different, the smaller one will be adopted. The cases demonstrated above are all falling within this category.
 
 Link travel time varies over time so does accessibility. When the time-dependent accessibility is of interested, time-dependent link travel time (i.e., VDF_fftt from a given demand period in link.csv) will come into play by overwriting the (static) link free-flow speed. This new feature is now part of v0.7.3 and is illustrated as below.
@@ -368,7 +368,7 @@ network.get_accessible_links(1, 15, 'w', time_dependent=True, demand_period_id=1
 ```
 ### Evaluate Equity
 
-Transportation equity is accessibility with respect to different demographics. Path4GMNS provides the following simple info and statistics on equity given a time budget and a segmentation of zones (e.g., zones can be grouped into a set of bins according to income level and each zone will have a unique bin index).
+Transportation equity is accessibility with respect to different demographics. Path4GMNS provides the following simple info and statistics on equity given a time budget and a segmentation of zones (e.g., zones can be grouped into a set of bins according to income level and each zone will have a unique bin index). The current implementation takes bin index of each zone from node.csv under column "bin_index" (via node-to-zone mapping), which is error prone. As a zone might have more than one node, it may encounter inconsistent bin indices over a set of nodes corresponding to the same zone. In case of that, the first bin index encountered for each zone in loading node.csv is always used for evaluation.
 
 1. accessible zones.
 2. min accessibility. Each zone has a list of accessible zones given a time budget and a transportation mode. This metric refers to the zone with the minimum number of accessible zones. This number and the zone ID will both be output. Note that there could be multiple zones with the same minimum number of accessible zones and only the first zone will be in the output.
@@ -451,7 +451,7 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 5. Load columns/paths from existing runs and continue path-base UE (v0.7.0a1)
 6. Download the predefined GMNS test data sets to users' local machines when needed (v0.7.0a1)
 7. Add allowed use in terms of agent type (i.e., transportation mode) for links (v0.7.0a1)
-8. Calculate and show up multimodal accessibilities (v0.7.0a1)
+8. Calculate and show up multimodal accessibility (v0.7.0a1)
 9. Apply lightweight and faster implementation on accessibility evaluation using virtual centroids and connectors (v0.7.0)
 10. Get accessible nodes and links given mode and time budget (v0.7.0)
 11. Retrieve shortest paths under multimodal allowed uses (v0.7.2)
@@ -461,7 +461,7 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 15. Optimize class ColumnVec, setup_agents() in class Network, and column generation module (i.e., colgen.py) (v0.8.1)
 16. Deep code optimization in column generation module with significant performance improvement (v0.8.2)
 17. Let users choose which speed to use in accessibility evaluation (either the free speed of an agent specified in settings.yml or the link free flow speed defined in link.csv) (v0.8.3)
-18. Supports transportation equity evaluation (v0.8.3)
+18. Transportation equity evaluation (v0.8.3)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
 
@@ -475,7 +475,7 @@ You are encouraged to join our Slack workspace for more discussions and collabor
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2022, April 30). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2022, July 11). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## References
 Lu, C. C., Mahmassani, H. S., Zhou, X. (2009). Equivalent gap function-based reformulation and solution algorithm for the dynamic user equilibrium problem. Transportation Research Part B: Methodological, 43, 345-364.
