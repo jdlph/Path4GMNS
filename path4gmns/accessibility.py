@@ -319,8 +319,8 @@ def evaluate_equity(ui, multimodal=True, mode='p', time_dependent=False,
         accessibility for each bin_index. The accessible zones will be output
         as well.
 
-        str in the file name refers to the time budget, e.g., it will be
-        equity_60min.csv if the time budget is 60 min.
+        str in the file name refers to the time budget. For example, the file name
+        will be equity_60min.csv if the time budget is 60 min.
     """
     with open(output_dir+'/equity_'+str(time_budget)+'min.csv', 'w',  newline='') as f:
         headers = ['bin_index', 'mode', 'zones',
@@ -404,10 +404,14 @@ def evaluate_equity(ui, multimodal=True, mode='p', time_dependent=False,
             writer.writerow(line)
 
         if output_dir == '.':
-            print('\ncheck equity.csv in '
+            print('\ncheck equity_'
+                  +str(time_budget)
+                  +'min.csv in '
                   +os.getcwd()
                   +' for equity evaluation')
         else:
-            print('\ncheck equity.csv in '
+            print('\ncheck equity_'
+                  +str(time_budget)
+                  +'min.csv in '
                   +os.path.join(os.getcwd(), output_dir)
                   +' for equity evaluation')
