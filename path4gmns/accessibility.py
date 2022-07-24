@@ -377,7 +377,7 @@ def evaluate_equity(ui, multimodal=True, mode='p', time_dependent=False,
                     count += 1
 
                 if (bin_index, at_str) not in equity_metrics.keys():
-                    equity_metrics[(bin_index, at_str)] = [count, oz, count, oz, count]
+                    equity_metrics[(bin_index, at_str)] = [count, oz, count, oz, 0]
                     equity_zones[(bin_index, at_str)] = []
                 equity_zones[(bin_index, at_str)].append(oz)
 
@@ -393,7 +393,7 @@ def evaluate_equity(ui, multimodal=True, mode='p', time_dependent=False,
 
                 equity_metrics[(bin_index, at_str)][4] += count
 
-        for k, v in equity_metrics.items():
+        for k, v in sorted(equity_metrics.items()):
             try:
                 avg = round(v[4] / len(equity_zones[k]), 2)
                 zones = ', '.join(str(x) for x in equity_zones[k])
