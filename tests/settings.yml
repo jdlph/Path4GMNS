@@ -19,6 +19,18 @@ agents:
 demand_periods:
   - period: AM
     time_period: 0700_0800
+    special_event: 
+      name: work_zone
+      enable: true
+      beg_iteration: 15
+      end_iteration: 20 
+      affected_links:
+        - link_id: 1
+          reduction_ratio: 0.5
+        - link_id: 2
+          reduction_ratio: 0.4
+        - link_id: 3
+          reduction_ratio: 0.6
 
 demand_files:
   - file_name: demand.csv

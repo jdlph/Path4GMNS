@@ -81,9 +81,9 @@ class Link:
         # length is mile or km
         self.length = length
         self.lanes = lanes
-        # 1:one direction, 2:two way
+        # 1: one direction, 2: two way
         self.type = link_type
-        # length:km, free_speed: km/h
+        # free_speed: mile/h or km/h
         self.free_flow_travel_time_in_min = (
             length / max(SMALL_DIVISOR, free_speed) * 60
         )
