@@ -35,6 +35,11 @@ def _update_link_travel_time_and_cost(links):
         #         link.calculate_agent_marginal_cost(tau, at)
 
 
+def _update_link_travel_time_and_cost_(links, demand_periods, iter_num):
+    for link in links:
+        link.calculate_td_vdf_(demand_periods, iter_num)
+
+
 def _reset_and_update_link_vol_based_on_columns(column_pool,
                                                 links,
                                                 demand_periods,
@@ -349,7 +354,8 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
 
     for i in range(column_gen_num):
         print(f'current iteration number in column generation: {i}')
-        _update_link_travel_time_and_cost(links)
+        # _update_link_travel_time_and_cost(links)
+        _update_link_travel_time_and_cost_(links, dps, i)
 
         _reset_and_update_link_vol_based_on_columns(column_pool,
                                                     links,

@@ -1,9 +1,10 @@
 import os
 import csv
 import threading
+from tokenize import Special
 
 from .classes import Node, Link, Network, Column, ColumnVec, VDFPeriod, \
-                     AgentType, DemandPeriod, Demand, Assignment, UI
+                     AgentType, DemandPeriod, Demand, SpecialEvent, Assignment, UI
 
 from .colgen import update_links_using_columns
 from .consts import SMALL_DIVISOR
@@ -626,6 +627,29 @@ def read_settings(input_dir, assignment):
                 time_period = d['time_period']
 
                 dp = DemandPeriod(i, period, time_period)
+                # special event
+                try:
+                    s = d['special_event']
+                    enable = s['enable']
+                    # no need to set up a special event if it is off
+                    if not enable:
+                        pass
+
+                    name = s['name']
+                    beg_iter = s['beg_iteration']
+                    end_iter = s['end_iteration']
+
+                    se = SpecialEvent(name, beg_iter, end_iter)
+
+                    links = s['affected_links']
+                    for link in links:
+                        link_id = link['link_id']
+                        ratio = link['reduction_ratio']
+                        se.affected_links[link_id] = ratio
+
+                    dp.special_event = se
+                except KeyError:
+                    pass
                 assignment.update_demand_periods(dp)
 
             # demand files

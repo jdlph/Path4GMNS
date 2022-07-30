@@ -22,6 +22,7 @@ demand_periods:
     special_event: 
       name: work_zone
       enable: true
+      # with respect to iterations in column generation
       beg_iteration: 15
       end_iteration: 20 
       affected_links:
