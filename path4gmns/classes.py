@@ -184,10 +184,7 @@ class Link:
     def calculate_td_vdf_(self, demand_periods, iter_num):
         for dp in demand_periods:
             tau = dp.get_id()
-            reduction_ratio = 1
-            if dp.get_special_event():
-                if dp.get_beg_iteration() <= iter_num and iter_num <= dp.get_end_iteration() and dp.affected_link(self.id):
-                    reduction_ratio = dp.get_reduction_ratio()
+            reduction_ratio = dp.get_reduction_ratio(self.id, iter_num)
 
             self.travel_time_by_period[tau] = (
                 self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau],
@@ -747,6 +744,7 @@ class SpecialEvent:
     def get_end_iteration(self):
         return self.end_iter
 
+
 class DemandPeriod:
 
     def __init__(self, id=0, period='AM', time_period='0700_0800'):
@@ -761,21 +759,23 @@ class DemandPeriod:
     def get_period(self):
         return self.period
 
-    def get_special_event(self):
-        return self.special_event
-
     def get_beg_iteration(self):
         return self.special_event.get_beg_iteration()
 
     def get_end_iteration(self):
         return self.special_event.get_end_iteration()
 
-    def get_reduction_ratio(self, link_id):
-        return self.special_event.affected_links[link_id]
+    def get_reduction_ratio(self, link_id, iter_num):
+        if self.special_event is None:
+            return 1
 
-    def affected_link(self, link_id):
-        return link_id in self.special_event.affected_links
+        if iter_num < self.get_beg_iteration() and iter_num > self.get_end_iteration():
+            return 1
 
+        try:
+            return self.special_event.affected_links[link_id]
+        except KeyError:
+            return 1
 
 class Demand:
 
@@ -830,12 +830,12 @@ class VDFPeriod:
         vol = max(0, vol)
         self.voc = vol / max(SMALL_DIVISOR, self.capacity * reduction_ratio)
 
-        self.marginal_base = (
-            self.fftt
-            * self.alpha
-            * self.beta
-            * pow(self.voc, self.beta - 1)
-        )
+        # self.marginal_base = (
+        #     self.fftt
+        #     * self.alpha
+        #     * self.beta
+        #     * pow(self.voc, self.beta - 1)
+        # )
 
         self.avg_travel_time = (
             self.fftt
