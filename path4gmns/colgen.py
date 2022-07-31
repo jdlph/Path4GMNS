@@ -25,19 +25,14 @@ def _update_generalized_link_cost(spnetworks):
             )
 
 
-def _update_link_travel_time_and_cost(links):
+def _update_link_travel_time_and_cost(links, demand_periods=None, iter_num=None):
     for link in links:
-        link.calculate_td_vdf()
+        link.calculate_td_vdf(demand_periods, iter_num)
         # Peiheng, 04/05/21, not needed for the current implementation
         # for dp in demand_periods:
         #     tau = dp.get_id()
         #     for at in agent_types:
         #         link.calculate_agent_marginal_cost(tau, at)
-
-
-def _update_link_travel_time_and_cost_(links, demand_periods, iter_num):
-    for link in links:
-        link.calculate_td_vdf_(demand_periods, iter_num)
 
 
 def _reset_and_update_link_vol_based_on_columns(column_pool,
@@ -354,8 +349,7 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
 
     for i in range(column_gen_num):
         print(f'current iteration number in column generation: {i}')
-        # _update_link_travel_time_and_cost(links)
-        _update_link_travel_time_and_cost_(links, dps, i)
+        _update_link_travel_time_and_cost(links, dps, i)
 
         _reset_and_update_link_vol_based_on_columns(column_pool,
                                                     links,

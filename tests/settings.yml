@@ -19,12 +19,12 @@ agents:
 demand_periods:
   - period: AM
     time_period: 0700_0800
-    special_event: 
+    special_event:
       name: work_zone
       enable: true
       # with respect to iterations in column generation
       beg_iteration: 15
-      end_iteration: 20 
+      end_iteration: 20
       affected_links:
         - link_id: 1
           reduction_ratio: 0.5

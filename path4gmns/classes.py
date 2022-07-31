@@ -175,21 +175,21 @@ class Link:
     # def increase_period_agent_vol(self, tau, agent_type, v):
     #     self.vol_by_period_by_at[tau][agent_type] += v
 
-    def calculate_td_vdf(self):
-        for tau in range(self.demand_period_size):
-            self.travel_time_by_period[tau] = (
-                self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau])
-            )
+    def calculate_td_vdf(self, demand_periods=None, iter_num=None):
+        if demand_periods is None or iter_num is None:
+            for tau in range(self.demand_period_size):
+                self.travel_time_by_period[tau] = (
+                    self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau])
+                )
+        else:
+            for dp in demand_periods:
+                tau = dp.get_id()
+                reduction_ratio = dp.get_reduction_ratio(self.id, iter_num)
 
-    def calculate_td_vdf_(self, demand_periods, iter_num):
-        for dp in demand_periods:
-            tau = dp.get_id()
-            reduction_ratio = dp.get_reduction_ratio(self.id, iter_num)
-
-            self.travel_time_by_period[tau] = (
-                self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau],
-                                             reduction_ratio)
-            )
+                self.travel_time_by_period[tau] = (
+                    self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau],
+                                                reduction_ratio)
+                )
 
     # Peiheng, 04/05/21, not needed for the current implementation
     # def calculate_agent_marginal_cost(self, tau, agent_type):
