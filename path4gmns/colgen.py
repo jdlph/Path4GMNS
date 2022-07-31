@@ -28,11 +28,6 @@ def _update_generalized_link_cost(spnetworks):
 def _update_link_travel_time_and_cost(links, demand_periods=None, iter_num=None):
     for link in links:
         link.calculate_td_vdf(demand_periods, iter_num)
-        # Peiheng, 04/05/21, not needed for the current implementation
-        # for dp in demand_periods:
-        #     tau = dp.get_id()
-        #     for at in agent_types:
-        #         link.calculate_agent_marginal_cost(tau, at)
 
 
 def _reset_and_update_link_vol_based_on_columns(column_pool,
@@ -49,11 +44,6 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
         for dp in demand_periods:
             tau = dp.get_id()
             link.reset_period_flow_vol(tau)
-            # Peiheng, 04/05/21, not needed for the current implementation
-            # link.queue_length_by_slot[tau] = 0
-            # for at in agent_types:
-            #     link.reset_period_agent_vol(tau, at.get_id())
-
 
     for k, cv in column_pool.items():
         # k= (at, tau, oz_id, dz_id)
@@ -68,12 +58,6 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
                     tau,
                     path_vol
                 )
-                # Peiheng, 04/05/21, not needed for the current implementation
-                # links[i].increase_period_agent_vol(
-                #     tau,
-                #     at,
-                #     path_vol
-                # )
 
             if is_path_vol_self_reducing and not cv.is_route_fixed():
                 col.vol *= iter_num / (iter_num + 1)

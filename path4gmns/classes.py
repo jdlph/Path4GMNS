@@ -101,14 +101,6 @@ class Link:
         self.travel_time_by_period = [0] * demand_period_size
         self.flow_vol_by_period = [0] * demand_period_size
         self.vdfperiods = []
-        # Peiheng, 04/05/21, not needed for the current implementation
-        # self.queue_length_by_slot = [0] * MAX_TIME_PERIODS
-        # self.vol_by_period_by_at = [
-        #     [0] * demand_period_size for i in range(agent_type_size)
-        # ]
-        # self.travel_marginal_cost_by_period = [
-        #     [0] * demand_period_size for i in range(agent_type_size)
-        # ]
 
     def get_link_id(self):
         return self.id
@@ -166,14 +158,8 @@ class Link:
     def reset_period_flow_vol(self, tau):
         self.flow_vol_by_period[tau] = 0
 
-    # def reset_period_agent_vol(self, tau, agent_type):
-    #     self.vol_by_period_by_at[tau][agent_type] = 0
-
     def increase_period_flow_vol(self, tau, fv):
         self.flow_vol_by_period[tau] += fv
-
-    # def increase_period_agent_vol(self, tau, agent_type, v):
-    #     self.vol_by_period_by_at[tau][agent_type] += v
 
     def calculate_td_vdf(self, demand_periods=None, iter_num=None):
         if demand_periods is None or iter_num is None:
@@ -190,12 +176,6 @@ class Link:
                     self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau],
                                                 reduction_ratio)
                 )
-
-    # Peiheng, 04/05/21, not needed for the current implementation
-    # def calculate_agent_marginal_cost(self, tau, agent_type):
-    #     self.travel_marginal_cost_by_period[tau][agent_type.get_id()] = (
-    #         self.vdfperiods[tau].marginal_base * agent_type.get_pce()
-    #     )
 
 
 class Agent:
@@ -222,10 +202,6 @@ class Agent:
         # Passenger Car Equivalent (PCE) of the agent
         self.PCE_factor = 1
         self.path_cost = 0
-        # self.departure_time_in_simu_interval = int(
-        #     self.departure_time_in_min
-        #     * 60 /_NUM_OF_SECS_PER_SIMU_INTERVAL
-        #     + 0.5)
         self.b_generated = False
         self.b_complete_trip = False
         self.feasible_path_exist_flag = False
@@ -253,9 +229,6 @@ class Agent:
 
     def get_node_path(self):
         return self.node_path
-
-    # def get_dep_simu_intvl(self):
-    #     return self.departure_time_in_simu_interval
 
 
 class Network:
@@ -396,30 +369,7 @@ class Network:
                 agent_id += 1
                 agent_no += 1
 
-                # step 3: update the g_simulation_start_time_in_min and
-                # g_simulation_end_time_in_min
-                # if agent.departure_time_in_min < g_simulation_start_time_in_min:
-                #     g_simulation_start_time_in_min = agent.departure_time_in_min
-                # if agent.departure_time_in_min > g_simulation_end_time_in_min:
-                #     g_simulation_end_time_in_min = agent.departure_time_in_min
-
-                #step 4: add the agent to the time dependent agent list
-                # departure_time = agent.get_dep_simu_intvl()
-                # if departure_time not in self.agent_td_list_dict.keys():
-                #     self.agent_td_list_dict[departure_time] = []
-                # self.agent_td_list_dict[departure_time].append(
-                #     agent.get_seq_no()
-                # )
-
                 self.agent_list.append(agent)
-
-        # 03/22/21, comment out until departure time is enabled
-        # in the future release
-
-        #step 3.6:sort agents by the departure time
-        # agents.sort(key=lambda agent: agent.departure_time_in_min)
-        # for i, agent in enumerate(agents):
-        #     agent.agent_seq_no = i
 
         self.agent_size = len(self.agent_list)
         print(f'the number of agents is {self.agent_size}')
@@ -813,7 +763,6 @@ class VDFPeriod:
         self.fftt = fftt
         self.capacity = cap
         self.phf = phf
-        self.marginal_base = 1
         self.avg_travel_time = 0
         self.voc = 0
 
@@ -829,14 +778,6 @@ class VDFPeriod:
     def run_bpr(self, vol, reduction_ratio=1):
         vol = max(0, vol)
         self.voc = vol / max(SMALL_DIVISOR, self.capacity * reduction_ratio)
-
-        # self.marginal_base = (
-        #     self.fftt
-        #     * self.alpha
-        #     * self.beta
-        #     * pow(self.voc, self.beta - 1)
-        # )
-
         self.avg_travel_time = (
             self.fftt
             + self.fftt
