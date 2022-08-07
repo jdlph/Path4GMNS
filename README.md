@@ -199,9 +199,9 @@ demand_periods:
           reduction_ratio: 0
 ```
 
-beg_iteration shall start from 1 while end_iteration shall be consistent with column_gen_num provided to perform_column_generation(). If the original capacity of an affected link i is C, its capacity then will be r * C with a reduction ratio of r when a special event is present. For an affected link, setting its reduction_ratio to O is equivalent to removing it from the entire demand period. 
+**beg_iteration** shall start from 1 while **end_iteration** shall be consistent with **column_gen_num** provided to perform_column_generation(). If the original capacity of an affected link i is **C**, its capacity then will be **r * C** with a reduction ratio of **r** when a special event is present. For an affected link, setting its reduction_ratio to 0 is equivalent to removing it from the entire demand period. You can turn on or off a special event by setting **enable** to true or false.
 
-Note that a special event can be turned on or off by setting enable to true or false. 
+Note that this functionality is **NOT** available with perform_network_assignment_DTALite(). You would have to manually update the capacity for each affected link in link.csv to replicate a special event if you plan to use the embedded DTALite to conduct traffic assignment (which is about to be introduced in the next section). 
 
 ### Perform Traffic Assignment using DTALite
 DTALite has the following four assignment modes to choose.
@@ -505,7 +505,7 @@ You are encouraged to join our Slack workspace for more discussions and collabor
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2022, July 12). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2022, August 7). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## References
 Lu, C. C., Mahmassani, H. S., Zhou, X. (2009). Equivalent gap function-based reformulation and solution algorithm for the dynamic user equilibrium problem. Transportation Research Part B: Methodological, 43, 345-364.
