@@ -638,12 +638,11 @@ def read_settings(input_dir, assignment):
                     name = s['name']
                     beg_iter = s['beg_iteration']
                     end_iter = s['end_iteration']
-
                     se = SpecialEvent(name, beg_iter, end_iter)
 
                     links = s['affected_links']
                     for link in links:
-                        link_id = link['link_id']
+                        link_id = str(link['link_id'])
                         ratio = link['reduction_ratio']
                         se.affected_links[link_id] = ratio
 

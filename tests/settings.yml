@@ -23,7 +23,7 @@ demand_periods:
       name: work_zone
       enable: true
       # with respect to iterations in column generation
-      beg_iteration: 15
+      beg_iteration: 1
       end_iteration: 20
       affected_links:
         - link_id: 1
@@ -32,6 +32,8 @@ demand_periods:
           reduction_ratio: 0.4
         - link_id: 3
           reduction_ratio: 0.6
+        - link_id: 4
+          reduction_ratio: 0
 
 demand_files:
   - file_name: demand.csv

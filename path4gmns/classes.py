@@ -171,10 +171,9 @@ class Link:
             for dp in demand_periods:
                 tau = dp.get_id()
                 reduction_ratio = dp.get_reduction_ratio(self.id, iter_num)
-
                 self.travel_time_by_period[tau] = (
                     self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau],
-                                                reduction_ratio)
+                                                 reduction_ratio)
                 )
 
 
@@ -719,7 +718,7 @@ class DemandPeriod:
         if self.special_event is None:
             return 1
 
-        if iter_num < self.get_beg_iteration() and iter_num > self.get_end_iteration():
+        if iter_num < self.get_beg_iteration() - 1 or iter_num > self.get_end_iteration() - 1:
             return 1
 
         try:
