@@ -25,7 +25,7 @@ If you need a specific version of Path4GMNS, say, 0.8.4,
 $ pip install path4gmns==0.8.4
 ```
 
-v0.8.4 comes with equity evaluation and enhancement in accessibility evaluation. All previous releases shall be **deprecated**.
+v0.8.4 comes with bug fix and new functionality in representing special events. All previous releases shall be **deprecated**.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding use cases in the following section.
@@ -173,6 +173,35 @@ pg.perform_column_generation(column_gen_num, column_update_num, network)
 pg.output_columns(network)
 pg.output_link_performance(network)
 ```
+
+#### In Case of Special Events
+
+A special event often comes with capacity reduction over affected links, which is now supported in v0.8.4. You can introduce one special event for each demand period in settings.yml as below. 
+
+```yaml
+demand_periods:
+  - period: AM
+    time_period: 0700_0800
+    special_event:
+      name: work_zone
+      enable: true
+      # with respect to iterations in column generation
+      beg_iteration: 1
+      end_iteration: 20
+      affected_links:
+        - link_id: 1
+          reduction_ratio: 0.5
+        - link_id: 2
+          reduction_ratio: 0.4
+        - link_id: 3
+          reduction_ratio: 0.6
+        - link_id: 4
+          reduction_ratio: 0
+```
+
+beg_iteration shall start from 1 while end_iteration shall be consistent with column_gen_num provided to perform_column_generation(). If the original capacity of an affected link i is C, its capacity then will be r * C with a reduction ratio of r when a special event is present. For an affected link, setting its reduction_ratio to O is equivalent to removing it from the entire demand period. 
+
+Note that a special event can be turned on or off by setting enable to true or false. 
 
 ### Perform Traffic Assignment using DTALite
 DTALite has the following four assignment modes to choose.
@@ -462,6 +491,7 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 16. Deep code optimization in column generation module with significant performance improvement (v0.8.2)
 17. Let users choose which speed to use in accessibility evaluation (either the free speed of an agent specified in settings.yml or the link free flow speed defined in link.csv) (v0.8.3)
 18. Transportation equity evaluation (v0.8.3)
+19. Introduce special events with affected links and capacity reductions (v.8.4)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
 
