@@ -176,7 +176,7 @@ pg.output_link_performance(network)
 
 #### In Case of Special Events
 
-A special event often comes with capacity reduction over affected links, which is now supported in v0.8.4. You can introduce one special event for each demand period in settings.yml as below. 
+A special event often comes with capacity reduction over affected links, which is now supported in v0.8.4. You can introduce one special event for each demand period in settings.yml as below.
 
 ```yaml
 demand_periods:
@@ -201,7 +201,7 @@ demand_periods:
 
 **beg_iteration** shall start from 1 while **end_iteration** shall be consistent with **column_gen_num** provided to perform_column_generation(). If the original capacity of an affected link i is **C**, its capacity then will be **r * C** with a reduction ratio of **r** when a special event is present. For an affected link, setting its reduction_ratio to 0 is equivalent to removing it from the entire demand period. You can turn on or off a special event by setting **enable** to true or false.
 
-Note that this functionality is **NOT** available with perform_network_assignment_DTALite(). You would have to manually update the capacity for each affected link in link.csv to replicate a special event if you plan to use the embedded DTALite to conduct traffic assignment (which is about to be introduced in the next section). 
+Note that this functionality is **NOT** available with perform_network_assignment_DTALite(). You would have to manually update the capacity for each affected link in link.csv to replicate a special event if you plan to use the embedded DTALite to conduct traffic assignment (which is about to be introduced in the next section).
 
 ### Perform Traffic Assignment using DTALite
 DTALite has the following four assignment modes to choose.
@@ -491,7 +491,7 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 16. Deep code optimization in column generation module with significant performance improvement (v0.8.2)
 17. Let users choose which speed to use in accessibility evaluation (either the free speed of an agent specified in settings.yml or the link free flow speed defined in link.csv) (v0.8.3)
 18. Transportation equity evaluation (v0.8.3)
-19. Introduce special events with affected links and capacity reductions (v.8.4)
+19. Introduce special events with affected links and capacity reductions (v0.8.4)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
 
