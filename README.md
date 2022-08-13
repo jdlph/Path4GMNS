@@ -201,7 +201,7 @@ demand_periods:
 
 **beg_iteration** shall start from 1 while **end_iteration** shall be consistent with **column_gen_num** provided to perform_column_generation(). If the original capacity of an affected link i is **C**, its capacity then will be **r * C** with a reduction ratio of **r** when a special event is present. For an affected link, setting its reduction_ratio to 0 is equivalent to removing it from the entire demand period. You can turn on or off a special event by setting **enable** to true or false.
 
-Note that this functionality is **NOT** available with perform_network_assignment_DTALite(). You would have to manually update the capacity for each affected link in link.csv to replicate a special event if you plan to use the embedded DTALite to conduct traffic assignment (which is about to be introduced in the next section).
+Note that this functionality is **NOT** available with perform_network_assignment_DTALite(). You would have to manually update the capacity for each affected link in link.csv to replicate a special event if you plan to use the embedded DTALite to conduct traffic assignment (which is about to be introduced in the next section). The updated capacity for each link will be used by DTALite across all demand periods in settings.csv. In other words, capacity update for a specific demand period is not supported under the current implementation of DTALite.
 
 ### Perform Traffic Assignment using DTALite
 DTALite has the following four assignment modes to choose.

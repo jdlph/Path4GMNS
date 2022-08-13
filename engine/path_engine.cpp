@@ -235,3 +235,4 @@ void shortest_path_n(int o_node_no,
         if (deque_tail == current_node)
             deque_tail = invalid;
     }
+}
