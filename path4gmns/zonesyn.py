@@ -24,13 +24,10 @@ def _get_grid_id(x, y, res):
     return i, j
 
 
-def _setup_grid(ui):
-    A = ui._base_assignment
-    nodes = A.get_nodes()
-
-    left = right = _convert_str_to_float(nodes[0].coord_x)
-    top = bot = _convert_str_to_float(nodes[0].coord_y)
-    if left is None or top is None:
+def _get_boundaries(nodes):
+    L = R = _convert_str_to_float(nodes[0].coord_x)
+    U = D = _convert_str_to_float(nodes[0].coord_y)
+    if L is None or U is None:
         for i, node in enumerate(nodes):
             x = _convert_str_to_float(node.coord_x)
             if x is None:
@@ -40,11 +37,11 @@ def _setup_grid(ui):
             if y is None:
                 continue
 
-            left = right = x
-            top = bot = y
+            L = R = x
+            U = D = y
             break
 
-        if i == len(nodes) - 1 and left is None or top is None:
+        if i == len(nodes) - 1 and L is None or U is None:
             raise Exception('No Coordinate Info')
 
     for node in nodes:
@@ -56,16 +53,24 @@ def _setup_grid(ui):
         if y is None:
             continue
 
-        left = min(left, x)
-        right = max(right, x)
-        bot = min(bot, y)
-        top = max(top, y)
+        L = min(L, x)
+        R = max(R, x)
+        D = min(D, y)
+        U = max(U, y)
 
-    grid_num = 8
+    return (L, R, D, U)
+
+
+def _setup_grid(ui):
+    A = ui._base_assignment
+    nodes = A.get_nodes()
+
+    (L, R, D, U) = _get_boundaries(nodes)
+    grid_dim = 8
     if len(nodes) > 3000:
-        grid_num = 10
+        grid_dim = 10
 
-    res = ((right - left + top - bot) / grid_num) / 2
+    res = ((R - L + U - D) / grid_dim) / 2
     for r in _resolutions:
         if res < r:
             res = r
