@@ -183,6 +183,17 @@ def test_equity():
     print(f'processing time of equity evaluation: {time()-st:.2f} s')
 
 
+def test_zone_synthesis():
+    network = pg.read_network(load_demand=False)
+
+    print('\nstart zone synthesis')
+    st = time()
+    pg.synthesize_zones(network)
+
+    print('complete zone synthesis.\n')
+    print(f'processing time of zone synthesis: {time()-st:.2f} s')
+
+
 def demo_mode(mode):
     print(f'the selected mode is {mode}\n')
 
@@ -209,11 +220,13 @@ def demo_mode(mode):
     elif mode == 6:
         # option 6: evaluate multimodal accessibility on Chicago network
         test_accessibility()
-    else:
+    elif mode == 7:
         # option 7: evaluate multimodal equity on Chicago network
         test_equity()
+    else:
+        test_zone_synthesis()
 
 
 if __name__=="__main__":
 
-    demo_mode(3)
+    demo_mode(8)
