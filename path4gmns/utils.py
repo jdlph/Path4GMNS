@@ -166,7 +166,8 @@ def read_nodes(input_dir,
                id_to_no_dict,
                no_to_id_dict,
                zone_to_node_dict,
-               zone_bin_index):
+               zone_bin_index,
+               activity_nodes):
 
     """ step 1: read input_node """
     with open(input_dir+'/node.csv', 'r') as fp:
@@ -189,8 +190,20 @@ def read_nodes(input_dir,
             coord_x = line['x_coord']
             coord_y = line['y_coord']
 
+            # activity node
+            is_activity_node = False
+            try:
+                b = _convert_str_to_int(line['is_boundary'])
+                if b is None:
+                    pass
+
+                if b > 0:
+                    is_activity_node = True
+            except KeyError:
+                pass
+
             # construct node object
-            node = Node(node_seq_no, node_id, zone_id, coord_x, coord_y)
+            node = Node(node_seq_no, node_id, zone_id, coord_x, coord_y, is_activity_node)
             nodes.append(node)
 
             # set up mapping between node_seq_no and node_id
@@ -209,11 +222,14 @@ def read_nodes(input_dir,
             # associate node_id with corresponding zone
             if zone_id not in zone_to_node_dict.keys():
                 zone_to_node_dict[zone_id] = []
+                activity_nodes[zone_id] = []
                 # only take the value of bin_index from the first node
                 # associated with each zone
                 zone_bin_index[zone_id] = bin_index
 
             zone_to_node_dict[zone_id].append(node_id)
+            if is_activity_node:
+                activity_nodes[zone_id].append(node_id)
 
             node_seq_no += 1
 
@@ -689,7 +705,8 @@ def read_network(load_demand='true', input_dir='.'):
                network.node_id_to_no_dict,
                network.node_no_to_id_dict,
                network.zone_to_nodes_dict,
-               network.zone_bin_index)
+               network.zone_bin_index,
+               network.activity_nodes)
 
     read_links(input_dir,
                network.link_list,

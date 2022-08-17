@@ -12,7 +12,7 @@ __all__ = ['UI']
 
 class Node:
 
-    def __init__(self, node_seq_no, node_id, zone_id, x='', y=''):
+    def __init__(self, node_seq_no, node_id, zone_id, x='', y='', b=False):
         """ the attributes of node  """
         # node_seq_no: internal node index used for calculation
         self.node_seq_no = node_seq_no
@@ -23,6 +23,7 @@ class Node:
         self.zone_id = zone_id
         self.coord_x = x
         self.coord_y = y
+        self.is_activity_node = b
 
     def has_outgoing_links(self):
         return len(self.outgoing_link_list) > 0
@@ -262,6 +263,7 @@ class Network:
         self._agent_type_size = 1
         self._demand_period_size = 1
         self.agent_type_name = 'all'
+        self.activity_nodes = {}
 
     def update(self, agent_type_size, demand_period_size):
         self.node_size = len(self.node_list)
