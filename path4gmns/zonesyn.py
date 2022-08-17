@@ -1,7 +1,7 @@
 from .utils import _convert_str_to_float
 
 
-__all__ = ['synthesize_zones']
+__all__ = ['network_to_zones']
 
 
 _resolutions = [0.00005, 0.0001, 0.0002, 
@@ -76,9 +76,8 @@ def _setup_grid(ui):
             res = r
             break
     
-    no_activity_node = False
+    sample_rate = 0
     if not A.activity_nodes():
-        no_activity_node = True
         sample_rate = 10
         if len(nodes) > 1000:
             sample_rate = len(nodes) / 100
@@ -95,11 +94,11 @@ def _setup_grid(ui):
         if y is None:
             continue
 
-        if not no_activity_node and not node.is_activity_node:
-            continue
-
-        if no_activity_node and m % sample_rate != 0:
-            continue
+        if not node.is_activity_node:
+            if not sample_rate:
+                continue
+            elif m % sample_rate != 0:
+                continue
 
         (i, j) = _get_grid_id(x, y, res)
         if (i, j) not in grids.keys():
@@ -111,8 +110,8 @@ def _setup_grid(ui):
     print(k)
     print(grids.keys())
 
-    A.zone_to_nodes_dict = zone_to_nodes
+    A.network.activity_nodes = zone_to_nodes
 
 
-def synthesize_zones(ui):
+def network_to_zones(ui):
     _setup_grid(ui)

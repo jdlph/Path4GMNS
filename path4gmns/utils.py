@@ -1,7 +1,6 @@
 import os
 import csv
 import threading
-from tokenize import Special
 
 from .classes import Node, Link, Network, Column, ColumnVec, VDFPeriod, \
                      AgentType, DemandPeriod, Demand, SpecialEvent, Assignment, UI
@@ -16,7 +15,8 @@ __all__ = [
     'output_columns',
     'output_link_performance',
     'download_sample_data_sets',
-    'output_agent_paths'
+    'output_agent_paths',
+    'output_zones'
 ]
 
 
@@ -1075,3 +1075,45 @@ def output_agent_paths(ui, output_geometry=True, output_dir='.'):
             print('\ncheck agent_paths.csv in '
                   +os.path.join(os.getcwd(), output_dir)
                   +' for unique agent paths')
+
+
+def output_zones(ui, output_dir='.'):
+    with open(output_dir+'/zone.csv', 'w',  newline='') as f:
+        writer = csv.writer(f)
+
+        line = ['zone_id',
+                'activity_nodes',
+                'x_coord',
+                'y_coord',
+                'geometry',
+                'production',
+                'attraction']
+
+        writer.writerow(line)
+
+        base = ui._base_assignment
+        activity_nodes = base.activity_nodes
+
+        for k, v in activity_nodes.items():
+            nodes = '; '.join(
+                x for x in v
+            )
+
+            geometry = ''
+            line = [k,
+                    nodes,
+                    '',
+                    '',
+                    geometry,
+                    0,
+                    0]
+
+            writer.writerow(line)
+
+        if output_dir == '.':
+            print('\ncheck zone.csv in '
+                +os.getcwd()+' for synthesized zones')
+        else:
+            print('\ncheck zone.csv in '
+                  +os.path.join(os.getcwd(), output_dir)
+                  +' for synthesized zones')
