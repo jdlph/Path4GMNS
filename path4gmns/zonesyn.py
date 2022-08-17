@@ -75,17 +75,30 @@ def _setup_grid(ui):
         if res < r:
             res = r
             break
+    
+    no_activity_node = False
+    if not A.activity_nodes():
+        no_activity_node = True
+        sample_rate = 10
+        if len(nodes) > 1000:
+            sample_rate = len(nodes) / 100
 
     k = 0
     grids = {}
     zone_to_nodes = {}
-    for node in nodes:
+    for m, node in enumerate(nodes):
         x = _convert_str_to_float(node.coord_x)
         if x is None:
             continue
         
         y = _convert_str_to_float(node.coord_y)
         if y is None:
+            continue
+
+        if not no_activity_node and not node.is_activity_node:
+            continue
+
+        if no_activity_node and m % sample_rate != 0:
             continue
 
         (i, j) = _get_grid_id(x, y, res)

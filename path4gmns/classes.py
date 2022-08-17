@@ -1421,6 +1421,9 @@ class Assignment:
             self.accessnetwork.get_pred_link_id(x) for x in nodes
         ]
 
+    def activity_nodes(self):
+        return self.network.activity_nodes
+
 
 class UI:
     """ an abstract class only with user interfaces """
