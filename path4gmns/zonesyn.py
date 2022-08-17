@@ -28,20 +28,33 @@ def _setup_grid(ui):
     A = ui._base_assignment
     nodes = A.get_nodes()
 
-    left = right = float(nodes[0].coord_x)
-    top = bot = float(nodes[0].coord_y)
+    left = right = _convert_str_to_float(nodes[0].coord_x)
+    top = bot = _convert_str_to_float(nodes[0].coord_y)
+    if left is None or top is None:
+        for i, node in enumerate(nodes):
+            x = _convert_str_to_float(node.coord_x)
+            if x is None:
+                continue
+        
+            y = _convert_str_to_float(node.coord_y)
+            if y is None:
+                continue
+
+            left = right = x
+            top = bot = y
+            break
+
+        if i == len(nodes) - 1 and left is None or top is None:
+            raise Exception('No Coordinate Info')
 
     for node in nodes:
-        x = node.coord_x
-        if not x:
+        x = _convert_str_to_float(node.coord_x)
+        if x is None:
             continue
         
-        y = node.coord_y
-        if not y:
+        y = _convert_str_to_float(node.coord_y)
+        if y is None:
             continue
-
-        x = float(x)
-        y = float(y)
 
         left = min(left, x)
         right = max(right, x)
@@ -62,16 +75,13 @@ def _setup_grid(ui):
     grids = {}
     zone_to_nodes = {}
     for node in nodes:
-        x = node.coord_x
-        if not x:
+        x = _convert_str_to_float(node.coord_x)
+        if x is None:
             continue
         
-        y = node.coord_y
-        if not y:
+        y = _convert_str_to_float(node.coord_y)
+        if y is None:
             continue
-
-        x = float(x)
-        y = float(y)
 
         (i, j) = _get_grid_id(x, y, res)
         if (i, j) not in grids.keys():
