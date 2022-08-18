@@ -8,24 +8,13 @@ from .utils import _convert_str_to_float
 __all__ = ['network_to_zones']
 
 
-_resolutions = [0.00005, 0.0001, 0.0002, 
-                0.00025, 0.0005, 0.00075, 
-                0.001, 0.002, 0.0025,
-                0.005, 0.0075, 0.01,
-                0.02, 0.025, 0.05,
-                0.075, 0.1, 0.2,
-                0.25, 0.5, 0.75,
-                1, 2, 2.5,
-                5, 7.5, 10,
-                20, 25, 50, 75]
-
-
 def _get_grid_id(x, y, res):
-    assert(res > 0)
-    i = floor(x / res)
-    j = floor(y / res)
-
-    return i, j
+    try:
+        i = floor(x / res)
+        j = floor(y / res)
+        return i, j
+    except ZeroDivisionError:
+        raise Exception('ZERO Resolution. Please check your coordinate info!!')
 
 
 def _get_boundaries(nodes):
@@ -62,24 +51,34 @@ def _get_boundaries(nodes):
         D = min(D, y)
         U = max(U, y)
 
-    return (L, R, D, U)
+    return (U, D, L, R)
+
+
+def _find_resolution(nodes):
+    resolutions = [0.00005, 0.0001, 0.0002, 0.00025, 0.0005, 0.00075,
+                   0.001, 0.002, 0.0025, 0.005, 0.0075, 0.01, 0.02, 
+                   0.025, 0.05, 0.075, 0.1, 0.2, 0.25, 0.5, 0.75, 
+                   1, 2, 2.5, 5, 7.5, 10, 20, 25, 50, 75]
+    
+    # if grid_dim is d, we will create a total of d * d grids
+    grid_dim = 8
+    if len(nodes) > 3000:
+        grid_dim = 10
+
+    (U, D, L, R) = _get_boundaries(nodes)
+    res = ((R - L + U - D) / grid_dim) / 2
+    for r in resolutions:
+        if res < r:
+            res = r
+            break
+
+    return res
 
 
 def _setup_grid(ui):
     A = ui._base_assignment
     nodes = A.get_nodes()
 
-    (L, R, D, U) = _get_boundaries(nodes)
-    grid_dim = 8
-    if len(nodes) > 3000:
-        grid_dim = 10
-
-    res = ((R - L + U - D) / grid_dim) / 2
-    for r in _resolutions:
-        if res < r:
-            res = r
-            break
-    
     sample_rate = 0
     if not A.activity_nodes():
         sample_rate = 10
@@ -91,6 +90,7 @@ def _setup_grid(ui):
     zone_info = {}
     zone_to_nodes = {}
     zone_to_nodeids = {}
+    res = _find_resolution(nodes)
     for m, node in enumerate(nodes):
         x = _convert_str_to_float(node.coord_x)
         if x is None:
@@ -158,13 +158,12 @@ def _synthesize_demand(ui):
         total_trips = 10000
 
     trip_rate = total_trips / num
-
     # allocate trips proportionally to each zone
     for v in zone_info.values():
         v[6] = len(v) * trip_rate
 
     # calculate accessibility
-    time_budget = 40
+    time_budget = 60
     an = AccessNetwork(network)
     at_name, at_str = ui._base_assignment._convert_mode('p')
     an.set_target_mode(at_name)
