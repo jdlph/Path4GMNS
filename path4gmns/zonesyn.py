@@ -1,5 +1,7 @@
 from math import floor
 
+from .accessibility import _update_min_travel_time
+from .classes import AccessNetwork
 from .utils import _convert_str_to_float
 
 
@@ -88,6 +90,7 @@ def _setup_grid(ui):
     grids = {}
     zone_info = {}
     zone_to_nodes = {}
+    zone_to_nodeids = {}
     for m, node in enumerate(nodes):
         x = _convert_str_to_float(node.coord_x)
         if x is None:
@@ -107,7 +110,7 @@ def _setup_grid(ui):
         if (i, j) not in grids.keys():
             grids[(i, j)] = k
             zone_to_nodes[k] = []
-            
+            zone_to_nodeids[k] = []
             # boundaries (roughly)
             L_ = i * res
             D_ = j * res
@@ -116,10 +119,11 @@ def _setup_grid(ui):
             # coordinates of the centroid, which are weighted by the first node
             cx = (2 * x + L_ + R_) / 4
             cy = (2 * y + U_ + D_) / 4
-            zone_info[k] = [U_, D_, L_, R_, cx, cy]
+            zone_info[k] = [U_, D_, L_, R_, cx, cy, 0]
             k += 1
 
         zone_to_nodes[grids[(i, j)]].append(node.get_node_no())
+        zone_to_nodeids[grids[(i, j)]].append(node.get_node_id())
     # for testing
     print(k)
     print(grids.keys())
@@ -136,7 +140,71 @@ def _setup_grid(ui):
 
     A.network.activity_nodes = zone_to_nodes
     A.network.zone_info = zone_info
+    A.network.activity_node_num = len(nodes)
+    A.network.zones = sorted(zone_to_nodes.keys())
+    A.network.zone_to_nodes_dict = zone_to_nodeids
+
+
+def _synthesize_demand(ui):
+    network = ui._base_assignment.network
+    zone_info = network.zone_info
+    ODMatrix = network.ODMatrix
+    num = network.activity_node_num
+
+    # some arbitrary number and rule 
+    total_trips = 5000
+    # regional model
+    if num > 100000:
+        total_trips = 10000
+
+    trip_rate = total_trips / num
+
+    # allocate trips proportionally to each zone
+    for v in zone_info.values():
+        v[6] = len(v) * trip_rate
+
+    # calculate accessibility
+    time_budget = 40
+    an = AccessNetwork(network)
+    at_name, at_str = ui._base_assignment._convert_mode('p')
+    an.set_target_mode(at_name)
+    at = ui._base_assignment.get_agent_type(at_str)
+    min_travel_times = {}
+
+    _update_min_travel_time(an, at, min_travel_times, False, 0)
+
+    # allocate trips proportionally to each OD pair
+    for z, v in zone_info.items():
+        if v[6] == 0:
+            continue
+
+        total_attr = 0
+        for z_, v_ in zone_info.items():
+            if z_ == z:
+                continue
+
+            if v_[6] == 0:
+                continue
+
+            if min_travel_times[(z, z_, at_str)][0] > time_budget:
+                continue
+
+            total_attr += v_[6]
+
+        if total_attr == 0:
+            continue
+
+        for z_, v_ in zone_info.items():
+            if z_ == z:
+                continue
+
+            if v_[6] == 0:
+                continue
+
+            portion = v_[6] / total_attr
+            ODMatrix[(z, z_)] = v[6] * portion
 
 
 def network_to_zones(ui):
     _setup_grid(ui)
+    _synthesize_demand(ui)

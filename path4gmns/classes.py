@@ -267,6 +267,7 @@ class Network:
         self.activity_nodes = {}
         self.zone_info = {}
         self.ODMatrix = {}
+        self.activity_node_num = 0
 
     def update(self, agent_type_size, demand_period_size):
         self.node_size = len(self.node_list)
