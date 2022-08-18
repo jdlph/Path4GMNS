@@ -9,5 +9,6 @@ tests/agent.csv
 tests/link_performance.csv
 tests/agent_paths.csv
 tests/equity*.csv
+tests/zone.csv
 accessibility*.csv
 **log*

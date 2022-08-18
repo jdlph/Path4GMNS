@@ -189,6 +189,7 @@ def test_zone_synthesis():
     print('\nstart zone synthesis')
     st = time()
     pg.network_to_zones(network)
+    pg.output_zones(network)
 
     print('complete zone synthesis.\n')
     print(f'processing time of zone synthesis: {time()-st:.2f} s')

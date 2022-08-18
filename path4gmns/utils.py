@@ -222,13 +222,15 @@ def read_nodes(input_dir,
             # associate node_id with corresponding zone
             if zone_id not in zone_to_node_dict.keys():
                 zone_to_node_dict[zone_id] = []
-                activity_nodes[zone_id] = []
                 # only take the value of bin_index from the first node
                 # associated with each zone
                 zone_bin_index[zone_id] = bin_index
 
             zone_to_node_dict[zone_id].append(node_id)
+            
             if is_activity_node:
+                if zone_id not in activity_nodes.keys():
+                    activity_nodes[zone_id] = []
                 activity_nodes[zone_id].append(node_id)
 
             node_seq_no += 1
@@ -1092,11 +1094,12 @@ def output_zones(ui, output_dir='.'):
         writer.writerow(line)
 
         base = ui._base_assignment
-        activity_nodes = base.activity_nodes
+        activity_nodes = base.activity_nodes()
+        network = base.network
 
         for k, v in activity_nodes.items():
             nodes = '; '.join(
-                x for x in v
+                str(network.node_no_to_id_dict[x]) for x in v
             )
 
             geometry = ''
