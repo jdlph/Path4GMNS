@@ -263,7 +263,10 @@ class Network:
         self._agent_type_size = 1
         self._demand_period_size = 1
         self.agent_type_name = 'all'
+        # temporary implementations which will be replaced by class Zone
         self.activity_nodes = {}
+        self.zone_info = {}
+        self.ODMatrix = {}
 
     def update(self, agent_type_size, demand_period_size):
         self.node_size = len(self.node_list)

@@ -1,3 +1,5 @@
+from math import floor
+
 from .utils import _convert_str_to_float
 
 
@@ -18,8 +20,8 @@ _resolutions = [0.00005, 0.0001, 0.0002,
 
 def _get_grid_id(x, y, res):
     assert(res > 0)
-    i = int(x / res)
-    j = int(y / res)
+    i = floor(x / res)
+    j = floor(y / res)
 
     return i, j
 
@@ -84,6 +86,7 @@ def _setup_grid(ui):
 
     k = 0
     grids = {}
+    zone_info = {}
     zone_to_nodes = {}
     for m, node in enumerate(nodes):
         x = _convert_str_to_float(node.coord_x)
@@ -104,13 +107,35 @@ def _setup_grid(ui):
         if (i, j) not in grids.keys():
             grids[(i, j)] = k
             zone_to_nodes[k] = []
+            
+            # boundaries (roughly)
+            L_ = i * res
+            D_ = j * res
+            R_ = L_ + res
+            U_ = D_ + res
+            # coordinates of the centroid, which are weighted by the first node
+            cx = (2 * x + L_ + R_) / 4
+            cy = (2 * y + U_ + D_) / 4
+            zone_info[k] = [U_, D_, L_, R_, cx, cy]
             k += 1
+
         zone_to_nodes[grids[(i, j)]].append(node.get_node_no())
-    
+    # for testing
     print(k)
     print(grids.keys())
+    print(str(_get_grid_id(L, U, res)))
+    print(str(_get_grid_id(L, D, res)))
+    print(str(_get_grid_id(R, U, res)))
+    print(str(_get_grid_id(R, D, res)))
+    print(L)
+    print(R)
+    (i, j) = _get_grid_id(L, U, res)
+    print(i * res)
+    (i, j) = _get_grid_id(R, U, res)
+    print(i * res)
 
     A.network.activity_nodes = zone_to_nodes
+    A.network.zone_info = zone_info
 
 
 def network_to_zones(ui):
