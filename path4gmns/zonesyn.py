@@ -75,7 +75,7 @@ def _find_resolution(nodes):
     return res
 
 
-def _setup_grid(ui):
+def _synthesize_grid(ui):
     A = ui._base_assignment
     nodes = A.get_nodes()
 
@@ -88,9 +88,10 @@ def _setup_grid(ui):
     k = 0
     grids = {}
     zone_info = {}
-    zone_to_nodes = {}
-    zone_to_nodeids = {}
+    activity_nodes = {}
+    activity_nodeids = {}
     res = _find_resolution(nodes)
+
     for m, node in enumerate(nodes):
         x = _convert_str_to_float(node.coord_x)
         if x is None:
@@ -109,8 +110,8 @@ def _setup_grid(ui):
         (i, j) = _get_grid_id(x, y, res)
         if (i, j) not in grids.keys():
             grids[(i, j)] = k
-            zone_to_nodes[k] = []
-            zone_to_nodeids[k] = []
+            activity_nodes[k] = []
+            activity_nodeids[k] = []
             # boundaries (roughly)
             L_ = i * res
             D_ = j * res
@@ -122,27 +123,14 @@ def _setup_grid(ui):
             zone_info[k] = [U_, D_, L_, R_, cx, cy, 0]
             k += 1
 
-        zone_to_nodes[grids[(i, j)]].append(node.get_node_no())
-        zone_to_nodeids[grids[(i, j)]].append(node.get_node_id())
-    # for testing
-    print(k)
-    print(grids.keys())
-    print(str(_get_grid_id(L, U, res)))
-    print(str(_get_grid_id(L, D, res)))
-    print(str(_get_grid_id(R, U, res)))
-    print(str(_get_grid_id(R, D, res)))
-    print(L)
-    print(R)
-    (i, j) = _get_grid_id(L, U, res)
-    print(i * res)
-    (i, j) = _get_grid_id(R, U, res)
-    print(i * res)
+        activity_nodes[grids[(i, j)]].append(node.get_node_no())
+        activity_nodeids[grids[(i, j)]].append(node.get_node_id())
 
-    A.network.activity_nodes = zone_to_nodes
+    A.network.activity_nodes = activity_nodes
     A.network.zone_info = zone_info
     A.network.activity_node_num = len(nodes)
-    A.network.zones = sorted(zone_to_nodes.keys())
-    A.network.zone_to_nodes_dict = zone_to_nodeids
+    A.network.zones = sorted(activity_nodes.keys())
+    A.network.zone_to_nodes_dict = activity_nodeids
 
 
 def _synthesize_demand(ui):
@@ -205,5 +193,5 @@ def _synthesize_demand(ui):
 
 
 def network_to_zones(ui):
-    _setup_grid(ui)
+    _synthesize_grid(ui)
     _synthesize_demand(ui)

@@ -1,3 +1,4 @@
+from ast import Str
 import os
 import csv
 import threading
@@ -1101,15 +1102,25 @@ def output_zones(ui, output_dir='.'):
             nodes = '; '.join(
                 str(network.node_no_to_id_dict[x]) for x in v
             )
+            
+            [U, D, L, R, x, y, prod] = network.zone_info[k]
 
-            geometry = ''
+            geometry = (
+                'LINESTRING (' 
+                + str(L) + ' ' + str(U) + ','
+                + str(R) + ' ' + str(U) + ','
+                + str(R) + ' ' + str(D) + ','
+                + str(L) + ' ' + str(D) + ','
+                + str(L) + ' ' + str(U) + ')'
+            )
+
             line = [k,
                     nodes,
-                    '',
-                    '',
+                    x,
+                    y,
                     geometry,
-                    0,
-                    0]
+                    prod,
+                    prod]
 
             writer.writerow(line)
 
