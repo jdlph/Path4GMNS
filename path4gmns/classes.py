@@ -18,18 +18,19 @@ class Node:
         self.node_seq_no = node_seq_no
         # node_id: user defined node id from input
         self.node_id = node_id
-        self.outgoing_link_list = []
-        self.incoming_link_list = []
+        # link objects
+        self.outgoing_links = []
+        self.incoming_links = []
         self.zone_id = zone_id
         self.coord_x = x
         self.coord_y = y
         self.is_activity_node = b
 
     def has_outgoing_links(self):
-        return len(self.outgoing_link_list) > 0
+        return len(self.outgoing_links) > 0
 
     def has_incoming_links(self):
-        return len(self.incoming_link_list) > 0
+        return len(self.incoming_links) > 0
 
     def get_zone_id(self):
         return self.zone_id
@@ -44,10 +45,10 @@ class Node:
         return self.coord_x + ' ' + self.coord_y
 
     def add_outgoing_link(self, link):
-        self.outgoing_link_list.append(link)
+        self.outgoing_links.append(link)
 
     def add_incoming_link(self, link):
-        self.incoming_link_list.append(link)
+        self.incoming_links.append(link)
 
     def update_coordinate(self, args):
         self.coord_x = args[0]
@@ -197,14 +198,9 @@ class Agent:
         self.d_node_id = 0
         self.node_path = None
         self.link_path = None
-        self.current_link_seq_no_in_path = 0
-        self.departure_time_in_min = 0
         # Passenger Car Equivalent (PCE) of the agent
         self.PCE_factor = 1
         self.path_cost = 0
-        self.b_generated = False
-        self.b_complete_trip = False
-        self.feasible_path_exist_flag = False
 
     def get_orig_node_id(self):
         return self.o_node_id
@@ -234,28 +230,25 @@ class Agent:
 class Network:
 
     def __init__(self):
-        self.node_list = []
-        self.link_list = []
-        self.agent_list = []
+        self.nodes = []
+        self.links = []
+        self.agents = []
         self.node_size = 0
         self.link_size = 0
         self.agent_size = 0
         # key: node id, value: node seq no
-        self.node_id_to_no_dict = {}
+        self.map_id_to_no = {}
         # key: node seq no, value: node id
-        self.node_no_to_id_dict = {}
+        self.map_no_to_id = {}
         # map link id to link seq no
-        self.link_id_dict = {}
-        # td:time-dependent, key:simulation time interval,
-        # value:agents(list) need to be activated
-        self.agent_td_list_dict = {}
+        self.link_ids = {}
         # key: zone id, value: node id list
-        self.zone_to_nodes_dict = {}
+        self.zone_to_nodes = {}
         # key: zone id, value: bin_index
         self.zone_bin_index = {}
         self.node_label_cost = None
-        self.node_predecessor = None
-        self.link_predecessor = None
+        self.node_preds = None
+        self.link_preds = None
         # added for CG
         self.zones = None
         self.capi_allocated = False
@@ -270,11 +263,11 @@ class Network:
         self.activity_node_num = 0
 
     def update(self, agent_type_size, demand_period_size):
-        self.node_size = len(self.node_list)
-        self.link_size = len(self.link_list)
-        self.agent_size = len(self.agent_list)
+        self.node_size = len(self.nodes)
+        self.link_size = len(self.links)
+        self.agent_size = len(self.agents)
         # it is needed for setup_spnetwork() and setup_spnetwork_a()
-        self.zones = sorted(self.zone_to_nodes_dict.keys())
+        self.zones = sorted(self.zone_to_nodes.keys())
         self._agent_type_size = agent_type_size
         self._demand_period_size = demand_period_size
 
@@ -287,14 +280,14 @@ class Network:
         link_size = self.link_size
 
         # initialization for predecessors and label costs
-        node_predecessor = [-1] * node_size
-        link_predecessor = [-1] * node_size
+        node_preds = [-1] * node_size
+        link_preds = [-1] * node_size
         node_label_cost = [MAX_LABEL_COST] * node_size
 
         # initialize from_node_no_array, to_node_no_array, and link_cost_array
-        from_node_no_array = [link.from_node_seq_no for link in self.link_list]
-        to_node_no_array = [link.to_node_seq_no for link in self.link_list]
-        link_cost_array = [link.cost for link in self.link_list]
+        from_node_no_array = [link.from_node_seq_no for link in self.links]
+        to_node_no_array = [link.to_node_seq_no for link in self.links]
+        link_cost_array = [link.cost for link in self.links]
 
         # initialize others
         queue_next = [0] * node_size
@@ -304,18 +297,18 @@ class Network:
 
         # internal link index used for shortest path calculation only
         j = 0
-        for i, node in enumerate(self.node_list):
-            if not node.outgoing_link_list:
+        for i, node in enumerate(self.nodes):
+            if not node.outgoing_links:
                 continue
             first_link_from[i] = j
-            for link in node.outgoing_link_list:
+            for link in node.outgoing_links:
                 # set up the mapping from j to the true link seq no
                 sorted_link_no_array[j] = link.link_seq_no
                 j += 1
             last_link_from[i] = j
 
         # setup allowed uses
-        allowed_uses = [link.allowed_uses for link in self.link_list]
+        allowed_uses = [link.allowed_uses for link in self.links]
 
         # set up arrays using ctypes
         int_arr_node = ctypes.c_int * node_size
@@ -332,8 +325,8 @@ class Network:
         self.sorted_link_no_array = int_arr_link(*sorted_link_no_array)
         self.link_cost_array = double_arr_link(*link_cost_array)
         self.node_label_cost = double_arr_node(*node_label_cost)
-        self.node_predecessor = int_arr_node(*node_predecessor)
-        self.link_predecessor = int_arr_node(*link_predecessor)
+        self.node_preds = int_arr_node(*node_preds)
+        self.link_preds = int_arr_node(*link_preds)
         self.queue_next = int_arr_node(*queue_next)
         self.allowed_uses = char_arr_link(*allowed_uses)
 
@@ -364,25 +357,25 @@ class Network:
                 # step 1 generate o_node_id and d_node_id randomly
                 # according to o_zone_id and d_zone_id
                 agent.o_node_id = choice(
-                    self.zone_to_nodes_dict[orig]
+                    self.zone_to_nodes[orig]
                 )
                 agent.d_node_id = choice(
-                    self.zone_to_nodes_dict[dest]
+                    self.zone_to_nodes[dest]
                 )
 
                 # step 2 update agent_id and agent_seq_no
                 agent_id += 1
                 agent_no += 1
 
-                self.agent_list.append(agent)
+                self.agents.append(agent)
 
-        self.agent_size = len(self.agent_list)
+        self.agent_size = len(self.agents)
         print(f'the number of agents is {self.agent_size}')
 
     def _get_agent(self, agent_no):
         """ retrieve agent using agent_no """
         try:
-            return self.agent_list[agent_no]
+            return self.agents[agent_no]
         except KeyError:
             print('Please provide a valid agent id, which shall be a\
                   positive integer!')
@@ -403,7 +396,7 @@ class Network:
         path = ''
         if agent.node_path:
             path = ';'.join(
-                str(self.node_no_to_id_dict[x]) for x in reversed(agent.node_path)
+                str(self.map_no_to_id[x]) for x in reversed(agent.node_path)
             )
 
         if path_only:
@@ -427,7 +420,7 @@ class Network:
         path = ''
         if agent.link_path:
             path = ';'.join(
-            self.link_list[x].get_link_id() for x in reversed(agent.link_path)
+            self.links[x].get_link_id() for x in reversed(agent.link_path)
         )
 
         if path_only:
@@ -453,10 +446,10 @@ class Network:
         return self.agent_size
 
     def get_nodes_from_zone(self, zone_id):
-        return self.zone_to_nodes_dict[zone_id]
+        return self.zone_to_nodes[zone_id]
 
     def get_node_no(self, node_id):
-        return self.node_id_to_no_dict[node_id]
+        return self.map_id_to_no[node_id]
 
     def get_node_size(self):
         return self.node_size
@@ -465,16 +458,16 @@ class Network:
         return self.link_size
 
     def get_nodes(self):
-        return self.node_list
+        return self.nodes
 
     def get_links(self):
-        return self.link_list
+        return self.links
 
     def get_zones(self):
         return self.zones
 
     def get_zone_size(self):
-        return len(self.zone_to_nodes_dict)
+        return len(self.zone_to_nodes)
 
     def get_from_node_no_arr(self):
         return self.from_node_no_array
@@ -492,10 +485,10 @@ class Network:
         return self.sorted_link_no_array
 
     def get_node_preds(self):
-        return self.node_predecessor
+        return self.node_preds
 
     def get_link_preds(self):
-        return self.link_predecessor
+        return self.link_preds
 
     def get_node_label_costs(self):
         return self.node_label_cost
@@ -510,17 +503,17 @@ class Network:
         return self.allowed_uses
 
     def get_link(self, seq_no):
-        return self.link_list[seq_no]
+        return self.links[seq_no]
 
     def get_agent_type_name(self):
         """ for allowed uses in single_source_shortest_path()"""
         return self.agent_type_name
 
     def get_link_seq_no(self, id):
-        return self.link_id_dict[id]
+        return self.link_ids[id]
 
     def get_agents(self):
-        return self.agent_list
+        return self.agents
 
     def get_last_thru_node(self):
         """ node no of the first potential centroid """
@@ -812,14 +805,14 @@ class SPNetwork(Network):
         link_preds = [-1] * base.node_size
         node_lables = [MAX_LABEL_COST] * base.node_size
         queue_next = [0] * base.node_size
-        link_cost_array = [link.cost for link in base.link_list]
+        link_cost_array = [link.cost for link in base.links]
 
         int_arr_node = ctypes.c_int * base.node_size
         double_arr_node = ctypes.c_double * base.node_size
         double_arr_link = ctypes.c_double * base.link_size
 
-        self.node_predecessor = int_arr_node(*node_preds)
-        self.link_predecessor = int_arr_node(*link_preds)
+        self.node_preds = int_arr_node(*node_preds)
+        self.link_preds = int_arr_node(*link_preds)
         self.node_label_cost = double_arr_node(*node_lables)
         self.link_cost_array = double_arr_link(*link_cost_array)
         self.queue_next = int_arr_node(*queue_next)
@@ -920,10 +913,10 @@ class AccessNetwork(Network):
     """ network for accessibility evaluation """
     def __init__(self, base, add_cc=True):
         self.base = base
-        self.node_list = self.base.get_nodes()
-        self.link_list = self.base.get_links()
-        self.map_id_to_no = self.base.node_id_to_no_dict
-        self.map_no_to_id = self.base.node_no_to_id_dict
+        self.nodes = self.base.get_nodes()
+        self.links = self.base.get_links()
+        self.map_id_to_no = self.base.map_id_to_no
+        self.map_no_to_id = self.base.map_no_to_id
         self.node_size = base.get_node_size()
         self.link_size = base.get_link_size()
         self.centroids = []
@@ -936,8 +929,8 @@ class AccessNetwork(Network):
 
     def _add_centroids_connectors(self):
         # deep copy
-        self.node_list = deepcopy(self.node_list)
-        self.link_list = deepcopy(self.link_list)
+        self.nodes = deepcopy(self.nodes)
+        self.links = deepcopy(self.links)
 
         node_seq_no = self.node_size
         link_seq_no = self.link_size
@@ -951,7 +944,7 @@ class AccessNetwork(Network):
             centroid = Node(node_seq_no, node_id, z)
             centroid.update_coordinate(self._get_zone_coord(z))
 
-            self.node_list.append(centroid)
+            self.nodes.append(centroid)
             self.centroids.append(centroid)
 
             self.map_id_to_no[node_id] = node_seq_no
@@ -988,24 +981,24 @@ class AccessNetwork(Network):
                                   node_id,
                                   0)
 
-                self.node_list[from_node_no].add_outgoing_link(c_forward)
-                self.node_list[to_node_no].add_outgoing_link(c_backward)
+                self.nodes[from_node_no].add_outgoing_link(c_forward)
+                self.nodes[to_node_no].add_outgoing_link(c_backward)
 
-                self.link_list.append(c_forward)
-                self.link_list.append(c_backward)
+                self.links.append(c_forward)
+                self.links.append(c_backward)
 
                 link_seq_no += 2
 
             node_seq_no += 1
 
-        self.node_size = len(self.node_list)
-        self.link_size = len(self.link_list)
+        self.node_size = len(self.nodes)
+        self.link_size = len(self.links)
 
     def get_zones(self):
         return self.base.get_zones()
 
     def get_nodes_from_zone(self, zone_id):
-        return self.base.zone_to_nodes_dict[zone_id]
+        return self.base.zone_to_nodes[zone_id]
 
     def _get_zone_coord(self, zone_id):
         """ coordinate of each zone is from its first node """
@@ -1086,18 +1079,18 @@ class AccessNetwork(Network):
 
     def get_pred_link_id(self, node_id):
         """ return id of the predecessor link to node_id """
-        link_no = self.link_predecessor[self.get_node_no(node_id)]
-        return self.link_list[link_no].get_link_id()
+        link_no = self.link_preds[self.get_node_no(node_id)]
+        return self.links[link_no].get_link_id()
 
     def get_sp_distance(self, node_no):
         """ get the shortest path distance """
         dist = 0
         while node_no >= 0:
-            link_seq_no = self.link_predecessor[node_no]
+            link_seq_no = self.link_preds[node_no]
             if link_seq_no >= 0:
                 dist += self.get_link(link_seq_no).get_length()
 
-            node_no = self.node_predecessor[node_no]
+            node_no = self.node_preds[node_no]
 
         return dist
 
@@ -1373,7 +1366,7 @@ class Assignment:
 
     def get_accessible_nodes(self, source_node_id, time_budget,
                              mode, time_dependent, tau):
-        if source_node_id not in self.network.node_id_to_no_dict.keys():
+        if source_node_id not in self.network.map_id_to_no.keys():
             raise Exception(f'Node ID: {source_node_id} not in the network')
 
         assert(time_budget>=0)

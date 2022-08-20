@@ -164,9 +164,9 @@ def download_sample_data_sets():
 
 def read_nodes(input_dir,
                nodes,
-               id_to_no_dict,
-               no_to_id_dict,
-               zone_to_node_dict,
+               map_id_to_no,
+               map_no_to_id,
+               zone_to_nodes,
                zone_bin_index,
                activity_nodes):
 
@@ -208,8 +208,8 @@ def read_nodes(input_dir,
             nodes.append(node)
 
             # set up mapping between node_seq_no and node_id
-            id_to_no_dict[node_id] = node_seq_no
-            no_to_id_dict[node_seq_no] = node_id
+            map_id_to_no[node_id] = node_seq_no
+            map_no_to_id[node_seq_no] = node_id
 
             # bin_index for equity evaluation
             bin_index = 0
@@ -221,13 +221,13 @@ def read_nodes(input_dir,
                 pass
 
             # associate node_id with corresponding zone
-            if zone_id not in zone_to_node_dict.keys():
-                zone_to_node_dict[zone_id] = []
+            if zone_id not in zone_to_nodes.keys():
+                zone_to_nodes[zone_id] = []
                 # only take the value of bin_index from the first node
                 # associated with each zone
                 zone_bin_index[zone_id] = bin_index
 
-            zone_to_node_dict[zone_id].append(node_id)
+            zone_to_nodes[zone_id].append(node_id)
 
             if is_activity_node:
                 if zone_id not in activity_nodes.keys():
@@ -238,9 +238,9 @@ def read_nodes(input_dir,
 
         print(f'the number of nodes is {node_seq_no}')
 
-        zone_size = len(zone_to_node_dict)
+        zone_size = len(zone_to_nodes)
         # do not count virtual zone with id as -1
-        if -1 in zone_to_node_dict.keys():
+        if -1 in zone_to_nodes.keys():
             zone_size -= 1
 
         print(f'the number of zones is {zone_size}')
@@ -249,8 +249,8 @@ def read_nodes(input_dir,
 def read_links(input_dir,
                links,
                nodes,
-               id_to_no_dict,
-               link_id_dict,
+               map_id_to_no,
+               link_ids,
                agent_type_size,
                demand_period_size,
                load_demand):
@@ -281,8 +281,8 @@ def read_links(input_dir,
             # pass validity check
 
             try:
-                from_node_no = id_to_no_dict[from_node_id]
-                to_node_no = id_to_no_dict[to_node_id]
+                from_node_no = map_id_to_no[from_node_id]
+                to_node_no = map_id_to_no[to_node_id]
             except KeyError:
                 print(f'EXCEPTION: Node ID {from_node_id} '
                       f'or/and Node ID {to_node_id} NOT IN THE NETWORK!!')
@@ -327,7 +327,7 @@ def read_links(input_dir,
             except KeyError:
                 geometry = ''
 
-            link_id_dict[link_id] = link_seq_no
+            link_ids[link_id] = link_seq_no
 
             # construct link object
             link = Link(link_id,
@@ -704,18 +704,18 @@ def read_network(load_demand='true', input_dir='.'):
     read_settings(input_dir, assignm)
 
     read_nodes(input_dir,
-               network.node_list,
-               network.node_id_to_no_dict,
-               network.node_no_to_id_dict,
-               network.zone_to_nodes_dict,
+               network.nodes,
+               network.map_id_to_no,
+               network.map_no_to_id,
+               network.zone_to_nodes,
                network.zone_bin_index,
                network.activity_nodes)
 
     read_links(input_dir,
-               network.link_list,
-               network.node_list,
-               network.node_id_to_no_dict,
-               network.link_id_dict,
+               network.links,
+               network.nodes,
+               network.map_id_to_no,
+               network.link_ids,
                assignm.get_agent_type_count(),
                assignm.get_demand_period_count(),
                load_demand)
@@ -728,7 +728,7 @@ def read_network(load_demand='true', input_dir='.'):
                         d.get_file_name(),
                         at,
                         dp,
-                        network.zone_to_nodes_dict,
+                        network.zone_to_nodes,
                         assignm.column_pool)
 
     network.update(assignm.get_agent_type_count(),
@@ -1100,7 +1100,7 @@ def output_zones(ui, output_dir='.'):
 
         for k, v in activity_nodes.items():
             nodes = '; '.join(
-                str(network.node_no_to_id_dict[x]) for x in v
+                str(network.map_no_to_id[x]) for x in v
             )
 
             [U, D, L, R, x, y, prod] = network.zone_info[k]

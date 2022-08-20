@@ -128,7 +128,7 @@ def _synthesize_grid(ui, grid_dim):
         num += 1
 
     network.activity_nodes = activity_nodes
-    network.zone_to_nodes_dict = activity_nodeids
+    network.zone_to_nodes = activity_nodeids
     network.zones = sorted(activity_nodes.keys())
     network.zone_info = zone_info
     network.activity_node_num = num
