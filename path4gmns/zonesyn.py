@@ -54,7 +54,7 @@ def _get_boundaries(nodes):
     return (U, D, L, R)
 
 
-def _find_resolution(nodes):
+def _find_resolution(nodes, grid_dim):
     # adopt from NeXTA
     resolutions = [0.00005, 0.0001, 0.0002, 0.00025, 0.0005, 0.00075,
                    0.001, 0.002, 0.0025, 0.005, 0.0075, 0.01, 0.02,
@@ -62,10 +62,6 @@ def _find_resolution(nodes):
                    1, 2, 2.5, 5, 7.5, 10, 20, 25, 50, 75]
 
     # if grid_dim is d, we will create a total of d * d grids
-    grid_dim = 8
-    if len(nodes) > 3000:
-        grid_dim = 10
-
     (U, D, L, R) = _get_boundaries(nodes)
     res = ((R - L + U - D) / grid_dim) / 2
     for r in resolutions:
@@ -76,7 +72,7 @@ def _find_resolution(nodes):
     return res
 
 
-def _synthesize_grid(ui):
+def _synthesize_grid(ui, grid_dim):
     A = ui._base_assignment
     nodes = A.get_nodes()
     network = A.network
@@ -94,7 +90,7 @@ def _synthesize_grid(ui):
     zone_info = {}
     activity_nodes = {}
     activity_nodeids = {}
-    res = _find_resolution(nodes)
+    res = _find_resolution(nodes, grid_dim)
 
     for m, node in enumerate(nodes):
         x = _convert_str_to_float(node.coord_x)
@@ -138,7 +134,7 @@ def _synthesize_grid(ui):
     network.activity_node_num = num
 
 
-def _synthesize_demand(ui, time_budget):
+def _synthesize_demand(ui, total_demand, time_budget, mode):
     A = ui._base_assignment
     network = A.network
     ODMatrix = network.ODMatrix
@@ -146,20 +142,14 @@ def _synthesize_demand(ui, time_budget):
     activity_nodes = network.activity_nodes
     num = network.activity_node_num
 
-    # some arbitrary number and rule
-    total_trips = 5000
-    # regional model
-    if num > 100000:
-        total_trips = 10000
-
-    trip_rate = total_trips / num
+    trip_rate = total_demand / num
     # allocate trips proportionally to each zone
     for k, v in zone_info.items():
         v[6] = int(len(activity_nodes[k]) * trip_rate)
 
     # calculate accessibility
     an = AccessNetwork(network)
-    at_name, at_str = A._convert_mode('p')
+    at_name, at_str = A._convert_mode(mode)
     an.set_target_mode(at_name)
     at = A.get_agent_type(at_str)
 
@@ -198,6 +188,15 @@ def _synthesize_demand(ui, time_budget):
             ODMatrix[(z, z_)] = round(v[6] * portion, 2)
 
 
-def network_to_zones(ui, time_budget=120):
-    _synthesize_grid(ui)
-    _synthesize_demand(ui, time_budget)
+def network_to_zones(ui, grid_dimension=8, total_demand=5000, time_budget=120, mode='p'):
+    if grid_dimension <= 0 or grid_dimension - int(grid_dimension) != 0:
+        raise Exception('Invalid grid_dimension: it must be a Positive Integer!')
+
+    if total_demand <= 0:
+        raise Exception('Invalid total_demand: it must be a Positive Number')
+
+    if time_budget <= 0:
+        raise Exception('Invalid time_budget: it must be a Positive Number')
+    
+    _synthesize_grid(ui, grid_dimension)
+    _synthesize_demand(ui, total_demand, time_budget, mode)
