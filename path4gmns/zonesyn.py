@@ -83,7 +83,7 @@ def _synthesize_grid(ui):
     if not A.activity_nodes():
         sample_rate = 10
         if len(nodes) > 1000:
-            sample_rate = len(nodes) / 100
+            sample_rate = int(len(nodes) / 100)
 
     k = 0
     grids = {}
@@ -92,6 +92,7 @@ def _synthesize_grid(ui):
     activity_nodeids = {}
     res = _find_resolution(nodes)
 
+    node_num = 0
     for m, node in enumerate(nodes):
         x = _convert_str_to_float(node.coord_x)
         if x is None:
@@ -122,13 +123,14 @@ def _synthesize_grid(ui):
             cy = (2 * y + U_ + D_) / 4
             zone_info[k] = [U_, D_, L_, R_, cx, cy, 0]
             k += 1
-
+        
         activity_nodes[grids[(i, j)]].append(node.get_node_no())
         activity_nodeids[grids[(i, j)]].append(node.get_node_id())
+        node_num += 1
 
     A.network.activity_nodes = activity_nodes
     A.network.zone_info = zone_info
-    A.network.activity_node_num = len(nodes)
+    A.network.activity_node_num = node_num
     A.network.zones = sorted(activity_nodes.keys())
     A.network.zone_to_nodes_dict = activity_nodeids
 
@@ -136,6 +138,7 @@ def _synthesize_grid(ui):
 def _synthesize_demand(ui):
     network = ui._base_assignment.network
     zone_info = network.zone_info
+    activity_nodes = network.activity_nodes
     ODMatrix = network.ODMatrix
     num = network.activity_node_num
 
@@ -147,11 +150,11 @@ def _synthesize_demand(ui):
 
     trip_rate = total_trips / num
     # allocate trips proportionally to each zone
-    for v in zone_info.values():
-        v[6] = len(v) * trip_rate
+    for k, v in zone_info.items():
+        v[6] = int(len(activity_nodes[k]) * trip_rate)
 
     # calculate accessibility
-    time_budget = 60
+    time_budget = 120
     an = AccessNetwork(network)
     at_name, at_str = ui._base_assignment._convert_mode('p')
     an.set_target_mode(at_name)
