@@ -1,4 +1,3 @@
-from ast import Str
 import os
 import csv
 import threading
@@ -17,7 +16,8 @@ __all__ = [
     'output_link_performance',
     'download_sample_data_sets',
     'output_agent_paths',
-    'output_zones'
+    'output_zones',
+    'output_synthesized_demand'
 ]
 
 
@@ -228,7 +228,7 @@ def read_nodes(input_dir,
                 zone_bin_index[zone_id] = bin_index
 
             zone_to_node_dict[zone_id].append(node_id)
-            
+
             if is_activity_node:
                 if zone_id not in activity_nodes.keys():
                     activity_nodes[zone_id] = []
@@ -1102,11 +1102,11 @@ def output_zones(ui, output_dir='.'):
             nodes = '; '.join(
                 str(network.node_no_to_id_dict[x]) for x in v
             )
-            
+
             [U, D, L, R, x, y, prod] = network.zone_info[k]
 
             geometry = (
-                'LINESTRING (' 
+                'LINESTRING ('
                 + str(L) + ' ' + str(U) + ','
                 + str(R) + ' ' + str(U) + ','
                 + str(R) + ' ' + str(D) + ','
@@ -1131,3 +1131,30 @@ def output_zones(ui, output_dir='.'):
             print('\ncheck zone.csv in '
                   +os.path.join(os.getcwd(), output_dir)
                   +' for synthesized zones')
+
+
+def output_synthesized_demand(ui, output_dir='.'):
+    with open(output_dir+'/syn_demand.csv', 'w',  newline='') as f:
+        writer = csv.writer(f)
+
+        line = ['o_zone_id',
+                'd_zone_id',
+                'volume']
+
+        writer.writerow(line)
+
+        ODMatrix = ui._base_assignment.network.ODMatrix
+        for k, v in ODMatrix.items():
+            line = [k[0],
+                    k[1],
+                    v]
+
+            writer.writerow(line)
+
+        if output_dir == '.':
+            print('\ncheck syn_demand.csv in '
+            +os.getcwd()+' for synthesized demand')
+        else:
+            print('\ncheck syn_demand.csv in '
+                  +os.path.join(os.getcwd(), output_dir)
+                  +' for synthesized demand')

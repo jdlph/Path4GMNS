@@ -25,7 +25,7 @@ def _get_boundaries(nodes):
             x = _convert_str_to_float(node.coord_x)
             if x is None:
                 continue
-        
+
             y = _convert_str_to_float(node.coord_y)
             if y is None:
                 continue
@@ -41,7 +41,7 @@ def _get_boundaries(nodes):
         x = _convert_str_to_float(node.coord_x)
         if x is None:
             continue
-        
+
         y = _convert_str_to_float(node.coord_y)
         if y is None:
             continue
@@ -55,11 +55,12 @@ def _get_boundaries(nodes):
 
 
 def _find_resolution(nodes):
+    # adopt from NeXTA
     resolutions = [0.00005, 0.0001, 0.0002, 0.00025, 0.0005, 0.00075,
-                   0.001, 0.002, 0.0025, 0.005, 0.0075, 0.01, 0.02, 
-                   0.025, 0.05, 0.075, 0.1, 0.2, 0.25, 0.5, 0.75, 
+                   0.001, 0.002, 0.0025, 0.005, 0.0075, 0.01, 0.02,
+                   0.025, 0.05, 0.075, 0.1, 0.2, 0.25, 0.5, 0.75,
                    1, 2, 2.5, 5, 7.5, 10, 20, 25, 50, 75]
-    
+
     # if grid_dim is d, we will create a total of d * d grids
     grid_dim = 8
     if len(nodes) > 3000:
@@ -78,26 +79,28 @@ def _find_resolution(nodes):
 def _synthesize_grid(ui):
     A = ui._base_assignment
     nodes = A.get_nodes()
+    network = A.network
 
     sample_rate = 0
     if not A.activity_nodes():
         sample_rate = 10
+        # in case of reginal model
         if len(nodes) > 1000:
             sample_rate = int(len(nodes) / 100)
 
     k = 0
+    num = 0
     grids = {}
     zone_info = {}
     activity_nodes = {}
     activity_nodeids = {}
     res = _find_resolution(nodes)
 
-    node_num = 0
     for m, node in enumerate(nodes):
         x = _convert_str_to_float(node.coord_x)
         if x is None:
             continue
-        
+
         y = _convert_str_to_float(node.coord_y)
         if y is None:
             continue
@@ -123,26 +126,27 @@ def _synthesize_grid(ui):
             cy = (2 * y + U_ + D_) / 4
             zone_info[k] = [U_, D_, L_, R_, cx, cy, 0]
             k += 1
-        
+
         activity_nodes[grids[(i, j)]].append(node.get_node_no())
         activity_nodeids[grids[(i, j)]].append(node.get_node_id())
-        node_num += 1
+        num += 1
 
-    A.network.activity_nodes = activity_nodes
-    A.network.zone_info = zone_info
-    A.network.activity_node_num = node_num
-    A.network.zones = sorted(activity_nodes.keys())
-    A.network.zone_to_nodes_dict = activity_nodeids
+    network.activity_nodes = activity_nodes
+    network.zone_to_nodes_dict = activity_nodeids
+    network.zones = sorted(activity_nodes.keys())
+    network.zone_info = zone_info
+    network.activity_node_num = num
 
 
-def _synthesize_demand(ui):
-    network = ui._base_assignment.network
+def _synthesize_demand(ui, time_budget):
+    A = ui._base_assignment
+    network = A.network
+    ODMatrix = network.ODMatrix
     zone_info = network.zone_info
     activity_nodes = network.activity_nodes
-    ODMatrix = network.ODMatrix
     num = network.activity_node_num
 
-    # some arbitrary number and rule 
+    # some arbitrary number and rule
     total_trips = 5000
     # regional model
     if num > 100000:
@@ -154,13 +158,12 @@ def _synthesize_demand(ui):
         v[6] = int(len(activity_nodes[k]) * trip_rate)
 
     # calculate accessibility
-    time_budget = 120
     an = AccessNetwork(network)
-    at_name, at_str = ui._base_assignment._convert_mode('p')
+    at_name, at_str = A._convert_mode('p')
     an.set_target_mode(at_name)
-    at = ui._base_assignment.get_agent_type(at_str)
-    min_travel_times = {}
+    at = A.get_agent_type(at_str)
 
+    min_travel_times = {}
     _update_min_travel_time(an, at, min_travel_times, False, 0)
 
     # allocate trips proportionally to each OD pair
@@ -192,9 +195,9 @@ def _synthesize_demand(ui):
                 continue
 
             portion = v_[6] / total_attr
-            ODMatrix[(z, z_)] = v[6] * portion
+            ODMatrix[(z, z_)] = round(v[6] * portion, 2)
 
 
-def network_to_zones(ui):
+def network_to_zones(ui, time_budget=120):
     _synthesize_grid(ui)
-    _synthesize_demand(ui)
+    _synthesize_demand(ui, time_budget)

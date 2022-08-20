@@ -190,9 +190,10 @@ def test_zone_synthesis():
     st = time()
     pg.network_to_zones(network)
     pg.output_zones(network)
+    pg.output_synthesized_demand(network)
 
-    print('complete zone synthesis.\n')
-    print(f'processing time of zone synthesis: {time()-st:.2f} s')
+    print('complete zone and demand synthesis.\n')
+    print(f'processing time of zone and demand synthesis: {time()-st:.2f} s')
 
 
 def demo_mode(mode):
