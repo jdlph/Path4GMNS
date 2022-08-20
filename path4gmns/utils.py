@@ -251,7 +251,6 @@ def read_links(input_dir,
                nodes,
                map_id_to_no,
                link_ids,
-               agent_type_size,
                demand_period_size,
                load_demand):
 
@@ -343,7 +342,6 @@ def read_links(input_dir,
                         capacity,
                         allowed_uses,
                         geometry,
-                        agent_type_size,
                         demand_period_size)
 
             # VDF Attributes
@@ -716,7 +714,6 @@ def read_network(load_demand='true', input_dir='.'):
                network.nodes,
                network.map_id_to_no,
                network.link_ids,
-               assignm.get_agent_type_count(),
                assignm.get_demand_period_count(),
                load_demand)
 
@@ -731,8 +728,7 @@ def read_network(load_demand='true', input_dir='.'):
                         network.zone_to_nodes,
                         assignm.column_pool)
 
-    network.update(assignm.get_agent_type_count(),
-                   assignm.get_demand_period_count())
+    network.update()
 
     assignm.network = network
     assignm.setup_spnetwork()

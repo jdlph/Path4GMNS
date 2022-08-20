@@ -71,7 +71,6 @@ class Link:
                  capacity=49500,
                  allowed_uses='all',
                  geometry='',
-                 agent_type_size=1,
                  demand_period_size=1):
         """ the attributes of link """
         self.id = id
@@ -96,7 +95,6 @@ class Link:
         self.cost = self.free_flow_travel_time_in_min
         self.flow_volume = 0
         # add for CG
-        self.agent_type_size = agent_type_size
         self.demand_period_size = demand_period_size
         self.toll = 0
         self.route_choice_cost = 0
@@ -252,9 +250,6 @@ class Network:
         # added for CG
         self.zones = None
         self.capi_allocated = False
-        # the following two are IDs rather than objects
-        self._agent_type_size = 1
-        self._demand_period_size = 1
         self.agent_type_name = 'all'
         # temporary implementations which will be replaced by class Zone
         self.activity_nodes = {}
@@ -262,14 +257,12 @@ class Network:
         self.ODMatrix = {}
         self.activity_node_num = 0
 
-    def update(self, agent_type_size, demand_period_size):
+    def update(self):
         self.node_size = len(self.nodes)
         self.link_size = len(self.links)
         self.agent_size = len(self.agents)
         # it is needed for setup_spnetwork() and setup_spnetwork_a()
         self.zones = sorted(self.zone_to_nodes.keys())
-        self._agent_type_size = agent_type_size
-        self._demand_period_size = demand_period_size
 
     def allocate_for_CAPI(self):
         # execute only on the first call
