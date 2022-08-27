@@ -34,7 +34,7 @@ def _get_boundaries(nodes):
             U = D = y
             break
 
-        if i == len(nodes) - 1 and L is None or U is None:
+        if i == len(nodes) - 1 and (L is None or U is None):
             raise Exception('No Coordinate Info')
 
     for node in nodes:
@@ -120,6 +120,7 @@ def _synthesize_grid(ui, grid_dim):
             # coordinates of the centroid, which are weighted by the first node
             cx = (2 * x + L_ + R_) / 4
             cy = (2 * y + U_ + D_) / 4
+            # the last one is reserved for production/attraction
             zone_info[k] = [U_, D_, L_, R_, cx, cy, 0]
             k += 1
 
@@ -142,11 +143,6 @@ def _synthesize_demand(ui, total_demand, time_budget, mode):
     activity_nodes = network.activity_nodes
     num = network.activity_node_num
 
-    trip_rate = total_demand / num
-    # allocate trips proportionally to each zone
-    for k, v in zone_info.items():
-        v[6] = int(len(activity_nodes[k]) * trip_rate)
-
     # calculate accessibility
     an = AccessNetwork(network)
     at_name, at_str = A._convert_mode(mode)
@@ -155,6 +151,11 @@ def _synthesize_demand(ui, total_demand, time_budget, mode):
 
     min_travel_times = {}
     _update_min_travel_time(an, at, min_travel_times, False, 0)
+
+    # allocate trips proportionally to each zone
+    trip_rate = total_demand / num
+    for k, v in zone_info.items():
+        v[6] = int(len(activity_nodes[k]) * trip_rate)
 
     # allocate trips proportionally to each OD pair
     for z, v in zone_info.items():
@@ -189,7 +190,7 @@ def _synthesize_demand(ui, total_demand, time_budget, mode):
 
 
 def network_to_zones(ui, grid_dimension=8, total_demand=5000, time_budget=120, mode='p'):
-    if grid_dimension <= 0 or grid_dimension - int(grid_dimension) != 0:
+    if grid_dimension <= 0 or grid_dimension != int(grid_dimension):
         raise Exception('Invalid grid_dimension: it must be a Positive Integer!')
 
     if total_demand <= 0:

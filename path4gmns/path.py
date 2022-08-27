@@ -8,8 +8,8 @@ Two path engines are provided:
 """
 
 
-import ctypes
 import collections
+import ctypes
 import heapq
 import os.path
 from sys import platform

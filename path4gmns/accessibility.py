@@ -2,8 +2,6 @@ import os
 import csv
 import threading
 
-from requests import head
-
 from .classes import AccessNetwork
 from .path import single_source_shortest_path
 from .consts import MAX_LABEL_COST, MIN_TIME_BUDGET, \

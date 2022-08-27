@@ -294,8 +294,11 @@ def read_links(input_dir,
             if lanes is None:
                 lanes = 1
 
-            link_type = _convert_str_to_int(line['link_type'])
-            if link_type is None:
+            try:
+                link_type = _convert_str_to_int(line['link_type'])
+                if link_type is None:
+                    link_type = 1
+            except KeyError:
                 link_type = 1
 
             free_speed = _convert_str_to_int(line['free_speed'])
