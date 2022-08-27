@@ -12,7 +12,7 @@ __all__ = ['UI']
 
 class Node:
 
-    def __init__(self, node_seq_no, node_id, zone_id, x='', y='', b=False):
+    def __init__(self, node_seq_no, node_id, zone_id, x='', y='', is_activity_node=False):
         """ the attributes of node  """
         # node_seq_no: internal node index used for calculation
         self.node_seq_no = node_seq_no
@@ -24,7 +24,7 @@ class Node:
         self.zone_id = zone_id
         self.coord_x = x
         self.coord_y = y
-        self.is_activity_node = b
+        self.is_activity_node = is_activity_node
 
     def has_outgoing_links(self):
         return len(self.outgoing_links) > 0
@@ -84,15 +84,15 @@ class Link:
         self.lanes = lanes
         # 1: one direction, 2: two way
         self.type = link_type
-        # free_speed: mile/h or km/h
-        self.free_flow_travel_time_in_min = (
+        # free flow travel time in minutes, free_speed is either mile/h or km/h
+        self.fftt = (
             length / max(SMALL_DIVISOR, free_speed) * 60
         )
         # capacity is lane capacity per hour
         self.link_capacity = capacity * lanes
         self.allowed_uses = allowed_uses
         self.geometry = geometry
-        self.cost = self.free_flow_travel_time_in_min
+        self.cost = self.fftt
         self.flow_volume = 0
         # add for CG
         self.demand_period_size = demand_period_size
@@ -124,7 +124,7 @@ class Link:
         return self.toll
 
     def get_free_flow_travel_time(self):
-        return self.free_flow_travel_time_in_min
+        return self.fftt
 
     def get_route_choice_cost(self):
         return self.route_choice_cost
@@ -225,6 +225,33 @@ class Agent:
         return self.node_path
 
 
+class Zone:
+
+    def __init__(self, zone_no, zone_id):
+        self.no = zone_no
+        self.id = zone_id
+        self.bin_id = -1
+        self.production = 0 
+        self.centroid = None
+        self.boundaries = []
+        self.coord_x = 91
+        self.coord_y = 181
+        self.nodes = []
+        self.activity_nodes = []
+
+    def get_bin_index(self):
+        return self.bin_id
+
+    def get_centroid(self):
+        return self.centroid
+
+    def get_production(self):
+        return self.production
+
+    def get_activity_nodes_num(self):
+        return len(self.activity_nodes)
+    
+
 class Network:
 
     def __init__(self):
@@ -261,7 +288,7 @@ class Network:
         self.node_size = len(self.nodes)
         self.link_size = len(self.links)
         self.agent_size = len(self.agents)
-        # it is needed for setup_spnetwork() and setup_spnetwork_a()
+        # it is needed for setup_spnetwork()
         self.zones = sorted(self.zone_to_nodes.keys())
 
     def allocate_for_CAPI(self):
@@ -944,7 +971,6 @@ class AccessNetwork(Network):
             self.map_no_to_id[node_seq_no] = node_id
 
             # build connectors
-
             for i in self.get_nodes_from_zone(z):
                 link_id_f = 'conn_' + str(link_seq_no)
                 from_node_no = node_seq_no
