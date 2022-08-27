@@ -12,7 +12,7 @@ import collections
 import ctypes
 import heapq
 import os.path
-from sys import platform
+import platform
 
 from .consts import MAX_LABEL_COST
 
@@ -25,12 +25,17 @@ __all__ = [
 ]
 
 
-if platform.startswith('win32'):
+_os = platform.system()
+if _os.startswith('Windows'):
     _dll_file = os.path.join(os.path.dirname(__file__), 'bin/path_engine.dll')
-elif platform.startswith('linux'):
+elif _os.startswith('Linux'):
     _dll_file = os.path.join(os.path.dirname(__file__), 'bin/path_engine.so')
-elif platform.startswith('darwin'):
-    _dll_file = os.path.join(os.path.dirname(__file__), 'bin/path_engine.dylib')
+elif _os.startswith('Darwin'):
+    # check CPU is Intel or Apple Silicon
+    if platform.machine().startswith('x86_64 '):
+        _dll_file = os.path.join(os.path.dirname(__file__), 'bin/path_engine_x86.dylib')
+    else:
+        _dll_file = os.path.join(os.path.dirname(__file__), 'bin/path_engine_arm.dylib')
 else:
     raise Exception('Please build the shared library compatible to your OS\
                     using source files in engine_cpp!')

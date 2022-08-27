@@ -1,17 +1,22 @@
 import os
 import ctypes
-from sys import platform
+import platform
 
 
 __all__ = ['perform_network_assignment_DTALite']
 
 
-if platform.startswith('win32'):
+_os = platform.system()
+if _os.startswith('Windows'):
     _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite.dll')
-elif platform.startswith('linux'):
+elif _os.startswith('Linux'):
     _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite.so')
-elif platform.startswith('darwin'):
-    _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite.dylib')
+elif _os.startswith('Darwin'):
+    # check CPU is Intel or Apple Silicon
+    if platform.machine().startswith('x86_64 '):
+        _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite_x86.dylib')
+    else:
+        _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite_arm.dylib')
 else:
     raise Exception('Please build the shared library compatible to your OS\
                     using source files')
