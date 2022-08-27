@@ -32,7 +32,7 @@ elif _os.startswith('Linux'):
     _dll_file = os.path.join(os.path.dirname(__file__), 'bin/path_engine.so')
 elif _os.startswith('Darwin'):
     # check CPU is Intel or Apple Silicon
-    if platform.machine().startswith('x86_64 '):
+    if platform.machine().startswith('x86_64'):
         _dll_file = os.path.join(os.path.dirname(__file__), 'bin/path_engine_x86.dylib')
     else:
         _dll_file = os.path.join(os.path.dirname(__file__), 'bin/path_engine_arm.dylib')

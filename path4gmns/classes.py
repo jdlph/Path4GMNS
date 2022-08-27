@@ -1077,6 +1077,9 @@ class AccessNetwork(Network):
 
     def get_sp_distance(self, node_no):
         """ get the shortest path distance """
+        if self.link_preds[node_no] == -1:
+            return MAX_LABEL_COST
+
         dist = 0
         while node_no >= 0:
             link_seq_no = self.link_preds[node_no]

@@ -79,7 +79,13 @@ def _output_accessibility(min_travel_times, zones, mode='p', output_dir='.'):
             coord_dz = zones[k[1]]
             geo = 'LINESTRING (' + coord_oz + ', ' + coord_dz + ')'
 
-            line = [k[0], '', k[1], '', v[0], v[1], geo]
+            tt = v[0]
+            dis = v[1]
+            if tt >= MAX_LABEL_COST:
+                tt = 'N/A'
+                dis = 'N/A'
+
+            line = [k[0], '', k[1], '', tt, dis, geo]
             writer.writerow(line)
 
         if output_dir == '.':

@@ -13,7 +13,7 @@ elif _os.startswith('Linux'):
     _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite.so')
 elif _os.startswith('Darwin'):
     # check CPU is Intel or Apple Silicon
-    if platform.machine().startswith('x86_64 '):
+    if platform.machine().startswith('x86_64'):
         _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite_x86.dylib')
     else:
         _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite_arm.dylib')
