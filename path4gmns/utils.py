@@ -732,10 +732,7 @@ def read_network(load_demand='true', input_dir='.'):
                         assignm.column_pool)
 
     network.update()
-
     assignm.network = network
-    assignm.setup_spnetwork()
-
     ui = UI(assignm)
 
     return ui

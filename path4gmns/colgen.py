@@ -35,7 +35,6 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
                                                 demand_periods,
                                                 iter_num,
                                                 is_path_vol_self_reducing):
-
     # the original implementation is iter_num < 0, which does not make sense
     if iter_num == 0:
         return
@@ -323,6 +322,8 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
 
     # base assignment
     A = ui._base_assignment
+    # set up SPNetwork
+    A.setup_spnetwork()
 
     links = A.get_links()
     ats = A.get_agent_types()
