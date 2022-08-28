@@ -227,8 +227,8 @@ class Agent:
 
 class Zone:
 
-    def __init__(self, zone_no, zone_id):
-        self.no = zone_no
+    def __init__(self, zone_id):
+        self.no = -1
         self.id = zone_id
         self.bin_id = -1
         self.production = 0 
@@ -250,6 +250,15 @@ class Zone:
 
     def get_activity_nodes_num(self):
         return len(self.activity_nodes)
+
+    def get_nodes(self):
+        return self.nodes
+
+    def add_activity_node(self, node_id):
+        self.activity_nodes.append(node_id)
+
+    def add_node(self, node_id):
+        self.nodes.append(node_id)
     
 
 class Network:
@@ -283,6 +292,7 @@ class Network:
         self.zone_info = {}
         self.ODMatrix = {}
         self.activity_node_num = 0
+        self.zones_ = {}
 
     def update(self):
         self.node_size = len(self.nodes)
@@ -377,10 +387,10 @@ class Network:
                 # step 1 generate o_node_id and d_node_id randomly
                 # according to o_zone_id and d_zone_id
                 agent.o_node_id = choice(
-                    self.zone_to_nodes[orig]
+                    self.zones_[orig].get_nodes()
                 )
                 agent.d_node_id = choice(
-                    self.zone_to_nodes[dest]
+                    self.zones_[dest].get_nodes()
                 )
 
                 # step 2 update agent_id and agent_seq_no
@@ -466,7 +476,7 @@ class Network:
         return self.agent_size
 
     def get_nodes_from_zone(self, zone_id):
-        return self.zone_to_nodes[zone_id]
+        return self.zones_[zone_id].get_nodes()
 
     def get_node_no(self, node_id):
         return self.map_id_to_no[node_id]
@@ -484,10 +494,10 @@ class Network:
         return self.links
 
     def get_zones(self):
-        return self.zones
+        return self.zones_.keys()
 
     def get_zone_size(self):
-        return len(self.zone_to_nodes)
+        return len(self.zone_)
 
     def get_from_node_no_arr(self):
         return self.from_node_no_array
@@ -1017,7 +1027,7 @@ class AccessNetwork(Network):
         return self.base.get_zones()
 
     def get_nodes_from_zone(self, zone_id):
-        return self.base.zone_to_nodes[zone_id]
+        return self.base.get_nodes_from_zone(zone_id)
 
     def _get_zone_coord(self, zone_id):
         """ coordinate of each zone is from its first node """
@@ -1341,7 +1351,7 @@ class Assignment:
         spvec = {}
 
         # z is zone id starting from 1
-        for z in self.network.zones:
+        for z in self.get_zones():
             if z == -1:
                 continue
 

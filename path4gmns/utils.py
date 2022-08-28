@@ -2,7 +2,7 @@ import os
 import csv
 import threading
 
-from .classes import Node, Link, Network, Column, ColumnVec, VDFPeriod, \
+from .classes import Node, Link, Zone, Network, Column, ColumnVec, VDFPeriod, \
                      AgentType, DemandPeriod, Demand, SpecialEvent, Assignment, UI
 
 from .colgen import update_links_using_columns
@@ -166,9 +166,7 @@ def read_nodes(input_dir,
                nodes,
                map_id_to_no,
                map_no_to_id,
-               zone_to_nodes,
-               zone_bin_index,
-               activity_nodes):
+               zones_):
 
     """ step 1: read input_node """
     with open(input_dir+'/node.csv', 'r') as fp:
@@ -221,26 +219,24 @@ def read_nodes(input_dir,
                 pass
 
             # associate node_id with corresponding zone
-            if zone_id not in zone_to_nodes.keys():
-                zone_to_nodes[zone_id] = []
+            if zone_id not in zones_.keys():
+                z = Zone(zone_id)
                 # only take the value of bin_index from the first node
                 # associated with each zone
-                zone_bin_index[zone_id] = bin_index
-
-            zone_to_nodes[zone_id].append(node_id)
-
+                z.bin_id = bin_index
+                zones_[zone_id] = z
+            
+            zones_[zone_id].add_node(node_id)
             if is_activity_node:
-                if zone_id not in activity_nodes.keys():
-                    activity_nodes[zone_id] = []
-                activity_nodes[zone_id].append(node_id)
+                zones_[zone_id].add_activity_node(node_id)
 
             node_seq_no += 1
 
         print(f'the number of nodes is {node_seq_no}')
 
-        zone_size = len(zone_to_nodes)
+        zone_size = len(zones_)
         # do not count virtual zone with id as -1
-        if -1 in zone_to_nodes.keys():
+        if -1 in zones_.keys():
             zone_size -= 1
 
         print(f'the number of zones is {zone_size}')
@@ -450,7 +446,7 @@ def read_demand(input_dir,
                 file,
                 agent_type_id,
                 demand_period_id,
-                zone_to_node_dict,
+                zones_,
                 column_pool):
 
     """ step 3:read input_agent """
@@ -474,11 +470,11 @@ def read_demand(input_dir,
                 continue
 
             # o_zone_id does not exist in node.csv, discard it
-            if oz_id not in zone_to_node_dict.keys():
+            if oz_id not in zones_.keys():
                 continue
 
             # d_zone_id does not exist in node.csv, discard it
-            if dz_id not in zone_to_node_dict.keys():
+            if dz_id not in zones_.keys():
                 continue
 
             volume = _convert_str_to_float(line['volume'])
@@ -708,9 +704,7 @@ def read_network(load_demand='true', input_dir='.'):
                network.nodes,
                network.map_id_to_no,
                network.map_no_to_id,
-               network.zone_to_nodes,
-               network.zone_bin_index,
-               network.activity_nodes)
+               network.zones_)
 
     read_links(input_dir,
                network.links,
@@ -728,7 +722,7 @@ def read_network(load_demand='true', input_dir='.'):
                         d.get_file_name(),
                         at,
                         dp,
-                        network.zone_to_nodes,
+                        network.zones_,
                         assignm.column_pool)
 
     network.update()
