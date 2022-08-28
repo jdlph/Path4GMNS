@@ -336,7 +336,7 @@ def evaluate_equity(ui, multimodal=True, mode='p', time_dependent=False,
 
         base = ui._base_assignment
         an = AccessNetwork(base.network)
-        zones = an.base.zones_
+        zones = an.base.zones
         ats = None
 
         min_travel_times = {}

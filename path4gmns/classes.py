@@ -231,7 +231,7 @@ class Zone:
         self.no = -1
         self.id = zone_id
         self.bin_id = -1
-        self.production = 0 
+        self.production = 0
         self.centroid = None
         self.boundaries = []
         self.coord_x = 91
@@ -239,29 +239,26 @@ class Zone:
         self.nodes = []
         self.activity_nodes = []
 
-    def get_bin_index(self):
-        return self.bin_id
-
-    def get_centroid(self):
-        return self.centroid
-
-    def get_production(self):
-        return self.production
+    def get_activity_nodes(self):
+        return self.activity_nodes
 
     def get_activity_nodes_num(self):
         return len(self.activity_nodes)
 
-    def get_nodes(self):
-        return self.nodes
-
-    def get_activity_nodes(self):
-        return self.activity_nodes
+    def get_bin_index(self):
+        return self.bin_id
 
     def get_boundaries(self):
         return self.boundaries
 
+    def get_centroid(self):
+        return self.centroid
+
     def get_coordinate(self):
         return self.coord_x, self.coord_y
+
+    def get_nodes(self):
+        return self.nodes
 
     def get_production(self):
         return self.production
@@ -279,7 +276,7 @@ class Zone:
 
     def setup_production(self, p):
         self.production = p
-    
+
 
 class Network:
 
@@ -301,17 +298,12 @@ class Network:
         self.node_label_cost = None
         self.node_preds = None
         self.link_preds = None
-        # added for CG
-        self.zones = None
         self.capi_allocated = False
         self.agent_type_name = 'all'
-        # temporary implementations which will be replaced by class Zone
-        self.activity_nodes = {}
-        self.zone_info = {}
+        # key: zone id, value: zone object
+        self.zones = {}
         self.ODMatrix = {}
         self.activity_node_num = 0
-        # key: zone id, value: zone object
-        self.zones_ = {}
 
     def update(self):
         self.node_size = len(self.nodes)
@@ -404,10 +396,10 @@ class Network:
                 # step 1 generate o_node_id and d_node_id randomly
                 # according to o_zone_id and d_zone_id
                 agent.o_node_id = choice(
-                    self.zones_[orig].get_nodes()
+                    self.zones[orig].get_nodes()
                 )
                 agent.d_node_id = choice(
-                    self.zones_[dest].get_nodes()
+                    self.zones[dest].get_nodes()
                 )
 
                 # step 2 update agent_id and agent_seq_no
@@ -493,7 +485,7 @@ class Network:
         return self.agent_size
 
     def get_nodes_from_zone(self, zone_id):
-        return self.zones_[zone_id].get_nodes()
+        return self.zones[zone_id].get_nodes()
 
     def get_node_no(self, node_id):
         return self.map_id_to_no[node_id]
@@ -511,7 +503,7 @@ class Network:
         return self.links
 
     def get_zones(self):
-        return self.zones_.keys()
+        return self.zones.keys()
 
     def get_zone_size(self):
         return len(self.zone_)
@@ -1464,9 +1456,6 @@ class Assignment:
             self.accessnetwork.get_pred_link_id(x) for x in nodes
         ]
 
-    def activity_nodes(self):
-        return self.network.activity_nodes
-
 
 class UI:
     """ an abstract class only with user interfaces """
@@ -1499,6 +1488,9 @@ class UI:
     def get_agent_link_path(self, agent_id):
         """ return the sequence of link IDs along the agent path """
         return self._base_assignment.get_agent_link_path(agent_id)
+
+    def get_ODMatrix(self):
+        return self._base_assignment.network.ODMatrix
 
     def find_path_for_agents(self, mode='all'):
         """ find and set up shortest path for each agent """

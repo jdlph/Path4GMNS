@@ -166,14 +166,14 @@ def read_nodes(input_dir,
                nodes,
                map_id_to_no,
                map_no_to_id,
-               zones_):
+               zones):
 
     """ step 1: read input_node """
     with open(input_dir+'/node.csv', 'r') as fp:
         print('read node.csv')
 
         reader = csv.DictReader(fp)
-        node_seq_no = 0
+        node_no = 0
         for line in reader:
             # set up node_id, which should be an integer
             node_id = _convert_str_to_int(line['node_id'])
@@ -202,12 +202,12 @@ def read_nodes(input_dir,
                 pass
 
             # construct node object
-            node = Node(node_seq_no, node_id, zone_id, coord_x, coord_y, is_activity_node)
+            node = Node(node_no, node_id, zone_id, coord_x, coord_y, is_activity_node)
             nodes.append(node)
 
             # set up mapping between node_seq_no and node_id
-            map_id_to_no[node_id] = node_seq_no
-            map_no_to_id[node_seq_no] = node_id
+            map_id_to_no[node_id] = node_no
+            map_no_to_id[node_no] = node_id
 
             # bin_index for equity evaluation
             bin_index = 0
@@ -219,24 +219,24 @@ def read_nodes(input_dir,
                 pass
 
             # associate node_id with corresponding zone
-            if zone_id not in zones_.keys():
+            if zone_id not in zones.keys():
                 z = Zone(zone_id)
                 # only take the value of bin_index from the first node
                 # associated with each zone
                 z.bin_id = bin_index
-                zones_[zone_id] = z
-            
-            zones_[zone_id].add_node(node_id)
+                zones[zone_id] = z
+
+            zones[zone_id].add_node(node_id)
             if is_activity_node:
-                zones_[zone_id].add_activity_node(node_id)
+                zones[zone_id].add_activity_node(node_id)
 
-            node_seq_no += 1
+            node_no += 1
 
-        print(f'the number of nodes is {node_seq_no}')
+        print(f'the number of nodes is {node_no}')
 
-        zone_size = len(zones_)
+        zone_size = len(zones)
         # do not count virtual zone with id as -1
-        if -1 in zones_.keys():
+        if -1 in zones.keys():
             zone_size -= 1
 
         print(f'the number of zones is {zone_size}')
@@ -704,7 +704,7 @@ def read_network(load_demand='true', input_dir='.'):
                network.nodes,
                network.map_id_to_no,
                network.map_no_to_id,
-               network.zones_)
+               network.zones)
 
     read_links(input_dir,
                network.links,
@@ -722,7 +722,7 @@ def read_network(load_demand='true', input_dir='.'):
                         d.get_file_name(),
                         at,
                         dp,
-                        network.zones_,
+                        network.zones,
                         assignm.column_pool)
 
     network.update()
@@ -1135,7 +1135,7 @@ def output_synthesized_demand(ui, output_dir='.'):
 
         writer.writerow(line)
 
-        ODMatrix = ui._base_assignment.network.ODMatrix
+        ODMatrix = ui.get_ODMatrix()
         for k, v in ODMatrix.items():
             line = [k[0],
                     k[1],

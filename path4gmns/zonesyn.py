@@ -170,7 +170,7 @@ def _synthesize_demand(ui, total_demand, time_budget, mode):
 
         if total_attr == 0:
             continue
-        
+
         prod = v.get_production()
 
         for z_, v_ in zones.items():
@@ -179,7 +179,7 @@ def _synthesize_demand(ui, total_demand, time_budget, mode):
 
             if v_.get_production() == 0:
                 continue
-            
+
             prod_ = v_.get_production()
             portion = prod_ / total_attr
             ODMatrix[(z, z_)] = round(prod * portion, 2)
@@ -194,6 +194,6 @@ def network_to_zones(ui, grid_dimension=8, total_demand=5000, time_budget=120, m
 
     if time_budget <= 0:
         raise Exception('Invalid time_budget: it must be a Positive Number')
-    
+
     _synthesize_grid(ui, grid_dimension)
     _synthesize_demand(ui, total_demand, time_budget, mode)
