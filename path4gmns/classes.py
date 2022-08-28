@@ -254,11 +254,31 @@ class Zone:
     def get_nodes(self):
         return self.nodes
 
+    def get_activity_nodes(self):
+        return self.activity_nodes
+
+    def get_boundaries(self):
+        return self.boundaries
+
+    def get_coordinate(self):
+        return self.coord_x, self.coord_y
+
+    def get_production(self):
+        return self.production
+
     def add_activity_node(self, node_id):
         self.activity_nodes.append(node_id)
 
     def add_node(self, node_id):
         self.nodes.append(node_id)
+
+    def setup_geo(self, U, D, L, R, cx, cy):
+        self.boundaries = [U, D, L, R]
+        self.coord_x = cx
+        self.coord_y = cy
+
+    def setup_production(self, p):
+        self.production = p
     
 
 class Network:

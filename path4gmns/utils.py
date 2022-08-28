@@ -1085,15 +1085,17 @@ def output_zones(ui, output_dir='.'):
         writer.writerow(line)
 
         base = ui._base_assignment
-        activity_nodes = base.activity_nodes()
         network = base.network
+        zones = network.zones_
 
-        for k, v in activity_nodes.items():
+        for k, v in zones.items():
             nodes = '; '.join(
-                str(network.map_no_to_id[x]) for x in v
+                str(x) for x in v.get_activity_nodes()
             )
 
-            [U, D, L, R, x, y, prod] = network.zone_info[k]
+            [U, D, L, R] = v.get_boundaries()
+            x, y = v.get_coordinate()
+            prod = v.get_production()
 
             geometry = (
                 'LINESTRING ('
