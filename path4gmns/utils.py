@@ -446,7 +446,7 @@ def read_demand(input_dir,
                 file,
                 agent_type_id,
                 demand_period_id,
-                zones_,
+                zones,
                 column_pool):
 
     """ step 3:read input_agent """
@@ -470,11 +470,11 @@ def read_demand(input_dir,
                 continue
 
             # o_zone_id does not exist in node.csv, discard it
-            if oz_id not in zones_.keys():
+            if oz_id not in zones.keys():
                 continue
 
             # d_zone_id does not exist in node.csv, discard it
-            if dz_id not in zones_.keys():
+            if dz_id not in zones.keys():
                 continue
 
             volume = _convert_str_to_float(line['volume'])
@@ -1086,7 +1086,7 @@ def output_zones(ui, output_dir='.'):
 
         base = ui._base_assignment
         network = base.network
-        zones = network.zones_
+        zones = network.zones
 
         for k, v in zones.items():
             nodes = '; '.join(

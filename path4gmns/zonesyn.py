@@ -76,11 +76,11 @@ def _synthesize_grid(ui, grid_dim):
     A = ui._base_assignment
     nodes = A.get_nodes()
     network = A.network
-    zones = network.zones_
+    zones = network.zones
     zones.clear()
 
     sample_rate = 0
-    if not A.activity_nodes():
+    if network.activity_node_num == 0:
         sample_rate = 10
         # in case of reginal model
         if len(nodes) > 1000:
@@ -133,7 +133,7 @@ def _synthesize_demand(ui, total_demand, time_budget, mode):
     A = ui._base_assignment
     network = A.network
     ODMatrix = network.ODMatrix
-    zones = network.zones_
+    zones = network.zones
     num = network.activity_node_num
 
     # calculate accessibility
