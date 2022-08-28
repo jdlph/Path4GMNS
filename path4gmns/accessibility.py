@@ -336,6 +336,7 @@ def evaluate_equity(ui, multimodal=True, mode='p', time_dependent=False,
 
         base = ui._base_assignment
         an = AccessNetwork(base.network)
+        zones = an.base.zones_
         ats = None
 
         min_travel_times = {}
@@ -362,15 +363,17 @@ def evaluate_equity(ui, multimodal=True, mode='p', time_dependent=False,
                                     demand_period_id)
             ats = [at]
 
-        for oz, bin_index in an.get_zone_bin_indices().items():
+        # v is zone object
+        for oz, v in zones.items():
             if oz == -1:
                 continue
 
+            bin_index = v.get_bin_index()
             for at in ats:
                 at_str = at.get_type_str()
 
                 count = 0
-                for dz in an.get_zone_bin_indices().keys():
+                for dz in zones.keys():
                     if (oz, dz, at_str) not in min_travel_times.keys():
                         continue
 

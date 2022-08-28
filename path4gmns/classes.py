@@ -296,8 +296,6 @@ class Network:
         self.map_no_to_id = {}
         # map link id to link seq no
         self.link_ids = {}
-        # key: zone id, value: node id list
-        self.zone_to_nodes = {}
         # key: zone id, value: bin_index
         self.zone_bin_index = {}
         self.node_label_cost = None
@@ -312,14 +310,13 @@ class Network:
         self.zone_info = {}
         self.ODMatrix = {}
         self.activity_node_num = 0
+        # key: zone id, value: zone object
         self.zones_ = {}
 
     def update(self):
         self.node_size = len(self.nodes)
         self.link_size = len(self.links)
         self.agent_size = len(self.agents)
-        # it is needed for setup_spnetwork()
-        self.zones = sorted(self.zone_to_nodes.keys())
 
     def allocate_for_CAPI(self):
         # execute only on the first call
@@ -1055,9 +1052,6 @@ class AccessNetwork(Network):
         node_seq_no = self.base.get_node_no(node_id)
         node = self.base.get_nodes()[node_seq_no]
         return node.coord_x, node.coord_y
-
-    def get_zone_bin_indices(self):
-        return self.base.zone_bin_index
 
     def set_target_mode(self, mode):
         """ set up the target mode for accessibility evaluation

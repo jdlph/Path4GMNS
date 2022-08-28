@@ -118,8 +118,6 @@ def _synthesize_grid(ui, grid_dim):
             # coordinates of the centroid, which are weighted by the first node
             cx = (2 * x + L_ + R_) / 4
             cy = (2 * y + U_ + D_) / 4
-            # the last one is reserved for production/attraction
-            # zone_info[k] = [U_, D_, L_, R_, cx, cy, 0]
             z.setup_geo(U_, D_, L_, R_, cx, cy)
             zones[k] = z
             k += 1
