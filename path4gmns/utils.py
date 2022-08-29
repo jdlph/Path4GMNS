@@ -220,10 +220,9 @@ def read_nodes(input_dir,
 
             # associate node_id with corresponding zone
             if zone_id not in zones.keys():
-                z = Zone(zone_id)
                 # only take the value of bin_index from the first node
                 # associated with each zone
-                z.bin_id = bin_index
+                z = Zone(zone_id, bin_index)
                 zones[zone_id] = z
 
             zones[zone_id].add_node(node_id)
@@ -1097,7 +1096,7 @@ def output_zones(ui, output_dir='.'):
             x, y = v.get_coordinate()
             prod = v.get_production()
 
-            geometry = (
+            geo = (
                 'LINESTRING ('
                 + str(L) + ' ' + str(U) + ','
                 + str(R) + ' ' + str(U) + ','
@@ -1110,7 +1109,7 @@ def output_zones(ui, output_dir='.'):
                     nodes,
                     x,
                     y,
-                    geometry,
+                    geo,
                     prod,
                     prod]
 

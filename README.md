@@ -1,6 +1,6 @@
 # Path4GMNS
 [![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)
- [![Downloads](https://pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.8.4-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen)
+ [![Downloads](https://pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.8.5-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen)
 
 Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding static shortest paths for simple analyses, its main functionality is to provide an efficient and flexible framework for column-based (path-based) modeling and applications in transportation (e.g., activity-based demand modeling). Path4GMNS supports, in short,
 
@@ -16,16 +16,16 @@ Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jd
    * Origin-Destination Matrix Estimation (ODME).
 
 ## Installation
-Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.8.4/), and can be installed using
+Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.8.5/), and can be installed using
 ```
 $ pip install path4gmns
 ```
-If you need a specific version of Path4GMNS, say, 0.8.4,
+If you need a specific version of Path4GMNS, say, 0.8.5,
 ```
-$ pip install path4gmns==0.8.4
+$ pip install path4gmns==0.8.5
 ```
 
-v0.8.4 comes with bug fix and new functionality in representing special events. All previous releases shall be **deprecated**.
+v0.8.5 now supports _Apple Silicon_, and _synthesizing zones and demands_. Path4GMNS has evolved dramatically since its early releases with bug fixes, performance improvement, new functionalities. Please **discard all old versions** and **update to or install the latest version**.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding use cases in the following section.
@@ -451,11 +451,11 @@ As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Envi
 # from the root directory of PATH4GMNS
 $ python setup.py sdist bdist_wheel
 $ cd dist
-# or python -m pip instal pypath4gmns-0.8.4-py3-none-any.whl
-$ python -m pip install path4gmns-0.8.4.tar.gz
+# or python -m pip instal pypath4gmns-0.8.5-py3-none-any.whl
+$ python -m pip install path4gmns-0.8.5.tar.gz
 ```
 
-Here, 0.8.4 is the version number. Replace it with the one specified in setup.py.
+Here, 0.8.5 is the version number. Replace it with the one specified in setup.py.
 
 ## Implementation Notes
 
@@ -492,10 +492,12 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 17. Let users choose which speed to use in accessibility evaluation (either the free speed of an agent specified in settings.yml or the link free flow speed defined in link.csv) (v0.8.3)
 18. Transportation equity evaluation (v0.8.3)
 19. Introduce special events with affected links and capacity reductions (v0.8.4)
+20. Synthesize zones and demands (v0.8.5)
+21. Add support for Apple Silicon (v0.8.5)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
 
-## Contribute
+## Please Contribute
 
 Any contributions are welcomed including advise new applications of Path4GMNS, enhance documentation (this guideline and [docstrings](https://docs.python-guide.org/writing/documentation/#writing-docstrings) in the source code), refactor and/or optimize the source code, report and/or resolve potential issues/bugs, suggest and/or add new functionalities, etc.
 

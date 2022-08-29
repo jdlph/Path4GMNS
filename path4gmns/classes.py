@@ -227,10 +227,10 @@ class Agent:
 
 class Zone:
 
-    def __init__(self, zone_id):
+    def __init__(self, zone_id, bin_index=0):
         self.no = -1
         self.id = zone_id
-        self.bin_id = -1
+        self.bin_id = bin_index
         self.production = 0
         self.centroid = None
         self.boundaries = []
@@ -269,6 +269,9 @@ class Zone:
     def add_node(self, node_id):
         self.nodes.append(node_id)
 
+    def set_bin_index(self, bi):
+        self.bin_id = bi
+
     def setup_geo(self, U, D, L, R, cx, cy):
         self.boundaries = [U, D, L, R]
         self.coord_x = cx
@@ -293,8 +296,6 @@ class Network:
         self.map_no_to_id = {}
         # map link id to link seq no
         self.link_ids = {}
-        # key: zone id, value: bin_index
-        self.zone_bin_index = {}
         self.node_label_cost = None
         self.node_preds = None
         self.link_preds = None
@@ -381,8 +382,8 @@ class Network:
 
             # k= (at, dp, orig, dest)
             at = k[0]
-            orig = k[2]
-            dest = k[3]
+            oz = k[2]
+            dz = k[3]
 
             vol = int(cv.get_od_volume()+1)
             for _ in range(vol):
@@ -390,16 +391,16 @@ class Network:
                 agent = Agent(agent_id,
                               agent_no,
                               at,
-                              orig,
-                              dest)
+                              oz,
+                              dz)
 
                 # step 1 generate o_node_id and d_node_id randomly
                 # according to o_zone_id and d_zone_id
                 agent.o_node_id = choice(
-                    self.zones[orig].get_nodes()
+                    self.zones[oz].get_nodes()
                 )
                 agent.d_node_id = choice(
-                    self.zones[dest].get_nodes()
+                    self.zones[dz].get_nodes()
                 )
 
                 # step 2 update agent_id and agent_seq_no
