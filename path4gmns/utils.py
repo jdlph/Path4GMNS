@@ -12,7 +12,7 @@ from .consts import SMALL_DIVISOR
 __all__ = [
     'read_network',
     'read_zones',
-    'load_demand'
+    'load_demand',
     'load_columns',
     'output_columns',
     'output_link_performance',
@@ -95,6 +95,7 @@ def _convert_str_to_float(str):
 
 
 def _convert_boundaries(bs):
+    """a helper function to facilitate read_zones()"""
     prefix = 'LINESTRING ('
     postfix = ')'
 
@@ -102,33 +103,41 @@ def _convert_boundaries(bs):
         b = bs.index(prefix) + len(prefix)
         e = bs.index(postfix)
     except ValueError:
-        raise Exception('Invalid zone boundaries: '+bs)
+        raise Exception('Invalid Zone Boundaries: '+bs)
 
-    bs_ = bs[b, e]
+    bs_ = bs[b:e]
     vs = [x for x in bs_.split(',')]
 
     # validation
     if len(vs) != 5:
-        raise Exception('Invalid zone boundaries: '+bs)
+        raise Exception('Invalid Zone Boundaries: '+bs)
 
     if vs[0] != vs[-1]:
-        raise Exception('Invalid zone boundaries: '+bs)
+        raise Exception('Invalid Zone Boundaries: '+bs)
 
     L, U = vs[0].split(' ')
     R, U_ = vs[1].split(' ')
     if U != U_:
-        raise Exception('Invalid zone boundaries: inconsistent upper boundary'+bs)
+        raise Exception(
+            'Invalid Zone Boundaries: inconsistent upper boundary'+U+'; '+U_
+        )
 
     R_, D = vs[2].split(' ')
     if R != R_:
-        raise Exception('Invalid zone boundaries: inconsistent right boundary'+bs)
+        raise Exception(
+            'Invalid Zone Boundaries: inconsistent right boundary'+R+'; '+R_
+        )
 
     L_, D_ = vs[3].split(' ')
     if L != L_:
-        raise Exception('Invalid zone boundaries: inconsistent left boundary'+bs)
+        raise Exception(
+            'Invalid Zone Boundaries: inconsistent left boundary'+L+'; '+L_
+        )
 
     if D != D_:
-        raise Exception('Invalid zone boundaries: inconsistent lower boundary'+bs)
+        raise Exception(
+            'Invalid Zone Boundaries: inconsistent lower boundary'+D+'; '+D_
+        )
 
     U = _convert_str_to_float(U)
     D = _convert_str_to_float(D)
@@ -500,6 +509,7 @@ def read_demand(input_dir,
 
         at = agent_type_id
         dp = demand_period_id
+        column_pool.clear()
 
         reader = csv.DictReader(fp)
         total_agents = 0
@@ -563,12 +573,13 @@ def load_demand(ui,
     read_demand(input_dir, filename, at, dp, A.network.zones, A.column_pool, False)
 
 
-def read_zones(ui, input_dir='.', filename='zones.csv'):
+def read_zones(ui, input_dir='.', filename='zone.csv'):
     """ read zone.csv to set up zone_to_node_dict """
     with open(input_dir+'/'+filename, 'r') as fp:
         print('read zone.csv')
 
         zones = ui._base_assignment.network.zones
+        zones.clear()
 
         reader = csv.DictReader(fp)
         for line in reader:
@@ -587,10 +598,10 @@ def read_zones(ui, input_dir='.', filename='zones.csv'):
                     f'INVALID ACCESS NODES for zone id: {zone_id}'
                 )
 
-            x = _convert_str_to_float(['x_coord'])
-            y = _convert_str_to_float(['y_coord'])
-            U, D, L, R = _convert_boundaries(['geometry'])
-            prod = _convert_str_to_int(['production'])
+            x = _convert_str_to_float(line['x_coord'])
+            y = _convert_str_to_float(line['y_coord'])
+            U, D, L, R = _convert_boundaries(line['geometry'])
+            prod = _convert_str_to_int(line['production'])
 
             if zone_id not in zones.keys():
                 z = Zone(zone_id)
@@ -602,7 +613,7 @@ def read_zones(ui, input_dir='.', filename='zones.csv'):
             else:
                 raise Exception('DUPLICATE zone id: {zone_id}')
 
-        print(f'the number of zones is {zones.len()}')
+        print(f'the number of zones is {len(zones)}')
 
 
 def read_demand_matrix(input_dir, agent_type_id, demand_period_id,

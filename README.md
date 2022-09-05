@@ -443,7 +443,9 @@ With $D(i)$, the allocated demand between zone $i$ and one of its connected zone
 
 $$ vol_{ij} = prod_i \times \frac{attr_j }{\sum_{\substack{k\in D(i)}}attr_k}$$
 
-The synthesized zones and OD demand matrix can be found in zone.csv and syn_demand.csv respectively. Note that we use this forgoing simple procedure to proportionally allocate demand for each OD pair rather than the gravity model and $\sum_{\substack{i,j}} vol_{ij}$ might be slightly different from $demand$ as a result of rounding errors in the allocation process.
+Note that we use this forgoing simple procedure to proportionally allocate demand for each OD pair rather than the gravity model and $\sum_{\substack{i,j}} vol_{ij}$ might be slightly different from $demand$ as a result of rounding errors in the allocation process.
+
+The following code snippet demonstrates how to synthesize zones and demand. 
 
 ```Python
 import path4gmns as pg
@@ -459,15 +461,17 @@ pg.output_synthesized_demand(network)
 print('complete zone and demand synthesis.\n')
 print(f'processing time of zone and demand synthesis: {time()-st:.2f} s')
 ```
-
-#### Load Synthesized Zones and Demand
+The synthesized zones and OD demand matrix will be output as zone.csv and syn_demand.csv respectively. They can be loaded as offline files to perform some other functionalities from Path4GMNS (e.g., traffic assignment). The existing zone and demand information, if there is any, will be REWRITTEN upon the following reloading.
 
 ```Python
 import path4gmns as pg
 
 network = pg.read_network(load_demand=False)
+
 pg.read_zones(network)
 pg.load_demand(network, 'p', 'AM', filename='syn_demand')
+
+# perform some other functionalities from Path4GMNS
 ```
 
 ## Build Path4GMNS from Source

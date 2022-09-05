@@ -196,6 +196,24 @@ def test_zone_synthesis():
     print(f'processing time of zone and demand synthesis: {time()-st:.2f} s')
 
 
+def test_loading_synthesized_zones_demand():
+    network = pg.read_network(load_demand=False)
+
+    print('\nstart loading synthesized zones and demand')
+    st = time()
+    pg.read_zones(network)
+    pg.load_demand(network, 'p', 'AM', filename='syn_demand.csv')
+
+    print('complete loading synthesized zone and demand.\n')
+    print(f'processing time of loading synthesized zone and demand: {time()-st:.2f} s')
+
+    # perform some other functionalities from Path4GMNS, e.g., traffic assignment
+    column_gen_num = 20
+    column_update_num = 20
+
+    pg.perform_column_generation(column_gen_num, column_update_num, network)
+
+
 def demo_mode(mode):
     print(f'the selected mode is {mode}\n')
 
@@ -225,10 +243,12 @@ def demo_mode(mode):
     elif mode == 7:
         # option 7: evaluate multimodal equity on Chicago network
         test_equity()
-    else:
+    elif mode == 8:
         test_zone_synthesis()
+    else:
+        test_loading_synthesized_zones_demand()
 
 
 if __name__=="__main__":
 
-    demo_mode(3)
+    demo_mode(9)
