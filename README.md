@@ -8,13 +8,13 @@ Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path e
 2. constructing shortest paths for all individual agents,
 3. performing path-based User-Equilibrium (UE) traffic assignment,
 4. evaluating multimodal accessibility and equity,
-5. synthesize zones and demand for a given network.
+5. synthesize zones and Origin-Destination (OD) demand for a given network.
 
 Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jdlph/DTALite) to conduct various multimodal traffic assignments including,
    * Link-based UE,
    * Path-based UE,
    * UE + Dynamic Traffic Assignment (DTA),
-   * Origin-Destination Matrix Estimation (ODME).
+   * OD Matrix Estimation (ODME).
 
 ## Installation
 Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.8.5/), and can be installed using
@@ -427,23 +427,21 @@ print(f'processing time of equity evaluation: {time()-st:.2f} s')
 
 Zone information is crucial in conducting traffic assignment, evaluating accessibility and equity. When no zone information is provided along node.csv, Path4GMNS can automatically synthesize a total number of $d * d$ grids (rectangles) as zones given the dimension $d$.
 
-Activity nodes are randomly sampled for each zone according to a hardcoded sample rate $r$, where $r = max(10, N / 100)$ and $N$ is the total number of nodes in the network. The total demand, as an input argument, will be allocated to each zone proportionally with respect to the number of its activity nodes. 
+Activity nodes are randomly sampled for each zone according to a hardcoded sample rate $r$, where $r = max(10, N / 100)$ and $N$ is the total number of nodes in the network. The total demand, as an input argument, will be allocated to each zone proportionally with respect to the number of its activity nodes.
 
-$$prod_i = attr_i = demand * \frac{N_i^a}{N^a}$$
+$$prod_i = attr_i = demand \times \frac{N_i^a}{N^a}$$
 
-where, $prod_i$ is the production volume of zone $i$, $attr_i$ is the production volume of zone $j$, $demand$ is the total demand, $N^a$ is the total number of activity nodes, $N_i^a$ is the number of activity nodes in zone $i$. In other words, the allocated demand to each zone serves as its synthesized production volume and also attraction volume. 
+* where, $prod_i$ is the production volume of zone $i$, $attr_i$ is the production volume of zone $j$, $demand$ is the total demand, $N^a$ is the total number of activity nodes, $N_i^a$ is the number of activity nodes in zone $i$. In other words, the allocated demand to each zone serves as its synthesized production volume and also attraction volume.
 
-Denote the minimum travel time from zone $i$ to zone $j$ under a specific mode as $min\_tt_{ij}$ and the time budget as $b$, which lead to the following definition on the set of connected zones from zone $i$.
+Denote the minimum travel time from zone $i$ to zone $j$ under a specific mode as $min\_{tt}_{ij}$ and introduce the following definition on the set of connected zones from zone $i$, which is cut off by a predefined time budget $b$.
 
-$$ D(i) = \{j: min\_tt_{ij}\leq b \}$$
+$$ D(i) = \{ j: min\_{tt}_{ij}\leq b \} $$
 
 With $D(i)$, the allocated demand between zone $i$ and one of its connected zones, $j$, is then defined as follows.
 
-$$ vol_{ij} = prod_i * \frac{attr_j }{\sum_{\substack{k\in D(i)}}attr_k}$$
+$$ vol_{ij} = prod_i \times \frac{attr_j }{\sum_{\substack{k\in D(i)}}attr_k}$$
 
-where, $D(i)$ is the set of connected zones from zone $i$, which is cut off by a predefined time budget. 
-
-Note that $\sum_{\substack{i,j}} vol_{ij}$ might be slightly different from $demand$ as a result of rounding errors in the demand allocation process.
+Note that we use this simple procedure to proportionally allocate demand for each OD pair rather than the gravity model and $\sum_{\substack{i,j}} vol_{ij}$ might be slightly different from $demand$ as a result of rounding errors in the allocation process.
 
 ## Build Path4GMNS from Source
 
