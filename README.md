@@ -435,7 +435,7 @@ $$prod_i = attr_i = demand \times \frac{N_i^a}{N^a}$$
 
 Denote the minimum travel time from zone $i$ to zone $j$ under a specific mode as $mintt_{ij}$ and introduce the following definition on the set of connected zones from zone $i$, which is cut off by a predefined time budget $b$.
 
-$$ D(i) = \{ j: mintt_{ij}\leq b \} $$
+$$ D(i) = \lbrace j: mintt_{ij}\leq b \rbrace $$
 
 With $D(i)$, the allocated demand between zone $i$ and one of its connected zones, $j$, is then defined as follows.
 
