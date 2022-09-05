@@ -423,8 +423,27 @@ print('complete equity evaluation.\n')
 print(f'processing time of equity evaluation: {time()-st:.2f} s')
 ```
 
-## Benchmarks
-Coming soon.
+### Synthesize Zones and OD Demand
+
+Zone information is crucial in conducting traffic assignment, evaluating accessibility and equity. When no zone information is provided along node.csv, Path4GMNS can automatically synthesize a total number of $d * d$ grids (rectangles) as zones given the dimension $d$.
+
+Activity nodes are randomly sampled for each zone according to a hardcoded sample rate $r$, where $r = max(10, N / 100)$ and $N$ is the total number of nodes in the network. The total demand, as an input argument, will be allocated to each zone proportionally with respect to the number of its activity nodes. 
+
+$$prod_i = attr_i = demand * \frac{N_i^a}{N^a}$$
+
+where, $prod_i$ is the production volume of zone $i$, $attr_i$ is the production volume of zone $j$, $demand$ is the total demand, $N^a$ is the total number of activity nodes, $N_i^a$ is the number of activity nodes in zone $i$. In other words, the allocated demand to each zone serves as its synthesized production volume and also attraction volume. 
+
+Denote the minimum travel time from zone $i$ to zone $j$ under a specific mode as $min\_tt_{ij}$ and the time budget as $b$, which lead to the following definition on the set of connected zones from zone $i$.
+
+$$ D(i) = \{j: min\_tt_{ij}\leq b \}$$
+
+With $D(i)$, the allocated demand between zone $i$ and one of its connected zones, $j$, is then defined as follows.
+
+$$ vol_{ij} = prod_i * \frac{attr_j }{\sum_{\substack{k\in D(i)}}attr_k}$$
+
+where, $D(i)$ is the set of connected zones from zone $i$, which is cut off by a predefined time budget. 
+
+Note that $\sum_{\substack{i,j}} vol_{ij}$ might be slightly different from $demand$ as a result of rounding errors in the demand allocation process.
 
 ## Build Path4GMNS from Source
 
@@ -504,7 +523,7 @@ Any contributions are welcomed including advise new applications of Path4GMNS, e
 
 Path4GMNS has a very simple workflow setup, i.e., **master for release (on both GitHub and PyPI) and dev for development**. If you would like to work directly on the source code (and probably the documentation), please make sure that **the destination branch of your pull request is dev**, i.e., all potential changes/updates shall go to the dev branch before merging into master for release.
 
-You are encouraged to join our Slack workspace for more discussions and collaborations. [Drop us an email](xzhou74@asu.edu;jdlph@hotmail.com) for invitation.
+You are encouraged to join our [Gmail group](https://groups.google.com/g/path4gmns) to get the latest update and other information.
 
 ## How to Cite
 
