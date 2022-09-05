@@ -11,6 +11,8 @@ from .consts import SMALL_DIVISOR
 
 __all__ = [
     'read_network',
+    'read_zones',
+    'load_demand'
     'load_columns',
     'output_columns',
     'output_link_performance',
@@ -90,6 +92,50 @@ def _convert_str_to_float(str):
         return float(str)
     except (TypeError, ValueError):
         return None
+
+
+def _convert_boundaries(bs):
+    prefix = 'LINESTRING ('
+    postfix = ')'
+
+    try:
+        b = bs.index(prefix) + len(prefix)
+        e = bs.index(postfix)
+    except ValueError:
+        raise Exception('Invalid zone boundaries: '+bs)
+
+    bs_ = bs[b, e]
+    vs = [x for x in bs_.split(',')]
+
+    # validation
+    if len(vs) != 5:
+        raise Exception('Invalid zone boundaries: '+bs)
+
+    if vs[0] != vs[-1]:
+        raise Exception('Invalid zone boundaries: '+bs)
+
+    L, U = vs[0].split(' ')
+    R, U_ = vs[1].split(' ')
+    if U != U_:
+        raise Exception('Invalid zone boundaries: inconsistent upper boundary'+bs)
+
+    R_, D = vs[2].split(' ')
+    if R != R_:
+        raise Exception('Invalid zone boundaries: inconsistent right boundary'+bs)
+
+    L_, D_ = vs[3].split(' ')
+    if L != L_:
+        raise Exception('Invalid zone boundaries: inconsistent left boundary'+bs)
+
+    if D != D_:
+        raise Exception('Invalid zone boundaries: inconsistent lower boundary'+bs)
+
+    U = _convert_str_to_float(U)
+    D = _convert_str_to_float(D)
+    L = _convert_str_to_float(L)
+    R = _convert_str_to_float(R)
+
+    return U, D, L, R
 
 
 def _download_url(url, filename, loc_dir):
@@ -446,8 +492,8 @@ def read_demand(input_dir,
                 agent_type_id,
                 demand_period_id,
                 zones,
-                column_pool):
-
+                column_pool,
+                check_connectivity=True):
     """ step 3:read input_agent """
     with open(input_dir+'/'+file, 'r') as fp:
         print('read '+file)
@@ -484,7 +530,7 @@ def read_demand(input_dir,
                 continue
 
             # precheck on connectivity of each OD pair
-            if not _are_od_connected(oz_id, dz_id):
+            if check_connectivity and not _are_od_connected(oz_id, dz_id):
                 continue
 
             # set up volume for ColumnVec
@@ -500,10 +546,29 @@ def read_demand(input_dir,
             raise Exception('NO VALID OD VOLUME!! DOUBLE CHECK YOUR demand.csv')
 
 
-def read_zones(input_dir, nodes, zone_to_node_dict):
+def load_demand(ui,
+                agent_type_str,
+                demand_period_str,
+                input_dir='.',
+                filename='demand.csv'):
+    """
+    load demand for an agent type and a demand period
+
+    this is an user interface while read_demand() is intended for internal use.
+    """
+    A = ui._base_assignment
+    at = A.get_agent_type_id(agent_type_str)
+    dp = A.get_demand_period_id(demand_period_str)
+    # do not check connectivity of OD pairs
+    read_demand(input_dir, filename, at, dp, A.network.zones, A.column_pool, False)
+
+
+def read_zones(ui, input_dir='.', filename='zones.csv'):
     """ read zone.csv to set up zone_to_node_dict """
-    with open(input_dir+'/zone.csv', 'r') as fp:
+    with open(input_dir+'/'+filename, 'r') as fp:
         print('read zone.csv')
+
+        zones = ui._base_assignment.network.zones
 
         reader = csv.DictReader(fp)
         for line in reader:
@@ -522,12 +587,22 @@ def read_zones(input_dir, nodes, zone_to_node_dict):
                     f'INVALID ACCESS NODES for zone id: {zone_id}'
                 )
 
-            if zone_id not in zone_to_node_dict.keys():
-                zone_to_node_dict[zone_id] = [x for x in node_ids]
+            x = _convert_str_to_float(['x_coord'])
+            y = _convert_str_to_float(['y_coord'])
+            U, D, L, R = _convert_boundaries(['geometry'])
+            prod = _convert_str_to_int(['production'])
+
+            if zone_id not in zones.keys():
+                z = Zone(zone_id)
+                z.activity_nodes = [int(x) for x in node_ids]
+                z.nodes = [x for x in z.activity_nodes]
+                z.setup_geo(U, D, L, R, x, y)
+                z.setup_production(prod)
+                zones[zone_id] = z
             else:
                 raise Exception('DUPLICATE zone id: {zone_id}')
 
-        print(f'the number of zones is {zone_to_node_dict.len()}')
+        print(f'the number of zones is {zones.len()}')
 
 
 def read_demand_matrix(input_dir, agent_type_id, demand_period_id,
