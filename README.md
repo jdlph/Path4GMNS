@@ -431,7 +431,9 @@ Activity nodes are randomly sampled for each zone according to a hardcoded sampl
 
 $$prod_i = attr_i = demand \times \frac{N_i^a}{N^a}$$
 
-* where, $prod_i$ is the production volume of zone $i$, $attr_i$ is the production volume of zone $j$, $demand$ is the total demand, $N^a$ is the total number of activity nodes, $N_i^a$ is the number of activity nodes in zone $i$. In other words, the allocated demand to each zone serves as its synthesized production volume and also attraction volume.
+* where, $prod_i$ is the production volume of zone $i$, $attr_i$ is the production volume of zone $j$, $demand$ is the total demand, $N^a$ is the total number of activity nodes, $N_i^a$ is the number of activity nodes in zone $i$. 
+   
+In other words, the allocated demand to each zone serves as its synthesized production volume and also attraction volume.
 
 Denote the minimum travel time from zone $i$ to zone $j$ under a specific mode as $mintt_{ij}$ and introduce the following definition on the set of connected zones from zone $i$, which is cut off by a predefined time budget $b$.
 
@@ -441,7 +443,7 @@ With $D(i)$, the allocated demand between zone $i$ and one of its connected zone
 
 $$ vol_{ij} = prod_i \times \frac{attr_j }{\sum_{\substack{k\in D(i)}}attr_k}$$
 
-Note that we use this simple procedure to proportionally allocate demand for each OD pair rather than the gravity model and $\sum_{\substack{i,j}} vol_{ij}$ might be slightly different from $demand$ as a result of rounding errors in the allocation process.
+The synthesized zones and OD demand matrix can be found in zone.csv and syn_demand.csv respectively. Note that we use this forgoing simple procedure to proportionally allocate demand for each OD pair rather than the gravity model and $\sum_{\substack{i,j}} vol_{ij}$ might be slightly different from $demand$ as a result of rounding errors in the allocation process.
 
 ## Build Path4GMNS from Source
 

@@ -511,7 +511,7 @@ def read_zones(input_dir, nodes, zone_to_node_dict):
             if zone_id is None:
                 continue
 
-            nodes = line['access_node_vector']
+            nodes = line['activity_nodes']
             if nodes is None:
                 continue
 

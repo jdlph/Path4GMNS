@@ -7,6 +7,7 @@ agents:
     flow_type: 0
     pce: 1
     free_speed: 60
+    use_link_ffs: true
 
 demand_periods:
   - period: AM
