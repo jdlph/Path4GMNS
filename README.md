@@ -454,6 +454,7 @@ network = pg.read_network(load_demand=False)
 
 print('\nstart zone synthesis')
 st = time()
+# by default, grid_dimension is 8, total_demand is 10,000, time_budget is 120 min, mode is 'p'
 pg.network_to_zones(network)
 pg.output_zones(network)
 pg.output_synthesized_demand(network)
@@ -471,7 +472,14 @@ network = pg.read_network(load_demand=False)
 pg.read_zones(network)
 pg.load_demand(network, 'p', 'AM', filename='syn_demand')
 
-# perform some other functionalities from Path4GMNS
+# perform some other functionalities from Path4GMNS, e.g., traffic assignment
+column_gen_num = 20
+column_update_num = 20
+
+pg.perform_column_generation(column_gen_num, column_update_num, network)
+
+pg.output_columns(network)
+pg.output_link_performance(network)
 ```
 
 ## Build Path4GMNS from Source

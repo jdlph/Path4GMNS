@@ -212,6 +212,9 @@ def test_loading_synthesized_zones_demand():
     column_update_num = 20
 
     pg.perform_column_generation(column_gen_num, column_update_num, network)
+    
+    pg.output_columns(network)
+    pg.output_link_performance(network)
 
 
 def demo_mode(mode):

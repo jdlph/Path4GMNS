@@ -190,7 +190,7 @@ def _synthesize_demand(ui, total_demand, time_budget, mode):
             ODMatrix[(z, z_)] = round(prod * portion, 2)
 
 
-def network_to_zones(ui, grid_dimension=8, total_demand=5000, time_budget=120, mode='p'):
+def network_to_zones(ui, grid_dimension=8, total_demand=10000, time_budget=120, mode='p'):
     """ synthesize zones and OD demand given a network
 
     Parameters
