@@ -75,6 +75,10 @@ def _find_resolution(nodes, grid_dim):
 def _synthesize_grid(ui, grid_dim):
     A = ui._base_assignment
     nodes = A.get_nodes()
+
+    if not nodes:
+        raise Exception('No Nodes found in the network')
+
     network = A.network
     zones = network.zones
     zones.clear()
@@ -123,6 +127,7 @@ def _synthesize_grid(ui, grid_dim):
             k += 1
 
         zones[grids[(i, j)]].add_activity_node(node.get_node_id())
+        # this is needed for _update_min_travel_time()
         zones[grids[(i, j)]].add_node(node.get_node_id())
         num += 1
 

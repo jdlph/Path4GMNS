@@ -7,7 +7,8 @@ Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path e
 1. finding (static) shortest path between two nodes,
 2. constructing shortest paths for all individual agents,
 3. performing path-based User-Equilibrium (UE) traffic assignment,
-4. evaluating multimodal accessibility.
+4. evaluating multimodal accessibility and equity,
+5. synthesize zones and demand for a given network.
 
 Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jdlph/DTALite) to conduct various multimodal traffic assignments including,
    * Link-based UE,
@@ -25,7 +26,7 @@ If you need a specific version of Path4GMNS, say, 0.8.5,
 $ pip install path4gmns==0.8.5
 ```
 
-v0.8.5 now supports _Apple Silicon_, and _synthesizing zones and demands_. Path4GMNS has evolved dramatically since its early releases with bug fixes, performance improvement, new functionalities. Please **discard all old versions** and **update to or install the latest version**.
+v0.8.5 now supports _Apple Silicon_, and _synthesizing zones and demand_. Path4GMNS has evolved dramatically since its early releases with bug fixes, performance improvement, new functionalities. Please **discard all old versions** and **update to or install the latest version**.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding use cases in the following section.
@@ -507,7 +508,7 @@ You are encouraged to join our Slack workspace for more discussions and collabor
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2022, August 7). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2022, September 5). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## References
 Lu, C. C., Mahmassani, H. S., Zhou, X. (2009). Equivalent gap function-based reformulation and solution algorithm for the dynamic user equilibrium problem. Transportation Research Part B: Methodological, 43, 345-364.
