@@ -148,6 +148,39 @@ def _output_accessibility_aggregated(min_travel_times, interval_num,
                   +' for aggregated accessibility matrix')
 
 
+def _output_equity(output_dir, time_budget, equity_metrics, equity_zones):
+    with open(output_dir+'/equity_'+str(time_budget)+'min.csv', 'w',  newline='') as f:
+        headers = ['bin_index', 'mode', 'zones',
+                   'min_accessibility', 'zone_id',
+                   'max_accessibility', 'zone_id',
+                   'mean_accessibility']
+        writer = csv.writer(f)
+        writer.writerow(headers)
+
+        for k, v in sorted(equity_metrics.items()):
+            try:
+                avg = round(v[4] / len(equity_zones[k]), 2)
+                zones = ', '.join(str(x) for x in equity_zones[k])
+                line = [k[0], k[1], zones, v[0], v[1], v[2], v[3], avg]
+            except ZeroDivisionError:
+                continue
+
+        writer.writerow(line)
+
+        if output_dir == '.':
+            print('\ncheck equity_'
+                  +str(time_budget)
+                  +'min.csv in '
+                  +os.getcwd()
+                  +' for equity evaluation')
+        else:
+            print('\ncheck equity_'
+                  +str(time_budget)
+                  +'min.csv in '
+                  +os.path.join(os.getcwd(), output_dir)
+                  +' for equity evaluation')
+
+
 def evaluate_accessibility(ui,
                            multimodal=True,
                            mode='p',
@@ -326,99 +359,70 @@ def evaluate_equity(ui, multimodal=True, mode='p', time_dependent=False,
         str in the file name refers to the time budget. For example, the file name
         will be equity_60min.csv if the time budget is 60 min.
     """
-    with open(output_dir+'/equity_'+str(time_budget)+'min.csv', 'w',  newline='') as f:
-        headers = ['bin_index', 'mode', 'zones',
-                   'min_accessibility', 'zone_id',
-                   'max_accessibility', 'zone_id',
-                   'mean_accessibility']
-        writer = csv.writer(f)
-        writer.writerow(headers)
+    base = ui._base_assignment
+    an = AccessNetwork(base.network)
+    zones = an.base.zones
+    ats = None
 
-        base = ui._base_assignment
-        an = AccessNetwork(base.network)
-        zones = an.base.zones
-        ats = None
+    min_travel_times = {}
+    equity_metrics = {}
+    equity_zones = {}
 
-        min_travel_times = {}
-        equity_metrics = {}
-        equity_zones = {}
-
-        if multimodal:
-            ats = base.get_agent_types()
-            for at in ats:
-                an.set_target_mode(at.get_name())
-                _update_min_travel_time(an,
-                                        at,
-                                        min_travel_times,
-                                        time_dependent,
-                                        demand_period_id)
-        else:
-            at_name, at_str = base._convert_mode(mode)
-            an.set_target_mode(at_name)
-            at = base.get_agent_type(at_str)
+    if multimodal:
+        ats = base.get_agent_types()
+        for at in ats:
+            an.set_target_mode(at.get_name())
             _update_min_travel_time(an,
                                     at,
                                     min_travel_times,
                                     time_dependent,
                                     demand_period_id)
-            ats = [at]
+    else:
+        at_name, at_str = base._convert_mode(mode)
+        an.set_target_mode(at_name)
+        at = base.get_agent_type(at_str)
+        _update_min_travel_time(an,
+                                at,
+                                min_travel_times,
+                                time_dependent,
+                                demand_period_id)
+        ats = [at]
 
-        # v is zone object
-        for oz, v in zones.items():
-            if oz == -1:
-                continue
+    # v is zone object
+    for oz, v in zones.items():
+        if oz == -1:
+            continue
 
-            bin_index = v.get_bin_index()
-            for at in ats:
-                at_str = at.get_type_str()
+        bin_index = v.get_bin_index()
+        for at in ats:
+            at_str = at.get_type_str()
 
-                count = 0
-                for dz in zones.keys():
-                    if (oz, dz, at_str) not in min_travel_times.keys():
-                        continue
+            count = 0
+            for dz in zones.keys():
+                if (oz, dz, at_str) not in min_travel_times.keys():
+                    continue
 
-                    min_tt = min_travel_times[(oz, dz, at_str)][0]
-                    if min_tt > time_budget:
-                        continue
+                min_tt = min_travel_times[(oz, dz, at_str)][0]
+                if min_tt > time_budget:
+                    continue
 
-                    count += 1
+                count += 1
 
-                if (bin_index, at_str) not in equity_metrics.keys():
-                    equity_metrics[(bin_index, at_str)] = [count, oz, count, oz, 0]
-                    equity_zones[(bin_index, at_str)] = []
-                equity_zones[(bin_index, at_str)].append(oz)
+            if (bin_index, at_str) not in equity_metrics.keys():
+                equity_metrics[(bin_index, at_str)] = [count, oz, count, oz, 0]
+                equity_zones[(bin_index, at_str)] = []
+            equity_zones[(bin_index, at_str)].append(oz)
 
-                # 0: min_accessibility, 1: zone_id, 2: max_accessibility,
-                # 3: zone_id, 4: cumulative count,
-                # where 0 to 4 are indices of each element of equity_metrics.
-                if count < equity_metrics[(bin_index, at_str)][0]:
-                    equity_metrics[(bin_index, at_str)][0] = count
-                    equity_metrics[(bin_index, at_str)][1] = oz
-                elif count > equity_metrics[(bin_index, at_str)][2]:
-                    equity_metrics[(bin_index, at_str)][2] = count
-                    equity_metrics[(bin_index, at_str)][3] = oz
+            # 0: min_accessibility, 1: zone_id, 2: max_accessibility,
+            # 3: zone_id, 4: cumulative count,
+            # where 0 to 4 are indices of each element of equity_metrics.
+            if count < equity_metrics[(bin_index, at_str)][0]:
+                equity_metrics[(bin_index, at_str)][0] = count
+                equity_metrics[(bin_index, at_str)][1] = oz
+            elif count > equity_metrics[(bin_index, at_str)][2]:
+                equity_metrics[(bin_index, at_str)][2] = count
+                equity_metrics[(bin_index, at_str)][3] = oz
 
-                equity_metrics[(bin_index, at_str)][4] += count
+            equity_metrics[(bin_index, at_str)][4] += count
 
-        for k, v in sorted(equity_metrics.items()):
-            try:
-                avg = round(v[4] / len(equity_zones[k]), 2)
-                zones = ', '.join(str(x) for x in equity_zones[k])
-                line = [k[0], k[1], zones, v[0], v[1], v[2], v[3], avg]
-            except ZeroDivisionError:
-                continue
-
-            writer.writerow(line)
-
-        if output_dir == '.':
-            print('\ncheck equity_'
-                  +str(time_budget)
-                  +'min.csv in '
-                  +os.getcwd()
-                  +' for equity evaluation')
-        else:
-            print('\ncheck equity_'
-                  +str(time_budget)
-                  +'min.csv in '
-                  +os.path.join(os.getcwd(), output_dir)
-                  +' for equity evaluation')
+    _output_equity(output_dir, time_budget, equity_metrics, equity_zones)

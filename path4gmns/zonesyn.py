@@ -226,7 +226,6 @@ def network_to_zones(ui, grid_dimension=8, total_demand=10000, time_budget=120, 
         It is used along with time_budget to check if the minimum travel time under
         the given mode exceeds the time budget or not.
 
-
     Outputs
     -------
     zone.csv.csv

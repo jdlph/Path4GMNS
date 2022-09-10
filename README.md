@@ -1,6 +1,6 @@
 # Path4GMNS
 [![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)
- [![Downloads](https://pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.8.5-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen)
+ [![Downloads](https://pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.8.6a1-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen)
 
 Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding static shortest paths for simple analyses, its main functionality is to provide an efficient and flexible framework for column-based (path-based) modeling and applications in transportation (e.g., activity-based demand modeling). Path4GMNS supports, in short,
 
@@ -17,13 +17,13 @@ Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jd
    * OD Matrix Estimation (ODME).
 
 ## Installation
-Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.8.5/), and can be installed using
+Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.8.6a1/), and can be installed using
 ```
 $ pip install path4gmns
 ```
-If you need a specific version of Path4GMNS, say, 0.8.5,
+If you need a specific version of Path4GMNS, say, 0.8.6a1,
 ```
-$ pip install path4gmns==0.8.5
+$ pip install path4gmns==0.8.6a1
 ```
 
 v0.8.5 now supports _Apple Silicon_, and _synthesizing zones and demand_. Path4GMNS has evolved dramatically since its early releases with bug fixes, performance improvement, new functionalities. Please **discard all old versions** and **update to or install the latest version**.
@@ -53,7 +53,7 @@ network = pg.read_network(load_demand=False)
 print('\nshortest path (node id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2))
 print('\nshortest path (link id) from node 1 to node 2, '
-      +network.find_shortest_path(1, 2, 'link'))
+      +network.find_shortest_path(1, 2, seq_type='link'))
 ```
 
 You can specify the absolute path or the relative path from your cwd in read_network() to use a particular network from the downloaded sample data set.
@@ -66,7 +66,7 @@ network = pg.read_network(load_demand=False, input_dir='data/Chicago_Sketch')
 print('\nshortest path (node id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2))
 print('\nshortest path (link id) from node 1 to node 2, '
-      +network.find_shortest_path(1, 2, 'link'))
+      +network.find_shortest_path(1, 2, seq_type='link'))
 ```
 
 Retrieving the shortest path between any two (different) nodes under a specific mode is now available under v0.7.2 or higher.
@@ -427,13 +427,13 @@ print(f'processing time of equity evaluation: {time()-st:.2f} s')
 
 Zone information is crucial in conducting traffic assignment, evaluating accessibility and equity. When no zone information is provided along node.csv, Path4GMNS can automatically synthesize a total number of $d * d$ grids (rectangles) as zones given the dimension $d$.
 
-Activity nodes are randomly sampled for each zone according to a hardcoded sample rate $r$, where $r = max(10, N / 100)$ and $N$ is the total number of nodes in the network. The total demand, as an input argument, will be allocated to each zone proportionally with respect to the number of its activity nodes.
+Activity nodes are randomly sampled for each zone according to a hardcoded sample rate $r$, where $r = max(10, N / 100)$ and $N$ is the total number of nodes in the network. The total demand, as an input argument, will be allocated to each zone proportionally with respect to the number of its activity nodes, as its synthesized production volume and also attraction volume.
 
 $$prod_i = attr_i = demand \times \frac{N_i^a}{N^a}$$
 
 Where, $prod_i$ is the production volume of zone $i$, $attr_i$ is the production volume of zone $j$, $demand$ is the total demand, $N^a$ is the total number of activity nodes, $N_i^a$ is the number of activity nodes in zone $i$.
 
-In other words, the allocated demand to each zone serves as its synthesized production volume and also attraction volume. Denote the minimum travel time from zone $i$ to zone $j$ under a specific mode as $mintt_{ij}$ and introduce the following definition on the set of connected zones from zone $i$, which is cut off by a predefined time budget $b$.
+Denote the minimum travel time from zone $i$ to zone $j$ under a specific mode as $mintt_{ij}$ and introduce the following definition on the set of connected zones from zone $i$, which is cut off by a predefined time budget $b$.
 
 $$ D(i) = \lbrace j: mintt_{ij}\leq b \rbrace $$
 
@@ -452,7 +452,8 @@ network = pg.read_network(load_demand=False)
 
 print('\nstart zone synthesis')
 st = time()
-# by default, grid_dimension is 8, total_demand is 10,000, time_budget is 120 min, mode is 'p'
+# by default, grid_dimension is 8, total_demand is 10,000,
+# time_budget is 120 min, mode is 'p'
 pg.network_to_zones(network)
 pg.output_zones(network)
 pg.output_synthesized_demand(network)
@@ -473,7 +474,6 @@ pg.load_demand(network, 'p', 'AM', filename='syn_demand.csv')
 # perform some other functionalities from Path4GMNS, e.g., traffic assignment
 column_gen_num = 20
 column_update_num = 20
-
 pg.perform_column_generation(column_gen_num, column_update_num, network)
 
 pg.output_columns(network)
@@ -506,11 +506,11 @@ As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Envi
 # from the root directory of PATH4GMNS
 $ python setup.py sdist bdist_wheel
 $ cd dist
-# or python -m pip install path4gmns-0.8.5.tar.gz
-$ python -m pip instal pypath4gmns-0.8.5-py3-none-any.whl
+# or python -m pip install path4gmns-0.8.6a1.tar.gz
+$ python -m pip instal pypath4gmns-0.8.6a1-py3-none-any.whl
 ```
 
-Here, 0.8.5 is the version number. Replace it with the one specified in setup.py.
+Here, 0.8.6a1 is the version number. Replace it with the one specified in setup.py.
 
 ## Implementation Notes
 
@@ -562,7 +562,7 @@ You are encouraged to join our [Gmail group](https://groups.google.com/g/path4gm
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2022, September 5). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2022, September 10). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## References
 Lu, C. C., Mahmassani, H. S., Zhou, X. (2009). Equivalent gap function-based reformulation and solution algorithm for the dynamic user equilibrium problem. Transportation Research Part B: Methodological, 43, 345-364.

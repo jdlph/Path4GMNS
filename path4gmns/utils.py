@@ -250,8 +250,7 @@ def read_nodes(input_dir,
                 b = _convert_str_to_int(line['is_boundary'])
                 if b is None:
                     pass
-
-                if b > 0:
+                elif b > 0:
                     is_activity_node = True
             except KeyError:
                 pass
@@ -267,9 +266,9 @@ def read_nodes(input_dir,
             # bin_index for equity evaluation
             bin_index = 0
             try:
-                bin_index = _convert_str_to_int(line['bin_index'])
-                if bin_index is None:
-                    bin_index = 0
+                bi = _convert_str_to_int(line['bin_index'])
+                if bi is not None:
+                    bin_index = bi
             except KeyError:
                 pass
 
