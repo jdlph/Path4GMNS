@@ -165,7 +165,7 @@ def _output_equity(output_dir, time_budget, equity_metrics, equity_zones):
             except ZeroDivisionError:
                 continue
 
-        writer.writerow(line)
+            writer.writerow(line)
 
         if output_dir == '.':
             print('\ncheck equity_'
