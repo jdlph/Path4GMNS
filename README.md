@@ -1,6 +1,6 @@
 # Path4GMNS
 [![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)
- [![Downloads](https://pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.8.6a1-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen)
+ [![Downloads](https://pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.8.6a2-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen)
 
 Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding static shortest paths for simple analyses, its main functionality is to provide an efficient and flexible framework for column-based (path-based) modeling and applications in transportation (e.g., activity-based demand modeling). Path4GMNS supports, in short,
 
@@ -17,13 +17,13 @@ Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jd
    * OD Matrix Estimation (ODME).
 
 ## Installation
-Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.8.6a1/), and can be installed using
+Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.8.6a2/), and can be installed using
 ```
 $ pip install path4gmns
 ```
-If you need a specific version of Path4GMNS, say, 0.8.6a1,
+If you need a specific version of Path4GMNS, say, 0.8.6a2,
 ```
-$ pip install path4gmns==0.8.6a1
+$ pip install path4gmns==0.8.6a2
 ```
 
 v0.8.5 now supports _Apple Silicon_, and _synthesizing zones and demand_. Path4GMNS has evolved dramatically since its early releases with bug fixes, performance improvement, new functionalities. Please **discard all old versions** and **update to or install the latest version**.
@@ -506,11 +506,11 @@ As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Envi
 # from the root directory of PATH4GMNS
 $ python setup.py sdist bdist_wheel
 $ cd dist
-# or python -m pip install path4gmns-0.8.6a1.tar.gz
-$ python -m pip instal pypath4gmns-0.8.6a1-py3-none-any.whl
+# or python -m pip install path4gmns-0.8.6a2.tar.gz
+$ python -m pip instal pypath4gmns-0.8.6a2-py3-none-any.whl
 ```
 
-Here, 0.8.6a1 is the version number. Replace it with the one specified in setup.py.
+Here, 0.8.6a2 is the version number. Replace it with the one specified in setup.py.
 
 ## Implementation Notes
 
