@@ -249,8 +249,9 @@ def read_nodes(input_dir,
             try:
                 b = _convert_str_to_int(line['is_boundary'])
                 if b is None:
-                    pass
-                elif b > 0:
+                    KeyError
+
+                if b > 0:
                     is_activity_node = True
             except KeyError:
                 pass
@@ -346,7 +347,7 @@ def read_links(input_dir,
             try:
                 link_type = _convert_str_to_int(line['link_type'])
                 if link_type is None:
-                    link_type = 1
+                    raise KeyError
             except KeyError:
                 link_type = 1
 
@@ -367,7 +368,7 @@ def read_links(input_dir,
             try:
                 allowed_uses = line['allowed_uses']
                 if not allowed_uses:
-                    allowed_uses = 'all'
+                    raise KeyError
             except KeyError:
                 allowed_uses = 'all'
 
@@ -413,9 +414,9 @@ def read_links(input_dir,
                 # under case ii, we will set up some VDFPeriod objects up to
                 # the number of complete set of VDF_alpha, VDF_beta, and VDF_mu
                 try:
-                    VDF_alpha = line[header_vdf_alpha]
-                    if VDF_alpha:
-                        VDF_alpha = float(VDF_alpha)
+                    VDF_alpha = _convert_str_to_float(line[header_vdf_alpha])
+                    if VDF_alpha is None:
+                        raise TypeError
                 except (KeyError, TypeError):
                     if i == 0:
                         # default value will be applied in the constructor
@@ -424,9 +425,9 @@ def read_links(input_dir,
                         break
 
                 try:
-                    VDF_beta = line[header_vdf_beta]
-                    if VDF_beta:
-                        VDF_beta = float(VDF_beta)
+                    VDF_beta = _convert_str_to_float(line[header_vdf_beta])
+                    if VDF_beta is None:
+                        raise TypeError
                 except (KeyError, TypeError):
                     if i == 0:
                         # default value will be applied in the constructor
@@ -435,9 +436,9 @@ def read_links(input_dir,
                         break
 
                 try:
-                    VDF_mu = line[header_vdf_mu]
-                    if VDF_mu:
-                        VDF_mu = float(VDF_mu)
+                    VDF_mu = _convert_str_to_float(line[header_vdf_mu])
+                    if VDF_mu is None:
+                        raise TypeError
                 except (KeyError, TypeError):
                     if i == 0:
                         # default value will be applied in the constructor
@@ -446,26 +447,26 @@ def read_links(input_dir,
                         break
 
                 try:
-                    VDF_fftt = line[header_vdf_fftt]
-                    if VDF_fftt:
-                        VDF_fftt = float(VDF_fftt)
+                    VDF_fftt = _convert_str_to_float(line[header_vdf_fftt])
+                    if VDF_fftt is None:
+                        raise TypeError
                 except (KeyError, TypeError):
                     # set it up using length and free_speed from link
                     VDF_fftt = length / max(SMALL_DIVISOR, free_speed) * 60
 
                 try:
-                    VDF_cap = line[header_vdf_cap]
-                    if VDF_cap:
-                        VDF_cap = float(VDF_cap)
+                    VDF_cap = _convert_str_to_float(line[header_vdf_cap])
+                    if VDF_cap is None:
+                        raise TypeError
                 except (KeyError, TypeError):
                     # set it up using capacity from link
                     VDF_cap = capacity
 
                 # not a mandatory column
                 try:
-                    VDF_phf = line[header_vdf_phf]
-                    if VDF_phf:
-                        VDF_phf = float(VDF_phf)
+                    VDF_phf = _convert_str_to_float(line[header_vdf_phf])
+                    if VDF_phf is None:
+                        raise TypeError
                 except (KeyError, TypeError):
                     # default value will be applied in the constructor
                     VDF_phf = -1
