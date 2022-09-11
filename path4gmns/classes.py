@@ -687,7 +687,7 @@ class ColumnVec:
 
 class AgentType:
 
-    def __init__(self, id=0, type='p', name='passenger',
+    def __init__(self, id=0, type='a', name='auto',
                  vot=10, flow_type=0, pce=1, ffs=60, use_link_ffs=True):
         """ default constructor """
         self.id = id
@@ -1537,7 +1537,7 @@ class UI:
     def get_accessible_nodes(self,
                              source_node_id,
                              time_budget,
-                             mode='p',
+                             mode='all',
                              time_dependent=False,
                              demand_period_id=0):
         """ get the accessible nodes from a node given mode and time budget
@@ -1554,6 +1554,8 @@ class UI:
             the target transportation mode which is defined in settings.yml. It
             can be either agent type or its name. For example, 'w' and 'walk'
             are equivalent inputs. Its default value is 'p' (i.e., mode auto).
+
+            The default is 'all', which means that links are open to all modes.
 
         time_dependent
             True or False. Its default value is False.
@@ -1591,7 +1593,7 @@ class UI:
     def get_accessible_links(self,
                              source_node_id,
                              time_budget,
-                             mode='p',
+                             mode='all',
                              time_dependent=False,
                              demand_period_id=0):
         """ get the accessible links from a node given mode and time budget
@@ -1609,6 +1611,7 @@ class UI:
             can be either agent type or its name. For example, 'w' and 'walk'
             are equivalent inputs.
 
+            The default is 'all', which means that links are open to all modes.
 
         Outputs
         -------

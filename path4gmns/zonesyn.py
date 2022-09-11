@@ -191,7 +191,7 @@ def _synthesize_demand(ui, total_demand, time_budget, mode):
             ODMatrix[(z, z_)] = round(prod * portion, 2)
 
 
-def network_to_zones(ui, grid_dimension=8, total_demand=10000, time_budget=120, mode='p'):
+def network_to_zones(ui, grid_dimension=8, total_demand=10000, time_budget=120, mode='auto'):
     """ synthesize zones and OD demand given a network
 
     Parameters
@@ -220,9 +220,8 @@ def network_to_zones(ui, grid_dimension=8, total_demand=10000, time_budget=120, 
         and no demand will be allocated between them.
 
     mode
-        target mode with its default value as 'p' (i.e., mode auto). It can be
-        either agent type or its name. For example, 'w' and 'walk' are
-        equivalent inputs.
+        target mode with its default value as 'auto'. It can be either agent type
+        or its name. For example, 'w' and 'walk' are equivalent inputs.
 
         It is used along with time_budget to check if the minimum travel time under
         the given mode exceeds the time budget or not.

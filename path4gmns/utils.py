@@ -559,8 +559,8 @@ def read_demand(input_dir,
 
 
 def load_demand(ui,
-                agent_type_str,
-                demand_period_str,
+                agent_type_str='a',
+                demand_period_str='AM',
                 input_dir='.',
                 filename='demand.csv'):
     """

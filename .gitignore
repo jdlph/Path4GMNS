@@ -12,4 +12,5 @@ tests/equity*.csv
 tests/zone.csv
 tests/syn_demand.csv
 accessibility*.csv
+*accessibility.csv
 **log*

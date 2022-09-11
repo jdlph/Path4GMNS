@@ -17,9 +17,9 @@ def test_find_shortest_path():
     # retrieve the shortest path under a specific mode (which must be defined
     # in settings.yaml)
     print('\nshortest path (node id) from node 1 to node 2, '
-          +network.find_shortest_path(1, 2, mode='w'))
+          +network.find_shortest_path(1, 2, mode='a'))
     print('\nshortest path (link id) from node 1 to node 2, '
-          +network.find_shortest_path(1, 2, mode='w', seq_type='link'))
+          +network.find_shortest_path(1, 2, mode='a', seq_type='link'))
 
 
 def test_find_shortest_path_for_agents():
@@ -27,8 +27,8 @@ def test_find_shortest_path_for_agents():
 
     st = time()
     # find agent paths under a specific mode defined in settings.yaml,
-    # say, w (i.e., walk)
-    # network.find_path_for_agents('w') or network.find_path_for_agents('walk')
+    # say, a (i.e., auto)
+    # network.find_path_for_agents('a') or network.find_path_for_agents('auto')
     network.find_path_for_agents()
     print('\nprocessing time of finding shortest paths for all agents: '
           f'{time()-st:.2f} s')
@@ -136,35 +136,35 @@ def test_accessibility():
     # multimodal accessibility evaluation
     pg.evaluate_accessibility(network)
     # accessibility evaluation for a target mode
-    # pg.evaluate_accessibility(network, multimodal=False, mode='p')
+    # pg.evaluate_accessibility(network, single_mode=True, mode='auto')
 
     print('complete accessibility evaluation.\n')
     print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
 
-    # get accessible nodes and links starting from node 1 with a 5-minitue
-    # time window for the default mode auto (i.e., 'p')
+    # get accessible nodes and links starting from node 1 with a 5-minute
+    # time window for the default mode auto (i.e., 'auto')
     network.get_accessible_nodes(1, 5)
     network.get_accessible_links(1, 5)
 
-    # get accessible nodes and links starting from node 1 with a 15-minitue
+    # get accessible nodes and links starting from node 1 with a 15-minute
     # time window for mode walk (i.e., 'w')
     network.get_accessible_nodes(1, 15, 'w')
     network.get_accessible_links(1, 15, 'w')
 
-    # time-dependent accessibility under the default mode auto (i.e., p)
+    # time-dependent accessibility under the default mode auto
     # for demand period 0 (i.e., VDF_fftt1 in link.csv will be used in the
     # evaluation)
-    # pg.evaluate_accessibility(network, multimodal=False, time_dependent=True)
+    # pg.evaluate_accessibility(network, single_mode=True, time_dependent=True)
 
     # it is equivalent to
-    # pg.evaluate_accessibility(network, multimodal=False,
+    # pg.evaluate_accessibility(network, single_mode=True,
     #                           time_dependent=True, demand_period_id=0)
 
-    # get accessible nodes and links starting from node 1 with a 5-minitue
-    # time window for the default mode auto (i.e., 'p') for demand period 0
+    # get accessible nodes and links starting from node 1 with a 5-minute
+    # time window for the default mode auto for demand period 0
     # network.get_accessible_nodes(1, 5, time_dependent=True)
 
-    # get accessible nodes and links starting from node 1 with a 15-minitue
+    # get accessible nodes and links starting from node 1 with a 15-minute
     # time window for mode walk (i.e., 'w') for demand period 0
     # network.get_accessible_nodes(1, 15, 'w', time_dependent=True)
 
@@ -177,7 +177,7 @@ def test_equity():
     # multimodal equity evaluation under default time budget (60 min)
     pg.evaluate_equity(network)
     # equity evaluation for a target mode with time budget as 30 min
-    # pg.evaluate_equity(network, multimodal=False, mode='p', time_budget=30)
+    # pg.evaluate_equity(network, single_mode=True, mode='auto', time_budget=30)
 
     print('complete equity evaluation.\n')
     print(f'processing time of equity evaluation: {time()-st:.2f} s')
@@ -202,7 +202,7 @@ def test_loading_synthesized_zones_demand():
     print('\nstart loading synthesized zones and demand')
     st = time()
     pg.read_zones(network)
-    pg.load_demand(network, 'p', 'AM', filename='syn_demand.csv')
+    pg.load_demand(network, filename='syn_demand.csv')
 
     print('complete loading synthesized zone and demand.\n')
     print(f'processing time of loading synthesized zone and demand: {time()-st:.2f} s')
@@ -212,7 +212,7 @@ def test_loading_synthesized_zones_demand():
     column_update_num = 20
 
     pg.perform_column_generation(column_gen_num, column_update_num, network)
-    
+
     pg.output_columns(network)
     pg.output_link_performance(network)
 

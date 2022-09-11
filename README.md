@@ -1,6 +1,6 @@
 # Path4GMNS
 [![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)
- [![Downloads](https://pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.8.6a2-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen)
+ [![Downloads](https://pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.8.6-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen)
 
 Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding static shortest paths for simple analyses, its main functionality is to provide an efficient and flexible framework for column-based (path-based) modeling and applications in transportation (e.g., activity-based demand modeling). Path4GMNS supports, in short,
 
@@ -17,13 +17,13 @@ Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jd
    * OD Matrix Estimation (ODME).
 
 ## Installation
-Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.8.6a2/), and can be installed using
+Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.8.6/), and can be installed using
 ```
 $ pip install path4gmns
 ```
-If you need a specific version of Path4GMNS, say, 0.8.6a2,
+If you need a specific version of Path4GMNS, say, 0.8.6,
 ```
-$ pip install path4gmns==0.8.6a2
+$ pip install path4gmns==0.8.6
 ```
 
 v0.8.5 now supports _Apple Silicon_, and _synthesizing zones and demand_. Path4GMNS has evolved dramatically since its early releases with bug fixes, performance improvement, new functionalities. Please **discard all old versions** and **update to or install the latest version**.
@@ -259,8 +259,8 @@ In order to perform multimodal accessibility evaluation, the corresponding modes
 
 ```yaml
 agents:
-  - type: p
-    name: passenger
+  - type: a
+    name: auto
     vot: 10
     flow_type: 0
     pce: 1
@@ -282,7 +282,7 @@ demand_files:
   - file_name: demand.csv
     format_type: column
     period: AM
-    agent_type: p
+    agent_type: a
 ```
 
 If pyyaml is not installed or settings.yml is not provided, one demand period (AM) and one agent type (passenger) will be automatically created.
@@ -302,7 +302,7 @@ print('complete accessibility evaluation.\n')
 print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
 ```
 
-Two formats of accessibility will be output: accessibility between each OD pair in terms of free flow travel time (accessibility.csv) and aggregated accessibility as to the number of accessible zones from each zone for each transportation mode specified in settings.yml given a budget time (up to 240 minutes) (accessibility_aggregated.csv). The following example is to evaluate accessibility only under the default mode (i.e., mode auto or agent type passenger).
+Two formats of accessibility will be output: accessibility between each OD pair in terms of free flow travel time (od_accessibility.csv) and zone accessibility as to the number of accessible zones from each zone for each transportation mode specified in settings.yml given a budget time (up to 240 minutes) (zone_accessibility.csv). The following example is to evaluate accessibility only under the default mode (i.e., mode auto or agent type passenger).
 
 ```python
 import path4gmns as pg
@@ -313,11 +313,11 @@ network = pg.read_network(load_demand=False)
 print('\nstart accessibility evaluation\n')
 st = time()
 
-pg.evaluate_accessibility(network, multimodal=False)
-# the default is under mode auto (i.e., p)
+pg.evaluate_accessibility(network, single_mode=True)
+# the default is under mode auto (i.e., a)
 # if you would like to evaluate accessibility under a target mode, say walk, then
-# pg.evaluate_accessibility(network, multimodal=False, mode='w')
-# or equivalently pg.evaluate_accessibility(network, multimodal=False, mode='walk')
+# pg.evaluate_accessibility(network, single_mode=True, mode='w')
+# or equivalently pg.evaluate_accessibility(network, single_mode=True, mode='walk')
 
 print('complete accessibility evaluation.\n')
 print(f'processing time of accessibility evaluation: {time()-st:.2f} s')
@@ -361,14 +361,14 @@ st = time()
 
 # time-dependent accessibility under the default mode auto (i.e., p)
 # for demand period 0 (i.e., VDF_fftt1 in link.csv will be used in the evaluation)
-pg.evaluate_accessibility(network, multimodal=False, time_dependent=True)
+pg.evaluate_accessibility(network, single_mode=True, time_dependent=True)
 
 # if you would like to evaluate accessibility under a different demand period
 # (say 1, which must be defined in settings.yml along with VDF_fftt2 in link.csv), then
-pg.evaluate_accessibility(network, multimodal=False, time_dependent=True, demand_period_id=1)
+pg.evaluate_accessibility(network, single_mode=True, time_dependent=True, demand_period_id=1)
 
 # if you would like to evaluate accessibility under a target mode, say walk, then
-pg.evaluate_accessibility(network, multimodal=False, mode='w', time_dependent=True)
+pg.evaluate_accessibility(network, single_mode=True, mode='w', time_dependent=True)
 ```
 
 While VDF_fftt begins with 1 (i.e., VDF_fftt1), the argument demand_period_id, corresponding to the sequence number of demand period appeared in demand_periods in settings.yml, starts from 0. So "demand_period_id=0" indicates that VDF_fftt1 will be used (and so on and so forth).
@@ -469,7 +469,7 @@ import path4gmns as pg
 network = pg.read_network(load_demand=False)
 
 pg.read_zones(network)
-pg.load_demand(network, 'p', 'AM', filename='syn_demand.csv')
+pg.load_demand(network, filename='syn_demand.csv')
 
 # perform some other functionalities from Path4GMNS, e.g., traffic assignment
 column_gen_num = 20
@@ -506,11 +506,11 @@ As **CMAKE_BUILD_TYPE** will be **IGNORED** for IDE (Integrated Development Envi
 # from the root directory of PATH4GMNS
 $ python setup.py sdist bdist_wheel
 $ cd dist
-# or python -m pip install path4gmns-0.8.6a2.tar.gz
-$ python -m pip instal pypath4gmns-0.8.6a2-py3-none-any.whl
+# or python -m pip install path4gmns-0.8.6.tar.gz
+$ python -m pip instal pypath4gmns-0.8.6-py3-none-any.whl
 ```
 
-Here, 0.8.6a2 is the version number. Replace it with the one specified in setup.py.
+Here, 0.8.6 is the version number. Replace it with the one specified in setup.py.
 
 ## Implementation Notes
 
