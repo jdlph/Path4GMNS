@@ -23,6 +23,11 @@ __all__ = [
 ]
 
 
+class InvalidRecord(Exception):
+    """a custom exception for invalid input from parsing a csv file"""
+    pass
+
+
 # for precheck on connectivity of each OD pair
 # 0: isolated, has neither outgoing links nor incoming links
 # 1: has at least one outgoing link
@@ -70,14 +75,15 @@ def _convert_str_to_int(str):
     ValueError will take care the case that str is empty
     """
     if not str:
-        return None
+        raise InvalidRecord
 
     try:
         return int(str)
     except ValueError:
+        # if str is not numeric, a ValueError will be then caught  
         return int(float(str))
-    except TypeError:
-        return None
+    except (TypeError, ValueError):
+        raise InvalidRecord
 
 
 def _convert_str_to_float(str):
@@ -86,12 +92,12 @@ def _convert_str_to_float(str):
     ValueError will take care the case that str is empty
     """
     if not str:
-        return None
+        raise InvalidRecord
 
     try:
         return float(str)
     except (TypeError, ValueError):
-        return None
+        raise InvalidRecord
 
 
 def _convert_boundaries(bs):
@@ -231,13 +237,15 @@ def read_nodes(input_dir,
         node_no = 0
         for line in reader:
             # set up node_id, which should be an integer
-            node_id = _convert_str_to_int(line['node_id'])
-            if node_id is None:
+            try:
+                node_id = _convert_str_to_int(line['node_id'])
+            except InvalidRecord:
                 continue
 
             # set up zone_id, which should be an integer
-            zone_id = _convert_str_to_int(line['zone_id'])
-            if zone_id is None:
+            try:
+                zone_id = _convert_str_to_int(line['zone_id'])
+            except (KeyError, InvalidRecord):
                 zone_id = -1
 
             # treat them as string
@@ -245,16 +253,12 @@ def read_nodes(input_dir,
             coord_y = line['y_coord']
 
             # activity node
-            is_activity_node = False
             try:
                 b = _convert_str_to_int(line['is_boundary'])
-                if b is None:
-                    KeyError
-
                 if b > 0:
                     is_activity_node = True
-            except KeyError:
-                pass
+            except (KeyError, InvalidRecord):
+                is_activity_node = False
 
             # construct node object
             node = Node(node_no, node_id, zone_id, coord_x, coord_y, is_activity_node)
@@ -265,13 +269,10 @@ def read_nodes(input_dir,
             map_no_to_id[node_no] = node_id
 
             # bin_index for equity evaluation
-            bin_index = 0
             try:
-                bi = _convert_str_to_int(line['bin_index'])
-                if bi is not None:
-                    bin_index = bi
-            except KeyError:
-                pass
+                bin_index = _convert_str_to_int(line['bin_index'])
+            except (KeyError, InvalidRecord):
+                bin_index = 0
 
             # associate node_id with corresponding zone
             if zone_id not in zones.keys():
@@ -315,16 +316,19 @@ def read_links(input_dir,
             link_id = line['link_id']
 
             # check the validity
-            from_node_id = _convert_str_to_int(line['from_node_id'])
-            if from_node_id is None:
+            try:
+                from_node_id = _convert_str_to_int(line['from_node_id'])
+            except InvalidRecord:
                 continue
 
-            to_node_id =_convert_str_to_int(line['to_node_id'])
-            if to_node_id is None:
+            try:
+                to_node_id =_convert_str_to_int(line['to_node_id'])
+            except InvalidRecord:
                 continue
 
-            length = _convert_str_to_float(line['length'])
-            if length is None:
+            try:
+                length = _convert_str_to_float(line['length'])
+            except InvalidRecord:
                 continue
 
             # pass validity check
@@ -340,24 +344,25 @@ def read_links(input_dir,
             # for the following attributes,
             # if they are not None, convert them to the corresponding types
             # if they are None's, set them using the default values
-            lanes = _convert_str_to_int(line['lanes'])
-            if lanes is None:
+            try:
+                lanes = _convert_str_to_int(line['lanes'])
+            except InvalidRecord:
                 lanes = 1
 
             try:
                 link_type = _convert_str_to_int(line['link_type'])
-                if link_type is None:
-                    raise KeyError
-            except KeyError:
+            except (KeyError, InvalidRecord):
                 link_type = 1
 
-            free_speed = _convert_str_to_int(line['free_speed'])
-            if free_speed is None:
+            try:
+                free_speed = _convert_str_to_int(line['free_speed'])
+            except InvalidRecord:
                 free_speed = 60
 
             # issue: int??
-            capacity = _convert_str_to_int(line['capacity'])
-            if capacity is None:
+            try:
+                capacity = _convert_str_to_int(line['capacity'])
+            except InvalidRecord:
                 capacity = 49500
 
             # if link.csv does not have no column 'allowed_uses',
@@ -368,8 +373,8 @@ def read_links(input_dir,
             try:
                 allowed_uses = line['allowed_uses']
                 if not allowed_uses:
-                    raise KeyError
-            except KeyError:
+                    raise InvalidRecord
+            except (KeyError, InvalidRecord):
                 allowed_uses = 'all'
 
             # if link.csv does not have no column 'geometry',
@@ -415,9 +420,7 @@ def read_links(input_dir,
                 # the number of complete set of VDF_alpha, VDF_beta, and VDF_mu
                 try:
                     VDF_alpha = _convert_str_to_float(line[header_vdf_alpha])
-                    if VDF_alpha is None:
-                        raise TypeError
-                except (KeyError, TypeError):
+                except (KeyError, InvalidRecord):
                     if i == 0:
                         # default value will be applied in the constructor
                         VDF_alpha = 0.15
@@ -426,9 +429,7 @@ def read_links(input_dir,
 
                 try:
                     VDF_beta = _convert_str_to_float(line[header_vdf_beta])
-                    if VDF_beta is None:
-                        raise TypeError
-                except (KeyError, TypeError):
+                except (KeyError, InvalidRecord):
                     if i == 0:
                         # default value will be applied in the constructor
                         VDF_beta = 4
@@ -437,9 +438,7 @@ def read_links(input_dir,
 
                 try:
                     VDF_mu = _convert_str_to_float(line[header_vdf_mu])
-                    if VDF_mu is None:
-                        raise TypeError
-                except (KeyError, TypeError):
+                except (KeyError, InvalidRecord):
                     if i == 0:
                         # default value will be applied in the constructor
                         VDF_mu = 1000
@@ -448,26 +447,20 @@ def read_links(input_dir,
 
                 try:
                     VDF_fftt = _convert_str_to_float(line[header_vdf_fftt])
-                    if VDF_fftt is None:
-                        raise TypeError
-                except (KeyError, TypeError):
+                except (KeyError, InvalidRecord):
                     # set it up using length and free_speed from link
                     VDF_fftt = length / max(SMALL_DIVISOR, free_speed) * 60
 
                 try:
                     VDF_cap = _convert_str_to_float(line[header_vdf_cap])
-                    if VDF_cap is None:
-                        raise TypeError
-                except (KeyError, TypeError):
+                except (KeyError, InvalidRecord):
                     # set it up using capacity from link
                     VDF_cap = capacity
 
                 # not a mandatory column
                 try:
                     VDF_phf = _convert_str_to_float(line[header_vdf_phf])
-                    if VDF_phf is None:
-                        raise TypeError
-                except (KeyError, TypeError):
+                except (KeyError, InvalidRecord):
                     # default value will be applied in the constructor
                     VDF_phf = -1
 
@@ -515,13 +508,15 @@ def read_demand(input_dir,
         total_agents = 0
         for line in reader:
             # invalid origin zone id, discard it
-            oz_id = _convert_str_to_int(line['o_zone_id'])
-            if oz_id is None:
+            try:
+                oz_id = _convert_str_to_int(line['o_zone_id'])
+            except InvalidRecord:
                 continue
 
             # invalid destination zone id, discard it
-            dz_id = _convert_str_to_int(line['d_zone_id'])
-            if dz_id is None:
+            try:
+                dz_id = _convert_str_to_int(line['d_zone_id'])
+            except InvalidRecord:
                 continue
 
             # o_zone_id does not exist in node.csv, discard it
@@ -583,12 +578,13 @@ def read_zones(ui, input_dir='.', filename='zone.csv'):
 
         reader = csv.DictReader(fp)
         for line in reader:
-            zone_id = _convert_str_to_int(line['zone_id'])
-            if zone_id is None:
+            try:
+                zone_id = _convert_str_to_int(line['zone_id'])
+            except InvalidRecord:
                 continue
 
             nodes = line['activity_nodes']
-            if nodes is None:
+            if not nodes:
                 continue
 
             try:
@@ -629,13 +625,15 @@ def read_demand_matrix(input_dir, agent_type_id, demand_period_id,
 
         reader = csv.DictReader(fp)
         for line in reader:
-            oz_id = _convert_str_to_int(line['od'])
-            if oz_id is None:
+            try:
+                oz_id = _convert_str_to_int(line['od'])
+            except InvalidRecord:
                 continue
 
             for dz_str, vol_str in line:
-                dz_id = _convert_str_to_int(dz_str)
-                if dz_id is None:
+                try:
+                    dz_id = _convert_str_to_int(dz_str)
+                except InvalidRecord:
                     continue
 
                 if oz_id == dz_id:
@@ -708,7 +706,10 @@ def read_settings(input_dir, assignment):
                 agent_flow_type = a['flow_type']
                 agent_pce = a['pce']
                 agent_ffs = a['free_speed']
-                agent_use_link_ffs = a['use_link_ffs']
+                try:
+                    agent_use_link_ffs = a['use_link_ffs']
+                except KeyError:
+                    agent_use_link_ffs= True
 
                 at = AgentType(i,
                                agent_type,
@@ -830,25 +831,28 @@ def load_columns(ui, input_dir='.'):
         last_agent_id = 0
         for line in reader:
             # critical info
-            oz_id = _convert_str_to_int(line['o_zone_id'])
-            if oz_id is None:
+            try:
+                oz_id = _convert_str_to_int(line['o_zone_id'])
+            except InvalidRecord:
                 continue
 
-            dz_id = _convert_str_to_int(line['d_zone_id'])
-            if dz_id is None:
+            try:
+                dz_id = _convert_str_to_int(line['d_zone_id'])
+            except InvalidRecord:
                 continue
 
             node_seq = line['node_sequence']
-            if node_seq is None:
+            if not node_seq:
                 continue
 
             link_seq = line['link_sequence']
-            if link_seq is None:
+            if not link_seq:
                 continue
 
             # non-critical info
-            agent_id = _convert_str_to_int(line['agent_id'])
-            if agent_id is None:
+            try:
+                agent_id = _convert_str_to_int(line['agent_id'])
+            except InvalidRecord:
                 agent_id = last_agent_id + 1
 
             last_agent_id = agent_id
@@ -868,20 +872,24 @@ def load_columns(ui, input_dir='.'):
             else:
                 dp = A.get_demand_period_id(dp)
 
-            vol = _convert_str_to_float(line['volume'])
-            if vol is None:
+            try:
+                vol = _convert_str_to_float(line['volume'])
+            except InvalidRecord:
                 continue
 
-            toll = _convert_str_to_float(line['toll'])
-            if toll is None:
+            try:
+                toll = _convert_str_to_float(line['toll'])
+            except InvalidRecord:
                 toll = 0
 
-            tt = _convert_str_to_float(line['travel_time'])
-            if tt is None:
+            try:
+                tt = _convert_str_to_float(line['travel_time'])
+            except InvalidRecord:
                 tt = 0
 
-            dist = _convert_str_to_float(line['distance'])
-            if dist is None:
+            try:
+                dist = _convert_str_to_float(line['distance'])
+            except InvalidRecord:
                 dist = 0
 
             # it could be empty
