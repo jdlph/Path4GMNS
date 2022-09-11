@@ -1537,7 +1537,7 @@ class UI:
     def get_accessible_nodes(self,
                              source_node_id,
                              time_budget,
-                             mode='all',
+                             mode='auto',
                              time_dependent=False,
                              demand_period_id=0):
         """ get the accessible nodes from a node given mode and time budget
@@ -1555,7 +1555,7 @@ class UI:
             can be either agent type or its name. For example, 'w' and 'walk'
             are equivalent inputs. Its default value is 'p' (i.e., mode auto).
 
-            The default is 'all', which means that links are open to all modes.
+            The default is 'auto'.
 
         time_dependent
             True or False. Its default value is False.
@@ -1593,7 +1593,7 @@ class UI:
     def get_accessible_links(self,
                              source_node_id,
                              time_budget,
-                             mode='all',
+                             mode='auto',
                              time_dependent=False,
                              demand_period_id=0):
         """ get the accessible links from a node given mode and time budget
@@ -1611,7 +1611,7 @@ class UI:
             can be either agent type or its name. For example, 'w' and 'walk'
             are equivalent inputs.
 
-            The default is 'all', which means that links are open to all modes.
+            The default is 'auto'.
 
         Outputs
         -------

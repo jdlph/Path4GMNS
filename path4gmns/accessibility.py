@@ -66,7 +66,7 @@ def _output_od_accessibility(min_travel_times, zones, mode, output_dir):
         writer.writerow(headers)
 
         # for multimodal case, find the minimum travel time
-        # under mode 'p' (i.e., auto)
+        # under mode 'a' (i.e., auto)
         for k, v in min_travel_times.items():
             # k = (from_zone_id, to_zone_id, at_type_str)
             if k[2] != mode:
@@ -280,9 +280,10 @@ def evaluate_accessibility(ui,
     interval_num = _get_interval_id(min(max_min, MAX_TIME_BUDGET)) + 1
 
     # multithreading to reduce output time
+    _, at_str_ = base._convert_mode(mode)
     t = threading.Thread(
         target=_output_od_accessibility,
-        args=(min_travel_times, zones, mode, output_dir))
+        args=(min_travel_times, zones, at_str_, output_dir))
     t.start()
 
     t = threading.Thread(

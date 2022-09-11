@@ -81,8 +81,11 @@ def _convert_str_to_int(str):
         return int(str)
     except ValueError:
         # if str is not numeric, a ValueError will be then caught
-        return int(float(str))
-    except (TypeError, ValueError):
+        try:
+            return int(float(str))
+        except ValueError:
+            raise InvalidRecord
+    except TypeError:
         raise InvalidRecord
 
 
@@ -253,12 +256,13 @@ def read_nodes(input_dir,
             coord_y = line['y_coord']
 
             # activity node
+            is_activity_node = False
             try:
                 b = _convert_str_to_int(line['is_boundary'])
                 if b > 0:
                     is_activity_node = True
             except (KeyError, InvalidRecord):
-                is_activity_node = False
+                pass
 
             # construct node object
             node = Node(node_no, node_id, zone_id, coord_x, coord_y, is_activity_node)
