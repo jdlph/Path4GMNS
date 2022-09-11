@@ -6,7 +6,7 @@ from .classes import Node, Link, Zone, Network, Column, ColumnVec, VDFPeriod, \
                      AgentType, DemandPeriod, Demand, SpecialEvent, Assignment, UI
 
 from .colgen import update_links_using_columns
-from .consts import SMALL_DIVISOR
+from .consts import MILE_TO_METER, MPH_TO_KPH, SMALL_DIVISOR
 
 
 __all__ = [
@@ -80,7 +80,7 @@ def _convert_str_to_int(str):
     try:
         return int(str)
     except ValueError:
-        # if str is not numeric, a ValueError will be then caught  
+        # if str is not numeric, a ValueError will be then caught
         return int(float(str))
     except (TypeError, ValueError):
         raise InvalidRecord
@@ -303,6 +303,8 @@ def read_links(input_dir,
                map_id_to_no,
                link_ids,
                demand_period_size,
+               length_unit,
+               speed_unit,
                load_demand):
 
     """ step 2: read input_link """
@@ -385,6 +387,11 @@ def read_links(input_dir,
                 geometry = ''
 
             link_ids[link_id] = link_seq_no
+            if length_unit.startswith('meter'):
+                length = length / MILE_TO_METER
+
+            if speed_unit.startswith('kmh') or speed_unit.startswith('kph'):
+                free_speed = free_speed / MPH_TO_KPH
 
             # construct link object
             link = Link(link_id,
@@ -594,13 +601,18 @@ def read_zones(ui, input_dir='.', filename='zone.csv'):
                     f'INVALID ACCESS NODES for zone id: {zone_id}'
                 )
 
+            try:
+                bin_index = _convert_str_to_int(line['bin_index'])
+            except (KeyError, InvalidRecord):
+                bin_index = 0
+
             x = _convert_str_to_float(line['x_coord'])
             y = _convert_str_to_float(line['y_coord'])
             U, D, L, R = _convert_boundaries(line['geometry'])
             prod = _convert_str_to_int(line['production'])
 
             if zone_id not in zones.keys():
-                z = Zone(zone_id)
+                z = Zone(zone_id, bin_index)
                 z.activity_nodes = [int(x) for x in node_ids]
                 z.nodes = [x for x in z.activity_nodes]
                 z.setup_geo(U, D, L, R, x, y)
@@ -695,6 +707,8 @@ def read_settings(input_dir, assignment):
         import yaml as ym
 
         with open(input_dir+'/settings.yml') as file:
+            print('read settings.yml')
+
             settings = ym.full_load(file)
 
             # agent types
@@ -780,7 +794,7 @@ def read_settings(input_dir, assignment):
         raise e
 
 
-def read_network(load_demand='true', input_dir='.'):
+def read_network(length_unit='mile', speed_unit='mph', load_demand='true', input_dir='.'):
     assignm = Assignment()
     network = Network()
 
@@ -798,6 +812,8 @@ def read_network(load_demand='true', input_dir='.'):
                network.map_id_to_no,
                network.link_ids,
                assignm.get_demand_period_count(),
+               length_unit,
+               speed_unit,
                load_demand)
 
     if load_demand:

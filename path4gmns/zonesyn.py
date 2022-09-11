@@ -90,7 +90,8 @@ def _synthesize_grid(ui, grid_dim):
         if len(nodes) > 1000:
             sample_rate = int(len(nodes) / 100)
 
-    k = 0
+    # zone id starts from 1
+    k = 1
     num = 0
     grids = {}
     res = _find_resolution(nodes, grid_dim)

@@ -54,9 +54,9 @@ def _update_min_travel_time(an, at, min_travel_times, time_dependent, demand_per
     return max_min
 
 
-def _output_accessibility(min_travel_times, zones, mode='p', output_dir='.'):
+def _output_od_accessibility(min_travel_times, zones, mode='p', output_dir='.'):
     """ output accessibility for each OD pair (i.e., travel time) """
-    with open(output_dir+'/accessibility.csv', 'w',  newline='') as f:
+    with open(output_dir+'/od_accessibility.csv', 'w',  newline='') as f:
         headers = ['o_zone_id', 'o_zone_name',
                    'd_zone_id', 'd_zone_name',
                    'accessibility', 'distance',
@@ -89,19 +89,19 @@ def _output_accessibility(min_travel_times, zones, mode='p', output_dir='.'):
             writer.writerow(line)
 
         if output_dir == '.':
-            print('\ncheck accessibility.csv in '
-                  +os.getcwd()+' for accessibility matrix')
+            print('\ncheck od_accessibility.csv in '
+                  +os.getcwd()+' for OD accessibility')
         else:
-            print('\ncheck accessibility.csv in '
+            print('\ncheck od_accessibility.csv in '
                   +os.path.join(os.getcwd(), output_dir)
-                  +' for accessibility matrix')
+                  +' for OD accessibility')
 
 
-def _output_accessibility_aggregated(min_travel_times, interval_num,
-                                     zones, ats, output_dir='.'):
-    """ output aggregated accessibility matrix for each agent type """
+def _output_zone_accessibility(min_travel_times, interval_num,
+                               zones, ats, output_dir='.'):
+    """ output zone accessibility matrix for each agent type """
 
-    with open(output_dir+'/accessibility_aggregated.csv', 'w',  newline='') as f:
+    with open(output_dir+'/zone_accessibility.csv', 'w',  newline='') as f:
         time_budgets = [
             'TT_'+str(MIN_TIME_BUDGET+BUDGET_TIME_INTVL*i) for i in range(interval_num)
         ]
@@ -140,12 +140,12 @@ def _output_accessibility_aggregated(min_travel_times, interval_num,
                 writer.writerow(line)
 
         if output_dir == '.':
-            print('\ncheck accessibility_aggregated.csv in '
-                  +os.getcwd()+' for aggregated accessibility matrix')
+            print('\ncheck zone_accessibility.csv in '
+                  +os.getcwd()+' for zone accessibility')
         else:
-            print('\ncheck accessibility_aggregated.csv in '
+            print('\ncheck zone_accessibility.csv in '
                   +os.path.join(os.getcwd(), output_dir)
-                  +' for aggregated accessibility matrix')
+                  +' for zone accessibility')
 
 
 def _output_equity(output_dir, time_budget, equity_metrics, equity_zones):
@@ -231,15 +231,13 @@ def evaluate_accessibility(ui,
         default value is 0.
 
     output_dir
-        The directory path where accessibility_aggregated.csv and
-        accessibility.csv are output. The default is the current working
-        directory (CDW).
-
+        The directory path where zone_accessibility.csv and od_accessibility.csv
+        are output. The default is the current working directory (CDW).
 
     Outputs
     -------
-    accessibility_aggregated.csv
-        aggregated accessibility as the number of accessible zones from each
+    zone_accessibility.csv
+        accessibility as the number of accessible zones from each
         zone for a target mode or any mode defined in settings.yml given a
         budget time (up to 240 minutes).
 
@@ -283,12 +281,12 @@ def evaluate_accessibility(ui,
 
     # multithreading to reduce output time
     t = threading.Thread(
-        target=_output_accessibility,
+        target=_output_od_accessibility,
         args=(min_travel_times, zones, mode, output_dir))
     t.start()
 
     t = threading.Thread(
-        target=_output_accessibility_aggregated,
+        target=_output_zone_accessibility,
         args=(min_travel_times, interval_num, zones, ats, output_dir)
     )
     t.start()
