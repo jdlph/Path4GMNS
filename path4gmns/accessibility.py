@@ -75,8 +75,8 @@ def _output_od_accessibility(min_travel_times, zones, mode, output_dir):
             # output accessibility
             # no exception handlings here as min_travel_times is constructed
             # directly using an.get_centroids()
-            coord_oz = zones[k[0]]
-            coord_dz = zones[k[1]]
+            coord_oz = zones[k[0]].get_coordinate_str()
+            coord_dz = zones[k[1]].get_coordinate_str()
             geo = 'LINESTRING (' + coord_oz + ', ' + coord_dz + ')'
 
             tt = v[0]
@@ -113,12 +113,12 @@ def _output_zone_accessibility(min_travel_times, interval_num,
         writer.writerow(headers)
 
         # calculate accessibility
-        for oz, coord in zones.items():
+        for oz, v in zones.items():
             if oz == -1:
                 continue
 
-            for atype in ats:
-                at_str = atype.get_type_str()
+            for at in ats:
+                at_str = at.get_type_str()
                 # number of accessible zones from oz for each agent type
                 counts = [0] * interval_num
                 for dz in zones.keys():
@@ -134,8 +134,20 @@ def _output_zone_accessibility(min_travel_times, interval_num,
                         counts[id] += 1
                         id += 1
                 # output accessibility
-                geo = 'POINT (' + coord + ')'
-                line = [oz, geo, atype.get_type_str()]
+                try:
+                    [U, D, L, R] = v.get_boundaries()
+                    geo = (
+                        'LINESTRING ('
+                        + str(L) + ' ' + str(U) + ','
+                        + str(R) + ' ' + str(U) + ','
+                        + str(R) + ' ' + str(D) + ','
+                        + str(L) + ' ' + str(D) + ','
+                        + str(L) + ' ' + str(U) + ')'
+                    )
+                except ValueError:
+                    geo = 'LINESTRING ()'
+
+                line = [oz, geo, at.get_type_str()]
                 line.extend(counts)
                 writer.writerow(line)
 
@@ -248,13 +260,11 @@ def evaluate_accessibility(ui,
     an = AccessNetwork(base.network)
     ats = None
 
-    # map zone id to zone centroid coordinate
-    zones = {}
-    for c in an.get_centroids():
-        zones[c.get_zone_id()] = c.get_coordinate()
+    zones = base.network.zones
 
     max_min = 0
     min_travel_times = {}
+    at_name, at_str = base._convert_mode(mode)
     if not single_mode:
         ats = base.get_agent_types()
         for at in ats:
@@ -267,7 +277,6 @@ def evaluate_accessibility(ui,
             if max_min_ > max_min:
                 max_min = max_min_
     else:
-        at_name, at_str = base._convert_mode(mode)
         an.set_target_mode(at_name)
         at = base.get_agent_type(at_str)
         max_min = _update_min_travel_time(an,
@@ -280,10 +289,9 @@ def evaluate_accessibility(ui,
     interval_num = _get_interval_id(min(max_min, MAX_TIME_BUDGET)) + 1
 
     # multithreading to reduce output time
-    _, at_str_ = base._convert_mode(mode)
     t = threading.Thread(
         target=_output_od_accessibility,
-        args=(min_travel_times, zones, at_str_, output_dir))
+        args=(min_travel_times, zones, at_str, output_dir))
     t.start()
 
     t = threading.Thread(

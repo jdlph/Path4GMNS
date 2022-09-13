@@ -72,6 +72,12 @@ def _find_resolution(nodes, grid_dim):
     return res
 
 
+def _synthesize_bin_index(base, zones):
+    for z in zones.values():
+        bi = z.get_activity_nodes_num() // base
+        z.set_bin_index(bi)
+
+
 def _synthesize_grid(ui, grid_dim):
     A = ui._base_assignment
     nodes = A.get_nodes()
@@ -133,6 +139,7 @@ def _synthesize_grid(ui, grid_dim):
         num += 1
 
     network.activity_node_num = num
+    _synthesize_bin_index(sample_rate, zones)
 
 
 def _synthesize_demand(ui, total_demand, time_budget, mode):

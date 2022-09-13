@@ -257,6 +257,9 @@ class Zone:
     def get_coordinate(self):
         return self.coord_x, self.coord_y
 
+    def get_coordinate_str(self):
+        return str(self.coord_x) + ' ' + str(self.coord_y)
+
     def get_nodes(self):
         return self.nodes
 

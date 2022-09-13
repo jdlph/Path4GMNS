@@ -69,6 +69,7 @@ def _are_od_connected(oz_id, dz_id):
     return connected
 
 
+# a little bit ugly
 def _convert_str_to_int(str):
     """
     TypeError will take care the case that str is None
@@ -1188,6 +1189,7 @@ def output_zones(ui, output_dir='.'):
         writer = csv.writer(f)
 
         line = ['zone_id',
+                'bin_index',
                 'activity_nodes',
                 'x_coord',
                 'y_coord',
@@ -1202,6 +1204,8 @@ def output_zones(ui, output_dir='.'):
         zones = network.zones
 
         for k, v in zones.items():
+            bi = v.get_bin_index()
+            
             nodes = '; '.join(
                 str(x) for x in v.get_activity_nodes()
             )
@@ -1220,6 +1224,7 @@ def output_zones(ui, output_dir='.'):
             )
 
             line = [k,
+                    bi,
                     nodes,
                     x,
                     y,
