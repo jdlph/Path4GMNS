@@ -134,18 +134,7 @@ def _output_zone_accessibility(min_travel_times, interval_num,
                         counts[id] += 1
                         id += 1
                 # output accessibility
-                try:
-                    [U, D, L, R] = v.get_boundaries()
-                    geo = (
-                        'LINESTRING ('
-                        + str(L) + ' ' + str(U) + ','
-                        + str(R) + ' ' + str(U) + ','
-                        + str(R) + ' ' + str(D) + ','
-                        + str(L) + ' ' + str(D) + ','
-                        + str(L) + ' ' + str(U) + ')'
-                    )
-                except ValueError:
-                    geo = 'LINESTRING ()'
+                geo = v.get_geo()
 
                 line = [oz, geo, at.get_type_str()]
                 line.extend(counts)

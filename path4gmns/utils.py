@@ -1205,7 +1205,7 @@ def output_zones(ui, output_dir='.'):
 
         for k, v in zones.items():
             bi = v.get_bin_index()
-            
+
             nodes = '; '.join(
                 str(x) for x in v.get_activity_nodes()
             )
@@ -1213,15 +1213,7 @@ def output_zones(ui, output_dir='.'):
             [U, D, L, R] = v.get_boundaries()
             x, y = v.get_coordinate()
             prod = v.get_production()
-
-            geo = (
-                'LINESTRING ('
-                + str(L) + ' ' + str(U) + ','
-                + str(R) + ' ' + str(U) + ','
-                + str(R) + ' ' + str(D) + ','
-                + str(L) + ' ' + str(D) + ','
-                + str(L) + ' ' + str(U) + ')'
-            )
+            geo = v.get_geo()
 
             line = [k,
                     bi,

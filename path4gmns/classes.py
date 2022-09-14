@@ -258,7 +258,28 @@ class Zone:
         return self.coord_x, self.coord_y
 
     def get_coordinate_str(self):
-        return str(self.coord_x) + ' ' + str(self.coord_y)
+        s = ' '
+        if self.coord_x == 91 or self.coord_y == 181:
+            return s
+
+        return str(self.coord_x) + s + str(self.coord_y)
+
+    def get_geo(self):
+        """ output the four vertices as boundary """
+        try:
+            [U, D, L, R] = self.get_boundaries()
+            geo = (
+                'LINESTRING ('
+                + str(L) + ' ' + str(U) + ','
+                + str(R) + ' ' + str(U) + ','
+                + str(R) + ' ' + str(D) + ','
+                + str(L) + ' ' + str(D) + ','
+                + str(L) + ' ' + str(U) + ')'
+            )
+        except ValueError:
+            geo = 'LINESTRING ()'
+
+        return geo
 
     def get_nodes(self):
         return self.nodes
