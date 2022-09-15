@@ -2,7 +2,7 @@ from math import ceil, floor
 
 from .accessibility import _update_min_travel_time
 from .classes import AccessNetwork, Zone
-from .utils import _convert_str_to_float
+from .utils import _convert_str_to_float, InvalidRecord
 
 
 __all__ = ['network_to_zones']
@@ -18,16 +18,19 @@ def _get_grid_id(x, y, res):
 
 
 def _get_boundaries(nodes):
-    L = R = _convert_str_to_float(nodes[0].coord_x)
-    U = D = _convert_str_to_float(nodes[0].coord_y)
-    if L is None or U is None:
+    try:
+        L = R = _convert_str_to_float(nodes[0].coord_x)
+        U = D = _convert_str_to_float(nodes[0].coord_y)
+    except InvalidRecord:
         for i, node in enumerate(nodes):
-            x = _convert_str_to_float(node.coord_x)
-            if x is None:
+            try:
+                x = _convert_str_to_float(node.coord_x)
+            except InvalidRecord:
                 continue
 
-            y = _convert_str_to_float(node.coord_y)
-            if y is None:
+            try:
+                y = _convert_str_to_float(node.coord_y)
+            except InvalidRecord:
                 continue
 
             L = R = x
@@ -38,12 +41,14 @@ def _get_boundaries(nodes):
             raise Exception('No Coordinate Info')
 
     for node in nodes:
-        x = _convert_str_to_float(node.coord_x)
-        if x is None:
+        try:
+            x = _convert_str_to_float(node.coord_x)
+        except InvalidRecord:
             continue
 
-        y = _convert_str_to_float(node.coord_y)
-        if y is None:
+        try:
+            y = _convert_str_to_float(node.coord_y)
+        except InvalidRecord:
             continue
 
         L = min(L, x)
@@ -112,12 +117,14 @@ def _synthesize_grid(ui, grid_dim, bin_num):
     res = _find_resolution(nodes, grid_dim)
 
     for m, node in enumerate(nodes):
-        x = _convert_str_to_float(node.coord_x)
-        if x is None:
+        try:
+            x = _convert_str_to_float(node.coord_x)
+        except InvalidRecord:
             continue
 
-        y = _convert_str_to_float(node.coord_y)
-        if y is None:
+        try:
+            y = _convert_str_to_float(node.coord_y)
+        except InvalidRecord:
             continue
 
         if not node.is_activity_node:
