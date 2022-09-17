@@ -77,14 +77,14 @@ def _find_resolution(nodes, grid_dim):
     return res
 
 
-def _synthesize_bin_index(bin_num, zones):
+def _synthesize_bin_index(max_bin, zones):
     min_ = max_ = next(iter(zones.values())).get_activity_nodes_num()
     for z in zones.values():
         n = z.get_activity_nodes_num()
         min_ = min(min_, n)
         max_ = max(max_, n)
 
-    bin_size = ceil((max_ - min_) / bin_num)
+    bin_size = ceil((max_ - min_) / max_bin)
     
     for z in zones.values():
         # make sure it starts from 0
@@ -92,7 +92,7 @@ def _synthesize_bin_index(bin_num, zones):
         z.set_bin_index(bi)
 
 
-def _synthesize_grid(ui, grid_dim, bin_num):
+def _synthesize_grid(ui, grid_dim, max_bin):
     A = ui._base_assignment
     nodes = A.get_nodes()
 
@@ -155,7 +155,7 @@ def _synthesize_grid(ui, grid_dim, bin_num):
         num += 1
 
     network.activity_node_num = num
-    _synthesize_bin_index(bin_num, zones)
+    _synthesize_bin_index(max_bin, zones)
 
 
 def _synthesize_demand(ui, total_demand, time_budget, mode):
@@ -214,7 +214,7 @@ def _synthesize_demand(ui, total_demand, time_budget, mode):
             ODMatrix[(z, z_)] = round(prod * portion, 2)
 
 
-def network_to_zones(ui, grid_dimension=8, bin_num=5, total_demand=10000, time_budget=120, mode='auto'):
+def network_to_zones(ui, grid_dimension=8, max_bin=5, total_demand=10000, time_budget=120, mode='auto'):
     """ synthesize zones and OD demand given a network
 
     Parameters
@@ -225,8 +225,8 @@ def network_to_zones(ui, grid_dimension=8, bin_num=5, total_demand=10000, time_b
     grid_dimension
         positive integer. If its value is d, a total of d * d zones will be synthesized.
 
-    bin_num
-        positive integer. The number of bin_idex generated for synthesized zones.
+    max_bin
+        positive integer. The maximum number of bin_idex generated for synthesized zones.
 
     total_demand
         The total demand or the total number of trips to be allocated to the OD
@@ -273,5 +273,5 @@ def network_to_zones(ui, grid_dimension=8, bin_num=5, total_demand=10000, time_b
     if time_budget <= 0:
         raise Exception('Invalid time_budget: it must be a Positive Number')
 
-    _synthesize_grid(ui, grid_dimension, bin_num)
+    _synthesize_grid(ui, grid_dimension, max_bin)
     _synthesize_demand(ui, total_demand, time_budget, mode)

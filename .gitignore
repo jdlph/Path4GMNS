@@ -2,6 +2,7 @@ build/
 dist/
 *egg-info/
 .vscode/
+.ipynb_checkpoints
 __pycache__/
 engine_cpp/build/
 .DS_Store

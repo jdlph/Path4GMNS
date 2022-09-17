@@ -280,7 +280,8 @@ def evaluate_accessibility(ui,
     # multithreading to reduce output time
     t = threading.Thread(
         target=_output_od_accessibility,
-        args=(min_travel_times, zones, at_str, output_dir))
+        args=(min_travel_times, zones, at_str, output_dir)
+    )
     t.start()
 
     t = threading.Thread(

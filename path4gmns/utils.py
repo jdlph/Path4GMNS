@@ -17,6 +17,7 @@ __all__ = [
     'output_columns',
     'output_link_performance',
     'download_sample_data_sets',
+    'download_sample_setting_file',
     'output_agent_paths',
     'output_zones',
     'output_synthesized_demand'
@@ -171,7 +172,7 @@ def _download_url(url, filename, loc_dir):
     except requests.HTTPError:
         print('file not existing: '+url)
     except requests.ConnectionError:
-        raise Exception('check your connectcion!!!')
+        raise Exception('check your connection!!!')
     except Exception as e:
         raise e
 
@@ -225,6 +226,17 @@ def download_sample_data_sets():
 
     print('downloading completes')
     print('check '+os.path.join(os.getcwd(), loc_data_dir)+' for downloaded data sets')
+
+
+def download_sample_setting_file():
+    url = 'https://raw.githubusercontent.com/jdlph/Path4GMNS/master/tests/settings.yml'
+    filename = 'settings.yml'
+    loc_dir = './'
+
+    _download_url(url, filename, loc_dir)
+
+    print('downloading completes')
+    print('check '+os.getcwd()+' for downloaded settings.yml')
 
 
 def read_nodes(input_dir,
