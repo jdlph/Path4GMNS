@@ -791,7 +791,7 @@ class DemandPeriod:
 
 class Demand:
 
-    def __init__(self, id=0, period='AM', agent_type='p', file='demand.csv'):
+    def __init__(self, id=0, period='AM', agent_type='a', file='demand.csv'):
         self.id = id
         self.period = period
         self.agent_type_str = agent_type
@@ -1577,7 +1577,7 @@ class UI:
         mode
             the target transportation mode which is defined in settings.yml. It
             can be either agent type or its name. For example, 'w' and 'walk'
-            are equivalent inputs. Its default value is 'p' (i.e., mode auto).
+            are equivalent inputs. Its default value is 'a' (i.e., mode auto).
 
             The default is 'auto'.
 

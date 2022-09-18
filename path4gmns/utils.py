@@ -229,7 +229,7 @@ def download_sample_data_sets():
 
 
 def download_sample_setting_file():
-    url = 'https://raw.githubusercontent.com/jdlph/Path4GMNS/master/tests/settings.yml'
+    url = 'https://raw.githubusercontent.com/jdlph/Path4GMNS/dev/tests/settings.yml'
     filename = 'settings.yml'
     loc_dir = './'
 
