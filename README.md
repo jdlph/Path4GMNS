@@ -31,7 +31,14 @@ v0.8.5 now supports _Apple Silicon_, and _synthesizing zones and demand_. Path4G
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding use cases in the following section.
 
-## Getting Started
+## Quick Start
+
+A tutorial in Jupyter notebook with step-by-step demonstration can be found [here](https://github.com/jdlph/Path4GMNS/tree/dev/demo/tutorial.ipynb).
+
+## User Manual
+
+A complete test script covering all the following examples can be retrieved [here](https://github.com/jdlph/Path4GMNS/blob/master/tests/demo.py).
+
 ### Download the Test Data Set
 A sample data set with six different networks are provided. You can manually retrieve each individual test network from [here](https://github.com/jdlph/Path4GMNS/tree/master/data) or use the built-in helper function to automatically download the whole data set.
 
@@ -332,7 +339,7 @@ import path4gmns as pg
 network = pg.read_network(load_demand=False)
 
 # get accessible nodes and links starting from node 1 with a 5-minute
-# time window for the default mode auto (i.e., 'p')
+# time window for the default mode auto (i.e., 'a')
 network.get_accessible_nodes(1, 5)
 network.get_accessible_links(1, 5)
 
@@ -373,7 +380,7 @@ pg.evaluate_accessibility(network, single_mode=True, mode='w', time_dependent=Tr
 
 While VDF_fftt begins with 1 (i.e., VDF_fftt1), the argument demand_period_id, corresponding to the sequence number of demand period appeared in demand_periods in settings.yml, starts from 0. So "demand_period_id=0" indicates that VDF_fftt1 will be used (and so on and so forth).
 
-**As VDF_fftt in link.csv can only accommodate one mode, time-dependent accessibility evaluation will require the user to prepare a mode-specific link.csv with dedicated VDF_fftt and allowed_uses**. That's the reason that "multimodal=False" is always enforced in these examples.
+**As VDF_fftt in link.csv can only accommodate one mode, time-dependent accessibility evaluation will require the user to prepare a mode-specific link.csv with dedicated VDF_fftt and allowed_uses**. That's the reason that "single_model=True" is always enforced in these examples.
 
 Retrieve the time-dependent accessible nodes and links is similar to evaluate time-dependent accessibility by simply passing time_dependent and demand_period_id to get_accessible_nodes() and get_accessible_links().
 
@@ -384,11 +391,11 @@ import path4gmns as pg
 network = pg.read_network(load_demand=False)
 
 # get accessible nodes and links starting from node 1 with a 5-minute
-# time window for the default mode auto (i.e., 'p') for demand period 0
+# time window for the default mode auto (i.e., 'a') for demand period 0
 network.get_accessible_nodes(1, 5, time_dependent=True)
 
 # get accessible nodes and links starting from node 1 with a 5-minute
-# time window for the default mode auto (i.e., 'p') for demand period 1 if it is defined
+# time window for the default mode auto (i.e., 'a') for demand period 1 if it is defined
 network.get_accessible_links(1, 5, time_dependent=True, demand_period_id=1)
 
 # get accessible nodes and links starting from node 1 with a 15-minute
@@ -417,7 +424,7 @@ st = time()
 # multimodal equity evaluation under default time budget (60 min)
 pg.evaluate_equity(network)
 # equity evaluation for a target mode with time budget as 30 min
-# pg.evaluate_equity(network, multimodal=False, mode='p', time_budget=30)
+# pg.evaluate_equity(network, single_mode=True, mode='a', time_budget=30)
 
 print('complete equity evaluation.\n')
 print(f'processing time of equity evaluation: {time()-st:.2f} s')
@@ -453,7 +460,7 @@ network = pg.read_network(load_demand=False)
 print('\nstart zone synthesis')
 st = time()
 # by default, grid_dimension is 8, total_demand is 10,000,
-# time_budget is 120 min, mode is 'p'
+# time_budget is 120 min, mode is 'a'
 pg.network_to_zones(network)
 pg.output_zones(network)
 pg.output_synthesized_demand(network)

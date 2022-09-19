@@ -597,8 +597,11 @@ def read_zones(ui, input_dir='.', filename='zone.csv'):
     with open(input_dir+'/'+filename, 'r') as fp:
         print('read zone.csv')
 
-        zones = ui._base_assignment.network.zones
+        A = ui._base_assignment
+        zones = A.network.zones
         zones.clear()
+
+        node_objs = A.get_nodes()
 
         reader = csv.DictReader(fp)
         for line in reader:
@@ -635,6 +638,13 @@ def read_zones(ui, input_dir='.', filename='zone.csv'):
                 z.setup_geo(U, D, L, R, x, y)
                 z.setup_production(prod)
                 zones[zone_id] = z
+                # update zone info for each node
+                for id in node_ids:
+                    try:
+                        no = A.get_node_no(id)
+                        node_objs[no].zone_id = zone_id
+                    except (IndexError, KeyError):
+                        continue
             else:
                 raise Exception('DUPLICATE zone id: {zone_id}')
 
@@ -957,7 +967,7 @@ def load_columns(ui, input_dir='.'):
 
                 try:
                     col.nodes = [A.get_node_no(x) for x in node_path]
-                except IndexError:
+                except KeyError:
                     raise Exception(
                         'Invalid node found on column!!'
                         'Did you use agent.csv from a different network?'
@@ -969,7 +979,7 @@ def load_columns(ui, input_dir='.'):
                     col.links = [
                         A.get_link_seq_no(x) for x in link_seq.split(';') if x
                     ]
-                except IndexError:
+                except KeyError:
                     raise Exception(
                         'INVALID link found on column!!'
                         'Did you use agent.csv from a different network?'

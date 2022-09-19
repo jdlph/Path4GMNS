@@ -440,7 +440,7 @@ class Network:
         """ retrieve agent using agent_no """
         try:
             return self.agents[agent_no]
-        except KeyError:
+        except IndexError:
             print('Please provide a valid agent id, which shall be a\
                   positive integer!')
 
@@ -895,10 +895,11 @@ class SPNetwork(Network):
         pass
 
     def get_node_no(self, node_id):
+        # is this necessary?
         try:
             return self.node_id_to_no[node_id]
         except KeyError:
-            raise(f'EXCEPTION: Node ID {node_id} NOT IN THE NETWORK!!')
+            raise KeyError(f'EXCEPTION: Node ID {node_id} NOT IN THE NETWORK!!')
 
     def get_agent_type(self):
         return self.agent_type
