@@ -20,6 +20,9 @@ def _update_generalized_link_cost(spnetworks):
         vot = sp.get_agent_type().get_vot()
 
         for link in sp.get_links():
+            if link.length == 0:
+                continue
+
             sp.link_cost_array[link.get_seq_no()] = (
                 link.get_generalized_cost(tau, vot)
             )
@@ -27,6 +30,9 @@ def _update_generalized_link_cost(spnetworks):
 
 def _update_link_travel_time_and_cost(links, demand_periods=None, iter_num=None):
     for link in links:
+        if link.length == 0:
+            continue
+
         link.calculate_td_vdf(demand_periods, iter_num)
 
 
@@ -40,6 +46,9 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
         return
 
     for link in links:
+        if link.length == 0:
+            continue
+        
         for dp in demand_periods:
             tau = dp.get_id()
             link.reset_period_flow_vol(tau)
@@ -188,12 +197,8 @@ def _backtrace_shortest_path_tree(c,
     k_path_prob = 1 / (iter_num + 1)
 
     for c_ in centroids:
-        i = c_.get_node_no()
-        if i == c.get_node_no():
-            continue
-
         dz_id = c_.get_zone_id()
-        if dz_id == -1:
+        if dz_id == oz_id:
             continue
 
         if (agent_type, demand_period, oz_id, dz_id) not in column_pool.keys():
@@ -210,7 +215,7 @@ def _backtrace_shortest_path_tree(c,
         link_path = []
 
         dist = 0
-        curr_node_seq_no = i
+        curr_node_seq_no = c_.get_node_no()
         # retrieve the sequence backwards
         while curr_node_seq_no >= 0:
             node_path.append(curr_node_seq_no)
@@ -231,7 +236,8 @@ def _backtrace_shortest_path_tree(c,
             if col.get_distance() != dist:
                 continue
 
-            if col.get_links() == link_path:
+            # the first and the last are connectors
+            if col.get_links() == link_path[1:-1]:
                 col.increase_volume(vol)
                 existing = True
                 break
@@ -241,8 +247,9 @@ def _backtrace_shortest_path_tree(c,
             col = Column(path_id)
             col.set_volume(vol)
             col.set_distance(dist)
-            col.nodes = [x for x in node_path]
-            col.links = [x for x in link_path]
+            # the first and the last are centroids
+            col.nodes = [x for x in node_path[1:-1]]
+            col.links = [x for x in link_path[1:-1]]
             cv.add_new_column(col)
 
 
@@ -265,7 +272,6 @@ def _update_column_attributes(column_pool, links):
 
 
 def _generate(spn, column_pool, iter_num):
-    # for node_id in spn.get_orig_nodes():
     for c in spn.get_orig_centroids():
         node_id = c.get_node_id()
         single_source_shortest_path(spn, node_id)

@@ -148,11 +148,7 @@ class Link:
     def get_period_avg_travel_time(self, tau):
         return self.vdfperiods[tau].get_avg_travel_time()
 
-    def get_generalized_cost(self, tau, value_of_time):
-        #  connector
-        if not self.length:
-            return 0
-        
+    def get_generalized_cost(self, tau, value_of_time):        
         return (
             self.travel_time_by_period[tau]
             + self.route_choice_cost
@@ -166,10 +162,6 @@ class Link:
         self.flow_vol_by_period[tau] += fv
 
     def calculate_td_vdf(self, demand_periods=None, iter_num=None):
-        # connector
-        if not self.length:
-            return
-
         if demand_periods is None or iter_num is None:
             for tau in range(self.demand_period_size):
                 self.travel_time_by_period[tau] = (
@@ -668,9 +660,12 @@ class Network:
     def set_agent_type_name(self, at_name):
         self.agent_type_name = at_name
 
-    def get_centroids(self):
-        pass
-
+    def get_all_centroids(self):
+        for k, v in self.zones.items():
+            if k == -1:
+                continue
+            
+            yield v.get_centroid()
 
 class Column:
     """ column is path """
@@ -966,15 +961,9 @@ class SPNetwork(Network):
         self.link_cost_array = double_arr_link(*link_cost_array)
         self.queue_next = int_arr_node(*queue_next)
 
-        # node id
-        self.orig_nodes = []
         # zone sequence no
         self.orig_zones = []
-        self.node_id_to_no = {}
         self.capi_allocated = True
-
-    def add_orig_nodes(self, nodes):
-        self.orig_nodes.extend(nodes)
 
     def allocate_for_CAPI(self):
         pass
@@ -995,10 +984,6 @@ class SPNetwork(Network):
 
     def get_demand_period(self):
         return self.demand_period
-
-    def get_orig_nodes(self):
-        for i in self.orig_nodes:
-            yield i
 
     # the following ten are shared by all SPNetworks
     # network topology
@@ -1059,10 +1044,11 @@ class SPNetwork(Network):
         return super().get_last_thru_node()
 
     def get_orig_centroids(self):
-        return [self.base.zones[z].get_centroid() for z in self.orig_zones]
+        for z in self.orig_zones:
+            yield self.base.zones[z].get_centroid()
 
     def get_all_centroids(self):
-        return [z.get_centroid() for k, z in self.base.zones.items() if k != -1]
+        return self.base.get_all_centroids()
 
 
 class AccessNetwork(Network):
@@ -1486,21 +1472,11 @@ class Assignment:
                     sp = SPNetwork(self.network, at, dp)
                     spvec[(at.get_id(), dp.get_id(), z-1)] = sp
                     sp.orig_zones.append(z)
-                    sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
-                    for node_id in self.network.get_nodes_from_zone(z):
-                        sp.node_id_to_no[node_id] = (
-                            self.network.get_node_no(node_id)
-                        )
                     self.spnetworks.append(sp)
                 else:
                     m = (z - 1) % self.memory_blocks
                     sp = spvec[(at.get_id(), dp.get_id(), m)]
                     sp.orig_zones.append(z)
-                    sp.add_orig_nodes(self.network.get_nodes_from_zone(z))
-                    for node_id in self.network.get_nodes_from_zone(z):
-                        sp.node_id_to_no[node_id] = (
-                            self.network.get_node_no(node_id)
-                        )
 
     def get_link(self, seq_no):
         """ return link object corresponding to link seq no """
