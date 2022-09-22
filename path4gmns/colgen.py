@@ -171,8 +171,8 @@ def _optimize_column_pool(column_pool,
                                               i)
 
 
-def _backtrace_shortest_path_tree(orig_node_no,
-                                  nodes,
+def _backtrace_shortest_path_tree(c,
+                                  centroids,
                                   links,
                                   node_preds,
                                   link_preds,
@@ -181,18 +181,18 @@ def _backtrace_shortest_path_tree(orig_node_no,
                                   column_pool,
                                   iter_num):
 
-    if not nodes[orig_node_no].has_outgoing_links():
+    if not c.has_outgoing_links():
         return
 
-    oz_id = nodes[orig_node_no].get_zone_id()
+    oz_id = c.get_zone_id()
     k_path_prob = 1 / (iter_num + 1)
 
-    for node in nodes:
-        i = node.get_node_no()
-        if i == orig_node_no:
+    for c_ in centroids:
+        i = c_.get_node_no()
+        if i == c.get_node_no():
             continue
 
-        dz_id = node.get_zone_id()
+        dz_id = c_.get_zone_id()
         if dz_id == -1:
             continue
 
@@ -265,11 +265,13 @@ def _update_column_attributes(column_pool, links):
 
 
 def _generate(spn, column_pool, iter_num):
-    for node_id in spn.get_orig_nodes():
+    # for node_id in spn.get_orig_nodes():
+    for c in spn.get_orig_centroids():
+        node_id = c.get_node_id()
         single_source_shortest_path(spn, node_id)
 
-        _backtrace_shortest_path_tree(spn.get_node_no(node_id),
-                                      spn.get_nodes(),
+        _backtrace_shortest_path_tree(c,
+                                      spn.get_all_centroids(),
                                       spn.get_links(),
                                       spn.get_node_preds(),
                                       spn.get_link_preds(),

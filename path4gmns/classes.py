@@ -149,6 +149,10 @@ class Link:
         return self.vdfperiods[tau].get_avg_travel_time()
 
     def get_generalized_cost(self, tau, value_of_time):
+        #  connector
+        if not self.length:
+            return 0
+        
         return (
             self.travel_time_by_period[tau]
             + self.route_choice_cost
@@ -162,6 +166,10 @@ class Link:
         self.flow_vol_by_period[tau] += fv
 
     def calculate_td_vdf(self, demand_periods=None, iter_num=None):
+        # connector
+        if not self.length:
+            return
+
         if demand_periods is None or iter_num is None:
             for tau in range(self.demand_period_size):
                 self.travel_time_by_period[tau] = (
@@ -396,6 +404,80 @@ class Network:
 
         self.capi_allocated = True
 
+    def add_centroids_connectors(self):
+        node_no = self.node_size
+        link_no = self.link_size
+        # get zones
+        for z in self.get_zones():
+            if z == -1:
+                continue
+
+            # create a centroid
+            node_id = 'c_' + str(z)
+            centroid = Node(node_no, node_id, z)
+            # try coordinate of the centroid from each zone first. if the values
+            # are invalid, then use that of the first node from each zone.
+            coord_x, coord_y = self.zones[z].get_coordinate()
+            if coord_x == 91 or coord_y == 181:
+                node_id_ = self.get_nodes_from_zone(z)[0]
+                node_no_ = self.get_node_no(node_id_)
+                node = self.get_nodes()[node_no_]
+                coord_x = node.coord_x
+                coord_y = node.coord_y
+            else:
+                coord_x = str(coord_x)
+                coord_y = str(coord_y)
+
+            centroid.update_coordinate((coord_x, coord_y))
+            self.zones[z].centroid = centroid
+
+            self.nodes.append(centroid)
+            self.map_id_to_no[node_id] = node_no
+            self.map_no_to_id[node_no] = node_id
+
+            # build connectors
+            for i in self.get_nodes_from_zone(z):
+                link_id_f = 'conn_' + str(link_no)
+                from_node_no = node_no
+                to_node_id = i
+
+                try:
+                    to_node_no = self.map_id_to_no[i]
+                except KeyError:
+                    continue
+
+                # connector from centroid to activity nodes in this zone
+                c_forward = Link(link_id_f,
+                                 link_no,
+                                 from_node_no,
+                                 to_node_no,
+                                 node_id,
+                                 to_node_id,
+                                 0)
+
+                # connector from activity nodes in this zone to centroid
+                link_id_b = 'conn_' + str(link_no+1)
+                c_backward = Link(link_id_b,
+                                  link_no+1,
+                                  to_node_no,
+                                  from_node_no,
+                                  to_node_id,
+                                  node_id,
+                                  0)
+
+                self.nodes[from_node_no].add_outgoing_link(c_forward)
+                self.nodes[to_node_no].add_outgoing_link(c_backward)
+
+                self.links.append(c_forward)
+                self.links.append(c_backward)
+
+                link_no += 2
+
+            node_no += 1
+
+        self.node_size = len(self.nodes)
+        self.link_size = len(self.links)
+
     def setup_agents(self, column_pool):
         agent_id = 1
         agent_no = 0
@@ -585,6 +667,9 @@ class Network:
 
     def set_agent_type_name(self, at_name):
         self.agent_type_name = at_name
+
+    def get_centroids(self):
+        pass
 
 
 class Column:
@@ -897,7 +982,7 @@ class SPNetwork(Network):
     def get_node_no(self, node_id):
         # is this necessary?
         try:
-            return self.node_id_to_no[node_id]
+            return self.base.get_node_no(node_id)
         except KeyError:
             raise KeyError(f'EXCEPTION: Node ID {node_id} NOT IN THE NETWORK!!')
 
@@ -972,6 +1057,12 @@ class SPNetwork(Network):
     def get_last_thru_node(self):
         """ node no of the first potential centroid """
         return super().get_last_thru_node()
+
+    def get_orig_centroids(self):
+        return [self.base.zones[z].get_centroid() for z in self.orig_zones]
+
+    def get_all_centroids(self):
+        return [z.get_centroid() for k, z in self.base.zones.items() if k != -1]
 
 
 class AccessNetwork(Network):
@@ -1380,6 +1471,7 @@ class Assignment:
         pass
 
     def setup_spnetwork(self):
+        self.network.add_centroids_connectors()
         spvec = {}
 
         # z is zone id starting from 1

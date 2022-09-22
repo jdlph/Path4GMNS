@@ -1110,6 +1110,10 @@ def output_link_performance(ui, output_dir='.'):
         writer.writerow(line)
 
         for link in links:
+            # connector
+            if not link.length:
+                continue
+
             for dp in base.get_demand_periods():
                 avg_travel_time = link.get_period_avg_travel_time(dp.get_id())
                 speed = link.get_length() / (max(SMALL_DIVISOR, avg_travel_time) / 60)
