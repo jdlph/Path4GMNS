@@ -329,6 +329,7 @@ class Network:
         self.zones = {}
         self.ODMatrix = {}
         self.activity_node_num = 0
+        self.centroids_added = False
 
     def update(self):
         self.node_size = len(self.nodes)
@@ -397,6 +398,9 @@ class Network:
         self.capi_allocated = True
 
     def add_centroids_connectors(self):
+        if self.centroids_added:
+            return
+
         node_no = self.node_size
         link_no = self.link_size
         # get zones
@@ -469,6 +473,7 @@ class Network:
 
         self.node_size = len(self.nodes)
         self.link_size = len(self.links)
+        self.centroids_added = True
 
     def setup_agents(self, column_pool):
         agent_id = 1
@@ -558,8 +563,8 @@ class Network:
         path = ''
         if agent.link_path:
             path = ';'.join(
-            self.links[x].get_link_id() for x in reversed(agent.link_path)
-        )
+                self.links[x].get_link_id() for x in reversed(agent.link_path)
+            )
 
         if path_only:
             return path
@@ -660,7 +665,7 @@ class Network:
     def set_agent_type_name(self, at_name):
         self.agent_type_name = at_name
 
-    def get_centroid(self):
+    def get_centroids(self):
         for k, v in self.zones.items():
             if k == -1:
                 continue
@@ -969,11 +974,7 @@ class SPNetwork(Network):
         pass
 
     def get_node_no(self, node_id):
-        # is this necessary?
-        try:
-            return self.base.get_node_no(node_id)
-        except KeyError:
-            raise KeyError(f'EXCEPTION: Node ID {node_id} NOT IN THE NETWORK!!')
+        return self.base.get_node_no(node_id)
 
     def get_agent_type(self):
         return self.agent_type
@@ -1047,8 +1048,8 @@ class SPNetwork(Network):
         for z in self.orig_zones:
             yield self.base.zones[z].get_centroid()
 
-    def get_centroid(self):
-        return self.base.get_centroid()
+    def get_centroids(self):
+        return self.base.get_centroids()
 
 
 class AccessNetwork(Network):
@@ -1057,11 +1058,12 @@ class AccessNetwork(Network):
         self.base = base
         self.nodes = self.base.get_nodes()
         self.links = self.base.get_links()
+        self.zones = self.base.zones
         self.map_id_to_no = self.base.map_id_to_no
         self.map_no_to_id = self.base.map_no_to_id
         self.node_size = base.get_node_size()
         self.link_size = base.get_link_size()
-        self.centroids = []
+        self.centroids_added = self.base.centroids_added
         self.agent_type_name = 'all'
         self.pre_source_node_id = -1
         if add_cc:
@@ -1070,70 +1072,15 @@ class AccessNetwork(Network):
         super().allocate_for_CAPI()
 
     def _add_centroids_connectors(self):
+        if self.centroids_added:
+            return
+
         # deep copy
         self.nodes = deepcopy(self.nodes)
         self.links = deepcopy(self.links)
 
-        node_seq_no = self.node_size
-        link_seq_no = self.link_size
-        # get zones
-        for z in self.get_zones():
-            if z == -1:
-                continue
-
-            # create a centroid
-            node_id = 'c_' + str(z)
-            centroid = Node(node_seq_no, node_id, z)
-            centroid.update_coordinate(self._get_zone_coord(z))
-
-            self.nodes.append(centroid)
-            self.centroids.append(centroid)
-
-            self.map_id_to_no[node_id] = node_seq_no
-            self.map_no_to_id[node_seq_no] = node_id
-
-            # build connectors
-            for i in self.get_nodes_from_zone(z):
-                link_id_f = 'conn_' + str(link_seq_no)
-                from_node_no = node_seq_no
-                to_node_id = i
-
-                try:
-                    to_node_no = self.map_id_to_no[i]
-                except KeyError:
-                    continue
-
-                # connector from centroid to activity nodes in this zone
-                c_forward = Link(link_id_f,
-                                 link_seq_no,
-                                 from_node_no,
-                                 to_node_no,
-                                 node_id,
-                                 to_node_id,
-                                 0)
-
-                # connector from activity nodes in this zone to centroid
-                link_id_b = 'conn_' + str(link_seq_no+1)
-                c_backward = Link(link_id_b,
-                                  link_seq_no+1,
-                                  to_node_no,
-                                  from_node_no,
-                                  to_node_id,
-                                  node_id,
-                                  0)
-
-                self.nodes[from_node_no].add_outgoing_link(c_forward)
-                self.nodes[to_node_no].add_outgoing_link(c_backward)
-
-                self.links.append(c_forward)
-                self.links.append(c_backward)
-
-                link_seq_no += 2
-
-            node_seq_no += 1
-
-        self.node_size = len(self.nodes)
-        self.link_size = len(self.links)
+        super().add_centroids_connectors()
+        self.centroids_added = True
 
     def get_zones(self):
         return self.base.get_zones()
@@ -1164,7 +1111,7 @@ class AccessNetwork(Network):
         return self.agent_type_name
 
     def get_centroids(self):
-        return self.centroids
+        return self.base.get_centroids()
 
     def get_node_no(self, node_id):
         return self.map_id_to_no[node_id]
@@ -1535,6 +1482,7 @@ class Assignment:
             # do not include the source node itself
             if node.get_node_id() == source_node_id:
                 continue
+
             if self.accessnetwork.get_node_label_cost(node_no) <= time_budget:
                 nodes.append(node.get_node_id())
 

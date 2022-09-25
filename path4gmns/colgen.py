@@ -277,7 +277,7 @@ def _generate(spn, column_pool, iter_num):
         single_source_shortest_path(spn, node_id)
 
         _backtrace_shortest_path_tree(c,
-                                      spn.get_centroid(),
+                                      spn.get_centroids(),
                                       spn.get_links(),
                                       spn.get_node_preds(),
                                       spn.get_link_preds(),
