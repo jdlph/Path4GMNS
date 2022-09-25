@@ -107,6 +107,9 @@ def _convert_str_to_float(str):
 
 def _convert_boundaries(bs):
     """a helper function to facilitate read_zones()"""
+    if not bs:
+        raise InvalidRecord
+    
     prefix = 'LINESTRING ('
     postfix = ')'
 
@@ -374,7 +377,7 @@ def read_links(input_dir,
                 link_type = 1
 
             try:
-                free_speed = _convert_str_to_int(line['free_speed'])
+                free_speed = _convert_str_to_float(line['free_speed'])
             except InvalidRecord:
                 free_speed = 60
 
@@ -479,7 +482,7 @@ def read_links(input_dir,
                     VDF_cap = _convert_str_to_float(line[header_vdf_cap])
                 except (KeyError, InvalidRecord):
                     # set it up using capacity from link
-                    VDF_cap = capacity
+                    VDF_cap = capacity * lanes
 
                 # not a mandatory column
                 try:
@@ -626,10 +629,22 @@ def read_zones(ui, input_dir='.', filename='zone.csv'):
             except (KeyError, InvalidRecord):
                 bin_index = 0
 
-            x = _convert_str_to_float(line['x_coord'])
-            y = _convert_str_to_float(line['y_coord'])
-            U, D, L, R = _convert_boundaries(line['geometry'])
-            prod = _convert_str_to_int(line['production'])
+            try:
+                x = _convert_str_to_float(line['x_coord'])
+                y = _convert_str_to_float(line['y_coord'])
+            except (KeyError, InvalidRecord):
+                x = 91
+                y = 181
+
+            try:
+                U, D, L, R = _convert_boundaries(line['geometry'])
+            except (KeyError, InvalidRecord):
+                U = D = L = R = ''
+            
+            try:
+                prod = _convert_str_to_int(line['production'])
+            except (KeyError, InvalidRecord):
+                prod = 0
 
             if zone_id not in zones.keys():
                 z = Zone(zone_id, bin_index)

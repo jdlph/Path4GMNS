@@ -7,7 +7,7 @@ def test_download_sample_data_sets():
 
 
 def test_find_shortest_path():
-    network = pg.read_network(load_demand=False)
+    network = pg.read_network()
 
     print('\nshortest path (node id) from node 1 to node 2, '
           +network.find_shortest_path(1, 2))
@@ -100,7 +100,7 @@ def test_column_generation_dtalite():
 
 
 def test_loading_columns():
-    network = pg.read_network()
+    network = pg.read_network(load_demand=True)
 
     print('\nstart loading columns\n')
     st = time()
@@ -128,7 +128,7 @@ def test_loading_columns():
 
 
 def test_accessibility():
-    network = pg.read_network(load_demand=False)
+    network = pg.read_network()
 
     print('\nstart accessibility evaluation\n')
     st = time()
@@ -170,7 +170,7 @@ def test_accessibility():
 
 
 def test_equity():
-    network = pg.read_network(load_demand=False)
+    network = pg.read_network()
 
     print('\nstart equity evaluation')
     st = time()
@@ -184,7 +184,7 @@ def test_equity():
 
 
 def test_zone_synthesis():
-    network = pg.read_network(load_demand=False)
+    network = pg.read_network()
 
     print('\nstart zone synthesis')
     st = time()
@@ -197,7 +197,7 @@ def test_zone_synthesis():
 
 
 def test_loading_synthesized_zones_demand():
-    network = pg.read_network(load_demand=False)
+    network = pg.read_network()
 
     print('\nstart loading synthesized zones and demand')
     st = time()
@@ -254,4 +254,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(6)
+    demo_mode(3)

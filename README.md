@@ -26,7 +26,7 @@ If you need a specific version of Path4GMNS, say, 0.8.6,
 $ pip install path4gmns==0.8.6
 ```
 
-v0.8.5 now supports _Apple Silicon_, and _synthesizing zones and demand_. Path4GMNS has evolved dramatically since its early releases with bug fixes, performance improvement, new functionalities. Please **discard all old versions** and **update to or install the latest version**.
+Path4GMNS has evolved dramatically since its early releases with bug fixes, performance improvement, new functionalities. Please **discard all old versions** and **update to or install the latest version**.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding use cases in the following section.
@@ -55,7 +55,7 @@ Find the (static) shortest path (based on distance) and output it in the format 
 ```python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 print('\nshortest path (node id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2))
@@ -68,7 +68,7 @@ You can specify the absolute path or the relative path from your cwd in read_net
 ```python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=False, input_dir='data/Chicago_Sketch')
+network = pg.read_network(input_dir='data/Chicago_Sketch')
 
 print('\nshortest path (node id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2))
@@ -80,7 +80,7 @@ Retrieving the shortest path between any two (different) nodes under a specific 
 ```python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 print('\nshortest path (node id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2, mode='w'))
@@ -97,7 +97,7 @@ The unique agent paths can be output to a csv file as shown in the example below
 ```python
 import path4gmns as pg
 
-network = pg.read_network()
+network = pg.read_network(load_demand=True)
 network.find_path_for_agents()
 
 agent_id = 300
@@ -130,7 +130,7 @@ v0.7.2 or higher features finding agent paths under a specific mode defined in s
 ```python
 import path4gmns as pg
 
-network = pg.read_network()
+network = pg.read_network(load_demand=True)
 network.find_path_for_agents()
 
 # or equivalently network.find_path_for_agents('walk')
@@ -146,7 +146,7 @@ The Python column-generation module only implements path-based UE. If you need o
 ```python
 import path4gmns as pg
 
-network = pg.read_network()
+network = pg.read_network(load_demand=True)
 
 column_gen_num = 20
 column_update_num = 10
@@ -167,7 +167,7 @@ Starting from v0.7.0a1, Path4GMNS supports loading columns/paths from existing f
 ```python
 import path4gmns as pg
 
-network = pg.read_network()
+network = pg.read_network(load_demand=True)
 # you can specify the input directory
 # e.g., pg.load_columns(network, 'data/Chicago_Sketch')
 pg.load_columns(network)
@@ -298,7 +298,7 @@ If pyyaml is not installed or settings.yml is not provided, one demand period (A
 import path4gmns as pg
 
 # no need to load demand file for accessibility evaluation
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 print('\nstart accessibility evaluation\n')
 st = time()
@@ -315,7 +315,7 @@ Two formats of accessibility will be output: accessibility between each OD pair 
 import path4gmns as pg
 
 # no need to load demand file for accessibility evaluation
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 print('\nstart accessibility evaluation\n')
 st = time()
@@ -336,7 +336,7 @@ You can also get the accessible nodes and links within a time budget given a mod
 import path4gmns as pg
 
 # no need to load demand file for accessibility evaluation
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 # get accessible nodes and links starting from node 1 with a 5-minute
 # time window for the default mode auto (i.e., 'a')
@@ -361,7 +361,7 @@ Link travel time varies over time so does accessibility. When the time-dependent
 import path4gmns as pg
 
 # no need to load demand file for accessibility evaluation
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 print('\nstart accessibility evaluation\n')
 st = time()
@@ -388,7 +388,7 @@ Retrieve the time-dependent accessible nodes and links is similar to evaluate ti
 import path4gmns as pg
 
 # no need to load demand file for accessibility evaluation
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 # get accessible nodes and links starting from node 1 with a 5-minute
 # time window for the default mode auto (i.e., 'a') for demand period 0
@@ -417,7 +417,7 @@ They can be obtained via Path4GMNS of v0.8.3 or higher in a way very similar to 
 ```python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 print('\nstart equity evaluation\n')
 st = time()
@@ -455,7 +455,7 @@ The following code snippet demonstrates how to synthesize zones and demand.
 ```Python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 print('\nstart zone synthesis')
 st = time()
@@ -473,7 +473,7 @@ The synthesized zones and OD demand matrix will be output as zone.csv and syn_de
 ```Python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 pg.read_zones(network)
 pg.load_demand(network, filename='syn_demand.csv')
