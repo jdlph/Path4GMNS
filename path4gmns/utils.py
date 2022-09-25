@@ -306,12 +306,12 @@ def read_nodes(input_dir,
 
         print(f'the number of nodes is {node_no}')
 
-        zone_size = len(zones)
-        # do not count virtual zone with id as -1
-        if -1 in zones.keys():
-            zone_size -= 1
+        # zone_size = len(zones)
+        # # do not count virtual zone with id as -1
+        # if -1 in zones.keys():
+        #     zone_size -= 1
 
-        print(f'the number of zones is {zone_size}')
+        # print(f'the number of zones is {zone_size}')
 
 
 def read_links(input_dir,
@@ -821,7 +821,7 @@ def read_settings(input_dir, assignment):
         raise e
 
 
-def read_network(length_unit='mile', speed_unit='mph', load_demand='true', input_dir='.'):
+def read_network(length_unit='mile', speed_unit='mph', load_demand=False, input_dir='.'):
     assignm = Assignment()
     network = Network()
 

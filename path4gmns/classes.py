@@ -148,7 +148,7 @@ class Link:
     def get_period_avg_travel_time(self, tau):
         return self.vdfperiods[tau].get_avg_travel_time()
 
-    def get_generalized_cost(self, tau, value_of_time):        
+    def get_generalized_cost(self, tau, value_of_time):
         return (
             self.travel_time_by_period[tau]
             + self.route_choice_cost
@@ -660,11 +660,11 @@ class Network:
     def set_agent_type_name(self, at_name):
         self.agent_type_name = at_name
 
-    def get_all_centroids(self):
+    def get_centroid(self):
         for k, v in self.zones.items():
             if k == -1:
                 continue
-            
+
             yield v.get_centroid()
 
 class Column:
@@ -1047,8 +1047,8 @@ class SPNetwork(Network):
         for z in self.orig_zones:
             yield self.base.zones[z].get_centroid()
 
-    def get_all_centroids(self):
-        return self.base.get_all_centroids()
+    def get_centroid(self):
+        return self.base.get_centroid()
 
 
 class AccessNetwork(Network):

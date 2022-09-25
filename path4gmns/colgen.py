@@ -48,7 +48,7 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
     for link in links:
         if link.length == 0:
             continue
-        
+
         for dp in demand_periods:
             tau = dp.get_id()
             link.reset_period_flow_vol(tau)
@@ -180,7 +180,7 @@ def _optimize_column_pool(column_pool,
                                               i)
 
 
-def _backtrace_shortest_path_tree(c,
+def _backtrace_shortest_path_tree(centroid,
                                   centroids,
                                   links,
                                   node_preds,
@@ -190,14 +190,14 @@ def _backtrace_shortest_path_tree(c,
                                   column_pool,
                                   iter_num):
 
-    if not c.has_outgoing_links():
+    if not centroid.has_outgoing_links():
         return
 
-    oz_id = c.get_zone_id()
+    oz_id = centroid.get_zone_id()
     k_path_prob = 1 / (iter_num + 1)
 
-    for c_ in centroids:
-        dz_id = c_.get_zone_id()
+    for c in centroids:
+        dz_id = c.get_zone_id()
         if dz_id == oz_id:
             continue
 
@@ -215,7 +215,7 @@ def _backtrace_shortest_path_tree(c,
         link_path = []
 
         dist = 0
-        curr_node_seq_no = c_.get_node_no()
+        curr_node_seq_no = c.get_node_no()
         # retrieve the sequence backwards
         while curr_node_seq_no >= 0:
             node_path.append(curr_node_seq_no)
@@ -277,7 +277,7 @@ def _generate(spn, column_pool, iter_num):
         single_source_shortest_path(spn, node_id)
 
         _backtrace_shortest_path_tree(c,
-                                      spn.get_all_centroids(),
+                                      spn.get_centroid(),
                                       spn.get_links(),
                                       spn.get_node_preds(),
                                       spn.get_link_preds(),
