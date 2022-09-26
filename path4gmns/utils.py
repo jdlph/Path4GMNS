@@ -109,7 +109,7 @@ def _convert_boundaries(bs):
     """a helper function to facilitate read_zones()"""
     if not bs:
         raise InvalidRecord
-    
+
     prefix = 'LINESTRING ('
     postfix = ')'
 
@@ -640,7 +640,7 @@ def read_zones(ui, input_dir='.', filename='zone.csv'):
                 U, D, L, R = _convert_boundaries(line['geometry'])
             except (KeyError, InvalidRecord):
                 U = D = L = R = ''
-            
+
             try:
                 prod = _convert_str_to_int(line['production'])
             except (KeyError, InvalidRecord):
@@ -762,6 +762,7 @@ def read_settings(input_dir, assignment):
                 agent_flow_type = a['flow_type']
                 agent_pce = a['pce']
                 agent_ffs = a['free_speed']
+
                 try:
                     agent_use_link_ffs = a['use_link_ffs']
                 except KeyError:
@@ -791,7 +792,7 @@ def read_settings(input_dir, assignment):
                     enable = s['enable']
                     # no need to set up a special event if it is off
                     if not enable:
-                        pass
+                        raise KeyError
 
                     name = s['name']
                     beg_iter = s['beg_iteration']
@@ -807,6 +808,7 @@ def read_settings(input_dir, assignment):
                     dp.special_event = se
                 except KeyError:
                     pass
+
                 assignment.update_demand_periods(dp)
 
             # demand files
