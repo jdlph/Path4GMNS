@@ -33,7 +33,7 @@ The Python modules are written in **Python 3.x**, which is the minimum requireme
 
 ## Quick Start
 
-v0.8.6 includes several important changes in user interface. We highly recommend that you go through the [tutorial](https://github.com/jdlph/Path4GMNS/tree/dev/demo/tutorial.ipynb) written in Jupyter notebook with step-by-step demonstration, no matter you are one of the existing users or new to Path4GMNS.
+v0.8.6 includes several important changes in user interface. We highly recommend that you go through the [tutorial](https://github.com/jdlph/Path4GMNS/tree/dev/tests/tutorial.ipynb) written in Jupyter notebook with step-by-step demonstration using the latest release, no matter you are one of the existing users or new to Path4GMNS.
 
 ## User Manual
 
@@ -572,7 +572,7 @@ You are encouraged to join our [Gmail group](https://groups.google.com/g/path4gm
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2022, September 10). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2022, September 26). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## References
 Lu, C. C., Mahmassani, H. S., Zhou, X. (2009). Equivalent gap function-based reformulation and solution algorithm for the dynamic user equilibrium problem. Transportation Research Part B: Methodological, 43, 345-364.
