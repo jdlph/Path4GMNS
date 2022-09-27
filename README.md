@@ -26,14 +26,14 @@ If you need a specific version of Path4GMNS, say, 0.8.6,
 $ pip install path4gmns==0.8.6
 ```
 
-Path4GMNS has evolved dramatically since its early releases with bug fixes, performance improvement, new functionalities. Please **discard all old versions** and **update to or install the latest version**.
+v0.8.6 comes with more robust parsing functions and fixes **crucial bugs** related to the column generation module and VDFPeriod, which could lead to wrong assignment results under certain conditions. Please **discard all old versions** and **update to or install the latest version**.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding use cases in the following section.
 
 ## Quick Start
 
-A tutorial in Jupyter notebook with step-by-step demonstration can be found [here](https://github.com/jdlph/Path4GMNS/tree/dev/demo/tutorial.ipynb).
+v0.8.6 includes several important changes in user interface. We highly recommend that you go through the [tutorial](https://github.com/jdlph/Path4GMNS/tree/dev/demo/tutorial.ipynb) written in Jupyter notebook with step-by-step demonstration, no matter you are one of the existing users or new to Path4GMNS.
 
 ## User Manual
 
@@ -556,6 +556,9 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 19. Introduce special events with affected links and capacity reductions (v0.8.4)
 20. Synthesize zones and demands (v0.8.5)
 21. Add support for Apple Silicon (v0.8.5)
+22. Enhance parsing functions with more robustness (v0.8.6)
+23. Fix crucial bug in column generation module which will lead to wrong results if a zone has multiple nodes (v0.8.6)
+24. Fix crucial bug in setting up the capacity of each VDFPeriod instance if the input is missing from link.csv (v0.8.6)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
 

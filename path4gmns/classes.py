@@ -1080,7 +1080,6 @@ class AccessNetwork(Network):
         self.links = deepcopy(self.links)
 
         super().add_centroids_connectors()
-        self.centroids_added = True
 
     def get_zones(self):
         return self.base.get_zones()
