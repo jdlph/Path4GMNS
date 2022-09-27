@@ -556,7 +556,7 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 19. Introduce special events with affected links and capacity reductions (v0.8.4)
 20. Synthesize zones and demands (v0.8.5)
 21. Add support for Apple Silicon (v0.8.5)
-22. Enhance parsing functions with more robustness (v0.8.6)
+22. More robust parsing functions (v0.8.6)
 23. Fix crucial bug in column generation module which will lead to wrong results if a zone has multiple nodes (v0.8.6)
 24. Fix crucial bug in setting up the capacity of each VDFPeriod instance if the input is missing from link.csv (v0.8.6)
 
@@ -566,13 +566,13 @@ Detailed update information can be found in [Releases](https://github.com/jdlph/
 
 Any contributions are welcomed including advise new applications of Path4GMNS, enhance documentation (this guideline and [docstrings](https://docs.python-guide.org/writing/documentation/#writing-docstrings) in the source code), refactor and/or optimize the source code, report and/or resolve potential issues/bugs, suggest and/or add new functionalities, etc.
 
-Path4GMNS has a very simple workflow setup, i.e., **master for release (on both GitHub and PyPI) and dev for development**. If you would like to work directly on the source code (and probably the documentation), please make sure that **the destination branch of your pull request is dev**, i.e., all potential changes/updates shall go to the dev branch before merging into master for release.
+Path4GMNS has a very simple workflow setup, i.e., **master for release (on both GitHub and PyPI)** and **dev for development**. If you would like to work directly on the source code (and probably the documentation), please make sure that **the destination branch of your pull request is dev**, i.e., all potential changes/updates shall go to the dev branch before merging into master for release.
 
 You are encouraged to join our [Gmail group](https://groups.google.com/g/path4gmns) to get the latest update and other information.
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2022, September 26). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2022, September 27). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## References
 Lu, C. C., Mahmassani, H. S., Zhou, X. (2009). Equivalent gap function-based reformulation and solution algorithm for the dynamic user equilibrium problem. Transportation Research Part B: Methodological, 43, 345-364.

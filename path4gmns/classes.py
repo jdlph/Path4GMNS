@@ -329,12 +329,14 @@ class Network:
         self.zones = {}
         self.ODMatrix = {}
         self.activity_node_num = 0
+        self.last_thru_node = 0
         self.centroids_added = False
 
     def update(self):
         self.node_size = len(self.nodes)
         self.link_size = len(self.links)
         self.agent_size = len(self.agents)
+        self.last_thru_node = self.node_size
 
     def allocate_for_CAPI(self):
         # execute only on the first call
@@ -660,7 +662,7 @@ class Network:
 
     def get_last_thru_node(self):
         """ node no of the first potential centroid """
-        return self.get_node_size()
+        return self.last_thru_node
 
     def set_agent_type_name(self, at_name):
         self.agent_type_name = at_name
@@ -1042,7 +1044,7 @@ class SPNetwork(Network):
 
     def get_last_thru_node(self):
         """ node no of the first potential centroid """
-        return super().get_last_thru_node()
+        return self.base.get_last_thru_node()
 
     def get_orig_centroids(self):
         for z in self.orig_zones:
