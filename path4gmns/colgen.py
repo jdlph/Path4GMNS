@@ -353,7 +353,7 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
         # update generalized link cost before assignment
         _update_generalized_link_cost(A.get_spnetworks())
 
-        # loop through all nodes on the base network
+        # loop through all centroids on the base network
         _generate_column_pool(A.get_spnetworks(), column_pool, i)
 
     print(f'\nprocessing time of generating columns: {time()-st:.2f} s')

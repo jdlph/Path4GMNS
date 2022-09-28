@@ -23,7 +23,7 @@ def test_find_shortest_path():
 
 
 def test_find_shortest_path_for_agents():
-    network = pg.read_network()
+    network = pg.read_network(load_demand=True)
 
     st = time()
     # find agent paths under a specific mode defined in settings.yaml,
