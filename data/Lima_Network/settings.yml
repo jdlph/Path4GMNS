@@ -1,8 +1,8 @@
 ---
 # settings for Path4GMNS
 agents:
-  - type: p
-    name: passenger
+  - type: a
+    name: auto
     vot: 10
     flow_type: 0
     pce: 1
@@ -17,4 +17,4 @@ demand_files:
   - file_name: demand.csv
     format_type: column
     period: AM
-    agent_type: p
+    agent_type: a

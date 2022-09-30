@@ -72,10 +72,6 @@ def _are_od_connected(oz_id, dz_id):
 
 # a little bit ugly
 def _convert_str_to_int(str):
-    """
-    TypeError will take care the case that str is None
-    ValueError will take care the case that str is empty
-    """
     if not str:
         raise InvalidRecord
 
@@ -92,10 +88,6 @@ def _convert_str_to_int(str):
 
 
 def _convert_str_to_float(str):
-    """
-    TypeError will take care the case that str is None
-    ValueError will take care the case that str is empty
-    """
     if not str:
         raise InvalidRecord
 
@@ -554,8 +546,9 @@ def read_demand(input_dir,
             if dz_id not in zones.keys():
                 continue
 
-            volume = _convert_str_to_float(line['volume'])
-            if volume is None:
+            try:
+                volume = _convert_str_to_float(line['volume'])
+            except InvalidRecord:
                 continue
 
             if volume == 0:
@@ -701,8 +694,9 @@ def read_demand_matrix(input_dir, agent_type_id, demand_period_id,
                 if dz_id not in zone_to_node_dict.keys():
                     continue
 
-                vol = _convert_str_to_float(vol_str)
-                if vol is None:
+                try:
+                    vol = _convert_str_to_float(vol_str)
+                except InvalidRecord:
                     continue
 
                 if vol == 0:
@@ -1270,8 +1264,7 @@ def output_zones(ui, output_dir='.'):
             writer.writerow(line)
 
         if output_dir == '.':
-            print('\ncheck zone.csv in '
-                +os.getcwd()+' for synthesized zones')
+            print('\ncheck zone.csv in '+os.getcwd()+' for synthesized zones')
         else:
             print('\ncheck zone.csv in '
                   +os.path.join(os.getcwd(), output_dir)
