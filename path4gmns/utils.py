@@ -1272,7 +1272,7 @@ def output_zones(ui, output_dir='.'):
 
 
 def output_synthesized_demand(ui, output_dir='.'):
-    with open(output_dir+'/syn_demand.csv', 'w',  newline='') as f:
+    with open(output_dir+'/demand.csv', 'w',  newline='') as f:
         writer = csv.writer(f)
 
         line = ['o_zone_id',
@@ -1290,9 +1290,9 @@ def output_synthesized_demand(ui, output_dir='.'):
             writer.writerow(line)
 
         if output_dir == '.':
-            print('\ncheck syn_demand.csv in '
+            print('\ncheck demand.csv in '
             +os.getcwd()+' for synthesized demand')
         else:
-            print('\ncheck syn_demand.csv in '
+            print('\ncheck demand.csv in '
                   +os.path.join(os.getcwd(), output_dir)
                   +' for synthesized demand')

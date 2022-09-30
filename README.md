@@ -8,7 +8,7 @@ Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path e
 2. constructing shortest paths for all individual agents,
 3. performing path-based User-Equilibrium (UE) traffic assignment,
 4. evaluating multimodal accessibility and equity,
-5. synthesize zones and Origin-Destination (OD) demand for a given network.
+5. synthesizing zones and Origin-Destination (OD) demand for a given network.
 
 Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jdlph/DTALite) to conduct various multimodal traffic assignments including,
    * Link-based UE,
