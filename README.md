@@ -468,7 +468,7 @@ pg.output_synthesized_demand(network)
 print('complete zone and demand synthesis.\n')
 print(f'processing time of zone and demand synthesis: {time()-st:.2f} s')
 ```
-The synthesized zones and OD demand matrix will be output as zone.csv and syn_demand.csv respectively. They can be loaded as offline files to perform some other functionalities from Path4GMNS (e.g., traffic assignment). The existing zone and demand information, if there is any, will be REWRITTEN upon the following reloading.
+The synthesized zones and OD demand matrix will be output as zone.csv and demand.csv respectively. They can be loaded as offline files to perform some other functionalities from Path4GMNS (e.g., traffic assignment). The existing zone and demand information, if there is any, will be REWRITTEN upon the following reloading.
 
 ```Python
 import path4gmns as pg
@@ -476,7 +476,7 @@ import path4gmns as pg
 network = pg.read_network()
 
 pg.read_zones(network)
-pg.load_demand(network, filename='syn_demand.csv')
+pg.load_demand(network)
 
 # perform some other functionalities from Path4GMNS, e.g., traffic assignment
 column_gen_num = 20
