@@ -84,11 +84,15 @@ def _synthesize_bin_index(max_bin, zones):
         min_ = min(min_, n)
         max_ = max(max_, n)
 
-    bin_size = ceil((max_ - min_) / max_bin)
-    
+    # just in case max_ and min_ are the same
+    # max_ would not be ZERO as guaranteed by _synthesize_grid()
+    bin_size = max_
+    if min_ != max_:
+        bin_size = ceil((max_ - min_) / max_bin)
+
     for z in zones.values():
         # make sure it starts from 0
-        bi = (z.get_activity_nodes_num() - 1) // bin_size 
+        bi = (z.get_activity_nodes_num() - 1) // bin_size
         z.set_bin_index(bi)
 
 

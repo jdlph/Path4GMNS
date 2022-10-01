@@ -71,28 +71,28 @@ def _are_od_connected(oz_id, dz_id):
 
 
 # a little bit ugly
-def _convert_str_to_int(str):
-    if not str:
+def _convert_str_to_int(s):
+    if not s:
         raise InvalidRecord
 
     try:
-        return int(str)
+        return int(s)
     except ValueError:
-        # if str is not numeric, a ValueError will be then caught
+        # if s is not numeric, a ValueError will be then caught
         try:
-            return int(float(str))
+            return int(float(s))
         except ValueError:
             raise InvalidRecord
     except TypeError:
         raise InvalidRecord
 
 
-def _convert_str_to_float(str):
-    if not str:
+def _convert_str_to_float(s):
+    if not s:
         raise InvalidRecord
 
     try:
-        return float(str)
+        return float(s)
     except (TypeError, ValueError):
         raise InvalidRecord
 
@@ -586,7 +586,8 @@ def load_demand(ui,
     try:
         at = A.get_agent_type_id(agent_type_str)
     except Exception:
-        at = A.get_agent_type_id('p')
+        # just in case a user puts 'p'. replace it with 'a'
+        at = A.get_agent_type_id(AgentType.get_default_type_str())
 
     dp = A.get_demand_period_id(demand_period_str)
     # do not check connectivity of OD pairs
@@ -757,6 +758,11 @@ def read_settings(input_dir, assignment):
             for i, a in enumerate(agents):
                 agent_type = a['type']
                 agent_name = a['name']
+                if (agent_type == AgentType.get_legacy_type_str()
+                    or agent_name.startswith(AgentType.get_legacy_name())):
+                    agent_type = AgentType.get_default_type_str()
+                    agent_name = AgentType.get_default_name()
+
                 agent_vot = a['vot']
                 agent_flow_type = a['flow_type']
                 agent_pce = a['pce']
@@ -817,6 +823,8 @@ def read_settings(input_dir, assignment):
                 # demand_format_type = d['format_type']
                 demand_period = d['period']
                 demand_type = d['agent_type']
+                if demand_type == AgentType.get_legacy_type_str():
+                    demand_type = AgentType.get_default_type_str()
 
                 demand = Demand(i, demand_period, demand_type, demand_file)
                 assignment.update_demands(demand)
@@ -927,7 +935,8 @@ def load_columns(ui, input_dir='.'):
                 try:
                     at = A.get_agent_type_id(at)
                 except Exception:
-                    at = A.get_agent_type_id('a')
+                    # replace 'p' with 'a'
+                    at = A.get_agent_type_id(AgentType.get_default_type_str())
 
             dp = line['demand_period']
             if not dp:
@@ -1173,8 +1182,6 @@ def output_agent_paths(ui, output_geometry=True, output_dir='.'):
                 'agent_type',
                 'demand_period',
                 'volume',
-                'toll',
-                'travel_time',
                 'distance',
                 'node_sequence',
                 'link_sequence',
@@ -1187,6 +1194,16 @@ def output_agent_paths(ui, output_geometry=True, output_dir='.'):
         agents = base.get_agents()
         agents.sort(key=lambda agent: agent.get_orig_node_id())
 
+        at_str = ''
+        dp_str = ''
+        for a in agents:
+            if not a.get_node_path():
+               continue
+
+            at_str = base.get_agent_type_str(a.get_at_id())
+            dp_str = base.get_demand_period_str(a.get_dp_id())
+            break
+
         pre_dest_node_id = -1
         for a in agents:
             if not a.get_node_path():
@@ -1198,6 +1215,13 @@ def output_agent_paths(ui, output_geometry=True, output_dir='.'):
             pre_dest_node_id = a.get_dest_node_id()
             agent_id = a.get_id()
 
+            at = a.get_at_id()
+            dp = a.get_dp_id()
+            oz = a.get_orig_zone_id()
+            dz = a.get_dest_zone_id()
+
+            vol = base.column_pool[(at, dp, oz, dz)].get_od_volume()
+
             geometry = ''
             if output_geometry:
                 geometry = ', '.join(
@@ -1206,14 +1230,12 @@ def output_agent_paths(ui, output_geometry=True, output_dir='.'):
                 geometry = 'LINESTRING (' + geometry + ')'
 
             line = [agent_id,
-                    a.get_orig_zone_id(),
-                    a.get_dest_zone_id(),
+                    oz,
+                    dz,
                     0,
-                    'N/A',
-                    'N/A',
-                    'N/A',
-                    'N/A',
-                    'N/A',
+                    at_str,
+                    dp_str,
+                    vol,
                     a.get_path_cost(),
                     base.get_agent_node_path(agent_id, True),
                     base.get_agent_link_path(agent_id, True),

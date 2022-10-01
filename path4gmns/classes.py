@@ -180,16 +180,17 @@ class Link:
 class Agent:
     """ individual agent derived from aggregated demand between an OD pair
 
-    agent_id: integer starts from 1
-    agent_seq_no: internal agent index starting from 0 used for calculation
+    id: integer starts from 1
+    seq_no: internal agent index starting from 0 used for calculation
     """
-    def __init__(self, agent_id, agent_seq_no, agent_type,
+    def __init__(self, agent_id, agent_seq_no, agent_type_id, demand_period_id,
                  o_zone_id, d_zone_id):
         """ the attribute of agent """
-        self.agent_id = agent_id
-        self.agent_seq_no = agent_seq_no
+        self.id = agent_id
+        self.seq_no = agent_seq_no
         # vehicle
-        self.agent_type = agent_type
+        self.at_id = agent_type_id
+        self.dp_id = demand_period_id
         self.o_zone_id = o_zone_id
         self.d_zone_id = d_zone_id
         self.o_node_id = 0
@@ -207,10 +208,10 @@ class Agent:
         return self.d_node_id
 
     def get_seq_no(self):
-        return self.agent_seq_no
+        return self.seq_no
 
     def get_id(self):
-        return self.agent_id
+        return self.id
 
     def get_orig_zone_id(self):
         return self.o_zone_id
@@ -223,6 +224,12 @@ class Agent:
 
     def get_node_path(self):
         return self.node_path
+
+    def get_at_id(self):
+        return self.at_id
+
+    def get_dp_id(self):
+        return self.dp_id
 
 
 class Zone:
@@ -487,6 +494,7 @@ class Network:
 
             # k= (at, dp, orig, dest)
             at = k[0]
+            dp = k[1]
             oz = k[2]
             dz = k[3]
 
@@ -496,6 +504,7 @@ class Network:
                 agent = Agent(agent_id,
                               agent_no,
                               at,
+                              dp,
                               oz,
                               dz)
 
@@ -829,6 +838,21 @@ class AgentType:
     def get_free_flow_speed(self):
         return self.ffs
 
+    @staticmethod
+    def get_default_type_str():
+        return 'a'
+
+    @staticmethod
+    def get_default_name():
+        return 'auto'
+
+    @staticmethod
+    def get_legacy_type_str():
+        return 'p'
+
+    @staticmethod
+    def get_legacy_name():
+        return 'passenger'
 
 class SpecialEvent:
 
@@ -1371,18 +1395,14 @@ class Assignment:
             return mode, mode
 
         # back-compatible on 'p' and 'passenger'
-        # if a user inputs 'p' or 'passenger' as mode
-        if mode.startswith('p') or mode.startswith('passenger'):
-            return 'auto', 'a'
+        legacy_at_str = AgentType.get_legacy_type_str()
+        legacy_at_name = AgentType.get_legacy_name()
+        default_at_str = AgentType.get_default_type_str()
+        default_at_name = AgentType.get_default_name()
 
-        # back-compatible on 'p' and 'passenger'
-        # if a user uses the legacy settings.yml containing 'p' or 'passenger'
-        if mode.startswith('a') or mode.startswith('auto'):
-            try:
-                at = self.get_agent_type('p')
-                return at.get_name(), at.get_type_str()
-            except Exception:
-                pass
+        # if a user inputs 'p' or 'passenger' as mode
+        if mode == legacy_at_str or mode.startswith(legacy_at_name):
+            return default_at_name, default_at_str
 
         raise Exception('Please provide a valid mode!')
 
