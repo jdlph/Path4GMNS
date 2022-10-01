@@ -609,7 +609,8 @@ class Network:
         return self.links
 
     def get_zones(self):
-        return self.zones.keys()
+        # sorting is needed for setup_spnetwork()
+        return sorted(self.zones.keys())
 
     def get_zone_size(self):
         return len(self.zone_)
@@ -1366,8 +1367,22 @@ class Assignment:
 
         # for distance-based shortest path calculation only
         # it shall not be used with any accessibility evaluations
-        if mode == 'all':
+        if mode.startswith('all'):
             return mode, mode
+
+        # back-compatible on 'p' and 'passenger'
+        # if a user inputs 'p' or 'passenger' as mode
+        if mode.startswith('p') or mode.startswith('passenger'):
+            return 'auto', 'a'
+
+        # back-compatible on 'p' and 'passenger'
+        # if a user uses the legacy settings.yml containing 'p' or 'passenger'
+        if mode.startswith('a') or mode.startswith('auto'):
+            try:
+                at = self.get_agent_type('p')
+                return at.get_name(), at.get_type_str()
+            except Exception:
+                pass
 
         raise Exception('Please provide a valid mode!')
 
@@ -1416,6 +1431,9 @@ class Assignment:
             for d in self.demands:
                 at = self.get_agent_type(d.get_agent_type_str())
                 dp = self.get_demand_period(d.get_period())
+                # it requires an ascending order of zone ids
+                # otherwise, a KeyError may be encountered, where else block is
+                # executed before the if block
                 if z - 1 < self.memory_blocks:
                     sp = SPNetwork(self.network, at, dp)
                     spvec[(at.get_id(), dp.get_id(), z-1)] = sp

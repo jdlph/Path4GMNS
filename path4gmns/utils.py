@@ -582,7 +582,12 @@ def load_demand(ui,
     this is an user interface while read_demand() is intended for internal use.
     """
     A = ui._base_assignment
-    at = A.get_agent_type_id(agent_type_str)
+    # back-compatible on 'p' and 'passenger'
+    try:
+        at = A.get_agent_type_id(agent_type_str)
+    except Exception:
+        at = A.get_agent_type_id('p')
+
     dp = A.get_demand_period_id(demand_period_str)
     # do not check connectivity of OD pairs
     read_demand(input_dir, filename, at, dp, A.network.zones, A.column_pool, False)
@@ -918,7 +923,11 @@ def load_columns(ui, input_dir='.'):
             if not at:
                 continue
             else:
-                at = A.get_agent_type_id(at)
+                # back-compatible on 'p' and 'passenger'
+                try:
+                    at = A.get_agent_type_id(at)
+                except Exception:
+                    at = A.get_agent_type_id('a')
 
             dp = line['demand_period']
             if not dp:
