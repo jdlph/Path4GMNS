@@ -531,8 +531,8 @@ class Network:
         try:
             return self.agents[agent_no]
         except IndexError:
-            print('Please provide a valid agent id, which shall be a\
-                  positive integer!')
+            agent_id = agent_no + 1
+            print('Please provide a valid agent id. agent_id: {agent_id} does NOT EXIST!')
 
     def get_agent_node_path(self, agent_id, path_only):
         """ return the sequence of node IDs along the agent path
