@@ -33,7 +33,7 @@ The Python modules are written in **Python 3.x**, which is the minimum requireme
 
 ## Quick Start
 
-v0.8.7a1 as a hot fix over v0.8.6 includes several important changes in user interface. We highly recommend that you go through the [tutorial](https://github.com/jdlph/Path4GMNS/tree/dev/tests/tutorial.ipynb) written in Jupyter notebook with step-by-step demonstration using the latest release, no matter you are one of the existing users or new to Path4GMNS.
+v0.8.7a1 as a hot fix over v0.8.6 includes several important changes in user interface. We highly recommend that you go through [this tutorial](https://github.com/jdlph/Path4GMNS/tree/dev/tests/tutorial.ipynb) written in Jupyter notebook with step-by-step demonstration using the latest version, no matter you are one of the existing users or new to Path4GMNS.
 
 ## User Manual
 
@@ -560,9 +560,8 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 23. Fix crucial bug in column generation module which will lead to wrong results if a zone has multiple nodes (v0.8.6)
 24. Fix crucial bug in setting up the capacity of each VDFPeriod instance if the input is missing from link.csv (v0.8.6)
 25. Add backwards compatibility on deprecated default agent type of p or passenger (v0.8.7a1)
-26. Fix potential issue that bin_index might not start from zero when all zones have the same number of nodes in _synthesize_bin_index() (v0.8.7a1)
-27. Fix potential zero division issue in _synthesize_bin_index() when min_ and max_ are the same (v0.8.7a1)
-28. Elaborate the legacy way of loading demand and zone information in tutorial (v0.8.7a1)
+26. Fix potential issue that bin_index might not start from zero along with potential zero division issue when all zones have the same number of nodes in _synthesize_bin_index() (v0.8.7a1)
+27. Elaborate the legacy way of loading demand and zone information in tutorial (v0.8.7a1)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
 
