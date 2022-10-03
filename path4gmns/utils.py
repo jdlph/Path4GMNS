@@ -238,7 +238,8 @@ def read_nodes(input_dir,
                nodes,
                map_id_to_no,
                map_no_to_id,
-               zones):
+               zones,
+               load_demand):
 
     """ step 1: read input_node """
     with open(input_dir+'/node.csv', 'r') as fp:
@@ -301,12 +302,16 @@ def read_nodes(input_dir,
 
         print(f'the number of nodes is {node_no}')
 
-        # zone_size = len(zones)
-        # # do not count virtual zone with id as -1
-        # if -1 in zones.keys():
-        #     zone_size -= 1
+        if load_demand:
+            zone_size = len(zones)
+            # do not count virtual zone with id as -1
+            if -1 in zones.keys():
+                zone_size -= 1
 
-        # print(f'the number of zones is {zone_size}')
+            print(f'the number of zones is {zone_size}')
+
+            if zone_size == 0:
+                raise Exception('there are NO VALID zones from node.csv')
 
 
 def read_links(input_dir,
@@ -568,7 +573,10 @@ def read_demand(input_dir,
         print(f'the number of agents is {total_agents}')
 
         if total_agents == 0:
-            raise Exception('NO VALID OD VOLUME!! DOUBLE CHECK YOUR demand.csv')
+            raise Exception(
+                'NO VALID OD VOLUME!! Double check your demand.csv and '
+                'make sure there is zone info in node.csv'
+            )
 
 
 def load_demand(ui,
@@ -667,7 +675,10 @@ def read_zones(ui, input_dir='.', filename='zone.csv'):
 
 def read_demand_matrix(input_dir, agent_type_id, demand_period_id,
                        zone_to_node_dict, column_pool):
-    """ read demand matrix from input_matrix """
+    """ read demand matrix from input_matrix
+
+    not in use
+    """
     with open(input_dir+'/input_matrix.csv', 'r') as fp:
         print('read input_matrix.csv')
 
@@ -855,7 +866,8 @@ def read_network(length_unit='mile', speed_unit='mph', load_demand=False, input_
                network.nodes,
                network.map_id_to_no,
                network.map_no_to_id,
-               network.zones)
+               network.zones,
+               load_demand)
 
     read_links(input_dir,
                network.links,

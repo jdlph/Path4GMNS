@@ -263,7 +263,7 @@ def network_to_zones(ui, grid_dimension=8, max_bin=5, total_demand=10000, time_b
         centroid, it boundaries (as a grid or rectangle), production volume, and
         attraction volume.
 
-        zone_id will be an integer starting from zero.
+        zone_id will be an integer starting from one.
 
     syn_demand.csv
         synthesized demand between each connected OD pair (within a time budget).
