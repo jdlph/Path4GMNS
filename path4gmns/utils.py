@@ -1,6 +1,7 @@
 import os
 import csv
 import threading
+import warnings
 
 from .classes import Node, Link, Zone, Network, Column, ColumnVec, VDFPeriod, \
                      AgentType, DemandPeriod, Demand, SpecialEvent, Assignment, UI
@@ -109,40 +110,40 @@ def _convert_boundaries(bs):
         b = bs.index(prefix) + len(prefix)
         e = bs.index(postfix)
     except ValueError:
-        raise Exception('Invalid Zone Boundaries: '+bs)
+        raise Exception(f'Invalid Zone Boundaries: {bs}')
 
     bs_ = bs[b:e]
     vs = [x for x in bs_.split(',')]
 
     # validation
     if len(vs) != 5:
-        raise Exception('Invalid Zone Boundaries: '+bs)
+        raise Exception(f'Invalid Zone Boundaries: {bs}')
 
     if vs[0] != vs[-1]:
-        raise Exception('Invalid Zone Boundaries: '+bs)
+        raise Exception(f'Invalid Zone Boundaries: {bs}')
 
     L, U = vs[0].split(' ')
     R, U_ = vs[1].split(' ')
     if U != U_:
         raise Exception(
-            'Invalid Zone Boundaries: inconsistent upper boundary'+U+'; '+U_
+            f'Invalid Zone Boundaries: inconsistent upper boundary {U}; {U_}'
         )
 
     R_, D = vs[2].split(' ')
     if R != R_:
         raise Exception(
-            'Invalid Zone Boundaries: inconsistent right boundary'+R+'; '+R_
+            'Invalid Zone Boundaries: inconsistent right boundary {R}; {R_}'
         )
 
     L_, D_ = vs[3].split(' ')
     if L != L_:
         raise Exception(
-            'Invalid Zone Boundaries: inconsistent left boundary'+L+'; '+L_
+            'Invalid Zone Boundaries: inconsistent left boundary {L}; {L_}'
         )
 
     if D != D_:
         raise Exception(
-            'Invalid Zone Boundaries: inconsistent lower boundary'+D+'; '+D_
+            'Invalid Zone Boundaries: inconsistent lower boundary {D}; {D_}'
         )
 
     U = _convert_str_to_float(U)
@@ -165,7 +166,7 @@ def _download_url(url, filename, loc_dir):
         with open(loc_dir+filename, 'wb') as f:
             f.write(r.content)
     except requests.HTTPError:
-        print('file not existing: '+url)
+        print(f'file not existing: {url}')
     except requests.ConnectionError:
         raise Exception('check your connection!!!')
     except Exception as e:
@@ -220,7 +221,7 @@ def download_sample_data_sets():
             t.join()
 
     print('downloading completes')
-    print('check '+os.path.join(os.getcwd(), loc_data_dir)+' for downloaded data sets')
+    print(f'check {os.path.join(os.getcwd(), loc_data_dir)} for downloaded data sets')
 
 
 def download_sample_setting_file():
@@ -231,7 +232,7 @@ def download_sample_setting_file():
     _download_url(url, filename, loc_dir)
 
     print('downloading completes')
-    print('check '+os.getcwd()+' for downloaded settings.yml')
+    print(f'check {os.getcwd()} for downloaded settings.yml')
 
 
 def read_nodes(input_dir,
@@ -356,8 +357,10 @@ def read_links(input_dir,
                 from_node_no = map_id_to_no[from_node_id]
                 to_node_no = map_id_to_no[to_node_id]
             except KeyError:
-                print(f'EXCEPTION: Node ID {from_node_id} '
-                      f'or/and Node ID {to_node_id} NOT IN THE NETWORK!!')
+                print(
+                    f'EXCEPTION: Node ID {from_node_id} '
+                    f'or/and Node ID {to_node_id} NOT IN THE NETWORK!!'
+                )
                 continue
 
             # for the following attributes,
@@ -668,7 +671,7 @@ def read_zones(ui, input_dir='.', filename='zone.csv'):
                     except (IndexError, KeyError):
                         continue
             else:
-                raise Exception('DUPLICATE zone id: {zone_id}')
+                raise Exception(f'DUPLICATE zone id: {zone_id}')
 
         print(f'the number of zones is {len(zones)}')
 
@@ -774,6 +777,11 @@ def read_settings(input_dir, assignment):
                     agent_type = AgentType.get_default_type_str()
                     agent_name = AgentType.get_default_name()
 
+                # possible duplication check
+                if agent_type in assignment.map_atstr_id:
+                    warnings.warn(f'duplicate agent type found: {agent_type}')
+                    continue
+
                 agent_vot = a['vot']
                 agent_flow_type = a['flow_type']
                 agent_pce = a['pce']
@@ -794,6 +802,10 @@ def read_settings(input_dir, assignment):
                                agent_use_link_ffs)
 
                 assignment.update_agent_types(at)
+
+            # add the default mode if it does not exist
+            if AgentType.get_default_type_str() not in assignment.map_atstr_id:
+                assignment.update_agent_types(AgentType())
 
             # demand periods
             demand_periods = settings['demand_periods']
@@ -842,15 +854,19 @@ def read_settings(input_dir, assignment):
 
     except ImportError:
         # just in case user does not have pyyaml installed
-        print('Please install pyyaml next time!')
-        print('Engine will set up one demand period and one agent type using '
-              'default values for you, which might NOT reflect your case!\n')
+        warnings.warn('Please install pyyaml next time!')
+        warnings.warn(
+            'Engine will set up one demand period and one agent type using '
+            'default values for you, which might NOT reflect your case!\n'
+        )
         _auto_setup(assignment)
     except FileNotFoundError:
         # just in case user does not provide settings.yml
-        print('Please provide settings.yml next time!')
-        print('Engine will set up one demand period and one agent type using '
-              'default values for you, which might NOT reflect your case!\n')
+        warnings.warn('Please provide settings.yml next time!')
+        warnings.warn(
+            'Engine will set up one demand period and one agent type using '
+            'default values for you, which might NOT reflect your case!\n'
+        )
         _auto_setup(assignment)
     except Exception as e:
         raise e
@@ -1119,12 +1135,12 @@ def output_columns(ui, output_geometry=True, output_dir='.'):
                 writer.writerow(line)
 
         if output_dir == '.':
-            print('\ncheck agent.csv in '
-                  +os.getcwd()+' for path finding results')
+            print(f'\ncheck agent.csv in {os.getcwd()} for path finding results')
         else:
-            print('\ncheck agent.csv in '
-                  +os.path.join(os.getcwd(), output_dir)
-                  +' for path finding results')
+            print(
+                f'\ncheck agent.csv in {os.path.join(os.getcwd(), output_dir)}'
+                +' for path finding results'
+            )
 
 
 def output_link_performance(ui, output_dir='.'):
@@ -1175,12 +1191,12 @@ def output_link_performance(ui, output_dir='.'):
                 writer.writerow(line)
 
         if output_dir == '.':
-            print('\ncheck link_performance.csv in '
-                  +os.getcwd()+' for link performance')
+            print(f'\ncheck link_performance.csv in {os.getcwd()} for link performance')
         else:
-            print('\ncheck link_performance.csv in '
-                  +os.path.join(os.getcwd(), output_dir)
-                  +' for link performance')
+            print(
+                f'\ncheck link_performance.csv in {os.path.join(os.getcwd(), output_dir)}'
+                +' for link performance'
+            )
 
 
 def output_agent_paths(ui, output_geometry=True, output_dir='.'):
@@ -1260,12 +1276,12 @@ def output_agent_paths(ui, output_geometry=True, output_dir='.'):
             writer.writerow(line)
 
         if output_dir == '.':
-            print('\ncheck agent_paths.csv in '
-                   +os.getcwd()+' for unique agent paths')
+            print(f'\ncheck agent_paths.csv in {os.getcwd()} for unique agent paths')
         else:
-            print('\ncheck agent_paths.csv in '
-                  +os.path.join(os.getcwd(), output_dir)
-                  +' for unique agent paths')
+            print(
+                f'\ncheck agent_paths.csv in {os.path.join(os.getcwd(), output_dir)}'
+                +' for unique agent paths'
+            )
 
 
 def output_zones(ui, output_dir='.'):
@@ -1311,11 +1327,12 @@ def output_zones(ui, output_dir='.'):
             writer.writerow(line)
 
         if output_dir == '.':
-            print('\ncheck zone.csv in '+os.getcwd()+' for synthesized zones')
+            print(f'\ncheck zone.csv in {os.getcwd()} for synthesized zones')
         else:
-            print('\ncheck zone.csv in '
-                  +os.path.join(os.getcwd(), output_dir)
-                  +' for synthesized zones')
+            print(
+                f'\ncheck zone.csv in {os.path.join(os.getcwd(), output_dir)}'
+                +' for synthesized zones'
+            )
 
 
 def output_synthesized_demand(ui, output_dir='.'):
@@ -1337,9 +1354,9 @@ def output_synthesized_demand(ui, output_dir='.'):
             writer.writerow(line)
 
         if output_dir == '.':
-            print('\ncheck demand.csv in '
-            +os.getcwd()+' for synthesized demand')
+            print(f'\ncheck demand.csv in {os.getcwd()} for synthesized demand')
         else:
-            print('\ncheck demand.csv in '
-                  +os.path.join(os.getcwd(), output_dir)
-                  +' for synthesized demand')
+            print(
+                f'\ncheck demand.csv in {os.path.join(os.getcwd(), output_dir)}'
+                +' for synthesized demand'
+            )

@@ -1262,12 +1262,12 @@ class Assignment:
         if at.get_type_str() not in self.map_atstr_id:
             self.map_atstr_id[at.get_type_str()] = at.get_id()
         else:
-            raise Exception('agent type is not unique:'+at.get_type_str())
+            raise Exception(f'agent type is not unique: {at.get_type_str()}')
 
         if at.get_name() not in self.map_name_atstr:
             self.map_name_atstr[at.get_name()] = at.get_type_str()
         else:
-            raise Exception('agent type name is not unique:'+at.get_name())
+            raise Exception(f'agent type name is not unique: {at.get_name()}')
 
         self.agent_types.append(at)
 
@@ -1275,7 +1275,7 @@ class Assignment:
         if dp.get_period() not in self.map_dpstr_id:
             self.map_dpstr_id[dp.get_period()] = dp.get_id()
         else:
-            raise Exception('demand period is not unique:'+dp.get_period())
+            raise Exception(f'demand period is not unique: {dp.get_period()}')
 
         self.demand_periods.append(dp)
 
@@ -1283,13 +1283,13 @@ class Assignment:
         try:
             return self.map_atstr_id[at_str]
         except KeyError:
-            raise Exception('NO agent type: '+at_str)
+            raise Exception(f'NO agent type: {at_str}')
 
     def get_demand_period_id(self, dp_str):
         try:
             return self.map_dpstr_id[dp_str]
         except KeyError:
-            raise Exception('NO demand period: '+dp_str)
+            raise Exception(f'NO demand period: {dp_str}')
 
     def get_agent_type(self, at_str):
         return self.agent_types[self.get_agent_type_id(at_str)]
@@ -1301,13 +1301,13 @@ class Assignment:
         try:
             return self.agent_types[at_id].get_type_str()
         except KeyError:
-            raise Exception('NO agent type id: '+at_id)
+            raise Exception(f'NO agent type id: {at_id}')
 
     def get_demand_period_str(self, dp_id):
         try:
             return self.demand_periods[dp_id].get_period()
         except KeyError:
-            raise Exception('NO demand period id: '+dp_id)
+            raise Exception(f'NO demand period id: {dp_id}')
 
     def update_demands(self, d):
         self.demands.append(d)
@@ -1404,7 +1404,7 @@ class Assignment:
         if mode == legacy_at_str or mode.startswith(legacy_at_name):
             return default_at_name, default_at_str
 
-        raise Exception('Please provide a valid mode!')
+        raise Exception(f'{mode} is not existing in settings.yml! Please provide a valid mode!')
 
     def find_path_for_agents(self, mode):
         """ find and set up shortest path for each agent """

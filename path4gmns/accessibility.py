@@ -89,12 +89,12 @@ def _output_od_accessibility(min_travel_times, zones, mode, output_dir):
             writer.writerow(line)
 
         if output_dir == '.':
-            print('\ncheck od_accessibility.csv in '
-                  +os.getcwd()+' for OD accessibility')
+            print(f'\ncheck od_accessibility.csv in {os.getcwd()} for OD accessibility')
         else:
-            print('\ncheck od_accessibility.csv in '
-                  +os.path.join(os.getcwd(), output_dir)
-                  +' for OD accessibility')
+            print(
+                f'\ncheck od_accessibility.csv in {os.path.join(os.getcwd(), output_dir)}'
+                +' for OD accessibility'
+            )
 
 
 def _output_zone_accessibility(min_travel_times, interval_num,
@@ -141,12 +141,12 @@ def _output_zone_accessibility(min_travel_times, interval_num,
                 writer.writerow(line)
 
         if output_dir == '.':
-            print('\ncheck zone_accessibility.csv in '
-                  +os.getcwd()+' for zone accessibility')
+            print(f'\ncheck zone_accessibility.csv in {os.getcwd()} for zone accessibility')
         else:
-            print('\ncheck zone_accessibility.csv in '
-                  +os.path.join(os.getcwd(), output_dir)
-                  +' for zone accessibility')
+            print(
+                f'\ncheck zone_accessibility.csv in {os.path.join(os.getcwd(), output_dir)}'
+                +' for zone accessibility'
+            )
 
 
 def _output_equity(output_dir, time_budget, equity_metrics, equity_zones):
@@ -169,17 +169,12 @@ def _output_equity(output_dir, time_budget, equity_metrics, equity_zones):
             writer.writerow(line)
 
         if output_dir == '.':
-            print('\ncheck equity_'
-                  +str(time_budget)
-                  +'min.csv in '
-                  +os.getcwd()
-                  +' for equity evaluation')
+            print(
+                f'\ncheck equity_{time_budget} min.csv in {os.getcwd()} for equity evaluation')
         else:
-            print('\ncheck equity_'
-                  +str(time_budget)
-                  +'min.csv in '
-                  +os.path.join(os.getcwd(), output_dir)
-                  +' for equity evaluation')
+            print(
+                f'\ncheck equity_{time_budget} min.csv in {os.path.join(os.getcwd(), output_dir)}'
+                +' for equity evaluation')
 
 
 def evaluate_accessibility(ui,
