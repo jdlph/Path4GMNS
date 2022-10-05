@@ -23,7 +23,4 @@ setuptools.setup(
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ],
-    install_requires=[
-        'myst_parser'
-    ]
 )
