@@ -6,6 +6,10 @@
 #
 alabaster==0.7.12
     # via sphinx
+attrs==21.2.0
+    # via
+    #   jsonschema
+    #   markdown-it-py
 babel==2.10.3
     # via sphinx
 certifi==2022.9.24
