@@ -1,3 +1,4 @@
+from distutils.core import setup
 import setuptools
 
 with open("README.md", "r", encoding="utf-8") as fh:
@@ -22,4 +23,7 @@ setuptools.setup(
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ],
+    install_requires=[
+        'myst_parser'
+    ]
 )

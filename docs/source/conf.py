@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('../../path4gmns/'))
 
 autodoc_mock_imports = [
-    'myst_parser'
+    'myst-parser'
 ]
 
 
