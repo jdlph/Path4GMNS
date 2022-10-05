@@ -16,6 +16,7 @@
 
 #include <cstring>
 #include <cwchar>
+#include <climits>
 
 using std::wcsstr;
 using std::wcscmp;
@@ -47,8 +48,8 @@ void shortest_path(int o_node_no,
     {
         // dueue_next is the implementation of scan eligible list for active nodes in label correcting
         deque_next[node_no] = invalid;
-        // label cost, make it consistent with the python implemenation
-        label_cost[node_no] = 99999;
+        // label cost, make it consistent with the python implementation
+        label_cost[node_no] = INT_MAX;
         link_pred[node_no] = invalid;
         node_pred[node_no] = invalid;
     }
@@ -155,7 +156,7 @@ void shortest_path_n(int o_node_no,
     {
         // dueue_next is the implementation of scan eligible list for active nodes in label correcting
         deque_next[node_no] = invalid;
-        // label cost, make it consistent with the python implemenation
+        // label cost, make it consistent with the python implementation
         label_cost[node_no] = max_label_cost;
         link_pred[node_no] = invalid;
         node_pred[node_no] = invalid;

@@ -854,6 +854,7 @@ class AgentType:
     def get_legacy_name():
         return 'passenger'
 
+
 class SpecialEvent:
 
     def __init__(self, name, beg_iteration, end_iteration) -> None:
@@ -1393,16 +1394,6 @@ class Assignment:
         # it shall not be used with any accessibility evaluations
         if mode.startswith('all'):
             return mode, mode
-
-        # back-compatible on 'p' and 'passenger'
-        legacy_at_str = AgentType.get_legacy_type_str()
-        legacy_at_name = AgentType.get_legacy_name()
-        default_at_str = AgentType.get_default_type_str()
-        default_at_name = AgentType.get_default_name()
-
-        # if a user inputs 'p' or 'passenger' as mode
-        if mode == legacy_at_str or mode.startswith(legacy_at_name):
-            return default_at_name, default_at_str
 
         raise Exception(f'{mode} is not existing in settings.yml! Please provide a valid mode!')
 

@@ -593,13 +593,8 @@ def load_demand(ui,
     this is an user interface while read_demand() is intended for internal use.
     """
     A = ui._base_assignment
-    # back-compatible on 'p' and 'passenger'
-    try:
-        at = A.get_agent_type_id(agent_type_str)
-    except Exception:
-        # just in case a user puts 'p'. replace it with 'a'
-        at = A.get_agent_type_id(AgentType.get_default_type_str())
 
+    at = A.get_agent_type_id(agent_type_str)
     dp = A.get_demand_period_id(demand_period_str)
     # do not check connectivity of OD pairs
     read_demand(input_dir, filename, at, dp, A.network.zones, A.column_pool, False)
@@ -772,11 +767,6 @@ def read_settings(input_dir, assignment):
             for i, a in enumerate(agents):
                 agent_type = a['type']
                 agent_name = a['name']
-                if (agent_type == AgentType.get_legacy_type_str()
-                    or agent_name.startswith(AgentType.get_legacy_name())):
-                    agent_type = AgentType.get_default_type_str()
-                    agent_name = AgentType.get_default_name()
-
                 # possible duplication check
                 if agent_type in assignment.map_atstr_id:
                     warnings.warn(f'duplicate agent type found: {agent_type}')
@@ -846,8 +836,11 @@ def read_settings(input_dir, assignment):
                 # demand_format_type = d['format_type']
                 demand_period = d['period']
                 demand_type = d['agent_type']
-                if demand_type == AgentType.get_legacy_type_str():
-                    demand_type = AgentType.get_default_type_str()
+
+                if demand_type not in assignment.map_atstr_id:
+                    raise Exception(
+                        f'{demand_type} is not found as an entry of agents in settings.yml'
+                    )
 
                 demand = Demand(i, demand_period, demand_type, demand_file)
                 assignment.update_demands(demand)
@@ -964,7 +957,14 @@ def load_columns(ui, input_dir='.'):
                     at = A.get_agent_type_id(at)
                 except Exception:
                     # replace 'p' with 'a'
-                    at = A.get_agent_type_id(AgentType.get_default_type_str())
+                    if at.startswith(AgentType.get_legacy_type_str()):
+                        at = A.get_agent_type_id(AgentType.get_default_type_str())
+                    else:
+                        warnings.warn(
+                            f'agent_type {at} is not existing in settings.yml.'
+                            'this record is discarded'
+                        )
+                        continue
 
             dp = line['demand_period']
             if not dp:

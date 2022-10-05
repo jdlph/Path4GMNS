@@ -6,8 +6,13 @@
 Welcome to Path4GMNS's documentation!
 =====================================
 
-`Path4GMNS <https://github.com/jdlph/Path4GMNS>`_ is an open-source, cross-platform, lightweight, and fast Python path engine
-for networks encoded in `GMNS <https://github.com/zephyr-data-specs/GMNS>`_. Besides finding static shortest paths for simple analyses, its main functionality is to provide an efficient and flexible framework for column-based (path-based) modeling and applications in transportation (e.g., activity-based demand modeling). Path4GMNS supports, in short,
+`Path4GMNS <https://github.com/jdlph/Path4GMNS>`_ is an open-source, cross-platform,
+lightweight, and fast Python path engine for networks encoded in
+`GMNS <https://github.com/zephyr-data-specs/GMNS>`_. Besides finding static
+shortest paths for simple analyses, its main functionality is to provide an
+efficient and flexible framework for column-based (path-based) modeling and
+applications in transportation (e.g., activity-based demand modeling).
+Path4GMNS supports, in short,
 
 1. finding (static) shortest path between two nodes,
 2. constructing shortest paths for all individual agents,
@@ -15,11 +20,14 @@ for networks encoded in `GMNS <https://github.com/zephyr-data-specs/GMNS>`_. Bes
 4. evaluating multimodal accessibility and equity,
 5. synthesizing zones and Origin-Destination (OD) demand for a given network.
 
-Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jdlph/DTALite) to conduct various multimodal traffic assignments including,
-   * Link-based UE,
-   * Path-based UE,
-   * UE + Dynamic Traffic Assignment (DTA),
-   * OD Matrix Estimation (ODME).
+Path4GMNS also serves as an API to the C++-based
+`DTALite <https://github.com/jdlph/DTALite>`_ to conduct various multimodal
+traffic assignments including,
+
+* Link-based UE,
+* Path-based UE,
+* UE + Dynamic Traffic Assignment (DTA),
+* OD Matrix Estimation (ODME).
 
 .. figure:: imgs/architecture.png
 
@@ -27,10 +35,11 @@ Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jd
 Quick Start
 -----------
 
-v0.8.7a1 as a hot fix over v0.8.6 includes several important changes in user interface. 
-We highly recommend that you go through `this tutorial <https://github.com/jdlph/Path4GMNS/tree/dev/tests/tutorial.ipynb>`_ 
-written in Jupyter notebook with step-by-step demonstration using the latest version, no matter you are one of the existing 
-users or new to Path4GMNS.
+v0.8.7a1 as a hot fix over v0.8.6 includes several important changes in user
+interface. We highly recommend that you go through
+`this tutorial <https://github.com/jdlph/Path4GMNS/tree/dev/tests/tutorial.ipynb>`_
+written in Jupyter notebook with step-by-step demonstration using the latest
+version, no matter you are one of the existing users or new to Path4GMNS.
 
 
 Contents
