@@ -7,7 +7,19 @@ Welcome to Path4GMNS's documentation!
 =====================================
 
 `Path4GMNS <https://github.com/jdlph/Path4GMNS>`_ is an open-source, cross-platform, lightweight, and fast Python path engine
-for networks encoded in `GMNS <https://github.com/zephyr-data-specs/GMNS>`_.
+for networks encoded in `GMNS <https://github.com/zephyr-data-specs/GMNS>`_. Besides finding static shortest paths for simple analyses, its main functionality is to provide an efficient and flexible framework for column-based (path-based) modeling and applications in transportation (e.g., activity-based demand modeling). Path4GMNS supports, in short,
+
+1. finding (static) shortest path between two nodes,
+2. constructing shortest paths for all individual agents,
+3. performing path-based User-Equilibrium (UE) traffic assignment,
+4. evaluating multimodal accessibility and equity,
+5. synthesizing zones and Origin-Destination (OD) demand for a given network.
+
+Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jdlph/DTALite) to conduct various multimodal traffic assignments including,
+   * Link-based UE,
+   * Path-based UE,
+   * UE + Dynamic Traffic Assignment (DTA),
+   * OD Matrix Estimation (ODME).
 
 .. figure:: imgs/architecture.png
 
