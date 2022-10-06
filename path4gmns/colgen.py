@@ -87,7 +87,7 @@ def _update_column_gradient_cost_and_flow(column_pool,
     _update_link_travel_time_and_cost(links)
 
     total_gap = 0
-    # total_gap_count = 0
+    total_travel_time = 0
 
     for k, cv in column_pool.items():
         # k= (at, tau, oz_id, dz_id)
@@ -108,9 +108,9 @@ def _update_column_gradient_cost_and_flow(column_pool,
             col.set_gradient_cost(path_gradient_cost)
 
             if column_num == 1:
-                # total_gap_count += (
-                #     path_gradient_cost * col.get_volume()
-                # )
+                total_travel_time += (
+                    path_gradient_cost * col.get_volume()
+                )
                 break
 
             if path_gradient_cost < least_gradient_cost:
@@ -136,9 +136,9 @@ def _update_column_gradient_cost_and_flow(column_pool,
                     col.get_gradient_cost_abs_diff() * col.get_volume()
                 )
 
-                # total_gap_count += (
-                #     col.get_gradient_cost() * col.get_volume()
-                # )
+                total_travel_time += (
+                    col.get_gradient_cost() * col.get_volume()
+                )
 
                 step_size = 1 / (iter_num + 2) * cv.get_od_volume()
 
@@ -157,12 +157,14 @@ def _update_column_gradient_cost_and_flow(column_pool,
         if least_gradient_cost_path_id != -1:
             col = cv.get_column(least_gradient_cost_path_id)
             col.increase_volume(total_switched_out_path_vol)
-            # total_gap_count += (
-            #     col.get_gradient_cost() * col.get_volume()
-            # )
+            total_travel_time += (
+                col.get_gradient_cost() * col.get_volume()
+            )
+
+    rel_gap = total_gap / max(total_travel_time, SMALL_DIVISOR)
 
     print(f'total gap: {total_gap:.2f}')
-    # print(f'total gap count is: {total_gap_count:.2f}')
+    print(f'relative gap: {rel_gap:.3%}')
 
 
 def _optimize_column_pool(column_pool,
