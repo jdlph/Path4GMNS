@@ -93,7 +93,7 @@ def _output_od_accessibility(min_travel_times, zones, mode, output_dir):
         else:
             print(
                 f'\ncheck od_accessibility.csv in {os.path.join(os.getcwd(), output_dir)}'
-                +' for OD accessibility'
+                ' for OD accessibility'
             )
 
 
@@ -145,7 +145,7 @@ def _output_zone_accessibility(min_travel_times, interval_num,
         else:
             print(
                 f'\ncheck zone_accessibility.csv in {os.path.join(os.getcwd(), output_dir)}'
-                +' for zone accessibility'
+                ' for zone accessibility'
             )
 
 
@@ -174,7 +174,7 @@ def _output_equity(output_dir, time_budget, equity_metrics, equity_zones):
         else:
             print(
                 f'\ncheck equity_{time_budget} min.csv in {os.path.join(os.getcwd(), output_dir)}'
-                +' for equity evaluation')
+                ' for equity evaluation')
 
 
 def evaluate_accessibility(ui,

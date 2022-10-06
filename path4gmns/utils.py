@@ -324,7 +324,6 @@ def read_links(input_dir,
                length_unit,
                speed_unit,
                load_demand):
-
     """ step 2: read input_link """
     with open(input_dir+'/link.csv', 'r') as fp:
         print('read link.csv')
@@ -407,8 +406,12 @@ def read_links(input_dir,
                 geometry = ''
 
             link_ids[link_id] = link_seq_no
-            if length_unit.startswith('meter'):
+
+            # unit conversion
+            if length_unit.startswith('meter') or length_unit == 'm':
                 length = length / MILE_TO_METER
+            elif length_unit.startswith('kilometer') or length_unit.startswith('km'):
+                length = length / MPH_TO_KPH
 
             if speed_unit.startswith('kmh') or speed_unit.startswith('kph'):
                 free_speed = free_speed / MPH_TO_KPH
@@ -866,6 +869,25 @@ def read_settings(input_dir, assignment):
 
 
 def read_network(length_unit='meter', speed_unit='kmh', load_demand=False, input_dir='.'):
+    len_units = ['kilometer', 'km', 'meter', 'm', 'mile', 'mi']
+    spd_units = ['kmh', 'kph', 'mph']
+
+    # length and speed units check
+    # linear search is OK for such small lists
+    if length_unit not in len_units:
+        units = ', '.join(len_units)
+        raise Exception(
+            f'Invalid length unit: {length_unit} !'
+            f' Please choose one available unit from {units}'
+        )
+
+    if speed_unit not in spd_units:
+        units = ', '.join(spd_units)
+        raise Exception(
+            f'Invalid speed unit: {speed_unit} !'
+            f' Please choose one available unit from {units}'
+        )
+
     assignm = Assignment()
     network = Network()
 
@@ -1139,7 +1161,7 @@ def output_columns(ui, output_geometry=True, output_dir='.'):
         else:
             print(
                 f'\ncheck agent.csv in {os.path.join(os.getcwd(), output_dir)}'
-                +' for path finding results'
+                ' for path finding results'
             )
 
 
@@ -1195,7 +1217,7 @@ def output_link_performance(ui, output_dir='.'):
         else:
             print(
                 f'\ncheck link_performance.csv in {os.path.join(os.getcwd(), output_dir)}'
-                +' for link performance'
+                ' for link performance'
             )
 
 
@@ -1243,7 +1265,7 @@ def output_agent_paths(ui, output_geometry=True, output_dir='.'):
                 continue
 
             pre_dest_node_id = a.get_dest_node_id()
-            agent_id = a.get_id()
+            id = a.get_id()
 
             at = a.get_at_id()
             dp = a.get_dp_id()
@@ -1259,7 +1281,7 @@ def output_agent_paths(ui, output_geometry=True, output_dir='.'):
                 )
                 geometry = 'LINESTRING (' + geometry + ')'
 
-            line = [agent_id,
+            line = [id,
                     oz,
                     dz,
                     a.get_orig_node_id(),
@@ -1269,8 +1291,8 @@ def output_agent_paths(ui, output_geometry=True, output_dir='.'):
                     dp_str,
                     vol,
                     a.get_path_cost(),
-                    base.get_agent_node_path(agent_id, True),
-                    base.get_agent_link_path(agent_id, True),
+                    base.get_agent_node_path(id, True),
+                    base.get_agent_link_path(id, True),
                     geometry]
 
             writer.writerow(line)
@@ -1280,7 +1302,7 @@ def output_agent_paths(ui, output_geometry=True, output_dir='.'):
         else:
             print(
                 f'\ncheck agent_paths.csv in {os.path.join(os.getcwd(), output_dir)}'
-                +' for unique agent paths'
+                ' for unique agent paths'
             )
 
 
@@ -1331,7 +1353,7 @@ def output_zones(ui, output_dir='.'):
         else:
             print(
                 f'\ncheck zone.csv in {os.path.join(os.getcwd(), output_dir)}'
-                +' for synthesized zones'
+                ' for synthesized zones'
             )
 
 
@@ -1358,5 +1380,5 @@ def output_synthesized_demand(ui, output_dir='.'):
         else:
             print(
                 f'\ncheck demand.csv in {os.path.join(os.getcwd(), output_dir)}'
-                +' for synthesized demand'
+                ' for synthesized demand'
             )

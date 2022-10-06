@@ -244,7 +244,7 @@ def single_source_shortest_path(G, origin_node_id,
             _single_source_shortest_path_dijkstra(G, origin_node_no)
         else:
             raise Exception('Please choose correct shortest path algorithm: '
-                            +'fifo or deque or dijkstra')
+                            'fifo or deque or dijkstra')
 
 
 def output_path_sequence(G, to_node_id, type='node'):
@@ -291,7 +291,7 @@ def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
 
     path_cost = _get_path_cost(G, to_node_id)
 
-    if path_cost == MAX_LABEL_COST:
+    if path_cost >= MAX_LABEL_COST:
         return f'distance: infinity | path: '
 
     path = ';'.join(

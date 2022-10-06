@@ -84,6 +84,6 @@ def perform_network_assignment_DTALite(assignment_mode,
 
     print('\nDTALite run completes\n')
     print(
-        f'check link_performance.csv in '+os.getcwd()+' for link performance\n'
-        f'check agent.csv in '+os.getcwd()+' for unique agent paths\n'
+        f'check link_performance.csv in {os.getcwd()} for link performance\n'
+        f'check agent.csv in {os.getcwd()} for unique agent paths\n'
     )
