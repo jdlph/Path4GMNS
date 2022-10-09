@@ -256,8 +256,14 @@ def network_to_zones(ui, grid_dimension=8, max_bin=5, total_demand=10000, time_b
         It is used along with time_budget to check if the minimum travel time under
         the given mode exceeds the time budget or not.
 
-    Outputs
+    Returns
     -------
+    None
+
+    Note
+    ----
+    The following files will be output.
+
     zone.csv.csv
         synthesized zones including zone id, activity nodes, coordinates of its
         centroid, it boundaries (as a grid or rectangle), production volume, and

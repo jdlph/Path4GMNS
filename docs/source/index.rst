@@ -50,3 +50,4 @@ Contents
 
    installation
    usecases
+   api

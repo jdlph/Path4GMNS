@@ -44,10 +44,12 @@ def perform_network_assignment_DTALite(assignment_mode,
     Parameters
     ----------
     assignment_mode
-        0: Link-based UE, only generates link performance file without agent
-           path file
+        0: Link-based UE, only generates link performance file without agent path file
+
         1: Path-based UE, generates link performance file and agent path file
+
         2: UE + dynamic traffic assignment (DTA), generates link performance file and agent path file
+
         3: ODME
 
     column_gen_num
@@ -56,19 +58,24 @@ def perform_network_assignment_DTALite(assignment_mode,
     column_update_iter
         number of iterations to be performed on optimizing column pool
 
-    Outputs
+    Returns
     -------
-    Depending on the selected assignment_mode, one or two of the following
-    files will be generated.
+    None
 
-    1. agent.csv: paths/columns
-    2. link_performance.csv: assigned volumes and other link attributes on each
-       link
+    Note
+    ----
+    The output will depend on the selected assignment_mode.
 
-    Link-based UE, link_performance.csv
-    Path-based UE, agent.csv and link_performance.csv
-    UE + DTA, agent.csv and link_performance.csv
-    ODME
+        Link-based UE: link_performance.csv
+
+        Path-based UE: agent.csv and link_performance.csv
+
+        UE + DTA: agent.csv and link_performance.csv
+
+    agent.csv: paths/columns
+
+    link_performance.csv: assigned volumes and other link attributes
+    on each link
     """
     # make sure assignment_mode is right
     assert(assignment_mode in [0, 1, 2, 3])

@@ -230,8 +230,14 @@ def evaluate_accessibility(ui,
         The directory path where zone_accessibility.csv and od_accessibility.csv
         are output. The default is the current working directory (CDW).
 
-    Outputs
+    Returns
     -------
+    None
+
+    Note
+    ----
+    The following files will be output.
+
     zone_accessibility.csv
         accessibility as the number of accessible zones from each
         zone for a target mode or any mode defined in settings.yml given a
@@ -334,16 +340,22 @@ def evaluate_equity(ui, single_mode=False, mode='auto', time_dependent=False,
         The directory path where the evaluation result is output. The default
         is the current working directory (CDW).
 
-    Outputs
+    Returns
     -------
+    None
+
+    Note
+    ----
+    The following file will be output.
+
     equity_str.csv
         equity statistics including minimum accessibility (and the corresponding
         zone), maximum accessibility (and the corresponding zone), and mean
         accessibility for each bin_index. The accessible zones will be output
         as well.
 
-        str in the file name refers to the time budget. For example, the file name
-        will be equity_60min.csv if the time budget is 60 min.
+        str in the file name refers to the time budget. For example, the file
+        name will be equity_60min.csv if the time budget is 60 min.
     """
     base = ui._base_assignment
     an = AccessNetwork(base.network)

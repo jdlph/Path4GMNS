@@ -101,7 +101,7 @@ network.find_path_for_agents('w')
 # is exactly the same as before as well as outputting all unique agent paths
 ```
 
-### Perform Path-Based UE Traffic Assignment using the Python Column-Generation Module
+## Perform Path-Based UE Traffic Assignment using the Python Column-Generation Module
 The Python column-generation module only implements path-based UE. If you need other assignment modes, e.g., link-based UE or DTA, please use perform_network_assignment_DTALite().
 
 ```python

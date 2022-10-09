@@ -1591,12 +1591,15 @@ class UI:
 
             The default is 'all', which means that links are open to all modes.
 
-        Outputs
+        Returns
         -------
-        the shortest path between from_node_id and to_node_id
+        str
+            the shortest path between from_node_id and to_node_id.
 
-        Exceptions will be thrown if either of them or both are not valid node
-        IDs.
+        Note
+        ----
+            Exceptions will be thrown if either of from_node_id and and to_node_id
+            is not valid node IDs.
         """
         return self._base_assignment.find_shortest_path(
             from_node_id,
@@ -1645,10 +1648,11 @@ class UI:
             Use it with time_dependent when there are multiple demand periods.
             Its default value is 0.
 
-        Outputs
+        Returns
         -------
-        print out the number of nodes that can be accessible from \
-        source_node_id given time_budget and mode, and the node list
+        int
+            the number of nodes that can be accessible from source_node_id
+            given time_budget and mode, and the node list
         """
         nodes = self._base_assignment.get_accessible_nodes(source_node_id,
                                                            time_budget,
@@ -1684,10 +1688,11 @@ class UI:
 
             The default is 'auto'.
 
-        Outputs
+        Returns
         -------
-        print out the number of links that can be accessible from \
-        source_node_id given time_budget and mode, and the link list
+        int
+            the number of links that can be accessible from source_node_id
+            given time_budget and mode, and the link list
         """
         links = self._base_assignment.get_accessible_links(source_node_id,
                                                            time_budget,
