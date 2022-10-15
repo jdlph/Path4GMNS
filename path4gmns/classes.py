@@ -556,7 +556,7 @@ class Network:
         if path_only:
             return path
         else:
-            return f'distance: {path_cost:.2f} | node path: {path}'
+            return f'distance: {path_cost:.2f} mi | node path: {path}'
 
     def get_agent_link_path(self, agent_id, path_only):
         """ return the sequence of link IDs along the agent path
@@ -580,7 +580,7 @@ class Network:
         if path_only:
             return path
         else:
-            return f'distance: {path_cost:.2f} | link path: {path}'
+            return f'distance: {path_cost:.2f} mi | link path: {path}'
 
     def get_agent_orig_node_id(self, agent_id):
         """ return the origin node id of agent """

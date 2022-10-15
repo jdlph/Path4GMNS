@@ -868,7 +868,7 @@ def read_settings(input_dir, assignment):
         raise e
 
 
-def read_network(length_unit='meter', speed_unit='kmh', load_demand=False, input_dir='.'):
+def read_network(length_unit='mile', speed_unit='mph', load_demand=False, input_dir='.'):
     len_units = ['kilometer', 'km', 'meter', 'm', 'mile', 'mi']
     spd_units = ['kmh', 'kph', 'mph']
 
