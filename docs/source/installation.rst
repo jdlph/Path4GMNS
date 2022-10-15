@@ -8,11 +8,11 @@ Path4GMNS has been published on `PyPI <https://pypi.org/project/path4gmns/0.8.7a
 
     $ pip install path4gmns
 
-If you need a specific version of Path4GMNS, say, 0.8.7a1,
+If you need a specific version of Path4GMNS, say, 0.8.7,
 
 .. code-block:: bash
 
-    $ pip install path4gmns==0.8.7a1
+    $ pip install path4gmns==0.8.7
 
 
 Dependency
@@ -51,7 +51,7 @@ As CMAKE_BUILD_TYPE will be IGNORED for IDE (Integrated Development Environment)
     # from the root directory of PATH4GMNS
     $ python setup.py sdist bdist_wheel
     $ cd dist
-    # or python -m pip install path4gmns-0.8.7a1.tar.gz
-    $ python -m pip instal pypath4gmns-0.8.7a1-py3-none-any.whl
+    # or python -m pip install path4gmns-0.8.7.tar.gz
+    $ python -m pip instal pypath4gmns-0.8.7-py3-none-any.whl
 
-Here, 0.8.7a1 is the version number. Replace it with the one specified in setup.py.
+Here, 0.8.7 is the version number. Replace it with the one specified in setup.py.

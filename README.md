@@ -1,6 +1,6 @@
 # Path4GMNS
 [![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)
- [![Downloads](https://pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.8.7a1-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen)
+ [![Downloads](https://pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.8.7-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen)
 
 Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding static shortest paths for simple analyses, its main functionality is to provide an efficient and flexible framework for column-based (path-based) modeling and applications in transportation (e.g., activity-based demand modeling). Path4GMNS supports, in short,
 
@@ -19,23 +19,23 @@ Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jd
 ![Architecture](/docs/source/imgs/architecture.png)
 
 ## Installation
-Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.8.7a1/), and can be installed using
+Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.8.7/), and can be installed using
 ```
 $ pip install path4gmns
 ```
-If you need a specific version of Path4GMNS, say, 0.8.7a1,
+If you need a specific version of Path4GMNS, say, 0.8.7,
 ```
-$ pip install path4gmns==0.8.7a1
+$ pip install path4gmns==0.8.7
 ```
 
-v0.8.7a1 comes with more robust parsing functions and fixes **crucial bugs** related to the column generation module and VDFPeriod, which could lead to wrong assignment results under certain conditions. Please **discard all old versions** and **update to or install the latest version**.
+v0.8.7 finalizes the changes introduced in v0.8.7a1 as a stable release. Please **discard all old versions** and **update to or install the latest version**, which could lead to wrong assignment results under certain conditions.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding [use cases](https://path4gmns.readthedocs.io/en/latest/).
 
 ## Quick Start
 
-v0.8.7a1 as a hot fix over v0.8.6 includes several important changes in user interface. We highly recommend that you go through [this tutorial](https://github.com/jdlph/Path4GMNS/tree/dev/tests/tutorial.ipynb) written in Jupyter notebook with step-by-step demonstration using the latest version, no matter you are one of the existing users or new to Path4GMNS.
+ We highly recommend that you go through [this tutorial](https://github.com/jdlph/Path4GMNS/tree/dev/tests/tutorial.ipynb) written in Jupyter notebook with step-by-step demonstration using the latest version, no matter you are one of the existing users or new to Path4GMNS.
 
 ## Implementation Notes
 
@@ -81,6 +81,8 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 26. Fix potential issue in setup_spnetwork() which requires zone id's are in ascending order (v0.8.7a1)
 27. Fix potential issue that bin_index might not start from zero along with potential zero division issue when all zones have the same number of nodes in _synthesize_bin_index() (v0.8.7a1)
 28. Enhance the tutorial with elaboration on the legacy way of loading demand and zone information and some caveats. (v0.8.7a1)
+29. Calculate and print out relative gap of UE as convergency measure (v0.8.7)
+30. Support the most common length and speed units. See [tutorial](https://github.com/jdlph/Path4GMNS/tree/dev/tests/tutorial.ipynb) for details (v0.8.7)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
 
@@ -94,7 +96,7 @@ You are encouraged to join our [Gmail group](https://groups.google.com/g/path4gm
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2022, October 2). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2022, October 15). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## References
 Lu, C. C., Mahmassani, H. S., Zhou, X. (2009). Equivalent gap function-based reformulation and solution algorithm for the dynamic user equilibrium problem. Transportation Research Part B: Methodological, 43, 345-364.
