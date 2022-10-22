@@ -35,8 +35,7 @@ traffic assignments including,
 Quick Start
 -----------
 
-v0.8.7a1 as a hot fix over v0.8.6 includes several important changes in user
-interface. We highly recommend that you go through
+We highly recommend that you go through
 `this tutorial <https://github.com/jdlph/Path4GMNS/tree/dev/tests/tutorial.ipynb>`_
 written in Jupyter notebook with step-by-step demonstration using the latest
 version, no matter you are one of the existing users or new to Path4GMNS.

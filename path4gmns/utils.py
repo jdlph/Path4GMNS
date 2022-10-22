@@ -174,6 +174,11 @@ def _download_url(url, filename, loc_dir):
 
 
 def download_sample_data_sets():
+    """ download sample data sets from the Github repo
+
+    the following data sets will be downloaded: ASU, Braess Paradox, Chicago Sketch,
+    Lima Network, Sioux Falls, and Two Corridors.
+    """
     url = 'https://raw.githubusercontent.com/jdlph/Path4GMNS/master/data/'
 
     data_sets = [
@@ -225,6 +230,7 @@ def download_sample_data_sets():
 
 
 def download_sample_setting_file():
+    """ download the sample settings.yml from the Github repo """
     url = 'https://raw.githubusercontent.com/jdlph/Path4GMNS/dev/tests/settings.yml'
     filename = 'settings.yml'
     loc_dir = './'

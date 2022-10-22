@@ -391,7 +391,7 @@ print('complete equity evaluation.\n')
 print(f'processing time of equity evaluation: {time()-st:.2f} s')
 ```
 
-### Synthesize Zones and OD Demand
+## Synthesize Zones and OD Demand
 
 Zone information is crucial in conducting traffic assignment, evaluating accessibility and equity. When no zone information is provided along node.csv, Path4GMNS can automatically synthesize a total number of {math}`d * d` grids (rectangles) as zones given the dimension {math}`d`.
 
