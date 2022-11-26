@@ -28,7 +28,7 @@ If you need a specific version of Path4GMNS, say, 0.8.7,
 $ pip install path4gmns==0.8.7
 ```
 
-v0.8.7 finalizes the changes introduced in v0.8.7a1 as a stable release. Please **discard all old versions** and **update to or install the latest version**, which could lead to wrong assignment results under certain conditions.
+v0.8.7 finalizes the changes introduced in v0.8.7a1 as a stable release. Please **update to or install the latest version** and **discard all old versions**, which could lead to wrong assignment results under certain conditions.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding [use cases](https://path4gmns.readthedocs.io/en/latest/).

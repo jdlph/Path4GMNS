@@ -172,7 +172,7 @@ demand_periods:
 
 Note that this functionality is **NOT** available with perform_network_assignment_DTALite(). You would have to manually update the capacity for each affected link in link.csv to replicate a special event if you plan to use the embedded DTALite to conduct traffic assignment (which is about to be introduced in the next section). The updated capacity for each link will be used by DTALite across all demand periods in settings.csv. In other words, capacity update for a specific demand period is not supported under the current implementation of DTALite.
 
-## Perform Traffic Assignment using DTALite
+## Conduct Traffic Assignment using DTALite
 DTALite has the following four assignment modes to choose.
 
       0: Link-based UE
@@ -201,6 +201,10 @@ pg.perform_network_assignment_DTALite(mode, column_gen_num, column_update_num)
 print('\npath finding results can be found in agent.csv')
 ```
 
+(target_to_paragraph)=
+
+[OpenMP Installation](target_to_paragraph)
+
 The OpenMP run-time library must be installed to utilize the built-in parallel computing feature in DTALite (and DTALite would not be able to run if the run-time support is absent). Its installation varies by operating systems.
 
 ***Windows Users***
@@ -219,7 +223,7 @@ You will need to install libomp using [Homebrew](https://brew.sh/).
 $ brew install libomp
 ```
 
-## Perform Multimodal Accessibility Evaluation
+## Evaluate Multimodal Accessibility
 
 The current implementation supports accessibility evaluation for any modes defined in settings.yml. Note that you can restrict the allowed uses (modes) on each link by adding a field of "allowed_uses" to link.csv following the example [here](https://github.com/zephyr-data-specs/GMNS/blob/master/Small_Network_Examples/Cambridge_v090/link.csv). Otherwise, links are open to all modes.
 
@@ -364,7 +368,7 @@ network.get_accessible_links(1, 5, time_dependent=True, demand_period_id=1)
 network.get_accessible_nodes(1, 15, 'w', time_dependent=True)
 network.get_accessible_links(1, 15, 'w', time_dependent=True, demand_period_id=1)
 ```
-## Evaluate Equity
+## Evaluate Multimodal Equity
 
 Transportation equity is accessibility with respect to different demographics. Path4GMNS provides the following simple info and statistics on equity given a time budget and a segmentation of zones (e.g., zones can be grouped into a set of bins according to income level and each zone will have a unique bin index). The current implementation takes bin index of each zone from node.csv under column "bin_index" (via node-to-zone mapping), which is error prone. As a zone might have more than one node, it may encounter inconsistent bin indices over a set of nodes corresponding to the same zone. In case of that, the first bin index encountered for each zone in loading node.csv is always used for evaluation. 0 is taken as default if column "bin_index" or the value of an entry is missing.
 

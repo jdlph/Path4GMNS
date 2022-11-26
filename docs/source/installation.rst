@@ -21,6 +21,10 @@ Dependency
 The Python modules are written in Python 3.x, which is the minimum requirement to explore the most of Path4GMNS.
 Some of its functions require further run-time support, which we will go through along with the use cases.
 
+Note that DTALite requires OpenMP as the run-time support, which would be checked during the first time import (as part
+of the compilation of source code to byte code). Make sure you install OpenMP before using Path4GMNS. See 
+:ref:`OpenMP Installation <target_to_paragraph>`  on how to install it.
+
 Build Path4GMNS from Source
 ---------------------------
 
