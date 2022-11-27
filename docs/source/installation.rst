@@ -23,7 +23,7 @@ Some of its functions require further run-time support, which we will go through
 
 Note that DTALite requires OpenMP as the run-time support, which would be checked during the first time import (as part
 of the compilation of source code to byte code). Make sure you install OpenMP before using Path4GMNS. See 
-:ref:`OpenMP Installation <target_to_paragraph>`  on how to install it.
+:ref:`OpenMP Installation <target_to_paragraph>`  for details.
 
 Build Path4GMNS from Source
 ---------------------------
