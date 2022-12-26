@@ -1,6 +1,8 @@
 import ctypes
 from copy import deepcopy
 from random import choice
+from collections import deque
+from math import ceil
 
 from .consts import MAX_LABEL_COST, SMALL_DIVISOR
 from .path import find_path_for_agents, find_shortest_path, \
@@ -54,6 +56,9 @@ class Node:
         self.coord_x = args[0]
         self.coord_y = args[1]
 
+    def get_incoming_link_num(self):
+        return len(self.incoming_links)
+
 
 class Link:
 
@@ -101,6 +106,13 @@ class Link:
         self.travel_time_by_period = [0] * demand_period_size
         self.flow_vol_by_period = [0] * demand_period_size
         self.vdfperiods = []
+        # for simulation
+        self.cum_arr = None
+        self.cum_dep = None
+        self.waiting_time = None
+        self.entr_queue = deque()
+        self.exit_queue = deque()
+        self.outflow_cap = None
 
     def get_link_id(self):
         return self.id
@@ -176,6 +188,9 @@ class Link:
                                                  reduction_ratio)
                 )
 
+    def update_waiting_time(self, minute, wt):
+        self.waiting_time[minute] += wt
+
 
 class Agent:
     """ individual agent derived from aggregated demand between an OD pair
@@ -200,6 +215,12 @@ class Agent:
         # Passenger Car Equivalent (PCE) of the agent
         self.PCE_factor = 1
         self.path_cost = 0
+        # for simulation
+        self.dep_time = 0
+        # corresponding to each link along the link path
+        self.link_dep_interval = None
+        self.link_arr_interval = None
+        self.curr_link_pos = 0
 
     def get_orig_node_id(self):
         return self.o_node_id
@@ -230,6 +251,39 @@ class Agent:
 
     def get_dp_id(self):
         return self.dp_id
+
+    def _initialize_simu(self, simu_interval):
+        try:
+            num = len(self.link_path)
+            self.link_arr_interval = [-1] * num
+            self.link_dep_interval = [-1] * num
+            self.link_arr_interval[0] = ceil(self.dep_time * 60 / simu_interval)
+        except TypeError:
+            pass
+
+    def update_dep_time(self, tt):
+        self.link_dep_interval[self.curr_link_pos] = self.link_arr_interval[self.curr_link_pos] + tt
+
+    def get_curr_dep_interval(self):
+        return self.link_dep_interval[self.curr_link_pos]
+
+    def reached_last_link(self):
+        return self.curr_link_pos == 0
+
+    def get_next_link_no(self):
+        return self.curr_link_pos - 1
+
+    def set_dep_time(self, i):
+        self.link_dep_interval[self.curr_link_pos] = i
+
+    def set_arr_time(self, i):
+        self.link_arr_interval[self.curr_link_pos] = i
+
+    def get_arr_time(self):
+        return self.link_arr_interval[self.curr_link_pos]
+
+    def increment_link_pos(self):
+        self.curr_link_pos -= 1        
 
 
 class Zone:
@@ -338,6 +392,8 @@ class Network:
         self.activity_node_num = 0
         self.last_thru_node = 0
         self.centroids_added = False
+        # key: simulation interval, value: agent id
+        self.td_agents = {}
 
     def update(self):
         self.node_size = len(self.nodes)
@@ -683,6 +739,17 @@ class Network:
                 continue
 
             yield v.get_centroid()
+
+    def initialize_simulation(self):
+        for a in self.agents:
+            a._initialize_simu()
+
+    def have_dep_agents(self, i):
+        return i in self.td_agents.keys()
+
+    def get_td_agents(self, i):
+        return self.td_agents[i]
+
 
 class Column:
     """ column is path """
@@ -1258,6 +1325,12 @@ class Assignment:
         self.map_atstr_id = {}
         self.map_dpstr_id = {}
         self.map_name_atstr = {}
+        # number of seconds per simulation
+        self.simu_interval = 6
+        # duration of simulation in seconds
+        self.simu_horizon = 540
+        # simulation start time in minutes
+        self.simu_start_time = 0
 
     def update_agent_types(self, at):
         if at.get_type_str() not in self.map_atstr_id:
@@ -1527,6 +1600,22 @@ class Assignment:
         return [
             self.accessnetwork.get_pred_link_id(x) for x in nodes
         ]
+
+    def get_simuation_invervals(self):
+        for i in range(ceil(self.simu_horizon * 60 / self.simu_interval)):
+            yield i
+
+    def get_total_simulation_intervals(self):
+        return ceil(self.simu_horizon * 60 / self.simu_interval)
+
+    def get_simu_interval_num_per_minute(self):
+        return 60 // self.simu_horizon
+
+    def have_dep_agents(self, i):
+        return self.network.have_dep_agents(i)
+
+    def get_td_agents(self, i):
+        return self.network.get_td_agents(i)
 
 
 class UI:
