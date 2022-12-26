@@ -1,19 +1,14 @@
-from .colgen import _update_link_travel_time_and_cost
-
-
 __all__ = ['perform_simple_simulation']
 
 
 def perform_simple_simulation(ui):
     A = ui._base_assignment
+    A.initialize_simulation()
+
     links = A.get_links()
     nodes = A.get_nodes()
 
-    A.initialize_simulation()
-    _update_link_travel_time_and_cost(links)
-
-    cum_arr = 0
-    cum_dep = 0
+    cum_arr = cum_dep = 0
 
     num = A.get_simu_interval_num_per_minute()
     for i in A.get_simulation_intervals():
@@ -38,17 +33,18 @@ def perform_simple_simulation(ui):
 
                 # link path is in reverse order
                 first_link_no = path[-1]
-                links[first_link_no].cum_arr[i] += 1
-                links[first_link_no].entr_queue.append(a_no)
+                link = links[first_link_no]
+                link.cum_arr[i] += 1
+                link.entr_queue.append(a_no)
                 cum_arr +=1
 
         for link in links:
             while link.entr_queue:
                 a_no = link.entr_queue.pop_left()
-                link.exit_queue_append(a_no)
-                agent = A.network._get_agent(a_no)
-                t = link.get_period_travel_time(0)
-                agent.update_dep_time(t)
+                link.exit_queue.append(a_no)
+                tt = link.get_period_travel_time(0)
+                agent = A.get_agent(a_no)
+                agent.update_dep_time(tt)
 
         for node in nodes:
             m = node.get_incoming_link_num()
@@ -75,10 +71,10 @@ def perform_simple_simulation(ui):
                         agent.set_dep_time(i)
                         # set up arrival time for the next link, i.e., link_
                         agent.set_arr_time(i, 1)
-                        
+
                         actual_tt = i - agent.get_arr_time()
                         waiting_t = actual_tt - link.get_period_travel_time(0)
-                        minute = agent.get_arr_time() // A.simu_interval
+                        minute = agent.get_arr_time() // A.get_simu_resolution()
                         link.update_waiting_time(minute, waiting_t)
                         link.cum_dep[i] += 1
                         link_.cum_arr[i] += 1

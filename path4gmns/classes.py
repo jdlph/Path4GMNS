@@ -252,17 +252,21 @@ class Agent:
     def get_dp_id(self):
         return self.dp_id
 
-    def _initialize_simu(self, simu_interval):
+    def _initialize_simu(self, start_time, duration, interval):
         try:
             num = len(self.link_path)
             self.link_arr_interval = [-1] * num
             self.link_dep_interval = [-1] * num
-            self.link_arr_interval[0] = ceil(self.dep_time * 60 / simu_interval)
+            # randomly set up departure time
+            self.dep_time = choice(duration) + start_time
+            self.link_arr_interval[-1] = (self.dep_time - start_time) * 60 // interval
         except TypeError:
             pass
 
     def update_dep_time(self, tt):
-        self.link_dep_interval[self.curr_link_pos] = self.link_arr_interval[self.curr_link_pos] + tt
+        self.link_dep_interval[self.curr_link_pos] = (
+            self.link_arr_interval[self.curr_link_pos] + tt
+        )
 
     def get_curr_dep_interval(self):
         return self.link_dep_interval[self.curr_link_pos]
@@ -288,6 +292,9 @@ class Agent:
 
     def get_dep_time(self):
         return self.dep_time
+
+    def get_origin_dep_interval(self):
+        return self.link_arr_interval[-1]
 
 
 class Zone:
@@ -743,24 +750,6 @@ class Network:
                 continue
 
             yield v.get_centroid()
-
-    def initialize_simulation(self, start_time, duration, interval):
-        for a in self.agents:
-            a._initialize_simu()
-            # set up link volume
-            for link in a.link_path:
-                if link.length == 0:
-                    continue
-
-                link.reset_period_flow_vol(0)
-                link.increase_period_flow_vol(0, a.PCE_factor)
-
-            # randomly set up departure time
-            a.dep_time = choice(duration) + start_time
-            i = (a.dep_time - start_time) * 60 // interval
-            if i not in self.td_agents.keys():
-                self.td_agents[i] = []
-            self.td_agents[i].append(a.get_seq_no())
 
     def have_dep_agents(self, i):
         return i in self.td_agents.keys()
@@ -1639,21 +1628,46 @@ class Assignment:
         return self.simu_horizon
 
     def initialize_simulation(self):
-        self.network.initialize_simulation(
-            self.simu_start_time, self.simu_horizon, self.simu_interval
-        )
-
-        n0 = self.simu_interval
-        n1 = self.get_total_simulation_intervals()
-        n2 = self.get_simulation_duration()
+        agents = self.network.agents
         links = self.network.links
+
+        for a in agents:
+            a._initialize_simu(
+                self.simu_start_time, self.simu_horizon, self.simu_interval
+            )
+            i = a.get_origin_dep_interval()
+            if i not in self.td_agents.keys():
+                self.td_agents[i] = []
+            self.td_agents[i].append(a.get_seq_no())
+            # set up link volume
+            for x in a.link_path:
+                link = links[x]
+                if link.length == 0:
+                    continue
+
+                link.reset_period_flow_vol(0)
+                link.increase_period_flow_vol(0, a.PCE_factor)
+
+        # replicate _update_link_travel_time_and_cost()
         for link in links:
+            if link.length == 0:
+                continue
+
+            link.calculate_td_vdf()
             # link_capacity is for one hour, i.e., 60 minutes
-            cap = link.link_capacity // (60 * n0)
+            cap = link.link_capacity // (60 * self.simu_interval)
+            n1 = self.get_total_simulation_intervals()
+            n2 = self.get_simulation_duration()
             link.outflow_cap = [cap] * n1
             link.cum_arr = [0] * n1
             link.cum_dep = [0] * n1
             link.waiting_time = [0] * n2
+
+    def get_simu_resolution(self):
+        return self.simu_interval
+
+    def get_agent(self, agent_no):
+        return self.network._get_agent(agent_no)
 
 
 class UI:
