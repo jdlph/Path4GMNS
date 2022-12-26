@@ -109,10 +109,10 @@ class Link:
         # for simulation
         self.cum_arr = None
         self.cum_dep = None
+        self.outflow_cap = None
         self.waiting_time = None
         self.entr_queue = deque()
         self.exit_queue = deque()
-        self.outflow_cap = None
 
     def get_link_id(self):
         return self.id
@@ -271,19 +271,23 @@ class Agent:
         return self.curr_link_pos == 0
 
     def get_next_link_no(self):
-        return self.curr_link_pos - 1
+        pos = self.curr_link_pos - 1
+        return self.link_path[pos]
 
     def set_dep_time(self, i):
         self.link_dep_interval[self.curr_link_pos] = i
 
-    def set_arr_time(self, i):
-        self.link_arr_interval[self.curr_link_pos] = i
+    def set_arr_time(self, i, increment=0):
+        self.link_arr_interval[self.curr_link_pos-increment] = i
 
     def get_arr_time(self):
         return self.link_arr_interval[self.curr_link_pos]
 
     def increment_link_pos(self):
-        self.curr_link_pos -= 1        
+        self.curr_link_pos -= 1
+
+    def get_dep_time(self):
+        return self.dep_time
 
 
 class Zone:
@@ -740,9 +744,23 @@ class Network:
 
             yield v.get_centroid()
 
-    def initialize_simulation(self):
+    def initialize_simulation(self, start_time, duration, interval):
         for a in self.agents:
             a._initialize_simu()
+            # set up link volume
+            for link in a.link_path:
+                if link.length == 0:
+                    continue
+
+                link.reset_period_flow_vol(0)
+                link.increase_period_flow_vol(0, a.PCE_factor)
+
+            # randomly set up departure time
+            a.dep_time = choice(duration) + start_time
+            i = (a.dep_time - start_time) * 60 // interval
+            if i not in self.td_agents.keys():
+                self.td_agents[i] = []
+            self.td_agents[i].append(a.get_seq_no())
 
     def have_dep_agents(self, i):
         return i in self.td_agents.keys()
@@ -1327,8 +1345,8 @@ class Assignment:
         self.map_name_atstr = {}
         # number of seconds per simulation
         self.simu_interval = 6
-        # duration of simulation in seconds
-        self.simu_horizon = 540
+        # duration of simulation in minutes
+        self.simu_horizon = 90
         # simulation start time in minutes
         self.simu_start_time = 0
 
@@ -1616,6 +1634,26 @@ class Assignment:
 
     def get_td_agents(self, i):
         return self.network.get_td_agents(i)
+
+    def get_simulation_duration(self):
+        return self.simu_horizon
+
+    def initialize_simulation(self):
+        self.network.initialize_simulation(
+            self.simu_start_time, self.simu_horizon, self.simu_interval
+        )
+
+        n0 = self.simu_interval
+        n1 = self.get_total_simulation_intervals()
+        n2 = self.get_simulation_duration()
+        links = self.network.links
+        for link in links:
+            # link_capacity is for one hour, i.e., 60 minutes
+            cap = link.link_capacity // (60 * n0)
+            link.outflow_cap = [cap] * n1
+            link.cum_arr = [0] * n1
+            link.cum_dep = [0] * n1
+            link.waiting_time = [0] * n2
 
 
 class UI:
