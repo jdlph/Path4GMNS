@@ -217,6 +217,15 @@ def test_loading_synthesized_zones_demand():
     pg.output_link_performance(network)
 
 
+def test_simulation():
+    network = pg.read_network(load_demand=True)
+
+    st = time()
+    network.find_path_for_agents()
+    pg.perform_simple_simulation(network)
+    print('complete simple simulation.\n')
+
+
 def demo_mode(mode):
     print(f'the selected mode is {mode}\n')
 
@@ -248,10 +257,12 @@ def demo_mode(mode):
         test_equity()
     elif mode == 8:
         test_zone_synthesis()
-    else:
+    elif mode == 9:
         test_loading_synthesized_zones_demand()
+    else:
+        test_simulation()
 
 
 if __name__=="__main__":
 
-    demo_mode(1)
+    demo_mode(10)

@@ -10,12 +10,13 @@ def perform_simple_simulation(ui):
 
     cum_arr = cum_dep = 0
 
-    num = A.get_simu_interval_num_per_minute()
-    for i in A.get_simulation_intervals():
+    # number of simulation intervals in one minutes (60s)
+    num = 60 // A.get_simu_resolution()
+    for i in range(A.get_total_simu_intervals()):
         if i % num == 0:
             print(
-                f'simu time = {i/num} min'
-                f'CA = {cum_arr}'
+                f'simu time = {i/num} min, '
+                f'CA = {cum_arr}, '
                 f'CD = {cum_dep}'
             )
 
@@ -26,21 +27,21 @@ def perform_simple_simulation(ui):
 
         if A.have_dep_agents(i):
             for a_no in A.get_td_agents(i):
-                a = A.network._get_agent(a_no)
+                a = A.get_agent(a_no)
                 path = a.link_path
                 if path is None:
                     continue
 
-                # link path is in reverse order
-                first_link_no = path[-1]
-                link = links[first_link_no]
+                # retrieve the first link given link path is in reverse order
+                link_no = path[-1]
+                link = links[link_no]
                 link.cum_arr[i] += 1
                 link.entr_queue.append(a_no)
                 cum_arr +=1
 
         for link in links:
             while link.entr_queue:
-                a_no = link.entr_queue.pop_left()
+                a_no = link.entr_queue.popleft()
                 link.exit_queue.append(a_no)
                 tt = link.get_period_travel_time(0)
                 agent = A.get_agent(a_no)
@@ -49,27 +50,28 @@ def perform_simple_simulation(ui):
         for node in nodes:
             m = node.get_incoming_link_num()
             for j in range(m):
+                # randomly select the first link
                 pos = (i + j) % m
                 link = node.incoming_links[pos]
 
                 while link.outflow_cap[i] and link.exit_queue:
-                    a_no = link.exit_queue.pop_left()
-                    agent = A.network._get_agent(a_no)
+                    a_no = link.exit_queue[0]
+                    agent = A.get_agent(a_no)
 
                     if agent.get_curr_dep_interval() > i:
                         break
 
                     if agent.reached_last_link():
-                        link.exit_queue.pop_left()
+                        link.exit_queue.popleft()
                         link.cum_dep[i] +=1
                         cum_dep += 1
                     else:
-                        link.exit_queue.pop_left()
+                        link.exit_queue.popleft()
                         link_no = agent.get_next_link_no()
-                        link_ = links[link_no]
-                        link_.entr_queue.append(a_no)
+                        next_link = links[link_no]
+                        next_link.entr_queue.append(a_no)
                         agent.set_dep_time(i)
-                        # set up arrival time for the next link, i.e., link_
+                        # set up arrival time for the next link, i.e., next_link
                         agent.set_arr_time(i, 1)
 
                         actual_tt = i - agent.get_arr_time()
@@ -77,7 +79,7 @@ def perform_simple_simulation(ui):
                         minute = agent.get_arr_time() // A.get_simu_resolution()
                         link.update_waiting_time(minute, waiting_t)
                         link.cum_dep[i] += 1
-                        link_.cum_arr[i] += 1
+                        next_link.cum_arr[i] += 1
 
                     agent.increment_link_pos()
                     link.outflow_cap[i] -= 1

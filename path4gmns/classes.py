@@ -1,6 +1,6 @@
 import ctypes
 from copy import deepcopy
-from random import choice
+from random import choice, randint
 from collections import deque
 from math import ceil
 
@@ -258,7 +258,7 @@ class Agent:
             self.link_arr_interval = [-1] * num
             self.link_dep_interval = [-1] * num
             # randomly set up departure time
-            self.dep_time = choice(duration) + start_time
+            self.dep_time = randint(0, duration) + start_time
             self.link_arr_interval[-1] = (self.dep_time - start_time) * 60 // interval
         except TypeError:
             pass
@@ -1333,9 +1333,9 @@ class Assignment:
         self.map_dpstr_id = {}
         self.map_name_atstr = {}
         # number of seconds per simulation
-        self.simu_interval = 6
+        self.simu_rez = 6
         # duration of simulation in minutes
-        self.simu_horizon = 90
+        self.simu_duration = 90
         # simulation start time in minutes
         self.simu_start_time = 0
 
@@ -1608,15 +1608,8 @@ class Assignment:
             self.accessnetwork.get_pred_link_id(x) for x in nodes
         ]
 
-    def get_simuation_invervals(self):
-        for i in range(ceil(self.simu_horizon * 60 / self.simu_interval)):
-            yield i
-
-    def get_total_simulation_intervals(self):
-        return ceil(self.simu_horizon * 60 / self.simu_interval)
-
-    def get_simu_interval_num_per_minute(self):
-        return 60 // self.simu_horizon
+    def get_total_simu_intervals(self):
+        return ceil(self.simu_duration * 60 / self.simu_rez)
 
     def have_dep_agents(self, i):
         return self.network.have_dep_agents(i)
@@ -1624,8 +1617,8 @@ class Assignment:
     def get_td_agents(self, i):
         return self.network.get_td_agents(i)
 
-    def get_simulation_duration(self):
-        return self.simu_horizon
+    def get_simu_duration(self):
+        return self.simu_duration
 
     def initialize_simulation(self):
         agents = self.network.agents
@@ -1633,12 +1626,12 @@ class Assignment:
 
         for a in agents:
             a._initialize_simu(
-                self.simu_start_time, self.simu_horizon, self.simu_interval
+                self.simu_start_time, self.simu_duration, self.simu_rez
             )
             i = a.get_origin_dep_interval()
-            if i not in self.td_agents.keys():
-                self.td_agents[i] = []
-            self.td_agents[i].append(a.get_seq_no())
+            if i not in self.network.td_agents.keys():
+                self.network.td_agents[i] = []
+            self.network.td_agents[i].append(a.get_seq_no())
             # set up link volume
             for x in a.link_path:
                 link = links[x]
@@ -1655,16 +1648,16 @@ class Assignment:
 
             link.calculate_td_vdf()
             # link_capacity is for one hour, i.e., 60 minutes
-            cap = link.link_capacity // (60 * self.simu_interval)
-            n1 = self.get_total_simulation_intervals()
-            n2 = self.get_simulation_duration()
+            cap = link.link_capacity // (60 * self.simu_rez)
+            n1 = self.get_total_simu_intervals()
+            n2 = self.get_simu_duration()
             link.outflow_cap = [cap] * n1
             link.cum_arr = [0] * n1
             link.cum_dep = [0] * n1
             link.waiting_time = [0] * n2
 
     def get_simu_resolution(self):
-        return self.simu_interval
+        return self.simu_rez
 
     def get_agent(self, agent_no):
         return self.network._get_agent(agent_no)
