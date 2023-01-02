@@ -225,6 +225,10 @@ def test_simulation():
     pg.perform_simple_simulation(network)
     print('complete simple simulation.\n')
 
+    print('writing agent trajectories')
+    pg.output_agent_trajectory(network)
+    print('\ntrajectories can be found in trajectory.csv')
+
 
 def demo_mode(mode):
     print(f'the selected mode is {mode}\n')

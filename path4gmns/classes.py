@@ -260,8 +260,8 @@ class Agent:
             # randomly set up departure time
             self.dep_time = randint(0, duration) + start_time
             self.link_arr_interval[-1] = (self.dep_time - start_time) * 60 // interval
-        except TypeError:
-            pass
+        except ZeroDivisionError:
+            raise Exception('Simulation Resolution is Zero! Check settings.yml')
 
     def update_dep_time(self, tt):
         self.link_dep_interval[self.curr_link_pos] = (
@@ -1625,6 +1625,9 @@ class Assignment:
         links = self.network.links
 
         for a in agents:
+            if a.get_node_path() is None:
+                continue
+            
             a._initialize_simu(
                 self.simu_start_time, self.simu_duration, self.simu_rez
             )

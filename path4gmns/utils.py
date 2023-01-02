@@ -2,6 +2,7 @@ import os
 import csv
 import threading
 import warnings
+from datetime import timedelta
 
 from .classes import Node, Link, Zone, Network, Column, ColumnVec, VDFPeriod, \
                      AgentType, DemandPeriod, Demand, SpecialEvent, Assignment, UI
@@ -21,7 +22,8 @@ __all__ = [
     'download_sample_setting_file',
     'output_agent_paths',
     'output_zones',
-    'output_synthesized_demand'
+    'output_synthesized_demand',
+    'output_agent_trajectory'
 ]
 
 
@@ -152,6 +154,12 @@ def _convert_boundaries(bs):
     R = _convert_str_to_float(R)
 
     return U, D, L, R
+
+
+def _get_time_stamp(minute):
+    """ covert minute into HH:MM:SS as string """
+    s = minute * 60
+    return str(timedelta(seconds=s))
 
 
 def _download_url(url, filename, loc_dir):
@@ -1388,3 +1396,84 @@ def output_synthesized_demand(ui, output_dir='.'):
                 f'\ncheck demand.csv in {os.path.join(os.getcwd(), output_dir)}'
                 ' for synthesized demand'
             )
+
+
+def output_agent_trajectory(ui, output_dir='.'):
+    with open(output_dir+'/trajectory.csv', 'w',  newline='') as f:
+        writer = csv.writer(f)
+
+        line = ['agent_id',
+                'o_zone_id',
+                'd_zone_id',
+                'origin_node_id',
+                'destination_node_id',
+                'departure_time_in_min',
+                'arrival_time_in_min',
+                'complete_trip',
+                'travel_time_in_min',
+                'demand_type',
+                'PCE',
+                'information_type',
+                'value_of_time',
+                'distance',
+                'number_of_nodes',
+                'node_sequence',
+                'time_sequence',
+                'time_sequence_hhmmss']
+
+        writer.writerow(line)
+
+        base = ui._base_assignment
+        agents = base.get_agents()
+        r = base.get_simu_resolution()
+        st = base.simu_start_time
+
+        for a in agents:
+            if a.get_node_path() is None:
+                continue
+
+            node_path_str = base.get_agent_node_path(a.get_id(), True)
+            time_seq1 = []
+            time_seq2 = []
+
+            at = a.link_arr_interval[-1] * r / 60 + st
+            dt = a.link_dep_interval[-1] * r / 60 + st
+            tt = at - a.get_dep_time()
+            time_seq1 = [at, dt]
+            time_seq2 = [_get_time_stamp(at), _get_time_stamp(dt)]
+
+            complete_trip = 'c'
+            if at < 0:
+                complete_trip = 'n'
+
+            num = len(a.link_arr_interval) - 2
+            # if num < 0, the following loop will be skipped
+            for i in range(num, -1, -1):
+                dt_ = a.link_dep_interval[i] * r / 60 + st
+                time_seq1.append(dt_)
+                time_seq2.append(_get_time_stamp(dt_))
+
+            time_seq1_str = ';'.join(str(t) for t in time_seq1)
+            time_seq2_str = ';'.join(time_seq2)
+            at_ = a.link_arr_interval[0] * r / 60 + st
+
+            line = [a.get_id(),
+                    a.get_orig_zone_id(),
+                    a.get_dest_zone_id(),
+                    a.get_orig_node_id(),
+                    a.get_dest_node_id(),
+                    a.get_dep_time(),
+                    at_,
+                    complete_trip,
+                    tt,
+                    '',
+                    a.PCE_factor,
+                    '',
+                    '',
+                    '',
+                    len(a.get_node_path()),
+                    node_path_str,
+                    time_seq1_str,
+                    time_seq2_str]
+
+            writer.writerow(line)

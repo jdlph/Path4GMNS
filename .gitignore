@@ -12,6 +12,7 @@ engine_cpp/build/
 */equity*.csv
 */zone.csv
 */syn_demand.csv
+*/trajectory.csv
 accessibility*.csv
 *accessibility.csv
 **log*

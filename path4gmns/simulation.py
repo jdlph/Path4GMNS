@@ -10,15 +10,11 @@ def perform_simple_simulation(ui):
 
     cum_arr = cum_dep = 0
 
-    # number of simulation intervals in one minutes (60s)
+    # number of simulation intervals in one minute (60s)
     num = 60 // A.get_simu_resolution()
     for i in range(A.get_total_simu_intervals()):
         if i % num == 0:
-            print(
-                f'simu time = {i/num} min, '
-                f'CA = {cum_arr}, '
-                f'CD = {cum_dep}'
-            )
+            print(f'simu time = {i/num} min, CA = {cum_arr}, CD = {cum_dep}')
 
         if i > 0:
             for link in links:
@@ -28,12 +24,11 @@ def perform_simple_simulation(ui):
         if A.have_dep_agents(i):
             for a_no in A.get_td_agents(i):
                 a = A.get_agent(a_no)
-                path = a.link_path
-                if path is None:
+                if a.link_path is None:
                     continue
 
                 # retrieve the first link given link path is in reverse order
-                link_no = path[-1]
+                link_no = a.link_path[-1]
                 link = links[link_no]
                 link.cum_arr[i] += 1
                 link.entr_queue.append(a_no)
@@ -42,9 +37,9 @@ def perform_simple_simulation(ui):
         for link in links:
             while link.entr_queue:
                 a_no = link.entr_queue.popleft()
+                agent = A.get_agent(a_no)
                 link.exit_queue.append(a_no)
                 tt = link.get_period_travel_time(0)
-                agent = A.get_agent(a_no)
                 agent.update_dep_time(tt)
 
         for node in nodes:
@@ -62,11 +57,9 @@ def perform_simple_simulation(ui):
                         break
 
                     if agent.reached_last_link():
-                        link.exit_queue.popleft()
                         link.cum_dep[i] +=1
                         cum_dep += 1
                     else:
-                        link.exit_queue.popleft()
                         link_no = agent.get_next_link_no()
                         next_link = links[link_no]
                         next_link.entr_queue.append(a_no)
@@ -82,4 +75,6 @@ def perform_simple_simulation(ui):
                         next_link.cum_arr[i] += 1
 
                     agent.increment_link_pos()
+                    # remove agent from exit queue
+                    link.exit_queue.popleft()
                     link.outflow_cap[i] -= 1
