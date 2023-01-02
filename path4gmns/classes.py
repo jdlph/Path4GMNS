@@ -272,9 +272,6 @@ class Agent:
             self.link_arr_interval[self.curr_link_pos] + tt
         )
 
-    def get_curr_arr_interval(self):
-        return self.link_arr_interval[self.curr_link_pos]
-
     def get_curr_dep_interval(self):
         return self.link_dep_interval[self.curr_link_pos]
 
@@ -1635,7 +1632,7 @@ class Assignment:
         for a in agents:
             if a.get_node_path() is None:
                 continue
-            
+
             a._initialize_simu(
                 self.simu_start_time, self.simu_duration, self.simu_rez
             )
