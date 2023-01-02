@@ -1438,24 +1438,42 @@ def output_agent_trajectory(ui, output_dir='.'):
 
             at = a.link_arr_interval[-1] * r / 60 + st
             dt = a.link_dep_interval[-1] * r / 60 + st
-            tt = at - a.get_dep_time()
-            time_seq1 = [at, dt]
-            time_seq2 = [_get_time_stamp(at), _get_time_stamp(dt)]
 
-            complete_trip = 'c'
-            if at < 0:
-                complete_trip = 'n'
-
+            if dt < 0:
+                time_seq1 = [at, 'N/A']
+                time_seq2 = [_get_time_stamp(at), 'N/A']
+            else:
+                time_seq1 = [at, dt]
+                time_seq2 = [_get_time_stamp(at), _get_time_stamp(dt)]
+            
             num = len(a.link_arr_interval) - 2
             # if num < 0, the following loop will be skipped
             for i in range(num, -1, -1):
-                dt_ = a.link_dep_interval[i] * r / 60 + st
+                k = a.link_dep_interval[i]
+                if k < 0:
+                    break
+
+                dt_ = k * r / 60 + st
                 time_seq1.append(dt_)
                 time_seq2.append(_get_time_stamp(dt_))
 
             time_seq1_str = ';'.join(str(t) for t in time_seq1)
             time_seq2_str = ';'.join(time_seq2)
-            at_ = a.link_arr_interval[0] * r / 60 + st
+
+            # arrival time interval to the last node 
+            # or departure time interval from the last link
+            t = a.link_dep_interval[0]
+            at_ = st
+            complete_trip = 'c'
+            if t < 0:
+                complete_trip = 'n'
+                # if trip is incomplete, use the arrival time to the last node of the trip 
+                at_ += a.get_curr_dep_interval() * r / 60
+            else:
+                at_ += t * r / 60
+
+            # the original implementation using arrival time does not make sense
+            tt = a.get_curr_dep_interval() * r / 60 - a.get_dep_time() + st
 
             line = [a.get_id(),
                     a.get_orig_zone_id(),

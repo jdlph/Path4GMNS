@@ -39,7 +39,7 @@ def perform_simple_simulation(ui):
                 a_no = link.entr_queue.popleft()
                 agent = A.get_agent(a_no)
                 link.exit_queue.append(a_no)
-                tt = link.get_period_travel_time(0)
+                tt = int(link.get_period_travel_time(0) * num) + 1
                 agent.update_dep_time(tt)
 
         for node in nodes:

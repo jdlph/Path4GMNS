@@ -189,7 +189,10 @@ class Link:
                 )
 
     def update_waiting_time(self, minute, wt):
-        self.waiting_time[minute] += wt
+        try:
+            self.waiting_time[minute] += wt
+        except IndexError:
+            pass
 
 
 class Agent:
@@ -255,10 +258,11 @@ class Agent:
     def _initialize_simu(self, start_time, duration, interval):
         try:
             num = len(self.link_path)
+            self.curr_link_pos = num - 1
             self.link_arr_interval = [-1] * num
             self.link_dep_interval = [-1] * num
             # randomly set up departure time
-            self.dep_time = randint(0, duration) + start_time
+            self.dep_time = randint(0, duration - 1) + start_time
             self.link_arr_interval[-1] = (self.dep_time - start_time) * 60 // interval
         except ZeroDivisionError:
             raise Exception('Simulation Resolution is Zero! Check settings.yml')
@@ -267,6 +271,9 @@ class Agent:
         self.link_dep_interval[self.curr_link_pos] = (
             self.link_arr_interval[self.curr_link_pos] + tt
         )
+
+    def get_curr_arr_interval(self):
+        return self.link_arr_interval[self.curr_link_pos]
 
     def get_curr_dep_interval(self):
         return self.link_dep_interval[self.curr_link_pos]
@@ -288,7 +295,8 @@ class Agent:
         return self.link_arr_interval[self.curr_link_pos]
 
     def increment_link_pos(self):
-        self.curr_link_pos -= 1
+        if self.curr_link_pos > 0:
+            self.curr_link_pos -= 1
 
     def get_dep_time(self):
         return self.dep_time
