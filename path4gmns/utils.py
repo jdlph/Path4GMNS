@@ -862,6 +862,16 @@ def read_settings(input_dir, assignment):
                 demand = Demand(i, demand_period, demand_type, demand_file)
                 assignment.update_demands(demand)
 
+            # simulation setup
+            simulation = settings['simulation']
+            dp_str = simulation['period']
+            res = simulation['resolution']
+            assert (int(res)>1)
+            dp = assignment.get_demand_period(dp_str)
+            dur = dp.get_duration()
+            assignment.set_simu_duration(dur)
+            assignment.set_simu_resolution(int(res))
+
     except ImportError:
         # just in case user does not have pyyaml installed
         warnings.warn('Please install pyyaml next time!')
@@ -1457,7 +1467,7 @@ def output_agent_trajectory(ui, output_dir='.'):
 
             # arrival time to the last node or departure time from the last link
             at_ = time_seq1[-1]
-            # the original implementation using arrival time to the last link 
+            # the original implementation using arrival time to the last link
             # to calculate trip time does not make sense
             tt = at_ - a.get_dep_time() + st
 

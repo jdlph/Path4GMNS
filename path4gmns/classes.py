@@ -1,8 +1,10 @@
 import ctypes
 from collections import deque
 from copy import deepcopy
+from datetime import datetime
 from math import ceil
 from random import choice, randint, uniform
+import warnings
 
 from .consts import MAX_LABEL_COST, SMALL_DIVISOR
 from .path import find_path_for_agents, find_shortest_path, \
@@ -984,6 +986,20 @@ class DemandPeriod:
         except KeyError:
             return 1
 
+    def get_duration(self):
+        st, et = self.time_period.split('_')
+        try:
+            st_ = datetime.strptime(st, '%H%M').minute
+            et_ = datetime.strptime(et, '%H%M').minute
+            if et_ <= st_:
+                raise ValueError
+
+            return et_ - st_
+        except ValueError as ve:
+            print('Invalid time_periods: ', ve)
+            return 60
+
+
 class Demand:
 
     def __init__(self, id=0, period='AM', agent_type='a', file='demand.csv'):
@@ -1686,6 +1702,12 @@ class Assignment:
 
     def get_agent(self, agent_no):
         return self.network._get_agent(agent_no)
+
+    def set_simu_resolution(self, res):
+        self.simu_rez = res
+
+    def set_simu_duration(self, dur):
+        self.simu_duration = dur
 
 
 class UI:

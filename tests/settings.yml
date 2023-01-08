@@ -40,3 +40,8 @@ demand_files:
     format_type: column
     period: AM
     agent_type: a
+
+simulation:
+  period: AM
+  # number of seconds per simulation interval
+  resolution: 6
