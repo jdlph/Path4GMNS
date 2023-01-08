@@ -1,8 +1,8 @@
 import ctypes
-from copy import deepcopy
-from random import choice, randint
 from collections import deque
+from copy import deepcopy
 from math import ceil
+from random import choice, randint, uniform
 
 from .consts import MAX_LABEL_COST, SMALL_DIVISOR
 from .path import find_path_for_agents, find_shortest_path, \
@@ -255,14 +255,17 @@ class Agent:
     def get_dp_id(self):
         return self.dp_id
 
-    def _initialize_simu(self, start_time, duration, interval):
+    def _initialize_simu(self, start_time, duration, interval, loading_profile):
         try:
             num = len(self.link_path)
             self.curr_link_pos = num - 1
             self.link_arr_interval = [-1] * num
             self.link_dep_interval = [-1] * num
-            # randomly set up departure time
-            self.dep_time = randint(0, duration - 1) + start_time
+            if loading_profile.startswith('random'):
+                # randomly set up departure time
+                self.dep_time = randint(0, duration - 1) + start_time
+            elif loading_profile.startswith('constant'):
+                self.dep_time = start_time
             self.link_arr_interval[-1] = (self.dep_time - start_time) * 60 // interval
         except ZeroDivisionError:
             raise Exception('Simulation Resolution is Zero! Check settings.yml')
@@ -1625,7 +1628,10 @@ class Assignment:
     def get_simu_duration(self):
         return self.simu_duration
 
-    def initialize_simulation(self):
+    def get_simu_start_time(self):
+        return self.simu_start_time
+
+    def initialize_simulation(self, loading_profile):
         agents = self.network.agents
         links = self.network.links
 
@@ -1634,7 +1640,8 @@ class Assignment:
                 continue
 
             a._initialize_simu(
-                self.simu_start_time, self.simu_duration, self.simu_rez
+                self.simu_start_time, self.simu_duration,
+                self.simu_rez, loading_profile
             )
             i = a.get_origin_dep_interval()
             if i not in self.network.td_agents.keys():
@@ -1656,7 +1663,17 @@ class Assignment:
 
             link.calculate_td_vdf()
             # link_capacity is for one hour, i.e., 60 minutes
-            cap = link.link_capacity // (60 * self.simu_rez)
+            c1 = link.link_capacity / (60 * self.simu_rez)
+            c2 = link.link_capacity // (60 * self.simu_rez)
+            residual = c1 - c2
+
+            r = uniform(0, 1)
+            if r >= residual:
+                residual = 1
+            else:
+                residual = 0
+
+            cap = c2 + residual
             n1 = self.get_total_simu_intervals()
             n2 = self.get_simu_duration()
             link.outflow_cap = [cap] * n1

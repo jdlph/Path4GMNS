@@ -1426,7 +1426,7 @@ def output_agent_trajectory(ui, output_dir='.'):
         base = ui._base_assignment
         agents = base.get_agents()
         r = base.get_simu_resolution()
-        st = base.simu_start_time
+        st = base.get_simu_start_time()
 
         for a in agents:
             if a.get_node_path() is None:
@@ -1457,9 +1457,10 @@ def output_agent_trajectory(ui, output_dir='.'):
 
             # arrival time to the last node or departure time from the last link
             at_ = time_seq1[-1]
-            # the original implementation using arrival time does not make sense
+            # the original implementation using arrival time to the last link 
+            # to calculate trip time does not make sense
             tt = at_ - a.get_dep_time() + st
-            
+
             node_path_str = base.get_agent_node_path(a.get_id(), True)
 
             line = [a.get_id(),
@@ -1475,7 +1476,7 @@ def output_agent_trajectory(ui, output_dir='.'):
                     a.PCE_factor,
                     '',
                     '',
-                    '',
+                    a.get_path_cost(),
                     len(a.get_node_path()),
                     node_path_str,
                     time_seq1_str,

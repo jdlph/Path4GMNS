@@ -1,9 +1,12 @@
+from math import ceil
+
+
 __all__ = ['perform_simple_simulation']
 
 
-def perform_simple_simulation(ui):
+def perform_simple_simulation(ui, loading_profile='random'):
     A = ui._base_assignment
-    A.initialize_simulation()
+    A.initialize_simulation(loading_profile)
 
     links = A.get_links()
     nodes = A.get_nodes()
@@ -18,6 +21,7 @@ def perform_simple_simulation(ui):
 
         if i > 0:
             for link in links:
+                # link.cum_arr and link.cum_dep are not used for critical calculation
                 link.cum_arr[i] = link.cum_arr[i-1]
                 link.cum_dep[i] = link.cum_dep[i-1]
 
@@ -32,14 +36,14 @@ def perform_simple_simulation(ui):
                 link = links[link_no]
                 link.cum_arr[i] += 1
                 link.entr_queue.append(a_no)
-                cum_arr +=1
+                cum_arr += 1
 
         for link in links:
             while link.entr_queue:
                 a_no = link.entr_queue.popleft()
                 agent = A.get_agent(a_no)
                 link.exit_queue.append(a_no)
-                tt = int(link.get_period_travel_time(0) * num) + 1
+                tt = ceil(link.get_period_travel_time(0) * num)
                 agent.update_dep_time(tt)
 
         for node in nodes:
@@ -57,7 +61,7 @@ def perform_simple_simulation(ui):
                         break
 
                     if agent.reached_last_link():
-                        link.cum_dep[i] +=1
+                        link.cum_dep[i] += 1
                         cum_dep += 1
                     else:
                         link_no = agent.get_next_link_no()
