@@ -864,13 +864,17 @@ def read_settings(input_dir, assignment):
 
             # simulation setup
             simulation = settings['simulation']
-            dp_str = simulation['period']
+            # simulation resolution
             res = simulation['resolution']
-            assert (int(res)>1)
-            dp = assignment.get_demand_period(dp_str)
-            dur = dp.get_duration()
-            assignment.set_simu_duration(dur)
+            assert(int(res)>1)
             assignment.set_simu_resolution(int(res))
+            # simulation timings
+            dp_str = simulation['period']
+            dp = assignment.get_demand_period(dp_str)
+            st = dp.get_start_time()
+            dur = dp.get_duration()
+            assignment.set_simu_start_time(st)
+            assignment.set_simu_duration(dur)
 
     except ImportError:
         # just in case user does not have pyyaml installed

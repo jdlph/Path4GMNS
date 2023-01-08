@@ -4,7 +4,6 @@ from copy import deepcopy
 from datetime import datetime
 from math import ceil
 from random import choice, randint, uniform
-import warnings
 
 from .consts import MAX_LABEL_COST, SMALL_DIVISOR
 from .path import find_path_for_agents, find_shortest_path, \
@@ -961,6 +960,22 @@ class DemandPeriod:
         self.period = period
         self.time_period = time_period
         self.special_event = None
+        self._setup_time()
+
+    def _setup_time(self):
+        try:
+            s1, s2 = self.time_period.split('_')
+            t1 = datetime.strptime(s1, '%H%M')
+            t2 = datetime.strptime(s2, '%H%M')
+            st_ = t1.hour * 60 + t1.minute
+            et_ = t2.hour * 60 + t2.minute
+            if et_ <= st_:
+                raise ValueError('ending time <= starting time')
+        except ValueError as ve:
+            print('Invalid time_periods: ', ve)
+
+        self.st = st_
+        self.et = et_
 
     def get_id(self):
         return self.id
@@ -987,17 +1002,11 @@ class DemandPeriod:
             return 1
 
     def get_duration(self):
-        st, et = self.time_period.split('_')
-        try:
-            st_ = datetime.strptime(st, '%H%M').minute
-            et_ = datetime.strptime(et, '%H%M').minute
-            if et_ <= st_:
-                raise ValueError
+        """ duration of demand period in minutes """
+        return self.et - self.st
 
-            return et_ - st_
-        except ValueError as ve:
-            print('Invalid time_periods: ', ve)
-            return 60
+    def get_start_time(self):
+        return self.st
 
 
 class Demand:
@@ -1359,9 +1368,9 @@ class Assignment:
         # number of seconds per simulation
         self.simu_rez = 6
         # duration of simulation in minutes
-        self.simu_duration = 90
+        self.simu_dur = 90
         # simulation start time in minutes
-        self.simu_start_time = 0
+        self.simu_st = 0
 
     def update_agent_types(self, at):
         if at.get_type_str() not in self.map_atstr_id:
@@ -1633,7 +1642,7 @@ class Assignment:
         ]
 
     def get_total_simu_intervals(self):
-        return ceil(self.simu_duration * 60 / self.simu_rez)
+        return ceil(self.simu_dur * 60 / self.simu_rez)
 
     def have_dep_agents(self, i):
         return self.network.have_dep_agents(i)
@@ -1642,10 +1651,10 @@ class Assignment:
         return self.network.get_td_agents(i)
 
     def get_simu_duration(self):
-        return self.simu_duration
+        return self.simu_dur
 
     def get_simu_start_time(self):
-        return self.simu_start_time
+        return self.simu_st
 
     def initialize_simulation(self, loading_profile):
         agents = self.network.agents
@@ -1656,7 +1665,7 @@ class Assignment:
                 continue
 
             a._initialize_simu(
-                self.simu_start_time, self.simu_duration,
+                self.simu_st, self.simu_dur,
                 self.simu_rez, loading_profile
             )
             i = a.get_origin_dep_interval()
@@ -1707,7 +1716,10 @@ class Assignment:
         self.simu_rez = res
 
     def set_simu_duration(self, dur):
-        self.simu_duration = dur
+        self.simu_dur = dur
+
+    def set_simu_start_time(self, st):
+        self.simu_st = st
 
 
 class UI:
