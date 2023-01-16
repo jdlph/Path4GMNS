@@ -1368,7 +1368,7 @@ class Assignment:
         # number of seconds per simulation
         self.simu_rez = 6
         # duration of simulation in minutes
-        self.simu_dur = 90
+        self.simu_dur = 60
         # simulation start time in minutes
         self.simu_st = 0
 
