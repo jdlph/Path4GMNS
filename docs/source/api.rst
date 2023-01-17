@@ -26,8 +26,13 @@ path4gmns.dtaapi
 .. autofunction:: path4gmns.dtaapi.perform_network_assignment_DTALite
 
 
+path4gmns.simulation
+====================
+.. autofunction:: path4gmns.simulation.perform_simple_simulation
+
+
 path4gmns.utils
-======================
+===============
 .. autofunction:: path4gmns.utils.read_network
 .. autofunction:: path4gmns.utils.read_zones
 .. autofunction:: path4gmns.utils.load_demand

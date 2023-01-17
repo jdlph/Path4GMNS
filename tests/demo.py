@@ -220,7 +220,6 @@ def test_loading_synthesized_zones_demand():
 def test_simulation():
     network = pg.read_network(load_demand=True)
 
-    st = time()
     network.find_path_for_agents()
     pg.perform_simple_simulation(network)
     print('complete simple simulation.\n')

@@ -451,3 +451,63 @@ pg.perform_column_generation(column_gen_num, column_update_num, network)
 pg.output_columns(network)
 pg.output_link_performance(network)
 ```
+
+## Conduct Traffic Simulation
+
+Traffic simulation module is available starting from v0.9.0. It is to simulate how traffic evolves over time through some representation of traffic dynamics given the routing decision.
+
+The common representations of traffic dynamics include point queue model, spatial queue model, kinematic wave model, and so on. For simulation-based DTA (e.g., DTALite), the routing decision for a specific demand period is generally from UE.
+
+The simulation module introduced in v0.9.0 is a simplified implementation to capture time-dependent traffic evolution using point queue model. Each individual agent is assumed to follow his/her shortest path. The demand loading profile with respect to the departure time of each agent is either constant (start time of the demand period) or random (within the demand period). A linear or piece-wise linear loading profile will be implemented in the coming release.
+
+v0.9.0 only supports one demand period, which is specified in settings.yml. It must be one from the list of demand_periods. The default simulation resolution is 6 seconds. In other words, a simulation interval is 6 seconds.
+
+```yaml
+agents:
+  - type: a
+    name: auto
+    vot: 10
+    flow_type: 0
+    pce: 1
+    free_speed: 60
+    use_link_ffs: true
+  - type: w
+    name: walk
+    vot: 10
+    flow_type: 0
+    pce: 1
+    free_speed: 10
+    use_link_ffs: false
+
+demand_periods:
+  - period: AM
+    time_period: 0700_0800
+
+demand_files:
+  - file_name: demand.csv
+    format_type: column
+    period: AM
+    agent_type: a
+
+simulation:
+  period: AM
+  # number of seconds per simulation interval
+  resolution: 6
+```
+
+For v0.9.0, find_path_for_agents() must be called in the first place to set up routing for each agent before simulation.
+
+```Python
+import path4gmns as pg
+
+network = pg.read_network(load_demand=True)
+
+st = time()
+network.find_path_for_agents()
+pg.perform_simple_simulation(network)
+print('complete simple simulation.\n')
+
+print('writing agent trajectories')
+pg.output_agent_trajectory(network)
+print('\ntrajectories can be found in trajectory.csv')
+```
