@@ -1,6 +1,6 @@
 # Path4GMNS
 [![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)
- [![Downloads](https://pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.8.7-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen)
+ [![Downloads](https://pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.9.0-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen)
 
 Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding static shortest paths for simple analyses, its main functionality is to provide an efficient and flexible framework for column-based (path-based) modeling and applications in transportation (e.g., activity-based demand modeling). Path4GMNS supports, in short,
 
@@ -19,16 +19,16 @@ Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jd
 ![Architecture](/docs/source/imgs/architecture.png)
 
 ## Installation
-Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.8.7/), and can be installed using
+Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.9.0/), and can be installed using
 ```
 $ pip install path4gmns
 ```
-If you need a specific version of Path4GMNS, say, 0.8.7,
+If you need a specific version of Path4GMNS, say, 0.9.0,
 ```
-$ pip install path4gmns==0.8.7
+$ pip install path4gmns==0.9.0
 ```
 
-v0.8.7 finalizes the changes introduced in v0.8.7a1 as a stable release. Please **update to or install the latest version** and **discard all old versions**, which could lead to wrong assignment results under certain conditions.
+v0.9.0 introduces mesoscopic traffic simulation using the point queue model. Please **update to or install the latest version** and **discard all old versions**, which could lead to wrong assignment results under certain conditions.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding [use cases](https://path4gmns.readthedocs.io/en/latest/).
@@ -83,6 +83,7 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 28. Enhance the tutorial with elaboration on the legacy way of loading demand and zone information and some caveats. (v0.8.7a1)
 29. Calculate and print out relative gap of UE as convergency measure (v0.8.7)
 30. Support the most common length and speed units. See [tutorial](https://github.com/jdlph/Path4GMNS/tree/dev/tests/tutorial.ipynb) for details (v0.8.7)
+31. Introduce the simulation module along with a simple traffic simulator using the point queue model and shortest paths (v0.9.0).
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
 
@@ -92,7 +93,7 @@ Any contributions are welcomed including advise new applications of Path4GMNS, e
 
 Path4GMNS has a very simple workflow setup, i.e., **master for release (on both GitHub and PyPI)** and **dev for development**. If you would like to work directly on the source code (and probably the documentation), please make sure that **the destination branch of your pull request is dev**, i.e., all potential changes/updates shall go to the dev branch before merging into master for release.
 
-You are encouraged to join our [Gmail group](https://groups.google.com/g/path4gmns) to get the latest update and other information.
+You are encouraged to join our [Discord Channel](https://discord.gg/JGFMta7kxZ) and [Gmail group](https://groups.google.com/g/path4gmns) to get the latest update and other information.
 
 ## How to Cite
 

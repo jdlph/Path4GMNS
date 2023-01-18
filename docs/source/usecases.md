@@ -454,13 +454,11 @@ pg.output_link_performance(network)
 
 ## Conduct Traffic Simulation
 
-Traffic simulation module is available starting from v0.9.0. It is to simulate how traffic evolves over time through some representation of traffic dynamics given the routing decision.
+Traffic simulation is to capture/mimic the traffic evolution over time through some representation of traffic dynamics. The choice of representation of traffic dynamics varies (including car following models, queueing models, kinematic wave models, etc.) and leads to three types of traffic simulation, which are microscopic, mesoscopic, and macroscopic.
 
-The common representations of traffic dynamics include point queue model, spatial queue model, kinematic wave model, and so on. For simulation-based DTA (e.g., DTALite), the routing decision for a specific demand period is generally from UE.
+The traffic simulation module in Path4GMNS is a mesoscopic simulator using the point queue model and the routing decision of each individual agent (as disaggregated demand). As a starting point, each agent is assumed to follow the shortest path from origin to destination in v0.9.0. The routing decisions as a result of the UE traffic assignment will be implemented in the coming release.
 
-The simulation module introduced in v0.9.0 is a simplified implementation to capture time-dependent traffic evolution using point queue model. Each individual agent is assumed to follow his/her shortest path. The demand loading profile with respect to the departure time of each agent is either constant (start time of the demand period) or random (within the demand period). A linear or piece-wise linear loading profile will be implemented in the coming release.
-
-v0.9.0 only supports one demand period, which is specified in settings.yml. It must be one from the list of demand_periods. The default simulation resolution is 6 seconds. In other words, a simulation interval is 6 seconds.
+The demand loading profile with respect to the departure times of all agents is either constant (start time of the selected demand period) or random (within the selected demand period). The future release will introduce a linear or piece-wise linear loading profile. v0.9.0 only supports one demand period, which shall be specified in settings.yml and must be corresponding to one from the list of demand_periods. The default simulation resolution is 6 seconds. In other words, a simulation interval is 6 seconds.
 
 ```yaml
 agents:
