@@ -51,14 +51,75 @@ print('\nshortest path (link id) from node 1 to node 2, '
 
 The mode passed to find_shortest_path() must be defined in settings.yaml, which could be either the type or the name. Take the above sample code for example, the type 'w' and its name 'walk' are equivalent to each other. See **Perform Multimodal Accessibility Evaluation** for more information.
 
+## Synthesize Zones and OD Demand
+
+Zone information is crucial in conducting traffic assignment, evaluating accessibility and equity. When no zone information is provided along node.csv, Path4GMNS can automatically synthesize a total number of {math}`d * d` grids (rectangles) as zones given the dimension {math}`d`.
+
+Activity nodes are randomly sampled for each zone according to a hardcoded sample rate {math}`r`, where {math}`r = max(10, N / 100)` and {math}`N` is the total number of nodes in the network. The total demand, as an input argument, will be allocated to each zone proportionally with respect to the number of its activity nodes, as its synthesized production volume and also attraction volume.
+
+$$prod_i = attr_i = demand \times \frac{N_i^a}{N^a}$$
+
+Where, {math}`prod_i` is the production volume of zone {math}`i`, {math}`attr_i` is the production volume of zone {math}`j`, $demand$ is the total demand, {math}`N^a` is the total number of activity nodes, {math}`N_i^a` is the number of activity nodes in zone {math}`i`.
+
+Denote the minimum travel time from zone {math}`i` to zone {math}`j` under a specific mode as {math}`mintt_{ij}` and introduce the following definition on the set of connected zones from zone {math}`i`, which is cut off by a predefined time budget {math}`b`.
+
+$$ D(i) = \lbrace j: mintt_{ij}\leq b \rbrace $$
+
+With {math}`D(i)`, the allocated demand between zone $i$ and one of its connected zones, {math}`j`, is then defined as follows.
+
+$$ vol_{ij} = prod_i \times \frac{attr_j }{\sum_{\substack{k\in D(i)}}attr_k}$$
+
+Note that we use this forgoing simple procedure to proportionally distribute demand for each OD pair rather than the gravity model and {math}`\sum_{\substack{i,j}} vol_{ij}` might be slightly different from {math}`demand` as a result of rounding errors in the distribution process.
+
+The following code snippet demonstrates how to synthesize zones and demand.
+
+```Python
+import path4gmns as pg
+
+network = pg.read_network()
+
+print('\nstart zone synthesis')
+st = time()
+# by default, grid_dimension is 8, total_demand is 10,000,
+# time_budget is 120 min, mode is 'a'
+pg.network_to_zones(network)
+pg.output_zones(network)
+pg.output_synthesized_demand(network)
+
+print('complete zone and demand synthesis.\n')
+print(f'processing time of zone and demand synthesis: {time()-st:.2f} s')
+```
+The synthesized zones and OD demand matrix will be output as zone.csv and demand.csv respectively. They can be loaded as offline files to perform some other functionalities from Path4GMNS (e.g., traffic assignment). The existing zone and demand information, if there is any, will be REWRITTEN upon the following reloading.
+
+```Python
+import path4gmns as pg
+
+network = pg.read_network()
+
+pg.read_zones(network)
+pg.load_demand(network)
+
+# perform some other functionalities from Path4GMNS, e.g., traffic assignment
+column_gen_num = 20
+column_update_num = 20
+pg.perform_column_generation(column_gen_num, column_update_num, network)
+
+pg.output_columns(network)
+pg.output_link_performance(network)
+```
+
 ## Find Shortest Paths for All Individual Agents
-Path4GMNS is capable of calculating and constructing the (static) shortest paths for all agents. Individual agents will be automatically set up using the aggregated travel demand between each OD pair within find_path_for_agents() on its first call.
+Path4GMNS is capable of calculating and constructing the (static) shortest paths for all agents. Individual agents will be automatically set up using the aggregated travel demand between each OD pair (i.e., demand.csv) within find_path_for_agents() on its first call. If you have zone information specified in node.csv, you can also follow the legacy way to load demand and zone info (see [Tutorial](https://github.com/jdlph/Path4GMNS/blob/dev/tests/tutorial.ipynb) for details).
 
 The unique agent paths can be output to a csv file as shown in the example below.
 ```python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=True)
+network = pg.read_network()
+# it reads zone.csv by default
+pg.read_zones(network)
+# it reads demand.csv by default
+pg.load_demand(network)
 network.find_path_for_agents()
 
 agent_id = 300
@@ -107,7 +168,9 @@ The Python column-generation module only implements path-based UE. If you need o
 ```python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=True)
+network = pg.read_network()
+pg.read_zones(network)
+pg.load_demand(network)
 
 column_gen_num = 20
 column_update_num = 10
@@ -128,7 +191,9 @@ Starting from v0.7.0a1, Path4GMNS supports loading columns/paths from existing f
 ```python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=True)
+network = pg.read_network()
+pg.read_zones(network)
+pg.load_demand(network)
 # you can specify the input directory
 # e.g., pg.load_columns(network, 'data/Chicago_Sketch')
 pg.load_columns(network)
@@ -262,12 +327,11 @@ If pyyaml is not installed or settings.yml is not provided, one demand period (A
 ```python
 import path4gmns as pg
 
-# no need to load demand file for accessibility evaluation
 network = pg.read_network()
 
 print('\nstart accessibility evaluation\n')
 st = time()
-
+# no need to load demand file for accessibility evaluation
 pg.evaluate_accessibility(network)
 
 print('complete accessibility evaluation.\n')
@@ -279,7 +343,6 @@ Two formats of accessibility will be output: accessibility between each OD pair 
 ```python
 import path4gmns as pg
 
-# no need to load demand file for accessibility evaluation
 network = pg.read_network()
 
 print('\nstart accessibility evaluation\n')
@@ -300,7 +363,6 @@ You can also get the accessible nodes and links within a time budget given a mod
 ```python
 import path4gmns as pg
 
-# no need to load demand file for accessibility evaluation
 network = pg.read_network()
 
 # get accessible nodes and links starting from node 1 with a 5-minute
@@ -325,7 +387,6 @@ Link travel time varies over time so does accessibility. When the time-dependent
 ```python
 import path4gmns as pg
 
-# no need to load demand file for accessibility evaluation
 network = pg.read_network()
 
 print('\nstart accessibility evaluation\n')
@@ -352,7 +413,6 @@ Retrieve the time-dependent accessible nodes and links is similar to evaluate ti
 ```python
 import path4gmns as pg
 
-# no need to load demand file for accessibility evaluation
 network = pg.read_network()
 
 # get accessible nodes and links starting from node 1 with a 5-minute
@@ -395,70 +455,13 @@ print('complete equity evaluation.\n')
 print(f'processing time of equity evaluation: {time()-st:.2f} s')
 ```
 
-## Synthesize Zones and OD Demand
-
-Zone information is crucial in conducting traffic assignment, evaluating accessibility and equity. When no zone information is provided along node.csv, Path4GMNS can automatically synthesize a total number of {math}`d * d` grids (rectangles) as zones given the dimension {math}`d`.
-
-Activity nodes are randomly sampled for each zone according to a hardcoded sample rate {math}`r`, where {math}`r = max(10, N / 100)` and {math}`N` is the total number of nodes in the network. The total demand, as an input argument, will be allocated to each zone proportionally with respect to the number of its activity nodes, as its synthesized production volume and also attraction volume.
-
-$$prod_i = attr_i = demand \times \frac{N_i^a}{N^a}$$
-
-Where, {math}`prod_i` is the production volume of zone {math}`i`, {math}`attr_i` is the production volume of zone {math}`j`, $demand$ is the total demand, {math}`N^a` is the total number of activity nodes, {math}`N_i^a` is the number of activity nodes in zone {math}`i`.
-
-Denote the minimum travel time from zone {math}`i` to zone {math}`j` under a specific mode as {math}`mintt_{ij}` and introduce the following definition on the set of connected zones from zone {math}`i`, which is cut off by a predefined time budget {math}`b`.
-
-$$ D(i) = \lbrace j: mintt_{ij}\leq b \rbrace $$
-
-With {math}`D(i)`, the allocated demand between zone $i$ and one of its connected zones, {math}`j`, is then defined as follows.
-
-$$ vol_{ij} = prod_i \times \frac{attr_j }{\sum_{\substack{k\in D(i)}}attr_k}$$
-
-Note that we use this forgoing simple procedure to proportionally distribute demand for each OD pair rather than the gravity model and {math}`\sum_{\substack{i,j}} vol_{ij}` might be slightly different from {math}`demand` as a result of rounding errors in the distribution process.
-
-The following code snippet demonstrates how to synthesize zones and demand.
-
-```Python
-import path4gmns as pg
-
-network = pg.read_network()
-
-print('\nstart zone synthesis')
-st = time()
-# by default, grid_dimension is 8, total_demand is 10,000,
-# time_budget is 120 min, mode is 'a'
-pg.network_to_zones(network)
-pg.output_zones(network)
-pg.output_synthesized_demand(network)
-
-print('complete zone and demand synthesis.\n')
-print(f'processing time of zone and demand synthesis: {time()-st:.2f} s')
-```
-The synthesized zones and OD demand matrix will be output as zone.csv and demand.csv respectively. They can be loaded as offline files to perform some other functionalities from Path4GMNS (e.g., traffic assignment). The existing zone and demand information, if there is any, will be REWRITTEN upon the following reloading.
-
-```Python
-import path4gmns as pg
-
-network = pg.read_network()
-
-pg.read_zones(network)
-pg.load_demand(network)
-
-# perform some other functionalities from Path4GMNS, e.g., traffic assignment
-column_gen_num = 20
-column_update_num = 20
-pg.perform_column_generation(column_gen_num, column_update_num, network)
-
-pg.output_columns(network)
-pg.output_link_performance(network)
-```
-
 ## Conduct Traffic Simulation
 
-Traffic simulation is to capture/mimic the traffic evolution over time through some representation of traffic dynamics. The choice of representation of traffic dynamics varies (including car following models, queueing models, kinematic wave models, etc.) and leads to three types of traffic simulation, which are microscopic, mesoscopic, and macroscopic.
+Traffic simulation is to capture/mimic the traffic evolution over time through some representation of traffic dynamics. The choice of representation varies (including car following models, queueing models, kinematic wave models, etc.) and leads to three types of traffic simulation, which are microscopic, mesoscopic, and macroscopic.
 
 The traffic simulation module in Path4GMNS is a mesoscopic simulator using the point queue model and the routing decision of each individual agent (as disaggregated demand). As a starting point, each agent is assumed to follow the shortest path from origin to destination in v0.9.0. The routing decisions as a result of the UE traffic assignment will be implemented in the coming release.
 
-The demand loading profile with respect to the departure times of all agents is either constant (start time of the selected demand period) or random (within the selected demand period). The future release will introduce a linear or piece-wise linear loading profile. v0.9.0 only supports one demand period, which shall be specified in settings.yml and must be corresponding to one from the list of demand_periods. The default simulation resolution is 6 seconds. In other words, a simulation interval is 6 seconds.
+The demand loading profile with respect to the departure times of all agents is either constant (start time of the selected demand period) or random (within the selected demand period). The future release will introduce a linear or piece-wise linear loading profile. v0.9.0 only supports one demand period, which must be specified in settings.yml and be corresponding to one from the list of demand_periods. The default simulation resolution is 6 seconds. In other words, a simulation interval is 6 seconds.
 
 ```yaml
 agents:
@@ -493,14 +496,15 @@ simulation:
   resolution: 6
 ```
 
-For v0.9.0, find_path_for_agents() must be called in the first place to set up routing for each agent before simulation.
+For v0.9.0, find_path_for_agents() must be called in the first place to set up path for each agent before simulation.
 
 ```Python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=True)
+network = pg.read_network()
+pg.read_zones(network)
+pg.load_demand(network)
 
-st = time()
 network.find_path_for_agents()
 pg.perform_simple_simulation(network)
 print('complete simple simulation.\n')
