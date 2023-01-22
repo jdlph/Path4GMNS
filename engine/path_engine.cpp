@@ -7,8 +7,8 @@
  *
  * shortest_path() and shortest_path_n() enhance the forgoing implementation by removing its duplicate
  * checks on empty deque. shortest_path_n() further improves shortest_path() by making better use of
- * stack memory (i.e., define deque_head and deque_tail within the for loop), which features the most
- * efficient deque implementation of the modified label correcting (MLC) algorithm.
+ * stack memory (i.e., define cur_node, deque_head, and deque_tail within the for loop), which features
+ * THE MOST efficient deque implementation of the modified label correcting (MLC) algorithm.
  *
  * Similar implementations can be also found in DYNASMART system designed by Dr. Hani Mahmassani and
  * the original code of DTALite by Dr. Xuesong Zhou.
@@ -165,12 +165,11 @@ void shortest_path_n(int o_node_no,
         node_pred[node_no] = nullnode;
     }
 
-    int cur_node = o_node_no;
-    label_cost[cur_node] = departure_time;
-    deque_next[cur_node] = was_in_deque;
+    label_cost[o_node_no] = departure_time;
+    deque_next[o_node_no] = was_in_deque;
 
     // label correcting
-    for(int deque_head = nullnode, deque_tail = nullnode;;)
+    for(int cur_node = o_node_no, deque_head = nullnode, deque_tail = nullnode;;)
     {
         // filter out the TAZ based centroids
         if (cur_node <= last_thru_node || cur_node == o_node_no)
