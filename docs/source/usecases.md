@@ -18,8 +18,10 @@ import path4gmns as pg
 
 network = pg.read_network()
 
+# node path from node 1 to node 2
 print('\nshortest path (node id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2))
+# link path from node 1 to node 2
 print('\nshortest path (link id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2, seq_type='link'))
 ```
@@ -31,8 +33,10 @@ import path4gmns as pg
 
 network = pg.read_network(input_dir='data/Chicago_Sketch')
 
+# node path from node 1 to node 2
 print('\nshortest path (node id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2))
+# link path from node 1 to node 2
 print('\nshortest path (link id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2, seq_type='link'))
 ```
@@ -43,8 +47,10 @@ import path4gmns as pg
 
 network = pg.read_network()
 
+# node path from node 1 to node 2 under mode w
 print('\nshortest path (node id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2, mode='w'))
+# link path from node 1 to node 2 under mode w
 print('\nshortest path (link id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2, mode='w', seq_type='link'))
 ```
@@ -511,5 +517,4 @@ print('complete simple simulation.\n')
 
 print('writing agent trajectories')
 pg.output_agent_trajectory(network)
-print('\ntrajectories can be found in trajectory.csv')
 ```

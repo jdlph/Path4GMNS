@@ -298,7 +298,10 @@ def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
         str(x) for x in output_path_sequence(G, to_node_id, seq_type)
     )
 
-    return f'distance: {path_cost:.2f} mi | path: {path}'
+    if seq_type.startswith('node'):
+        return f'distance: {path_cost:.2f} mi | node path: {path}'
+    else:
+        return f'distance: {path_cost:.2f} mi | link path: {path}'
 
 
 def find_path_for_agents(G, column_pool, engine_type='c'):

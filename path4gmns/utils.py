@@ -1500,3 +1500,11 @@ def output_agent_trajectory(ui, output_dir='.'):
                     time_seq2_str]
 
             writer.writerow(line)
+
+        if output_dir == '.':
+                print(f'\ncheck trajectory.csv in {os.getcwd()} for trajectories')
+        else:
+            print(
+                f'\ncheck trajectory.csv in {os.path.join(os.getcwd(), output_dir)}'
+                ' for trajectories'
+            )
