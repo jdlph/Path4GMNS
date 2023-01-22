@@ -187,7 +187,7 @@ def download_sample_data_sets():
     the following data sets will be downloaded: ASU, Braess Paradox, Chicago Sketch,
     Lima Network, Sioux Falls, and Two Corridors.
     """
-    url = 'https://raw.githubusercontent.com/jdlph/Path4GMNS/master/data/'
+    url = 'https://raw.githubusercontent.com/jdlph/Path4GMNS/dev/data/'
 
     data_sets = [
         "ASU",
