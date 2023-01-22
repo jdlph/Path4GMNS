@@ -226,7 +226,6 @@ def test_simulation():
 
     print('writing agent trajectories')
     pg.output_agent_trajectory(network)
-    print('\ntrajectories can be found in trajectory.csv')
 
 
 def demo_mode(mode):
