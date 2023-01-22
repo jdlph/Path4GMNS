@@ -83,7 +83,7 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 28. Enhance the tutorial with elaboration on the legacy way of loading demand and zone information and some caveats. (v0.8.7a1)
 29. Calculate and print out relative gap of UE as convergency measure (v0.8.7)
 30. Support the most common length and speed units. See [tutorial](https://github.com/jdlph/Path4GMNS/tree/dev/tests/tutorial.ipynb) for details (v0.8.7)
-31. Introduce the simulation module along with a simple traffic simulator using the point queue model and shortest paths (v0.9.0).
+31. Introduce the simulation module along with a simple traffic simulator using the point queue model and shortest paths (v0.9.0)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
 
