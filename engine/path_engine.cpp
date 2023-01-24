@@ -93,7 +93,7 @@ void shortest_path(int orig_node,
                      * three cases
                      *
                      * case i: new_node was in deque before, add it to the begin of deque
-                     * case ii: new_node is not in the queue, and wasn't there before, add it to the end of deque
+                     * case ii: new_node is not in deque, and wasn't there before, add it to the end of deque
                      * case iii: new_node is in deque, do nothing
                      */
                     if (deque_next[new_node] == was_in_deque)
@@ -107,15 +107,16 @@ void shortest_path(int orig_node,
                     }
                     else if (deque_next[new_node] == nullnode && new_node != deque_tail)
                     {
-                        deque_tail = new_node;
-
                         if (deque_tail == nullnode)
                         {
-                            deque_head = new_node;
+                            deque_head = deque_tail = new_node;
                             deque_next[deque_tail] = nullnode;
                         }
                         else
+                        {
                             deque_next[deque_tail] = new_node;
+                            deque_tail = new_node;
+                        }
                     }
                 }
             }
@@ -199,8 +200,8 @@ void shortest_path_n(int orig_node,
                     /**
                      * three cases
                      *
-                     * case i:  new_node was in deque before, add it to the begin of deque
-                     * case ii: new_node is not in the queue, and wasn't there before, add it to the end of deque
+                     * case i: new_node was in deque before, add it to the begin of deque
+                     * case ii: new_node is not in deque, and wasn't there before, add it to the end of deque
                      * case iii: new_node is in deque, do nothing
                      */
                     if (deque_next[new_node] == was_in_deque)
@@ -214,15 +215,16 @@ void shortest_path_n(int orig_node,
                     }
                     else if (deque_next[new_node] == nullnode && new_node != deque_tail)
                     {
-                        deque_tail = new_node;
-
                         if (deque_tail == nullnode)
                         {
-                            deque_head = new_node;
+                            deque_head = deque_tail = new_node;
                             deque_next[deque_tail] = nullnode;
                         }
                         else
+                        {
                             deque_next[deque_tail] = new_node;
+                            deque_tail = new_node;
+                        }
                     }
                 }
             }
