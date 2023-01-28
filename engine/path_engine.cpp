@@ -72,8 +72,6 @@ void shortest_path(int orig_node,
             for (int k = first_link_from[cur_node]; k < last_link_from[cur_node]; ++k)
             {
                 int link = sorted_links[k];
-                int new_node = to_nodes[link];
-
                 /**
                  * if mode == 'a', we are doing static shortest path calculation using distance and
                  * all links shall be considered; otherwise, mode shall be in link's allowed uses or
@@ -84,6 +82,7 @@ void shortest_path(int orig_node,
                     && !wcschr(allowed_uses[link], 'a'))
                     continue;
 
+                int new_node = to_nodes[link];
                 double new_cost = label_costs[cur_node] + link_cost[link];
                 if (label_costs[new_node] > new_cost)
                 {
@@ -182,8 +181,6 @@ void shortest_path_n(int orig_node,
             for (int k = first_link_from[cur_node]; k < last_link_from[cur_node]; ++k)
             {
                 int link = sorted_links[k];
-                int new_node = to_nodes[link];
-
                 /**
                  * if mode == 'a', we are doing static shortest path calculation using distance and
                  * all links shall be considered; otherwise, mode shall be in link's allowed uses or
@@ -194,7 +191,9 @@ void shortest_path_n(int orig_node,
                     && !wcsstr(allowed_uses[link], all_mode))
                     continue;
 
+                int new_node = to_nodes[link];
                 double new_cost = label_costs[cur_node] + link_costs[link];
+
                 if (label_costs[new_node] > new_cost)
                 {
                     label_costs[new_node] = new_cost;
@@ -273,6 +272,13 @@ public:
         delete[] nodes;
     }
 
+    /**
+     * @brief head can never be pastnode for the deque implementation of MLC
+     *
+     * It can be easily proved using contradiction. Therefore, the additional
+     * check in the original implementation from Dr. Hillel Bar-Gera on
+     * head == pastnode is NOT necessary.
+     */
     bool empty() const
     {
         return head == nullnode;
@@ -321,8 +327,8 @@ public:
     }
 
 private:
-    static constexpr int pastnode = -3;
     static constexpr int nullnode = -1;
+    static constexpr int pastnode = -3;
     int head = nullnode;
     int tail = nullnode;
     int* nodes;
@@ -368,8 +374,6 @@ void shortest_path_n(int orig_node,
             for (int k = first_link_from[cur_node]; k < last_link_from[cur_node]; ++k)
             {
                 int link = sorted_links[k];
-                int new_node = to_nodes[link];
-
                 /**
                  * if mode == 'a', we are doing static shortest path calculation using distance and
                  * all links shall be considered; otherwise, mode shall be in link's allowed uses or
@@ -380,7 +384,9 @@ void shortest_path_n(int orig_node,
                     && !wcsstr(allowed_uses[link], all_mode))
                     continue;
 
+                int new_node = to_nodes[link];
                 double new_cost = label_costs[cur_node] + link_costs[link];
+
                 if (label_costs[new_node] > new_cost)
                 {
                     label_costs[new_node] = new_cost;

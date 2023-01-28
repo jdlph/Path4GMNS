@@ -228,6 +228,12 @@ def test_simulation():
     pg.output_agent_trajectory(network)
 
 
+def test_routing_engine():
+    print('finding all-pairs shortest paths in the network\n')
+    network = pg.read_network()
+    network.benchmark_apsp()
+
+
 def demo_mode(mode):
     print(f'the selected mode is {mode}\n')
 
@@ -264,10 +270,9 @@ def demo_mode(mode):
     elif mode == 10:
         test_simulation()
     else:
-        network = pg.read_network()
-        network.benchmark_apsp()
+        test_routing_engine()
 
 
 if __name__=="__main__":
 
-    demo_mode(11)
+    demo_mode(3)
