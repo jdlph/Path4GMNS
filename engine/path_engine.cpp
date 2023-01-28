@@ -252,9 +252,14 @@ void shortest_path_n(int orig_node,
 class SpecialDeque {
 public:
     SpecialDeque() = delete;
-    
+
     explicit SpecialDeque(int sz) : nodes {new int[sz]}
     {
+    }
+
+    SpecialDeque(int sz, int i) : nodes {new int[sz]}
+    {
+        push_back(i);
     }
 
     SpecialDeque(const SpecialDeque&) = delete;
@@ -265,22 +270,22 @@ public:
 
     ~SpecialDeque()
     {
-        delete[] nodes; 
+        delete[] nodes;
     }
 
     bool empty() const
     {
-        return head == -1;
+        return head == nullnode;
     }
 
     bool new_node(int i) const
     {
-        return nodes[i] == -1 && i != head;
+        return nodes[i] == nullnode && i != head;
     }
 
     bool past_node(int i) const
     {
-        return nodes[i] == past;
+        return nodes[i] == pastnode;
     }
 
     void push_front(int i)
@@ -288,21 +293,21 @@ public:
         nodes[i] = head;
         head = i;
 
-        if (head == -1)
+        if (head == nullnode)
             tail = i;
     }
 
     void push_back(int i)
     {
-        if (head == -1)
+        if (head == nullnode)
         {
             head = tail = i;
-            nodes[i] = -1;
+            nodes[i] = nullnode;
         }
         else
         {
             nodes[tail] = i;
-            nodes[i] = -1;
+            nodes[i] = nullnode;
             tail = i;
         }
     }
@@ -311,15 +316,16 @@ public:
     {
         int left = head;
         head = nodes[left];
-        nodes[left] = past;
+        nodes[left] = pastnode;
         return left;
     }
 
 private:
+    static constexpr int pastnode = -3;
+    static constexpr int nullnode = -1;
+    int head = nullnode;
+    int tail = nullnode;
     int* nodes;
-    int head = -1;
-    int tail = -1;
-    static constexpr int past = -3;
 };
 
 void shortest_path_n(int orig_node,
@@ -351,11 +357,9 @@ void shortest_path_n(int orig_node,
     }
 
     label_costs[orig_node] = depart_time;
-    SpecialDeque deque(node_size);
-    deque.push_back(orig_node);
 
     // label correcting
-    while (!deque.empty())
+    for (SpecialDeque deque(node_size, orig_node); !deque.empty();)
     {
         int cur_node = deque.pop_front();
         // filter out the TAZ based centroids
