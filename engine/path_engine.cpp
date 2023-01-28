@@ -16,6 +16,8 @@
  * With constexpr, it is a C++ function (which requires C++11 or higher) rather than a pure C function.
  */
 
+#define SPECIAL_DEQUE
+
 #include "path_engine.h"
 
 #include <cstring>
@@ -135,6 +137,8 @@ void shortest_path(int orig_node,
     }
 }
 
+#ifndef SPECIAL_DEQUE
+
 void shortest_path_n(int orig_node,
                      int node_size,
                      const int* from_nodes,
@@ -242,3 +246,158 @@ void shortest_path_n(int orig_node,
             deque_tail = nullnode;
     }
 }
+
+#else
+
+class SpecialDeque {
+public:
+    SpecialDeque() = delete;
+    
+    explicit SpecialDeque(int sz) : nodes {new int[sz]}
+    {
+    }
+
+    SpecialDeque(const SpecialDeque&) = delete;
+    SpecialDeque& operator=(const SpecialDeque&) = delete;
+
+    SpecialDeque(const SpecialDeque&&) = delete;
+    SpecialDeque& operator=(const SpecialDeque&&) = delete;
+
+    ~SpecialDeque()
+    {
+        delete[] nodes; 
+    }
+
+    bool empty() const
+    {
+        return head == -1;
+    }
+
+    bool new_node(int i) const
+    {
+        return nodes[i] == -1 && i != head;
+    }
+
+    bool past_node(int i) const
+    {
+        return nodes[i] == past;
+    }
+
+    void push_front(int i)
+    {
+        nodes[i] = head;
+        head = i;
+
+        if (head == -1)
+            tail = i;
+    }
+
+    void push_back(int i)
+    {
+        if (head == -1)
+        {
+            head = tail = i;
+            nodes[i] = -1;
+        }
+        else
+        {
+            nodes[tail] = i;
+            nodes[i] = -1;
+            tail = i;
+        }
+    }
+
+    int pop_front()
+    {
+        int left = head;
+        head = nodes[left];
+        nodes[left] = past;
+        return left;
+    }
+
+private:
+    int* nodes;
+    int head = -1;
+    int tail = -1;
+    static constexpr int past = -3;
+};
+
+void shortest_path_n(int orig_node,
+                     int node_size,
+                     const int* from_nodes,
+                     const int* to_nodes,
+                     const int* first_link_from,
+                     const int* last_link_from,
+                     const int* sorted_links,
+                     const wchar_t** allowed_uses,
+                     const double* link_costs,
+                     double* label_costs,
+                     int* node_preds,
+                     int* link_preds,
+                     int* deque_next,
+                     const wchar_t* mode,
+                     int max_label_cost,
+                     int last_thru_node,
+                     int depart_time)
+{
+    // construct and initialize the following one on the first call only
+    static constexpr wchar_t all_mode[] = L"all";
+
+    for (int node_no = 0; node_no < node_size; ++node_no)
+    {
+        label_costs[node_no] = max_label_cost;
+        link_preds[node_no] = -1;
+        node_preds[node_no] = -1;
+    }
+
+    label_costs[orig_node] = depart_time;
+    SpecialDeque deque(node_size);
+    deque.push_back(orig_node);
+
+    // label correcting
+    while (!deque.empty())
+    {
+        int cur_node = deque.pop_front();
+        // filter out the TAZ based centroids
+        if (cur_node <= last_thru_node || cur_node == orig_node)
+        {
+            for (int k = first_link_from[cur_node]; k < last_link_from[cur_node]; ++k)
+            {
+                int link = sorted_links[k];
+                int new_node = to_nodes[link];
+
+                /**
+                 * if mode == 'a', we are doing static shortest path calculation using distance and
+                 * all links shall be considered; otherwise, mode shall be in link's allowed uses or
+                 * the allowed uses are for all modes (i.e., a)
+                 */
+                if (wcscmp(mode, all_mode) != 0
+                    && !wcsstr(allowed_uses[link], mode)
+                    && !wcsstr(allowed_uses[link], all_mode))
+                    continue;
+
+                double new_cost = label_costs[cur_node] + link_costs[link];
+                if (label_costs[new_node] > new_cost)
+                {
+                    label_costs[new_node] = new_cost;
+                    link_preds[new_node] = link;
+                    node_preds[new_node] = from_nodes[link];
+
+                    /**
+                     * three cases
+                     *
+                     * case i: new_node was in deque before, add it to the begin of deque
+                     * case ii: new_node is not in deque, and wasn't there before, add it to the end of deque
+                     * case iii: new_node is in deque, do nothing
+                     */
+                    if (deque.past_node(new_node))
+                        deque.push_front(new_node);
+                    else if (deque.new_node(new_node))
+                        deque.push_back(new_node);
+                }
+            }
+        }
+    }
+}
+
+#endif

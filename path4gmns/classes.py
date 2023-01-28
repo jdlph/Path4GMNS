@@ -7,7 +7,7 @@ from random import choice, randint, uniform
 
 from .consts import MAX_LABEL_COST, SMALL_DIVISOR
 from .path import find_path_for_agents, find_shortest_path, \
-                  single_source_shortest_path
+                  single_source_shortest_path, benchmark_apsp
 
 
 __all__ = ['UI']
@@ -1530,6 +1530,9 @@ class Assignment:
         return find_shortest_path(self.network, from_node_id,
                                   to_node_id, seq_type)
 
+    def benchmark_apsp(self):
+        benchmark_apsp(self.network)
+
     def perform_network_assignment(self, assignment_mode,
                                    iter_num, column_update_num):
         # perform_network_assignment(assignment_mode, iter_num, column_update_num)
@@ -1897,3 +1900,6 @@ class UI:
 
         print(f'number of accessible links is {len(links)}')
         print(f'accessible links are: {link_strs}')
+
+    def benchmark_apsp(self):
+        self._base_assignment.benchmark_apsp()

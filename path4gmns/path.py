@@ -13,6 +13,7 @@ import ctypes
 import heapq
 import os.path
 import platform
+from time import time
 
 from .consts import MAX_LABEL_COST
 
@@ -21,7 +22,8 @@ __all__ = [
     'single_source_shortest_path',
     'output_path_sequence',
     'find_shortest_path',
-    'find_path_for_agents'
+    'find_path_for_agents',
+    'benchmark_apsp'
 ]
 
 
@@ -360,3 +362,12 @@ def find_path_for_agents(G, column_pool, engine_type='c'):
 
         agent.node_path = [x for x in node_path]
         agent.link_path = [x for x in link_path]
+
+
+def benchmark_apsp(G):
+    st = time()
+
+    for k in G.map_id_to_no.keys():
+        single_source_shortest_path(G, k, 'c')
+
+    print(f'processing time of finding all-pairs shortest paths: {time()-st:.2f} s')

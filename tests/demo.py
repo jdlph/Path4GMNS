@@ -261,10 +261,13 @@ def demo_mode(mode):
         test_zone_synthesis()
     elif mode == 9:
         test_loading_synthesized_zones_demand()
-    else:
+    elif mode == 10:
         test_simulation()
+    else:
+        network = pg.read_network()
+        network.benchmark_apsp()
 
 
 if __name__=="__main__":
 
-    demo_mode(10)
+    demo_mode(11)
