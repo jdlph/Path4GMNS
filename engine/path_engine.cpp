@@ -46,7 +46,7 @@ void shortest_path(int orig_node,
                    int first_thru_node)
 {
     // construct and initialize the following two on the first call only
-    static constexpr int nullnode = -1, was_in_deque = -7;
+    static constexpr int nullnode = -1, was_in_deque = -3;
 
     for (int node_no = 0; node_no < node_size; ++node_no)
     {
@@ -66,7 +66,7 @@ void shortest_path(int orig_node,
     // label correcting
     while (true)
     {
-        // filter out the TAZ based centroids
+        // filter out the TAZ-based centroids
         if (cur_node >= first_thru_node || cur_node == orig_node)
         {
             for (int k = first_link_from[cur_node]; k < last_link_from[cur_node]; ++k)
@@ -157,7 +157,7 @@ void shortest_path_n(int orig_node,
                      int depart_time)
 {
     // construct and initialize the following three on the first call only
-    static constexpr int nullnode = -1, was_in_deque = -7;
+    static constexpr int nullnode = -1, was_in_deque = -3;
     static constexpr wchar_t all_mode[] = L"all";
 
     for (int node_no = 0; node_no < node_size; ++node_no)
@@ -173,9 +173,9 @@ void shortest_path_n(int orig_node,
     deque_next[orig_node] = was_in_deque;
 
     // label correcting
-    for(int cur_node = orig_node, deque_head = nullnode, deque_tail = nullnode;;)
+    for (int cur_node = orig_node, deque_head = nullnode, deque_tail = nullnode;;)
     {
-        // filter out the TAZ based centroids
+        // filter out the TAZ-based centroids
         if (cur_node <= last_thru_node || cur_node == orig_node)
         {
             for (int k = first_link_from[cur_node]; k < last_link_from[cur_node]; ++k)
@@ -248,15 +248,26 @@ void shortest_path_n(int orig_node,
 
 #else
 
+/**
+ * @brief a special deque for the deque implementation of the MLC algorithm only
+ *
+ * Its implementation is still naive without any exception handlings. Caller is
+ * responsible for creating an instance and updating it with proper argument(s)
+ * passing to its constructor and interfaces (i.e., sz > 0, i >= 0).
+ *
+ * The full-fledged version will be implemented as part of the new DTALite.
+ */
 class SpecialDeque {
 public:
     SpecialDeque() = delete;
 
     explicit SpecialDeque(int sz) : nodes {new int[sz]}
     {
+        for (int i = 0; i != sz; ++i)
+            nodes[i] = nullnode;
     }
 
-    SpecialDeque(int sz, int i) : nodes {new int[sz]}
+    SpecialDeque(int sz, int i) : SpecialDeque {sz}
     {
         push_back(i);
     }
@@ -286,7 +297,7 @@ public:
 
     bool new_node(int i) const
     {
-        return nodes[i] == nullnode && i != head;
+        return nodes[i] == nullnode && i != tail;
     }
 
     bool past_node(int i) const
@@ -365,46 +376,45 @@ void shortest_path_n(int orig_node,
     label_costs[orig_node] = depart_time;
 
     // label correcting
-    for (SpecialDeque deque(node_size, orig_node); !deque.empty();)
+    for (SpecialDeque deq{node_size, orig_node}; !deq.empty();)
     {
-        int cur_node = deque.pop_front();
-        // filter out the TAZ based centroids
-        if (cur_node <= last_thru_node || cur_node == orig_node)
+        int cur_node = deq.pop_front();
+        // filter out the TAZ-based centroids
+        if (cur_node > last_thru_node && cur_node != orig_node)
+            continue;
+
+        for (int k = first_link_from[cur_node]; k < last_link_from[cur_node]; ++k)
         {
-            for (int k = first_link_from[cur_node]; k < last_link_from[cur_node]; ++k)
+            int link = sorted_links[k];
+            /**
+             * if mode == 'a', we are doing static shortest path calculation using distance and
+             * all links shall be considered; otherwise, mode shall be in link's allowed uses or
+             * the allowed uses are for all modes (i.e., a)
+             */
+            if (wcscmp(mode, all_mode) != 0
+                && !wcsstr(allowed_uses[link], mode)
+                && !wcsstr(allowed_uses[link], all_mode))
+                continue;
+
+            int new_node = to_nodes[link];
+            double new_cost = label_costs[cur_node] + link_costs[link];
+
+            if (label_costs[new_node] > new_cost)
             {
-                int link = sorted_links[k];
+                label_costs[new_node] = new_cost;
+                link_preds[new_node] = link;
+                node_preds[new_node] = from_nodes[link];
                 /**
-                 * if mode == 'a', we are doing static shortest path calculation using distance and
-                 * all links shall be considered; otherwise, mode shall be in link's allowed uses or
-                 * the allowed uses are for all modes (i.e., a)
+                 * three cases
+                 *
+                 * case i: new_node was in deque before, add it to the begin of deque
+                 * case ii: new_node is not in deque, and wasn't there before, add it to the end of deque
+                 * case iii: new_node is in deque, do nothing
                  */
-                if (wcscmp(mode, all_mode) != 0
-                    && !wcsstr(allowed_uses[link], mode)
-                    && !wcsstr(allowed_uses[link], all_mode))
-                    continue;
-
-                int new_node = to_nodes[link];
-                double new_cost = label_costs[cur_node] + link_costs[link];
-
-                if (label_costs[new_node] > new_cost)
-                {
-                    label_costs[new_node] = new_cost;
-                    link_preds[new_node] = link;
-                    node_preds[new_node] = from_nodes[link];
-
-                    /**
-                     * three cases
-                     *
-                     * case i: new_node was in deque before, add it to the begin of deque
-                     * case ii: new_node is not in deque, and wasn't there before, add it to the end of deque
-                     * case iii: new_node is in deque, do nothing
-                     */
-                    if (deque.past_node(new_node))
-                        deque.push_front(new_node);
-                    else if (deque.new_node(new_node))
-                        deque.push_back(new_node);
-                }
+                if (deq.past_node(new_node))
+                    deq.push_front(new_node);
+                else if (deq.new_node(new_node))
+                    deq.push_back(new_node);
             }
         }
     }
