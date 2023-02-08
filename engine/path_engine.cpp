@@ -16,7 +16,7 @@
  * With constexpr, it is a C++ function (which requires C++11 or higher) rather than a pure C function.
  */
 
-#define SPECIAL_DEQUE
+// #define SPECIAL_DEQUE
 
 #include "path_engine.h"
 

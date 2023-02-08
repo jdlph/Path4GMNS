@@ -38,7 +38,7 @@ def perform_simple_simulation(ui, loading_profile='random'):
     results, i.e., trajectory of each agent (in trajectory.csv).
     """
     A = ui._base_assignment
-    A.initialize_simulation(loading_profile)
+    A.initialize_simulation_new(loading_profile)
 
     links = A.get_links()
     nodes = A.get_nodes()

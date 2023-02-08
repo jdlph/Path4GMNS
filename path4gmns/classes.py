@@ -1709,6 +1709,80 @@ class Assignment:
             link.cum_dep = [0] * n1
             link.waiting_time = [0] * n2
 
+    def initialize_simulation_new(self, loading_profile):
+        agents = self.get_agents()
+        links = self.get_links()
+        column_pool = self.get_column_pool()
+
+        agent_id = 1
+        agent_no = 0
+        for k, cv in column_pool.items():
+            if cv.get_od_volume() <= 0:
+                continue
+
+            # k= (at, dp, orig, dest)
+            at = k[0]
+            dp = k[1]
+            oz = k[2]
+            dz = k[3]
+
+            for col in cv.get_columns():
+                if col.nodes is None:
+                    continue
+
+                if loading_profile.startswith('uniform'):
+                    # no need to set up link volume as a result of UE
+                    num = ceil(col.get_volume())
+                    for i in range(num):
+                        t = int(i / col.get_volume() * self.simu_dur) + self.simu_st
+                        agent = Agent(agent_id,
+                                      agent_no,
+                                      at,
+                                      dp,
+                                      oz,
+                                      dz)
+
+                        agent.dep_time = t
+                        n = len(col.links)
+                        agent.curr_link_pos = n - 1
+                        agent.link_arr_interval = [-1] * n
+                        agent.link_dep_interval = [-1] * n
+
+                        # simulation interval
+                        j = (t - self.simu_st) * 60 // self.simu_rez
+                        agent.link_arr_interval[-1] = j
+                        # set up link path
+                        agent.link_path = [x for x in col.links]
+                        if j not in self.network.td_agents.keys():
+                            self.network.td_agents[j] = []
+                        self.network.td_agents[j].append(agent.get_seq_no())
+                        self.network.agents.append(agent)
+
+        # replicate _update_link_travel_time_and_cost()
+        for link in links:
+            if link.length == 0:
+                continue
+
+            link.calculate_td_vdf()
+            # link_capacity is for one hour, i.e., 60 minutes
+            c1 = link.link_capacity / (60 * self.simu_rez)
+            c2 = link.link_capacity // (60 * self.simu_rez)
+            residual = c1 - c2
+
+            r = uniform(0, 1)
+            if r >= residual:
+                residual = 1
+            else:
+                residual = 0
+
+            cap = c2 + residual
+            n1 = self.get_total_simu_intervals()
+            n2 = self.get_simu_duration()
+            link.outflow_cap = [cap] * n1
+            link.cum_arr = [0] * n1
+            link.cum_dep = [0] * n1
+            link.waiting_time = [0] * n2
+
     def get_simu_resolution(self):
         return self.simu_rez
 

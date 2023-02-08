@@ -220,8 +220,12 @@ def test_loading_synthesized_zones_demand():
 def test_simulation():
     network = pg.read_network(load_demand=True)
 
-    network.find_path_for_agents()
-    pg.perform_simple_simulation(network)
+    # network.find_path_for_agents()
+
+    column_gen_num = 10
+    column_update_num = 10
+    pg.perform_column_generation(column_gen_num, column_update_num, network)
+    pg.perform_simple_simulation(network, 'uniform')
     print('complete simple simulation.\n')
 
     print('writing agent trajectories')
@@ -275,4 +279,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(3)
+    demo_mode(10)

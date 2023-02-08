@@ -370,4 +370,4 @@ def benchmark_apsp(G):
     for k in G.map_id_to_no.keys():
         single_source_shortest_path(G, k, 'c')
 
-    print(f'processing time of finding all-pairs shortest paths: {time()-st:.2f} s')
+    print(f'processing time of finding all-pairs shortest paths: {time()-st:.4f} s')
