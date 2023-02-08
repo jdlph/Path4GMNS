@@ -1663,6 +1663,11 @@ class Assignment:
         agents = self.network.agents
         links = self.network.links
 
+        for link in links:
+            if link.length == 0:
+                continue
+            link.reset_period_flow_vol(0)
+
         for a in agents:
             if a.get_node_path() is None:
                 continue
@@ -1681,7 +1686,6 @@ class Assignment:
                 if link.length == 0:
                     continue
 
-                link.reset_period_flow_vol(0)
                 link.increase_period_flow_vol(0, a.PCE_factor)
 
         # replicate _update_link_travel_time_and_cost()
@@ -1734,7 +1738,6 @@ class Assignment:
                     # no need to set up link volume as a result of UE
                     num = ceil(col.get_volume())
                     for i in range(num):
-                        t = int(i / col.get_volume() * self.simu_dur) + self.simu_st
                         agent = Agent(agent_id,
                                       agent_no,
                                       at,
@@ -1742,14 +1745,15 @@ class Assignment:
                                       oz,
                                       dz)
 
-                        agent.dep_time = t
-                        n = len(col.links)
+                        n = col.get_link_num()
                         agent.curr_link_pos = n - 1
                         agent.link_arr_interval = [-1] * n
                         agent.link_dep_interval = [-1] * n
 
+                        t = int(i / col.get_volume() * self.simu_dur) + self.simu_st
                         # simulation interval
                         j = (t - self.simu_st) * 60 // self.simu_rez
+                        agent.dep_time = t
                         agent.link_arr_interval[-1] = j
                         # set up link path
                         agent.link_path = [x for x in col.links]

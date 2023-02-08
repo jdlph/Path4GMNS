@@ -51,7 +51,7 @@ def perform_simple_simulation(ui, loading_profile='random'):
         if i % num == 0:
             print(f'simu time = {i/num} min, CA = {cum_arr}, CD = {cum_dep}')
 
-        # comment out from now on as link.cum_arr and link.cum_dep are not used 
+        # comment out from now on as link.cum_arr and link.cum_dep are not used
         # for critical calculation
         # if i > 0:
         #     for link in links:
