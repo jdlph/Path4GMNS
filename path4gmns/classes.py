@@ -4,6 +4,7 @@ from copy import deepcopy
 from datetime import datetime
 from math import ceil
 from random import choice, randint, uniform
+import warnings
 
 from .consts import MAX_LABEL_COST, SMALL_DIVISOR
 from .path import find_path_for_agents, find_shortest_path, \
@@ -1714,12 +1715,17 @@ class Assignment:
             link.waiting_time = [0] * n2
 
     def initialize_simulation_new(self, loading_profile):
-        agents = self.get_agents()
+        profiles = ['constant', 'random', 'uniform']
+        if loading_profile not in profiles:
+            Warning.warn(
+                f'{loading_profile} is not supported!'
+                ' constant loading profile will be adopted.'
+            )
+
+        agent_id = 1
         links = self.get_links()
         column_pool = self.get_column_pool()
 
-        agent_id = 1
-        agent_no = 0
         for k, cv in column_pool.items():
             if cv.get_od_volume() <= 0:
                 continue
@@ -1734,33 +1740,38 @@ class Assignment:
                 if col.nodes is None:
                     continue
 
-                if loading_profile.startswith('uniform'):
-                    # no need to set up link volume as a result of UE
-                    num = ceil(col.get_volume())
-                    for i in range(num):
-                        agent = Agent(agent_id,
-                                      agent_no,
-                                      at,
-                                      dp,
-                                      oz,
-                                      dz)
+                # no need to set up link volume as a result of UE
+                vol = ceil(col.get_volume())
+                for j in range(vol):
+                    agent = Agent(agent_id, agent_id - 1, at, dp, oz, dz)
 
-                        n = col.get_link_num()
-                        agent.curr_link_pos = n - 1
-                        agent.link_arr_interval = [-1] * n
-                        agent.link_dep_interval = [-1] * n
+                    n = col.get_link_num()
+                    agent.curr_link_pos = n - 1
+                    agent.link_arr_interval = [-1] * n
+                    agent.link_dep_interval = [-1] * n
 
-                        t = int(i / col.get_volume() * self.simu_dur) + self.simu_st
-                        # simulation interval
-                        j = (t - self.simu_st) * 60 // self.simu_rez
-                        agent.dep_time = t
-                        agent.link_arr_interval[-1] = j
-                        # set up link path
-                        agent.link_path = [x for x in col.links]
-                        if j not in self.network.td_agents.keys():
-                            self.network.td_agents[j] = []
-                        self.network.td_agents[j].append(agent.get_seq_no())
-                        self.network.agents.append(agent)
+                    # constant departure time by default
+                    t = self.simu_st
+                    if loading_profile.startswith('uniform'):
+                        t += int(j / col.get_volume() * self.simu_dur)
+                    elif loading_profile.startswith('random'):
+                        t += randint(0, self.simu_dur - 1)
+
+                    # simulation interval
+                    i = (t - self.simu_st) * 60 // self.simu_rez
+                    agent.link_arr_interval[-1] = i
+                    agent.dep_time = t
+
+                    # set up node path and link path
+                    agent.link_path = [x for x in col.links]
+                    agent.node_path = [x for x in col.nodes]
+                    agent.path_cost = col.get_distance()
+                    if i not in self.network.td_agents.keys():
+                        self.network.td_agents[i] = []
+                    self.network.td_agents[i].append(agent.get_seq_no())
+                    self.network.agents.append(agent)
+
+                    agent_id += 1
 
         # replicate _update_link_travel_time_and_cost()
         for link in links:
