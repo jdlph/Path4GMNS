@@ -511,6 +511,7 @@ network = pg.read_network()
 pg.read_zones(network)
 pg.load_demand(network)
 
+# UE + DTA
 column_gen_num = 10
 column_update_num = 10
 pg.perform_column_generation(column_gen_num, column_update_num, network)
@@ -521,7 +522,7 @@ print('writing agent trajectories')
 pg.output_agent_trajectory(network)
 ```
 
-The original implementation introduced in v0.9.0 (that each agent is assumed to follow the shortest path from origin to destination) has been disabled. If you are still interested in traffic simulation using shortest paths, it can be achieved by setting column_gen_num as 1 and column_update_num as 0 illustrated below.
+The original implementation introduced in v0.9.0 (that each agent follows the shortest path from origin to destination) has been disabled. If you are still interested in traffic simulation using shortest paths, it can be achieved by setting column_gen_num as 1 and column_update_num as 0 illustrated below.
 
 ```Python
 import path4gmns as pg
@@ -530,7 +531,7 @@ network = pg.read_network()
 pg.read_zones(network)
 pg.load_demand(network)
 
-# the following setting will generate the shortest path for each agent
+# the following setting will set up the shortest path for each agent
 column_gen_num = 1
 column_update_num = 0
 pg.perform_column_generation(column_gen_num, column_update_num, network)

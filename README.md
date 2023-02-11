@@ -100,7 +100,7 @@ You are encouraged to join our [Discord Channel](https://discord.gg/JGFMta7kxZ) 
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2023, January 22). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2023, February 11). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## References
 Lu, C. C., Mahmassani, H. S., Zhou, X. (2009). Equivalent gap function-based reformulation and solution algorithm for the dynamic user equilibrium problem. Transportation Research Part B: Methodological, 43, 345-364.
