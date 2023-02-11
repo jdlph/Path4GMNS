@@ -4,7 +4,7 @@ from math import ceil
 __all__ = ['perform_simple_simulation']
 
 
-def perform_simple_simulation(ui, loading_profile='random'):
+def perform_simple_simulation(ui, loading_profile='uniform'):
     """ perform simple traffic simulation using point queue model
 
     WARNING
@@ -38,7 +38,7 @@ def perform_simple_simulation(ui, loading_profile='random'):
     results, i.e., trajectory of each agent (in trajectory.csv).
     """
     A = ui._base_assignment
-    A.initialize_simulation_new(loading_profile)
+    A.initialize_simulation(loading_profile)
 
     links = A.get_links()
     nodes = A.get_nodes()
@@ -67,7 +67,7 @@ def perform_simple_simulation(ui, loading_profile='random'):
                 # retrieve the first link given link path is in reverse order
                 link_no = a.link_path[-1]
                 link = links[link_no]
-                link.cum_arr[i] += 1
+                # link.cum_arr[i] += 1
                 link.entr_queue.append(a_no)
                 cum_arr += 1
 
@@ -108,8 +108,8 @@ def perform_simple_simulation(ui, loading_profile='random'):
                         waiting_t = actual_tt - link.get_period_travel_time(0)
                         minute = agent.get_arr_time() // A.get_simu_resolution()
                         link.update_waiting_time(minute, waiting_t)
-                        link.cum_dep[i] += 1
-                        next_link.cum_arr[i] += 1
+                        # link.cum_dep[i] += 1
+                        # next_link.cum_arr[i] += 1
 
                     agent.increment_link_pos()
                     # remove agent from exit queue

@@ -1422,32 +1422,36 @@ def output_agent_trajectory(ui, output_dir='.'):
         line = ['agent_id',
                 'o_zone_id',
                 'd_zone_id',
-                'origin_node_id',
-                'destination_node_id',
                 'departure_time_in_min',
                 'arrival_time_in_min',
                 'complete_trip',
                 'travel_time_in_min',
-                'demand_type',
                 'PCE',
-                'information_type',
-                'value_of_time',
                 'distance',
                 'number_of_nodes',
                 'node_sequence',
+                'geometry',
                 'time_sequence',
                 'time_sequence_hhmmss']
 
         writer.writerow(line)
 
         base = ui._base_assignment
+        nodes = base.get_nodes()
         agents = base.get_agents()
         r = base.get_simu_resolution()
         st = base.get_simu_start_time()
 
+        pre_dt = -1
         for a in agents:
             if a.get_node_path() is None:
                 continue
+
+            # do not output agents of the same OD pair with the same departure time
+            if a.get_dep_time() == pre_dt:
+                continue
+
+            pre_dt = a.get_dep_time()
 
             at = a.link_arr_interval[-1] * r / 60 + st
             dt = a.link_dep_interval[-1] * r / 60 + st
@@ -1479,23 +1483,23 @@ def output_agent_trajectory(ui, output_dir='.'):
             tt = at_ - a.get_dep_time() + st
 
             node_path_str = base.get_agent_node_path(a.get_id(), True)
+            geometry = ', '.join(
+                nodes[x].get_coordinate() for x in reversed(a.get_node_path())
+            )
+            geometry = 'LINESTRING (' + geometry + ')'
 
             line = [a.get_id(),
                     a.get_orig_zone_id(),
                     a.get_dest_zone_id(),
-                    a.get_orig_node_id(),
-                    a.get_dest_node_id(),
                     a.get_dep_time(),
                     at_,
                     complete_trip,
                     tt,
-                    '',
                     a.PCE_factor,
-                    '',
-                    '',
                     a.get_path_cost(),
                     len(a.get_node_path()),
                     node_path_str,
+                    geometry,
                     time_seq1_str,
                     time_seq2_str]
 
