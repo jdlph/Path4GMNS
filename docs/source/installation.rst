@@ -2,17 +2,17 @@
 Installation
 ============
 
-Path4GMNS has been published on `PyPI <https://pypi.org/project/path4gmns/0.9.0/>`_, and can be installed using
+Path4GMNS has been published on `PyPI <https://pypi.org/project/path4gmns/0.9.1/>`_, and can be installed using
 
 .. code-block:: bash
 
     $ pip install path4gmns
 
-If you need a specific version of Path4GMNS, say, 0.9.0,
+If you need a specific version of Path4GMNS, say, 0.9.1,
 
 .. code-block:: bash
 
-    $ pip install path4gmns==0.9.0
+    $ pip install path4gmns==0.9.1
 
 
 Dependency
@@ -22,7 +22,7 @@ The Python modules are written in Python 3.x, which is the minimum requirement t
 Some of its functions require further run-time support, which we will go through along with the use cases.
 
 Note that DTALite requires OpenMP as the run-time support, which would be checked during the first time import (as part
-of the compilation of source code to byte code). Make sure you install OpenMP before using Path4GMNS. See 
+of the compilation of source code to byte code). Make sure you install OpenMP before using Path4GMNS. See
 :ref:`OpenMP Installation <target_to_paragraph>`  for details.
 
 Build Path4GMNS from Source
@@ -55,7 +55,7 @@ As CMAKE_BUILD_TYPE will be IGNORED for IDE (Integrated Development Environment)
     # from the root directory of PATH4GMNS
     $ python setup.py sdist bdist_wheel
     $ cd dist
-    # or python -m pip install path4gmns-0.9.0.tar.gz
-    $ python -m pip instal pypath4gmns-0.9.0-py3-none-any.whl
+    # or python -m pip install path4gmns-0.9.1.tar.gz
+    $ python -m pip instal pypath4gmns-0.9.1-py3-none-any.whl
 
 Here, 0.8.7 is the version number. Replace it with the one specified in setup.py.

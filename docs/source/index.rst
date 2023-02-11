@@ -19,6 +19,7 @@ Path4GMNS supports, in short,
 3. performing path-based User-Equilibrium (UE) traffic assignment,
 4. evaluating multimodal accessibility and equity,
 5. synthesizing zones and Origin-Destination (OD) demand for a given network.
+6. conducting dynamic traffic assignment (DTA) after UE.
 
 Path4GMNS also serves as an API to the C++-based
 `DTALite <https://github.com/jdlph/DTALite>`_ to conduct various multimodal
@@ -26,7 +27,7 @@ traffic assignments including,
 
 * Link-based UE,
 * Path-based UE,
-* UE + Dynamic Traffic Assignment (DTA),
+* UE + DTA,
 * OD Matrix Estimation (ODME).
 
 .. figure:: imgs/architecture.png

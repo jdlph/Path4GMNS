@@ -1,6 +1,6 @@
 # Path4GMNS
 [![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)
- [![Downloads](https://pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.9.0-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen)
+ [![Downloads](https://pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.9.1-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen)
 
 Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding static shortest paths for simple analyses, its main functionality is to provide an efficient and flexible framework for column-based (path-based) modeling and applications in transportation (e.g., activity-based demand modeling). Path4GMNS supports, in short,
 
@@ -9,26 +9,27 @@ Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path e
 3. performing path-based User-Equilibrium (UE) traffic assignment,
 4. evaluating multimodal accessibility and equity,
 5. synthesizing zones and Origin-Destination (OD) demand for a given network.
+6. conducting dynamic traffic assignment (DTA) after UE.
 
 Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jdlph/DTALite) to conduct various multimodal traffic assignments including,
    * Link-based UE,
    * Path-based UE,
-   * UE + Dynamic Traffic Assignment (DTA),
+   * UE + DTA,
    * OD Matrix Estimation (ODME).
 
 ![Architecture](/docs/source/imgs/architecture.png)
 
 ## Installation
-Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.9.0/), and can be installed using
+Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.9.1/), and can be installed using
 ```
 $ pip install path4gmns
 ```
-If you need a specific version of Path4GMNS, say, 0.9.0,
+If you need a specific version of Path4GMNS, say, 0.9.1,
 ```
-$ pip install path4gmns==0.9.0
+$ pip install path4gmns==0.9.1
 ```
 
-v0.9.0 introduces mesoscopic traffic simulation using the point queue model. Please **update to or install the latest version** and **discard all old versions**, which could lead to wrong assignment results under certain conditions.
+v0.9.1 improves the performance with the fully optimized C++ routing engine and enhances the mesoscopic traffic simulation module, where the routing decisions now are coming from UE rather than shortest paths. Please **update to or install the latest version** and **discard all old versions**.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding [use cases](https://path4gmns.readthedocs.io/en/latest/).
@@ -46,7 +47,7 @@ The whole package is implemented towards **high performance**. The core shortest
 An easy and smooth installation process by **low dependency** is one of our major design goals. The core Python modules in Path4GMNS only require a handful of components from the Python standard library (e.g., csv, ctypes, and so on) with no any third-party libraries/packages. On the C++ side, the precompiled path engines as shared libraries are embedded to make this package portable across three major desktop environments (i.e., Windows, macOS, and Linux) and its source is implemented in C++11 with no dependency. Users can easily build the path engine from the source code towards their target system if it is not listed above as one of the three.
 
 ### More on the Column-Generation Module
-The column generation module first identifies new columns (i.e., paths) between each OD pair at each iteration and adds them into the column pool before optimizing (i.e., shifting flows among columns to achieve the equilibrium state). The original implementations in both DTALite and Path4GMNS (prior to v0.8.0) rely on node sum as the unique key (or hash index) to differentiate columns, which is simply the summation of node sequence numbers along a column. However, it cannot guarantee that a non-existing column will always be added to the column pool as different columns may share the same node sum (and we presume a one-to-one mapping from node sum to column rather than an array of slots for different columns with the same node sum). An example would be 0->1->4->5 and 0->2->3->5, where 0 to 5 are node sequence numbers. One of the columns will be precluded from the column pool.
+**The column generation module first identifies new columns (i.e., paths) between each OD pair at each iteration and adds them into the column pool before optimizing (i.e., shifting flows among columns to achieve the equilibrium state)**. The original implementations in both DTALite and Path4GMNS (prior to v0.8.0) rely on node sum as the unique key (or hash index) to differentiate columns, which is simply the summation of node sequence numbers along a column. However, it cannot guarantee that a non-existing column will always be added to the column pool as different columns may share the same node sum (and we presume a one-to-one mapping from node sum to column rather than an array of slots for different columns with the same node sum). An example would be 0->1->4->5 and 0->2->3->5, where 0 to 5 are node sequence numbers. One of the columns will be precluded from the column pool.
 
 In order to resolve this issue, we have deprecated node sum and introduced a side-by-side column comparison in Path4GMNS only. As columns between an OD pair are largely different in number of nodes, this comparison can be very efficiently. Slight improvements are actually observed in both running time and convergence gap over the original implementation.
 
@@ -84,6 +85,8 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 29. Calculate and print out relative gap of UE as convergency measure (v0.8.7)
 30. Support the most common length and speed units. See [tutorial](https://github.com/jdlph/Path4GMNS/tree/dev/tests/tutorial.ipynb) for details (v0.8.7)
 31. Introduce the simulation module along with a simple traffic simulator using the point queue model and shortest paths (v0.9.0)
+32. Fully optimize the C++ routing engine (v0.9.1)
+33. Use the UE result as routing decisions for the simulation (v0.9.1)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
 

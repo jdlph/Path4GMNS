@@ -19,8 +19,11 @@ def perform_simple_simulation(ui, loading_profile='uniform'):
 
     loading_profile
         demand loading profile, i.e., how agents are loaded to network with respect
-        to their departure times. Two loading profiles are supported, which are
-        random and constant.
+        to their departure times. Three loading profiles are supported, which are
+        uniform, random, and constant.
+
+        With uniform loading profile, agents will be uniformly distributed between
+        [simulation start time, simulation start time + simulation duration).
 
         With random loading profile, the departure time of each agent is randomly
         set up between [simulation start time, simulation start time + simulation duration).

@@ -461,11 +461,11 @@ print('complete equity evaluation.\n')
 print(f'processing time of equity evaluation: {time()-st:.2f} s')
 ```
 
-## Conduct Traffic Simulation
+## Conduct Dynamic Traffic Simulation
 
 Traffic simulation is to capture/mimic the traffic evolution over time through some representation of traffic dynamics. The choice of representation varies (including car following models, queueing models, kinematic wave models, etc.) and leads to three types of traffic simulation, which are microscopic, mesoscopic, and macroscopic.
 
-The traffic simulation module in Path4GMNS is a mesoscopic simulator using the point queue model and the routing decision of each individual agent (as disaggregated demand). As a starting point, each agent is assumed to follow the shortest path from origin to destination in v0.9.0. The routing decisions as a result of the UE traffic assignment will be implemented in the coming release.
+The traffic simulation module in Path4GMNS is a mesoscopic simulator using the point queue model and the routing decision of each individual agent (as disaggregated demand). The routing decisions are from the UE traffic assignment.
 
 The demand loading profile with respect to the departure times of all agents is either constant (start time of the selected demand period) or random (within the selected demand period). The future release will introduce a linear or piece-wise linear loading profile. v0.9.0 only supports one demand period, which must be specified in settings.yml and be corresponding to one from the list of demand_periods. The default simulation resolution is 6 seconds. In other words, a simulation interval is 6 seconds.
 
@@ -502,7 +502,7 @@ simulation:
   resolution: 6
 ```
 
-For v0.9.0, find_path_for_agents() must be called in the first place to set up path for each agent before simulation.
+perform_column_generation() must be called in the first place to set up path for each agent before simulation.
 
 ```Python
 import path4gmns as pg
@@ -511,9 +511,31 @@ network = pg.read_network()
 pg.read_zones(network)
 pg.load_demand(network)
 
-network.find_path_for_agents()
+column_gen_num = 10
+column_update_num = 10
+pg.perform_column_generation(column_gen_num, column_update_num, network)
 pg.perform_simple_simulation(network)
-print('complete simple simulation.\n')
+print('complete dynamic simulation.\n')
+
+print('writing agent trajectories')
+pg.output_agent_trajectory(network)
+```
+
+The original implementation introduced in v0.9.0 (that each agent is assumed to follow the shortest path from origin to destination) has been disabled. If you are still interested in traffic simulation using shortest paths, it can be achieved by setting column_gen_num as 1 and column_update_num as 0 illustrated below.
+
+```Python
+import path4gmns as pg
+
+network = pg.read_network()
+pg.read_zones(network)
+pg.load_demand(network)
+
+# the following setting will generate the shortest path for each agent
+column_gen_num = 1
+column_update_num = 0
+pg.perform_column_generation(column_gen_num, column_update_num, network)
+pg.perform_simple_simulation(network)
+print('complete dynamic simulation.\n')
 
 print('writing agent trajectories')
 pg.output_agent_trajectory(network)
