@@ -1610,11 +1610,11 @@ class Assignment:
         # output the entire node set directly without the following check?
         nodes = []
         for node in self.accessnetwork.get_nodes():
-            node_no = node.get_node_no()
             # do not include the source node itself
             if node.get_node_id() == source_node_id:
                 continue
 
+            node_no = node.get_node_no()
             if self.accessnetwork.get_node_label_cost(node_no) <= time_budget:
                 nodes.append(node.get_node_id())
 

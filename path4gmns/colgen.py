@@ -99,27 +99,18 @@ def _update_column_gradient_cost_and_flow(column_pool,
         least_gradient_cost_path_id = -1
 
         for col in cv.get_columns():
-            path_gradient_cost = 0
             # i is link sequence no
             path_gradient_cost = sum(
                 links[i].get_generalized_cost(tau, vot) for i in col.links
             )
 
             col.set_gradient_cost(path_gradient_cost)
-
-            if column_num == 1:
-                total_travel_time += (
-                    path_gradient_cost * col.get_volume()
-                )
-                break
-
             if path_gradient_cost < least_gradient_cost:
                 least_gradient_cost = path_gradient_cost
                 least_gradient_cost_path_id = col.get_id()
 
+        total_switched_out_path_vol = 0
         if column_num >= 2:
-            total_switched_out_path_vol = 0
-
             for col in cv.get_columns():
                 if col.get_id() == least_gradient_cost_path_id:
                     continue
@@ -210,9 +201,6 @@ def _backtrace_shortest_path_tree(centroid,
         if cv.is_route_fixed():
             continue
 
-        od_vol = cv.get_od_volume()
-        vol = od_vol * k_path_prob
-
         node_path = []
         link_path = []
 
@@ -232,6 +220,8 @@ def _backtrace_shortest_path_tree(centroid,
         # make sure this is a valid path
         if not link_path:
             continue
+
+        vol = k_path_prob * cv.get_od_volume()
 
         existing = False
         for col in cv.get_columns():

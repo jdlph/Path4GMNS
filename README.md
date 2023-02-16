@@ -7,9 +7,9 @@ Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path e
 1. finding (static) shortest path between two nodes,
 2. constructing shortest paths for all individual agents,
 3. performing path-based User-Equilibrium (UE) traffic assignment,
-4. evaluating multimodal accessibility and equity,
-5. synthesizing zones and Origin-Destination (OD) demand for a given network.
-6. conducting dynamic traffic assignment (DTA) after UE.
+4. conducting dynamic traffic assignment (DTA) after UE.
+5. evaluating multimodal accessibility and equity,
+6. synthesizing zones and Origin-Destination (OD) demand for a given network.
 
 Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jdlph/DTALite) to conduct various multimodal traffic assignments including,
    * Link-based UE,
@@ -86,7 +86,7 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 30. Support the most common length and speed units. See [tutorial](https://github.com/jdlph/Path4GMNS/tree/dev/tests/tutorial.ipynb) for details (v0.8.7)
 31. Introduce the simulation module along with a simple traffic simulator using the point queue model and shortest paths (v0.9.0)
 32. Fully optimize the C++ routing engine (v0.9.1)
-33. Use the UE result as routing decisions for the simulation (v0.9.1)
+33. Use the UE result as routing decisions for simulation (v0.9.1)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
 
