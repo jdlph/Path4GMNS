@@ -113,7 +113,7 @@ def _single_source_shortest_path_fifo(G, origin_node_no):
         for link in G.nodes[from_node].outgoing_links:
             to_node = link.to_node_seq_no
             new_to_node_cost = (G.node_label_cost[from_node]
-                                + link.cost)
+                                + link.fftt)
             # we only compare cost at the downstream node ToID
             # at the new arrival time t
             if new_to_node_cost < G.node_label_cost[to_node]:
@@ -153,7 +153,7 @@ def _single_source_shortest_path_deque(G, origin_node_no):
         for link in G.nodes[from_node].outgoing_links:
             to_node = link.to_node_seq_no
             new_to_node_cost = (G.node_label_cost[from_node]
-                                + link.cost)
+                                + link.fftt)
             # we only compare cost at the downstream node ToID
             # at the new arrival time t
             if new_to_node_cost < G.node_label_cost[to_node]:
@@ -199,7 +199,7 @@ def _single_source_shortest_path_dijkstra(G, origin_node_no):
         status[from_node] = 1
         for link in G.nodes[from_node].outgoing_links:
             to_node = link.to_node_seq_no
-            new_to_node_cost = label_cost + link.cost
+            new_to_node_cost = label_cost + link.fftt
             # we only compare cost at the downstream node ToID
             # at the new arrival time t
             if new_to_node_cost < G.node_label_cost[to_node]:

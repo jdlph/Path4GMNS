@@ -398,7 +398,7 @@ def read_links(input_dir,
             try:
                 capacity = _convert_str_to_int(line['capacity'])
             except InvalidRecord:
-                capacity = 49500
+                capacity = 1999
 
             # if link.csv does not have no column 'allowed_uses',
             # set allowed_uses to 'all'

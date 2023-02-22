@@ -8,7 +8,7 @@ from .consts import MAX_LABEL_COST, SMALL_DIVISOR
 __all__ = ['perform_column_generation', 'perform_network_assignment']
 
 
-def _update_generalized_link_cost(spnetworks):
+def _update_link_cost_array(spnetworks):
     """ update generalized link costs for each SPNetwork
 
     warning: there would be duplicate updates for SPNetworks with the same tau
@@ -28,7 +28,10 @@ def _update_generalized_link_cost(spnetworks):
             )
 
 
-def _update_link_travel_time_and_cost(links, demand_periods=None, iter_num=None):
+def _update_link_travel_time(links, demand_periods=None, iter_num=None):
+    if iter_num == 0:
+        return;
+    
     for link in links:
         if link.length == 0:
             continue
@@ -84,7 +87,7 @@ def _update_column_gradient_cost_and_flow(column_pool,
                                                 iter_num,
                                                 False)
 
-    _update_link_travel_time_and_cost(links)
+    _update_link_travel_time(links)
 
     total_gap = 0
     total_travel_time = 0
@@ -336,7 +339,7 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
 
     for i in range(column_gen_num):
         print(f'current iteration number in column generation: {i}')
-        _update_link_travel_time_and_cost(links, dps, i)
+        _update_link_travel_time(links, dps, i)
 
         _reset_and_update_link_vol_based_on_columns(column_pool,
                                                     links,
@@ -345,7 +348,7 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
                                                     True)
 
         # update generalized link cost before assignment
-        _update_generalized_link_cost(A.get_spnetworks())
+        _update_link_cost_array(A.get_spnetworks())
 
         # loop through all centroids on the base network
         _generate_column_pool(A.get_spnetworks(), column_pool, i)
@@ -360,7 +363,7 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
                                                 column_gen_num,
                                                 False)
 
-    _update_link_travel_time_and_cost(links)
+    _update_link_travel_time(links)
 
     _update_column_attributes(column_pool, links)
 
@@ -380,7 +383,7 @@ def update_links_using_columns(network):
                                                 1,
                                                 False)
 
-    _update_link_travel_time_and_cost(links)
+    _update_link_travel_time(links)
 
 
 def perform_network_assignment(assignment_mode, column_gen_num, column_update_num, ui):

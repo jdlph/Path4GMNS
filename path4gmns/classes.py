@@ -4,7 +4,6 @@ from copy import deepcopy
 from datetime import datetime
 from math import ceil
 from random import choice, randint, uniform
-import warnings
 
 from .consts import MAX_LABEL_COST, SMALL_DIVISOR
 from .path import find_path_for_agents, find_shortest_path, \
@@ -75,7 +74,7 @@ class Link:
                  lanes=1,
                  link_type=1,
                  free_speed=60,
-                 capacity=49500,
+                 capacity=1999,
                  allowed_uses='all',
                  geometry='',
                  demand_period_size=1):
@@ -99,8 +98,6 @@ class Link:
         self.link_capacity = capacity * lanes
         self.allowed_uses = allowed_uses
         self.geometry = geometry
-        self.cost = self.fftt
-        self.flow_volume = 0
         # add for CG
         self.demand_period_size = demand_period_size
         self.toll = 0
@@ -423,7 +420,7 @@ class Network:
         # initialize from_node_no_array, to_node_no_array, and link_cost_array
         from_node_no_array = [link.from_node_seq_no for link in self.links]
         to_node_no_array = [link.to_node_seq_no for link in self.links]
-        link_cost_array = [link.cost for link in self.links]
+        link_cost_array = [link.fftt for link in self.links]
 
         # initialize others
         queue_next = [0] * node_size
@@ -1075,7 +1072,7 @@ class SPNetwork(Network):
         link_preds = [-1] * base.node_size
         node_lables = [MAX_LABEL_COST] * base.node_size
         queue_next = [0] * base.node_size
-        link_cost_array = [link.cost for link in base.links]
+        link_cost_array = [link.fftt for link in base.links]
 
         int_arr_node = ctypes.c_int * base.node_size
         double_arr_node = ctypes.c_double * base.node_size
