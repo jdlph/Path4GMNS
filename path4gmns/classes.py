@@ -833,6 +833,16 @@ class Column:
     def set_geometry(self, g):
         self.geo = g
 
+    def update_gradient_cost_diffs(self, least_gc):
+        self.gradient_cost_abs_diff = self.gradient_cost - least_gc
+        self.gradient_cost_rel_diff = self.gradient_cost_abs_diff / max(SMALL_DIVISOR, least_gc)
+
+    def get_gap(self):
+        return self.gradient_cost_abs_diff * self.vol
+
+    def get_sys_travel_time(self):
+        return self.gradient_cost * self.vol
+
 
 class ColumnVec:
     """ column pool for (at, dp, oz, dz)
