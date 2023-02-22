@@ -9,12 +9,7 @@ __all__ = ['perform_column_generation', 'perform_network_assignment']
 
 
 def _update_link_cost_array(spnetworks):
-    """ update generalized link costs for each SPNetwork
-
-    warning: there would be duplicate updates for SPNetworks with the same tau
-    and vot belonging to different memory blocks. It could be resolved by
-    creating a shared network among them??
-    """
+    """ update generalized link costs for each SPNetwork """
     for sp in spnetworks:
         tau = sp.get_demand_period().get_id()
         vot = sp.get_agent_type().get_vot()
@@ -221,17 +216,22 @@ def _update_column_attributes(column_pool, links):
         dp = k[1]
 
         for col in cv.get_columns():
-            travel_time = sum(
-                links[j].travel_time_by_period[dp] for j in col.links
-            )
-            col.set_travel_time(travel_time)
+            nodes = []
+            path_toll = 0
+            travel_time = 0
 
-            path_toll = sum(
-                links[j].get_toll() for j in col.links
-            )
+            for j in col.links:
+                link = links[j]
+                nodes.append(links[j].from_node_seq_no)
+                travel_time += link.travel_time_by_period[dp]
+                path_toll += links[j].get_toll()
+
+            # last node
+            nodes.append(links[col.links[-1]].to_node_seq_no)
+
+            col.set_travel_time(travel_time)
             col.set_toll(path_toll)
-            col.nodes = [links[j].from_node_seq_no for j in col.links]
-            col.nodes.append(links[col.links[-1]].to_node_seq_no)
+            col.nodes = [x for x in nodes]
 
 
 def _generate(spn, column_pool, iter_num):
