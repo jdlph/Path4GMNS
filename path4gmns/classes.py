@@ -172,8 +172,8 @@ class Link:
     def increase_period_flow_vol(self, tau, fv):
         self.flow_vol_by_period[tau] += fv
 
-    def calculate_td_vdf(self, demand_periods=None, iter_num=None):
-        if demand_periods is None or iter_num is None:
+    def calculate_td_vdf(self, demand_periods=None, iter_num=-1):
+        if demand_periods is None:
             for tau in range(self.demand_period_size):
                 self.travel_time_by_period[tau] = (
                     self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau])
@@ -818,15 +818,6 @@ class Column:
     def set_gradient_cost(self, c):
         self.gradient_cost = c
 
-    def set_gradient_cost_abs_diff(self, ad):
-        self.gradient_cost_abs_diff = ad
-
-    def set_gradient_cost_rel_diff(self, rd):
-        self.gradient_cost_rel_diff = rd
-
-    def increase_toll(self, t):
-        self.toll += t
-
     def increase_volume(self, v):
         self.vol += v
 
@@ -835,7 +826,9 @@ class Column:
 
     def update_gradient_cost_diffs(self, least_gc):
         self.gradient_cost_abs_diff = self.gradient_cost - least_gc
-        self.gradient_cost_rel_diff = self.gradient_cost_abs_diff / max(SMALL_DIVISOR, least_gc)
+        self.gradient_cost_rel_diff = (
+            self.gradient_cost_abs_diff / max(SMALL_DIVISOR, least_gc)
+        )
 
     def get_gap(self):
         return self.gradient_cost_abs_diff * self.vol
