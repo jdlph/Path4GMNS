@@ -80,7 +80,7 @@ def perform_simple_simulation(ui, loading_profile='uniform'):
                 agent = A.get_agent(a_no)
                 link.exit_queue.append(a_no)
                 tt = ceil(link.get_period_travel_time(0) * num)
-                agent.update_dep_time(tt)
+                agent.update_dep_interval(tt)
 
         for node in nodes:
             m = node.get_incoming_link_num()
@@ -103,13 +103,13 @@ def perform_simple_simulation(ui, loading_profile='uniform'):
                         link_no = agent.get_next_link_no()
                         next_link = links[link_no]
                         next_link.entr_queue.append(a_no)
-                        agent.set_dep_time(i)
+                        agent.set_dep_interval(i)
                         # set up arrival time for the next link, i.e., next_link
-                        agent.set_arr_time(i, 1)
+                        agent.set_arr_interval(i, 1)
 
-                        actual_tt = i - agent.get_arr_time()
+                        actual_tt = i - agent.get_arr_interval()
                         waiting_t = actual_tt - link.get_period_travel_time(0)
-                        minute = agent.get_arr_time() // A.get_simu_resolution()
+                        minute = agent.get_arr_interval() // A.get_simu_resolution()
                         link.update_waiting_time(minute, waiting_t)
                         # link.cum_dep[i] += 1
                         # next_link.cum_arr[i] += 1

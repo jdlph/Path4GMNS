@@ -254,7 +254,7 @@ class Agent:
     def get_dp_id(self):
         return self.dp_id
 
-    def update_dep_time(self, tt):
+    def update_dep_interval(self, tt):
         self.link_dep_interval[self.curr_link_pos] = (
             self.link_arr_interval[self.curr_link_pos] + tt
         )
@@ -269,13 +269,13 @@ class Agent:
         pos = self.curr_link_pos - 1
         return self.link_path[pos]
 
-    def set_dep_time(self, i):
+    def set_dep_interval(self, i):
         self.link_dep_interval[self.curr_link_pos] = i
 
-    def set_arr_time(self, i, increment=0):
+    def set_arr_interval(self, i, increment=0):
         self.link_arr_interval[self.curr_link_pos-increment] = i
 
-    def get_arr_time(self):
+    def get_arr_interval(self):
         return self.link_arr_interval[self.curr_link_pos]
 
     def increment_link_pos(self):

@@ -21,7 +21,7 @@ demand_periods:
     time_period: 0700_0800
     special_event:
       name: work_zone
-      enable: true
+      enable: false
       # with respect to iterations in column generation
       beg_iteration: 1
       end_iteration: 20

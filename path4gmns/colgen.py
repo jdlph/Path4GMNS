@@ -31,12 +31,8 @@ def _update_link_travel_time(links, demand_periods=None, iter_num=-1):
         link.calculate_td_vdf(demand_periods, iter_num)
 
 
-def _reset_and_update_link_vol_based_on_columns(column_pool,
-                                                links,
-                                                demand_periods,
-                                                iter_num,
-                                                is_path_vol_self_reducing = True):
-    # the original implementation is iter_num < 0, which does not make sense
+def _update_link_and_column_volume(column_pool, links, demand_periods,
+                                   iter_num, reduce_path_vol = True):
     if iter_num == 0:
         return
 
@@ -62,7 +58,7 @@ def _reset_and_update_link_vol_based_on_columns(column_pool,
                     path_vol
                 )
 
-            if is_path_vol_self_reducing and not cv.is_route_fixed():
+            if reduce_path_vol and not cv.is_route_fixed():
                 col.vol *= iter_num / (iter_num + 1)
 
 
@@ -294,8 +290,7 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
         print(f'current iteration number in column generation: {i}')
 
         _update_link_travel_time(links, dps, i)
-        _reset_and_update_link_vol_based_on_columns(column_pool, links, dps, i)
-
+        _update_link_and_column_volume(column_pool, links, dps, i)
         # update generalized link cost before assignment
         _update_link_cost_array(A.get_spnetworks())
         # loop through all centroids on the base network
@@ -303,14 +298,13 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
 
     print(f'\nprocessing time of generating columns: {time()-st:.2f} s\n')
 
-    # _optimize_column_pool(column_pool, links, ats, dps, column_update_num)
     for i in range(column_update_num):
-        _reset_and_update_link_vol_based_on_columns(column_pool, links, dps, i, False)
+        _update_link_and_column_volume(column_pool, links, dps, i, False)
         _update_link_travel_time(links)
         _update_column_gradient_cost_and_flow(column_pool, links, ats, i)
 
     # postprocessing
-    _reset_and_update_link_vol_based_on_columns(column_pool, links, dps, column_gen_num, False)
+    _update_link_and_column_volume(column_pool, links, dps, column_gen_num, False)
     _update_link_travel_time(links)
     _update_column_attributes(column_pool, links)
 
@@ -324,7 +318,7 @@ def update_links_using_columns(network):
     dps = A.get_demand_periods()
 
     # do not update column volume
-    _reset_and_update_link_vol_based_on_columns(column_pool, links, dps, 1, False)
+    _update_link_and_column_volume(column_pool, links, dps, 1, False)
     _update_link_travel_time(links)
 
 
