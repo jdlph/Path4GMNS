@@ -120,7 +120,7 @@ def _update_column_gradient_cost_and_flow(column_pool, links, agent_types, iter_
 
     print(f'current iteration number in column update: {iter_num}\n'
           f'total gap: {total_gap:.2f}\n'
-          f'relative gap: {rel_gap:.3%}')
+          f'relative gap: {rel_gap:.4%}')
 
 
 def _backtrace_shortest_path_tree(centroid,
@@ -203,12 +203,12 @@ def _update_column_attributes(column_pool, links):
 
             for j in col.links:
                 link = links[j]
-                nodes.append(links[j].from_node_seq_no)
+                nodes.append(links[j].to_node_seq_no)
                 travel_time += link.travel_time_by_period[dp]
                 path_toll += links[j].get_toll()
 
             # last node
-            nodes.append(links[col.links[-1]].to_node_seq_no)
+            nodes.append(links[col.links[-1]].from_node_seq_no)
 
             col.set_travel_time(travel_time)
             col.set_toll(path_toll)
@@ -289,8 +289,8 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
     for i in range(column_gen_num):
         print(f'current iteration number in column generation: {i}')
 
-        _update_link_travel_time(links, dps, i)
         _update_link_and_column_volume(column_pool, links, dps, i)
+        _update_link_travel_time(links, dps, i)
         # update generalized link cost before assignment
         _update_link_cost_array(A.get_spnetworks())
         # loop through all centroids on the base network
