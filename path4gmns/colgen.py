@@ -16,7 +16,7 @@ def _update_link_cost_array(spnetworks):
 
         for link in sp.get_links():
             if link.length == 0:
-                continue
+                break
 
             sp.link_cost_array[link.get_seq_no()] = (
                 link.get_generalized_cost(tau, vot)
@@ -26,7 +26,7 @@ def _update_link_cost_array(spnetworks):
 def _update_link_travel_time(links, demand_periods=None, iter_num=-1):
     for link in links:
         if link.length == 0:
-            continue
+            break
 
         link.calculate_td_vdf(demand_periods, iter_num)
 
@@ -38,7 +38,7 @@ def _update_link_and_column_volume(column_pool, links, demand_periods,
 
     for link in links:
         if link.length == 0:
-            continue
+            break
 
         for dp in demand_periods:
             tau = dp.get_id()

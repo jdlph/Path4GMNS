@@ -67,7 +67,7 @@ void shortest_path(int orig_node,
     while (true)
     {
         // filter out the TAZ-based centroids
-        if (cur_node >= first_thru_node || cur_node == orig_node)
+        if (cur_node > first_thru_node || cur_node == orig_node)
         {
             for (int k = first_link_from[cur_node]; k < last_link_from[cur_node]; ++k)
             {
@@ -176,7 +176,7 @@ void shortest_path_n(int orig_node,
     for (int cur_node = orig_node, deque_head = nullnode, deque_tail = nullnode;;)
     {
         // filter out the TAZ-based centroids
-        if (cur_node <= last_thru_node || cur_node == orig_node)
+        if (cur_node < last_thru_node || cur_node == orig_node)
         {
             for (int k = first_link_from[cur_node]; k < last_link_from[cur_node]; ++k)
             {
@@ -380,7 +380,7 @@ void shortest_path_n(int orig_node,
     {
         int cur_node = deq.pop_front();
         // filter out the TAZ-based centroids
-        if (cur_node > last_thru_node && cur_node != orig_node)
+        if (cur_node >= last_thru_node && cur_node != orig_node)
             continue;
 
         for (int k = first_link_from[cur_node]; k < last_link_from[cur_node]; ++k)

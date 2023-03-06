@@ -9,6 +9,7 @@ elseif(UNIX)
 endif()
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_OSX_ARCHITECTURES "arm64")
 
 # note CMAKE_BUILD_TYPE WILL BE INGNORED for IDE generators, like Visual Studio and Xcode
 # it only works for single-configuration generators, e.g., make and Ninja
