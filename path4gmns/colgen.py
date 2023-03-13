@@ -113,8 +113,8 @@ def _update_column_gradient_cost_and_flow(column_pool, links, agent_types, iter_
 
         if least_gradient_cost_path_id != -1:
             col = cv.get_column(least_gradient_cost_path_id)
-            col.increase_volume(total_switched_out_path_vol)
             total_travel_time += col.get_sys_travel_time()
+            col.increase_volume(total_switched_out_path_vol)
 
     rel_gap = total_gap / max(total_travel_time, SMALL_DIVISOR)
 

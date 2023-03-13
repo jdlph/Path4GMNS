@@ -225,6 +225,8 @@ def test_simulation():
     column_gen_num = 10
     column_update_num = 10
     pg.perform_column_generation(column_gen_num, column_update_num, network)
+
+    # pg.load_columns(network)
     pg.perform_simple_simulation(network, 'uniform')
     print('complete simple simulation.\n')
 
@@ -279,4 +281,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(3)
+    demo_mode(10)

@@ -1052,63 +1052,56 @@ def load_columns(ui, input_dir='.'):
                 continue
 
             cv = A.get_column_vec(at, dp, oz_id, dz_id)
+            path_id = cv.get_column_num()
+            col = Column(path_id)
 
-            node_path = None
             try:
-                # "if x" check is only needed for columns generated from DTALite,
+                col.nodes = [A.get_node_no(int(x)) for x in reversed(node_seq.split(';')) if x]
+            except KeyError:
+                raise Exception(
+                    'Invalid node found on column!!'
+                    'Did you use agent.csv from a different network?'
+                )
+
+            try:
+                # if x is only needed for columns generated from DTALite,
                 # which have the trailing ';' and leads to '' after split
-                node_path = [int(x) for x in node_seq.split(';') if x]
+                col.links = [
+                    A.get_link_seq_no(x) for x in reversed(link_seq.split(';')) if x
+                ]
+            except KeyError:
+                raise Exception(
+                    'INVALID link found on column!!'
+                    'Did you use agent.csv from a different network?'
+                )
             except ValueError:
                 raise Exception(
-                    f'INVALID NODE PATH found for agent id: {agent_id}'
+                    f'INVALID LINK PATH found for agent id: {agent_id}'
                 )
+
+            # the following four are non-critical info
+            col.set_volume(vol)
+            col.set_toll(toll)
+            col.set_travel_time(tt)
+            col.set_geometry(geo)
 
             # deprecate node_sum and adopt the same implementation in colgen.py
             existing = False
-            for col in cv.get_columns():
-                if col.get_nodes() == node_path:
-                    col.increase_volume(vol)
+
+            if dist == 0:
+                sum(A.get_link(x).get_length() for x in col.links)
+
+            for col_ in cv.get_columns():
+                if col_.get_distance() != dist:
+                    continue
+
+                if col_.get_links() == col.links:
+                    col_.increase_volume(vol)
                     existing = True
                     break
 
             if not existing:
-                path_id = cv.get_column_num()
-                col = Column(path_id)
-
-                try:
-                    col.nodes = [A.get_node_no(x) for x in node_path]
-                except KeyError:
-                    raise Exception(
-                        'Invalid node found on column!!'
-                        'Did you use agent.csv from a different network?'
-                    )
-
-                try:
-                    # if x is only needed for columns generated from DTALite,
-                    # which have the trailing ';' and leads to '' after split
-                    col.links = [
-                        A.get_link_seq_no(x) for x in link_seq.split(';') if x
-                    ]
-                except KeyError:
-                    raise Exception(
-                        'INVALID link found on column!!'
-                        'Did you use agent.csv from a different network?'
-                    )
-                except ValueError:
-                    raise Exception(
-                        f'INVALID LINK PATH found for agent id: {agent_id}'
-                    )
-
-                # the following four are non-critical info
-                col.set_volume(vol)
-                col.set_toll(toll)
-                col.set_travel_time(tt)
-                col.set_geometry(geo)
-
-                if dist == 0:
-                    sum(A.get_link(x).get_length() for x in col.links)
                 col.set_distance(dist)
-
                 cv.add_new_column(col)
 
         update_links_using_columns(ui)
