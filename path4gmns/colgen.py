@@ -119,8 +119,7 @@ def _update_column_gradient_cost_and_flow(column_pool, links, agent_types, iter_
     rel_gap = total_gap / max(total_travel_time, SMALL_DIVISOR)
 
     print(f'current iteration number in column update: {iter_num}\n'
-          f'total gap: {total_gap:.2f}\n'
-          f'relative gap: {rel_gap:.4%}')
+          f'total gap: {total_gap:.2f}; relative gap: {rel_gap:.4%}')
 
 
 def _backtrace_shortest_path_tree(centroid,

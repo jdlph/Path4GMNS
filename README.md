@@ -1,6 +1,6 @@
 # Path4GMNS
 [![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)
- [![Downloads](https://pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.9.1-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen)
+ [![Downloads](https://pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.9.2-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen) ![Read the Docs](https://img.shields.io/readthedocs/path4gmns)
 
 Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding static shortest paths for simple analyses, its main functionality is to provide an efficient and flexible framework for column-based (path-based) modeling and applications in transportation (e.g., activity-based demand modeling). Path4GMNS supports, in short,
 
@@ -20,23 +20,23 @@ Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jd
 ![Architecture](/docs/source/imgs/architecture.png)
 
 ## Installation
-Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.9.1/), and can be installed using
+Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.9.2/), and can be installed using
 ```
 $ pip install path4gmns
 ```
-If you need a specific version of Path4GMNS, say, 0.9.1,
+If you need a specific version of Path4GMNS, say, 0.9.2,
 ```
-$ pip install path4gmns==0.9.1
+$ pip install path4gmns==0.9.2
 ```
 
-v0.9.1 improves the performance with the fully optimized C++ routing engine and enhances the mesoscopic traffic simulation module, where the routing decisions now are coming from UE rather than shortest paths. Please **update to or install the latest version** and **discard all old versions**.
+v0.9.2 improves the performance with faster and better UE convergency along with bug fix on loading columns. Please **update to or install the latest version** and **discard all old versions**.
 
 ### Dependency
-The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding [use cases](https://path4gmns.readthedocs.io/en/latest/).
+The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding **[Use Cases](https://path4gmns.readthedocs.io/en/latest/)**.
 
 ## Quick Start
 
- We highly recommend that you go through [this tutorial](https://github.com/jdlph/Path4GMNS/tree/dev/tests/tutorial.ipynb) written in Jupyter notebook with step-by-step demonstration using the latest version, no matter you are one of the existing users or new to Path4GMNS.
+ We highly recommend that you go through this **[Tutorial](https://github.com/jdlph/Path4GMNS/tree/dev/tests/tutorial.ipynb)** written in Jupyter notebook with step-by-step demonstration using the latest version, no matter you are one of the existing users or new to Path4GMNS. Its documentation is available on **[readthedocs](https://path4gmns.readthedocs.io/en/latest/)**.
 
 ## Implementation Notes
 
@@ -51,7 +51,7 @@ An easy and smooth installation process by **low dependency** is one of our majo
 
 In order to resolve this issue, we have deprecated node sum and introduced a side-by-side column comparison in Path4GMNS only. As columns between an OD pair are largely different in number of nodes, this comparison can be very efficiently. Slight improvements are actually observed in both running time and convergence gap over the original implementation.
 
-DTALite uses arrays rather than STL containers to store columns. These arrays are fixed in size (1,000), which prevents a fast filtering using the number of nodes as described above. For two (long) columns only different in the last few nodes, this side-by-side comparison has to be continued until the very end and ruins the performance. Thus, we decide **NOT TO ADOPT** this updated implementation to DTALite but do expect it in the future release after [refactoring](https://github.com/jdlph/DTALite#refactoring).
+DTALite uses arrays rather than STL containers to store columns. These arrays are fixed in size (1,000), which prevents a fast filtering using the number of nodes as described above. For two (long) columns only different in the last few nodes, this side-by-side comparison has to be continued until the very end and ruins the performance. Thus, we decide **NOT TO ADOPT** this updated implementation to DTALite and leave it to **[TransOMS](https://github.com/jdlph/TransOMS)**.
 
 ### Major Updates
 1. Read and output node and link geometries (v0.6.0)
@@ -87,6 +87,9 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 31. Introduce the simulation module along with a simple traffic simulator using the point queue model and shortest paths (v0.9.0)
 32. Fully optimize the C++ routing engine (v0.9.1)
 33. Use the UE result as routing decisions for simulation (v0.9.1)
+34. Optimize the column generation module with faster and better UE convergency (v0.9.2)
+35. Resolve the potential issue on traversing the last through node in path engine (v0.9.2)
+36. Fix the bug on loading columns where link path and node paths are not in the proper order (v0.9.2)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
 

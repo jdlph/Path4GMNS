@@ -1347,7 +1347,7 @@ class Assignment:
         self.network = None
         self.spnetworks = []
         self.accessnetwork = None
-        self.memory_blocks = 4
+        self.memory_blocks = 1
         self.map_atstr_id = {}
         self.map_dpstr_id = {}
         self.map_name_atstr = {}
