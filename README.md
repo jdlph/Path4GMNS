@@ -88,8 +88,9 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 32. Fully optimize the C++ routing engine (v0.9.1)
 33. Use the UE result as routing decisions for simulation (v0.9.1)
 34. Optimize the column generation module with faster and better UE convergency (v0.9.2)
-35. Resolve the potential issue on traversing the last through node in path engine (v0.9.2)
-36. Fix the bug on loading columns where link path and node paths are not in the proper order (v0.9.2)
+35. Fix the bug on updating the total system travel time (v0.9.2)
+36. Resolve the potential issue on traversing the last through node in path engine (v0.9.2)
+37. Fix the bug on loading columns where link path and node paths are not in the proper order (v0.9.2)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
 
@@ -103,7 +104,7 @@ You are encouraged to join our [Discord Channel](https://discord.gg/JGFMta7kxZ) 
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2023, February 11). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2023, March 14). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## References
 Lu, C. C., Mahmassani, H. S., Zhou, X. (2009). Equivalent gap function-based reformulation and solution algorithm for the dynamic user equilibrium problem. Transportation Research Part B: Methodological, 43, 345-364.

@@ -154,11 +154,14 @@ print('shortest path (link id) of agent, '
 pg.output_agent_paths(network)
 ```
 
-v0.7.2 or higher features finding agent paths under a specific mode defined in settings.yaml. The following example demonstrates this new functionality under mode walk (i.e., w).
+v0.7.2 or higher features finding agent paths under a specific mode defined in settings.yml. The following example demonstrates this new functionality under mode walk (i.e., w).
 ```python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=True)
+network = pg.read_network()
+pg.read_zones(network)
+pg.load_demand(network)
+
 network.find_path_for_agents()
 
 # or equivalently network.find_path_for_agents('walk')
@@ -502,7 +505,7 @@ simulation:
   resolution: 6
 ```
 
-perform_column_generation() must be called in the first place to set up path for each agent before simulation.
+perform_column_generation() shall be called in the first place to set up path for each agent before simulation.
 
 ```Python
 import path4gmns as pg
@@ -515,6 +518,26 @@ pg.load_demand(network)
 column_gen_num = 10
 column_update_num = 10
 pg.perform_column_generation(column_gen_num, column_update_num, network)
+pg.perform_simple_simulation(network)
+print('complete dynamic simulation.\n')
+
+print('writing agent trajectories')
+pg.output_agent_trajectory(network)
+```
+
+If you have agent.csv (i.e.columns) from a previous run or DTALite, you can bypass perform_column_generation() and directly load it to conduct simulation.
+
+
+```python
+import path4gmns as pg
+
+network = pg.read_network()
+pg.read_zones(network)
+pg.load_demand(network)
+
+# load existing UE result
+pg.load_columns(network)
+# DTA
 pg.perform_simple_simulation(network)
 print('complete dynamic simulation.\n')
 

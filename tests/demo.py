@@ -220,12 +220,12 @@ def test_loading_synthesized_zones_demand():
 def test_simulation():
     network = pg.read_network(load_demand=True)
 
-    # network.find_path_for_agents()
-
     column_gen_num = 10
     column_update_num = 10
     pg.perform_column_generation(column_gen_num, column_update_num, network)
 
+    # you can bypass the above perform_column_generation() and call
+    # load_columns(network) if you have agent.csv
     # pg.load_columns(network)
     pg.perform_simple_simulation(network, 'uniform')
     print('complete simple simulation.\n')
