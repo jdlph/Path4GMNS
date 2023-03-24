@@ -23,16 +23,15 @@ def _update_link_cost_array(spnetworks):
             )
 
 
-def _update_link_travel_time(links, demand_periods=None, iter_num=-1):
+def _update_link_travel_time(links, demand_periods=None):
     for link in links:
         if link.length == 0:
             break
 
-        link.calculate_td_vdf(demand_periods, iter_num)
+        link.calculate_td_vdf(demand_periods)
 
 
-def _update_link_and_column_volume(column_pool, links, demand_periods,
-                                   iter_num, reduce_path_vol = True):
+def _update_link_and_column_volume(column_pool, links, iter_num, reduce_path_vol = True):
     if iter_num == 0:
         return
 
@@ -40,9 +39,7 @@ def _update_link_and_column_volume(column_pool, links, demand_periods,
         if link.length == 0:
             break
 
-        for dp in demand_periods:
-            tau = dp.get_id()
-            link.reset_period_flow_vol(tau)
+        link.reset_period_flow_vol()
 
     for k, cv in column_pool.items():
         # k= (at, tau, oz_id, dz_id)
@@ -64,7 +61,7 @@ def _update_link_and_column_volume(column_pool, links, demand_periods,
 
 def _update_column_gradient_cost_and_flow(column_pool, links, agent_types, iter_num):
     total_gap = 0
-    total_travel_time = 0
+    total_sys_travel_time = 0
 
     for k, cv in column_pool.items():
         # k= (at, tau, oz_id, dz_id)
@@ -94,7 +91,7 @@ def _update_column_gradient_cost_and_flow(column_pool, links, agent_types, iter_
                 col.update_gradient_cost_diffs(least_gradient_cost)
 
                 total_gap += col.get_gap()
-                total_travel_time += col.get_sys_travel_time()
+                total_sys_travel_time += col.get_sys_travel_time()
 
                 step_size = 1 / (iter_num + 2) * cv.get_od_volume()
                 previous_path_vol = col.get_volume()
@@ -113,10 +110,10 @@ def _update_column_gradient_cost_and_flow(column_pool, links, agent_types, iter_
 
         if least_gradient_cost_path_id != -1:
             col = cv.get_column(least_gradient_cost_path_id)
-            total_travel_time += col.get_sys_travel_time()
+            total_sys_travel_time += col.get_sys_travel_time()
             col.increase_volume(total_switched_out_path_vol)
 
-    rel_gap = total_gap / max(total_travel_time, SMALL_DIVISOR)
+    rel_gap = total_gap / max(total_sys_travel_time, SMALL_DIVISOR)
 
     print(f'current iteration number in column update: {iter_num}\n'
           f'total gap: {total_gap:.2f}; relative gap: {rel_gap:.4%}')
@@ -127,8 +124,8 @@ def _backtrace_shortest_path_tree(centroid,
                                   links,
                                   node_preds,
                                   link_preds,
-                                  agent_type,
-                                  demand_period,
+                                  at_id,
+                                  dp_id,
                                   column_pool,
                                   iter_num):
 
@@ -143,16 +140,16 @@ def _backtrace_shortest_path_tree(centroid,
         if dz_id == oz_id:
             continue
 
-        if (agent_type, demand_period, oz_id, dz_id) not in column_pool.keys():
+        if (at_id, dp_id, oz_id, dz_id) not in column_pool.keys():
             continue
 
-        cv = column_pool[(agent_type, demand_period, oz_id, dz_id)]
+        cv = column_pool[(at_id, dp_id, oz_id, dz_id)]
         if cv.is_route_fixed():
             continue
 
         link_path = []
-
         dist = 0
+
         curr_node_seq_no = c.get_node_no()
         # retrieve the sequence backwards
         while curr_node_seq_no >= 0:
@@ -288,8 +285,8 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
     for i in range(column_gen_num):
         print(f'current iteration number in column generation: {i}')
 
-        _update_link_and_column_volume(column_pool, links, dps, i)
-        _update_link_travel_time(links, dps, i)
+        _update_link_and_column_volume(column_pool, links, i)
+        _update_link_travel_time(links, dps)
         # update generalized link cost before assignment
         _update_link_cost_array(A.get_spnetworks())
         # loop through all centroids on the base network
@@ -298,12 +295,12 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
     print(f'\nprocessing time of generating columns: {time()-st:.2f} s\n')
 
     for i in range(column_update_num):
-        _update_link_and_column_volume(column_pool, links, dps, i, False)
+        _update_link_and_column_volume(column_pool, links, i, False)
         _update_link_travel_time(links)
         _update_column_gradient_cost_and_flow(column_pool, links, ats, i)
 
     # postprocessing
-    _update_link_and_column_volume(column_pool, links, dps, column_gen_num, False)
+    _update_link_and_column_volume(column_pool, links, column_gen_num, False)
     _update_link_travel_time(links)
     _update_column_attributes(column_pool, links)
 
@@ -314,10 +311,9 @@ def update_links_using_columns(network):
 
     column_pool = A.get_column_pool()
     links = A.get_links()
-    dps = A.get_demand_periods()
 
     # do not update column volume
-    _update_link_and_column_volume(column_pool, links, dps, 1, False)
+    _update_link_and_column_volume(column_pool, links, 1, False)
     _update_link_travel_time(links)
 
 

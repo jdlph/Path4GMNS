@@ -166,13 +166,14 @@ class Link:
             + self.toll / max(SMALL_DIVISOR, value_of_time) * 60
         )
 
-    def reset_period_flow_vol(self, tau):
-        self.flow_vol_by_period[tau] = 0
+    def reset_period_flow_vol(self):
+        for tau in range(self.demand_period_size):
+            self.flow_vol_by_period[tau] = 0
 
     def increase_period_flow_vol(self, tau, fv):
         self.flow_vol_by_period[tau] += fv
 
-    def calculate_td_vdf(self, demand_periods=None, iter_num=-1):
+    def calculate_td_vdf(self, demand_periods=None):
         if demand_periods is None:
             for tau in range(self.demand_period_size):
                 self.travel_time_by_period[tau] = (
@@ -181,7 +182,7 @@ class Link:
         else:
             for dp in demand_periods:
                 tau = dp.get_id()
-                reduction_ratio = dp.get_reduction_ratio(self.id, iter_num)
+                reduction_ratio = dp.get_reduction_ratio(self.id)
                 self.travel_time_by_period[tau] = (
                     self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau],
                                                  reduction_ratio)
@@ -975,11 +976,8 @@ class DemandPeriod:
     def get_end_iteration(self):
         return self.special_event.get_end_iteration()
 
-    def get_reduction_ratio(self, link_id, iter_num):
+    def get_reduction_ratio(self, link_id):
         if self.special_event is None:
-            return 1
-
-        if iter_num < self.get_beg_iteration() - 1 or iter_num > self.get_end_iteration() - 1:
             return 1
 
         try:
