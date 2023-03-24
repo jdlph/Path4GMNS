@@ -5,7 +5,7 @@ import warnings
 from datetime import timedelta
 
 from .classes import Node, Link, Zone, Network, Column, ColumnVec, VDFPeriod, \
-                     AgentType, DemandPeriod, Demand, SpecialEvent, Assignment, UI
+                     AgentType, DemandPeriod, Demand, Assignment, UI
 
 from .colgen import update_links_using_columns
 from .consts import MILE_TO_METER, MPH_TO_KPH, SMALL_DIVISOR
@@ -829,19 +829,13 @@ def read_settings(input_dir, assignment):
                     if not enable:
                         raise KeyError
 
-                    name = s['name']
-                    se = SpecialEvent(name)
+                    # name = s['name']
 
                     links = s['affected_links']
                     for link in links:
                         link_id = str(link['link_id'])
-                        ratio = link['reduction_ratio']
-                        se.affected_links[link_id] = ratio
-                        link_no = assignment.get_link_seq_no(link_id)
-                        link_obj = assignment.get_link(link_no)
-                        link_obj.set_reduction_ratio(i, ratio)
-
-                    dp.special_event = se
+                        ratio = link['capacity_ratio']
+                        assignment.set_capacity_ratio(i, link_id, ratio)
                 except KeyError:
                     pass
 

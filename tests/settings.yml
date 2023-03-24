@@ -24,13 +24,13 @@ demand_periods:
       enable: false
       affected_links:
         - link_id: 1
-          reduction_ratio: 0.5
+          capacity_ratio: 0.5
         - link_id: 2
-          reduction_ratio: 0.4
+          capacity_ratio: 0.4
         - link_id: 3
-          reduction_ratio: 0.6
+          capacity_ratio: 0.6
         - link_id: 4
-          reduction_ratio: 0
+          capacity_ratio: 0
 
 demand_files:
   - file_name: demand.csv

@@ -185,8 +185,8 @@ class Link:
         except IndexError:
             pass
 
-    def set_reduction_ratio(self, tau, rr):
-        self.vdfperiods[tau].reduction_ratio = rr
+    def set_capacity_ratio(self, tau, rr):
+        self.vdfperiods[tau].capacity_ratio = rr
 
 
 class Agent:
@@ -919,20 +919,12 @@ class AgentType:
         return 'passenger'
 
 
-class SpecialEvent:
-
-    def __init__(self, name) -> None:
-        self.name = name
-        self.affected_links = {}
-
-
 class DemandPeriod:
 
     def __init__(self, id=0, period='AM', time_period='0700_0800'):
         self.id = id
         self.period = period
         self.time_period = time_period
-        self.special_event = None
         self._setup_time()
 
     def _setup_time(self):
@@ -955,21 +947,6 @@ class DemandPeriod:
 
     def get_period(self):
         return self.period
-
-    def get_beg_iteration(self):
-        return self.special_event.get_beg_iteration()
-
-    def get_end_iteration(self):
-        return self.special_event.get_end_iteration()
-
-    def get_reduction_ratio(self, link_id):
-        if self.special_event is None:
-            return 1
-
-        try:
-            return self.special_event.affected_links[link_id]
-        except KeyError:
-            return 1
 
     def get_duration(self):
         """ duration of demand period in minutes """
@@ -1017,7 +994,7 @@ class VDFPeriod:
         self.phf = phf
         self.avg_travel_time = 0
         self.voc = 0
-        self.reduction_ratio = 1
+        self.capacity_ratio = 1
 
     def get_avg_travel_time(self):
         return self.avg_travel_time
@@ -1030,7 +1007,7 @@ class VDFPeriod:
 
     def run_bpr(self, vol):
         vol = max(0, vol)
-        self.voc = vol / max(SMALL_DIVISOR, self.capacity * self.reduction_ratio)
+        self.voc = vol / max(SMALL_DIVISOR, self.capacity * self.capacity_ratio)
         self.avg_travel_time = (
             self.fftt
             + self.fftt
@@ -1728,6 +1705,11 @@ class Assignment:
 
     def set_simu_start_time(self, st):
         self.simu_st = st
+
+    def set_capacity_ratio(self, tau, link_id, r):
+        link_no = self.get_link_seq_no(link_id)
+        link = self.get_link(link_no)
+        link.set_capacity_ratio(tau, r)
 
 
 class UI:
