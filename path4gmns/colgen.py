@@ -23,12 +23,12 @@ def _update_link_cost_array(spnetworks):
             )
 
 
-def _update_link_travel_time(links, demand_periods=None):
+def _update_link_travel_time(links):
     for link in links:
         if link.length == 0:
             break
 
-        link.calculate_td_vdf(demand_periods)
+        link.calculate_td_vdf()
 
 
 def _update_link_and_column_volume(column_pool, links, iter_num, reduce_path_vol = True):
@@ -277,7 +277,6 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
 
     links = A.get_links()
     ats = A.get_agent_types()
-    dps = A.get_demand_periods()
     column_pool = A.get_column_pool()
 
     st = time()
@@ -286,7 +285,7 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
         print(f'current iteration number in column generation: {i}')
 
         _update_link_and_column_volume(column_pool, links, i)
-        _update_link_travel_time(links, dps)
+        _update_link_travel_time(links)
         # update generalized link cost before assignment
         _update_link_cost_array(A.get_spnetworks())
         # loop through all centroids on the base network
@@ -295,13 +294,11 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
     print(f'\nprocessing time of generating columns: {time()-st:.2f} s\n')
 
     for i in range(column_update_num):
-        _update_link_and_column_volume(column_pool, links, i, False)
-        _update_link_travel_time(links)
         _update_column_gradient_cost_and_flow(column_pool, links, ats, i)
+        _update_link_and_column_volume(column_pool, links, i + 1, False)
+        _update_link_travel_time(links)
 
     # postprocessing
-    _update_link_and_column_volume(column_pool, links, column_gen_num, False)
-    _update_link_travel_time(links)
     _update_column_attributes(column_pool, links)
 
 

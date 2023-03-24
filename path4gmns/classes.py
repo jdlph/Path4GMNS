@@ -173,26 +173,20 @@ class Link:
     def increase_period_flow_vol(self, tau, fv):
         self.flow_vol_by_period[tau] += fv
 
-    def calculate_td_vdf(self, demand_periods=None):
-        if demand_periods is None:
-            for tau in range(self.demand_period_size):
-                self.travel_time_by_period[tau] = (
-                    self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau])
-                )
-        else:
-            for dp in demand_periods:
-                tau = dp.get_id()
-                reduction_ratio = dp.get_reduction_ratio(self.id)
-                self.travel_time_by_period[tau] = (
-                    self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau],
-                                                 reduction_ratio)
-                )
+    def calculate_td_vdf(self):
+        for tau in range(self.demand_period_size):
+            self.travel_time_by_period[tau] = (
+                self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau])
+            )
 
     def update_waiting_time(self, minute, wt):
         try:
             self.waiting_time[minute] += wt
         except IndexError:
             pass
+
+    def set_reduction_ratio(self, tau, rr):
+        self.vdfperiods[tau].reduction_ratio = rr
 
 
 class Agent:
@@ -927,17 +921,9 @@ class AgentType:
 
 class SpecialEvent:
 
-    def __init__(self, name, beg_iteration, end_iteration) -> None:
+    def __init__(self, name) -> None:
         self.name = name
-        self.beg_iter = beg_iteration
-        self.end_iter = end_iteration
         self.affected_links = {}
-
-    def get_beg_iteration(self):
-        return self.beg_iter
-
-    def get_end_iteration(self):
-        return self.end_iter
 
 
 class DemandPeriod:
@@ -1031,6 +1017,7 @@ class VDFPeriod:
         self.phf = phf
         self.avg_travel_time = 0
         self.voc = 0
+        self.reduction_ratio = 1
 
     def get_avg_travel_time(self):
         return self.avg_travel_time
@@ -1041,9 +1028,9 @@ class VDFPeriod:
     def get_fftt(self):
         return self.fftt
 
-    def run_bpr(self, vol, reduction_ratio=1):
+    def run_bpr(self, vol):
         vol = max(0, vol)
-        self.voc = vol / max(SMALL_DIVISOR, self.capacity * reduction_ratio)
+        self.voc = vol / max(SMALL_DIVISOR, self.capacity * self.reduction_ratio)
         self.avg_travel_time = (
             self.fftt
             + self.fftt

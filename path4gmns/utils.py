@@ -830,15 +830,16 @@ def read_settings(input_dir, assignment):
                         raise KeyError
 
                     name = s['name']
-                    beg_iter = s['beg_iteration']
-                    end_iter = s['end_iteration']
-                    se = SpecialEvent(name, beg_iter, end_iter)
+                    se = SpecialEvent(name)
 
                     links = s['affected_links']
                     for link in links:
                         link_id = str(link['link_id'])
                         ratio = link['reduction_ratio']
                         se.affected_links[link_id] = ratio
+                        link_no = assignment.get_link_seq_no(link_id)
+                        link_obj = assignment.get_link(link_no)
+                        link_obj.set_reduction_ratio(i, ratio)
 
                     dp.special_event = se
                 except KeyError:
