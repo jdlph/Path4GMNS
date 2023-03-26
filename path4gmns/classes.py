@@ -919,12 +919,23 @@ class AgentType:
         return 'passenger'
 
 
+class SpecialEvent:
+
+    def __init__(self, name) -> None:
+        self.name = name
+        self.affected_links = {}
+
+    def get_affected_links(self):
+        return self.affected_links.items()
+
+
 class DemandPeriod:
 
     def __init__(self, id=0, period='AM', time_period='0700_0800'):
         self.id = id
         self.period = period
         self.time_period = time_period
+        self.special_event = None
         self._setup_time()
 
     def _setup_time(self):

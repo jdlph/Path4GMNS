@@ -5,7 +5,7 @@ import warnings
 from datetime import timedelta
 
 from .classes import Node, Link, Zone, Network, Column, ColumnVec, VDFPeriod, \
-                     AgentType, DemandPeriod, Demand, Assignment, UI
+                     AgentType, DemandPeriod, Demand, SpecialEvent, Assignment, UI
 
 from .colgen import update_links_using_columns
 from .consts import MILE_TO_METER, MPH_TO_KPH, SMALL_DIVISOR
@@ -549,7 +549,7 @@ def read_demand(input_dir,
         column_pool.clear()
 
         reader = csv.DictReader(fp)
-        total_agents = 0
+        total_vol = 0
         for line in reader:
             # invalid origin zone id, discard it
             try:
@@ -588,11 +588,11 @@ def read_demand(input_dir,
                 column_pool[(at, dp, oz_id, dz_id)] = ColumnVec()
             column_pool[(at, dp, oz_id, dz_id)].increase_volume(volume)
 
-            total_agents += int(volume + 1)
+            total_vol += volume
 
-        print(f'the number of agents is {total_agents}')
+        print(f'the total demand is {total_vol:.2f}')
 
-        if total_agents == 0:
+        if total_vol == 0:
             raise Exception(
                 'NO VALID OD VOLUME!! Double check your demand.csv and '
                 'make sure there is zone info in node.csv'
@@ -829,13 +829,16 @@ def read_settings(input_dir, assignment):
                     if not enable:
                         raise KeyError
 
-                    # name = s['name']
+                    name = s['name']
+                    se = SpecialEvent(name)
 
                     links = s['affected_links']
                     for link in links:
                         link_id = str(link['link_id'])
                         ratio = link['capacity_ratio']
-                        assignment.set_capacity_ratio(i, link_id, ratio)
+                        se.affected_links[link_id] = ratio
+
+                    dp.special_event = se
                 except KeyError:
                     pass
 
@@ -949,6 +952,18 @@ def read_network(length_unit='mile', speed_unit='mph', load_demand=False, input_
 
     network.update()
     assignm.network = network
+
+    if load_demand:
+        # set up capacity ratio of affected links from special event
+        for dp in assignm.demand_periods:
+            se = dp.special_event
+            if se is None:
+                continue
+
+            # k is link id and v is capacity ratio
+            for k, v in se.get_affected_links():
+                assignm.set_capacity_ratio(dp.get_id(), k, v)
+
     ui = UI(assignm)
 
     return ui
