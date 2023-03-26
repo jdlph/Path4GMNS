@@ -975,6 +975,7 @@ def load_columns(ui, input_dir='.'):
         print('read agent.csv')
 
         A = ui._base_assignment
+        cp = A.get_column_pool()
 
         reader = csv.DictReader(f)
 
@@ -1058,8 +1059,8 @@ def load_columns(ui, input_dir='.'):
             # it could be empty
             geo = line['geometry']
 
-            if (at, dp, oz_id, dz_id) not in A.get_column_pool().keys():
-                continue
+            if (at, dp, oz_id, dz_id) not in cp.keys():
+                cp[(at, dp, oz_id, dz_id)] = ColumnVec()
 
             cv = A.get_column_vec(at, dp, oz_id, dz_id)
             path_id = cv.get_column_num()
@@ -1113,6 +1114,7 @@ def load_columns(ui, input_dir='.'):
             if not existing:
                 col.set_distance(dist)
                 cv.add_new_column(col)
+                cv.increase_volume(vol)
 
         update_links_using_columns(ui)
 

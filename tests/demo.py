@@ -100,7 +100,7 @@ def test_column_generation_dtalite():
 
 
 def test_loading_columns():
-    network = pg.read_network(load_demand=True)
+    network = pg.read_network()
 
     print('\nstart loading columns\n')
     st = time()
@@ -281,4 +281,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(3)
+    demo_mode(5)
