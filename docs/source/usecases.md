@@ -144,8 +144,6 @@ Starting from v0.7.0a1, Path4GMNS supports loading columns/paths from existing f
 import path4gmns as pg
 
 network = pg.read_network()
-pg.read_zones(network)
-pg.load_demand(network)
 # you can specify the input directory
 # e.g., pg.load_columns(network, 'data/Chicago_Sketch')
 pg.load_columns(network)

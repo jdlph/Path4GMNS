@@ -23,40 +23,44 @@ def test_find_shortest_path():
 
 
 def test_find_shortest_path_for_agents():
-    network = pg.read_network(load_demand=True)
+    """ DEPRECATED """
 
-    st = time()
-    # find agent paths under a specific mode defined in settings.yaml,
-    # say, a (i.e., auto)
-    # network.find_path_for_agents('a') or network.find_path_for_agents('auto')
-    network.find_path_for_agents()
-    print('\nprocessing time of finding shortest paths for all agents: '
-          f'{time()-st:.2f} s')
+    print("DEPRECATED")
 
-    agent_id = 300
-    print('\norigin node id of agent is '
-          f'{network.get_agent_orig_node_id(agent_id)}')
-    print('destination node id of agent is '
-          f'{network.get_agent_dest_node_id(agent_id)}')
-    print('shortest path (node id) of agent, '
-          f'{network.get_agent_node_path(agent_id)}')
-    print('shortest path (link id) of agent, '
-          f'{network.get_agent_link_path(agent_id)}')
+    # network = pg.read_network(load_demand=True)
 
-    agent_id = 1000
-    print('\norigin node id of agent is '
-          f'{network.get_agent_orig_node_id(agent_id)}')
-    print('destination node id of agent is '
-          f'{network.get_agent_dest_node_id(agent_id)}')
-    print('shortest path (node id) of agent, '
-          f'{network.get_agent_node_path(agent_id)}')
-    print('shortest path (link id) of agent, '
-          f'{network.get_agent_link_path(agent_id)}')
+    # st = time()
+    # # find agent paths under a specific mode defined in settings.yaml,
+    # # say, a (i.e., auto)
+    # # network.find_path_for_agents('a') or network.find_path_for_agents('auto')
+    # network.find_path_for_agents()
+    # print('\nprocessing time of finding shortest paths for all agents: '
+    #       f'{time()-st:.2f} s')
 
-    # output unique agent paths to a csv file
-    # if you do not want to include geometry info in the output file,
-    # you can do pg.output_agent_paths(network, False)
-    pg.output_agent_paths(network)
+    # agent_id = 300
+    # print('\norigin node id of agent is '
+    #       f'{network.get_agent_orig_node_id(agent_id)}')
+    # print('destination node id of agent is '
+    #       f'{network.get_agent_dest_node_id(agent_id)}')
+    # print('shortest path (node id) of agent, '
+    #       f'{network.get_agent_node_path(agent_id)}')
+    # print('shortest path (link id) of agent, '
+    #       f'{network.get_agent_link_path(agent_id)}')
+
+    # agent_id = 1000
+    # print('\norigin node id of agent is '
+    #       f'{network.get_agent_orig_node_id(agent_id)}')
+    # print('destination node id of agent is '
+    #       f'{network.get_agent_dest_node_id(agent_id)}')
+    # print('shortest path (node id) of agent, '
+    #       f'{network.get_agent_node_path(agent_id)}')
+    # print('shortest path (link id) of agent, '
+    #       f'{network.get_agent_link_path(agent_id)}')
+
+    # # output unique agent paths to a csv file
+    # # if you do not want to include geometry info in the output file,
+    # # you can do pg.output_agent_paths(network, False)
+    # pg.output_agent_paths(network)
 
 
 def test_column_generation_py():
@@ -281,4 +285,4 @@ def demo_mode(mode):
 
 if __name__=="__main__":
 
-    demo_mode(5)
+    demo_mode(3)
