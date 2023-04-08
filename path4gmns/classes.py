@@ -1718,7 +1718,11 @@ class Assignment:
         self.simu_st = st
 
     def set_capacity_ratio(self, tau, link_id, r):
-        link_no = self.get_link_seq_no(link_id)
+        try:
+            link_no = self.get_link_seq_no(link_id)
+        except KeyError:
+            return
+
         link = self.get_link(link_no)
         link.set_capacity_ratio(tau, r)
 
@@ -1759,7 +1763,10 @@ class UI:
         return self._base_assignment.network.ODMatrix
 
     def find_path_for_agents(self, mode='all'):
-        """ find and set up shortest path for each agent """
+        """ DEPRECATED
+
+        find and set up shortest path for each agent
+        """
         return self._base_assignment.find_path_for_agents(mode)
 
     def find_shortest_path(self, from_node_id, to_node_id,

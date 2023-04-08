@@ -114,63 +114,6 @@ pg.output_columns(network)
 pg.output_link_performance(network)
 ```
 
-## Find Shortest Paths for All Individual Agents
-Path4GMNS is capable of calculating and constructing the (static) shortest paths for all agents. Individual agents will be automatically set up using the aggregated travel demand between each OD pair (i.e., demand.csv) within find_path_for_agents() on its first call. If you have zone information specified in node.csv, you can also follow the legacy way to load demand and zone info (see [Tutorial](https://github.com/jdlph/Path4GMNS/blob/dev/tests/tutorial.ipynb) for details).
-
-The unique agent paths can be output to a csv file as shown in the example below.
-```python
-import path4gmns as pg
-
-network = pg.read_network()
-# it reads zone.csv by default
-pg.read_zones(network)
-# it reads demand.csv by default
-pg.load_demand(network)
-network.find_path_for_agents()
-
-agent_id = 300
-print('\norigin node id of agent is '
-      f'{network.get_agent_orig_node_id(agent_id)}')
-print('destination node id of agent is '
-      f'{network.get_agent_dest_node_id(agent_id)}')
-print('shortest path (node id) of agent, '
-      f'{network.get_agent_node_path(agent_id)}')
-print('shortest path (link id) of agent, '
-      f'{network.get_agent_link_path(agent_id)}')
-
-agent_id = 1000
-print('\norigin node id of agent is '
-      f'{network.get_agent_orig_node_id(agent_id)}')
-print('destination node id of agent is '
-      f'{network.get_agent_dest_node_id(agent_id)}')
-print('shortest path (node id) of agent, '
-      f'{network.get_agent_node_path(agent_id)}')
-print('shortest path (link id) of agent, '
-      f'{network.get_agent_link_path(agent_id)}')
-
-# output unique agent paths to a csv file
-# if you do not want to include geometry info in the output file,
-# use pg.output_agent_paths(network, False)
-pg.output_agent_paths(network)
-```
-
-v0.7.2 or higher features finding agent paths under a specific mode defined in settings.yml. The following example demonstrates this new functionality under mode walk (i.e., w).
-```python
-import path4gmns as pg
-
-network = pg.read_network()
-pg.read_zones(network)
-pg.load_demand(network)
-
-network.find_path_for_agents()
-
-# or equivalently network.find_path_for_agents('walk')
-network.find_path_for_agents('w')
-
-# retrieving the origin, the destination, and the shortest path of a given agent
-# is exactly the same as before as well as outputting all unique agent paths
-```
-
 ## Perform Path-Based UE Traffic Assignment using the Python Column-Generation Module
 The Python column-generation module only implements path-based UE. If you need other assignment modes, e.g., link-based UE or DTA, please use perform_network_assignment_DTALite().
 
@@ -532,8 +475,6 @@ If you have agent.csv (i.e.columns) from a previous run or DTALite, you can bypa
 import path4gmns as pg
 
 network = pg.read_network()
-pg.read_zones(network)
-pg.load_demand(network)
 
 # load existing UE result
 pg.load_columns(network)

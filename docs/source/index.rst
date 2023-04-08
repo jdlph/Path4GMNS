@@ -15,11 +15,10 @@ applications in transportation (e.g., activity-based demand modeling).
 Path4GMNS supports, in short,
 
 1. finding (static) shortest path between two nodes,
-2. constructing shortest paths for all individual agents,
-3. performing path-based User-Equilibrium (UE) traffic assignment,
-4. conducting dynamic traffic assignment (DTA) after UE.
-5. evaluating multimodal accessibility and equity,
-6. synthesizing zones and Origin-Destination (OD) demand for a given network.
+2. performing path-based User-Equilibrium (UE) traffic assignment,
+3. conducting dynamic traffic assignment (DTA) after UE.
+4. evaluating multimodal accessibility and equity,
+5. synthesizing zones and Origin-Destination (OD) demand for a given network.
 
 Path4GMNS also serves as an API to the C++-based
 `DTALite <https://github.com/jdlph/DTALite>`_ to conduct various multimodal
