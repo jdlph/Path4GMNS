@@ -28,7 +28,7 @@ If you need a specific version of Path4GMNS, say, 0.9.3,
 $ pip install path4gmns==0.9.3
 ```
 
-v0.9.3 fixes the bug on handling link capacity reduction in traffic assignment and remove dependency on read_demand() for loading columns. Please **update to or install the latest version** and **discard all old versions**.
+v0.9.3 fixes the bug on handling link capacity reduction in traffic assignment and removes dependency on read_demand() for loading columns. Please **update to or install the latest version** and **discard all old versions**.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding **[Use Cases](https://path4gmns.readthedocs.io/en/latest/)**.
@@ -90,7 +90,7 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 35. Fix the bug on updating the total system travel time (v0.9.2)
 36. Resolve the potential issue on traversing the last through node in path engine (v0.9.2)
 37. Fix the bug on loading columns where link path and node paths are not in the proper order (v0.9.2)
-38. FiX the bug on handling link capacity reduction in traffic assignment (v0.9.3)
+38. Fix the bug on handling link capacity reduction in traffic assignment (v0.9.3)
 39. Remove dependency on demand.csv for loading columns (v0.9.3)
 40. Deprecate find_path_for_agents() (v0.9.3)
 
