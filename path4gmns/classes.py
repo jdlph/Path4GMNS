@@ -248,6 +248,9 @@ class Agent:
 
     def get_dp_id(self):
         return self.dp_id
+    
+    def get_od(self):
+        return self.o_zone_id, self.d_zone_id
 
     def update_dep_interval(self, tt):
         self.link_dep_interval[self.curr_link_pos] = (
@@ -931,7 +934,7 @@ class SpecialEvent:
 
 class DemandPeriod:
 
-    def __init__(self, id=0, period='AM', time_period='0700_0800'):
+    def __init__(self, id=0, period='AM', time_period='0700-0800'):
         self.id = id
         self.period = period
         self.time_period = time_period

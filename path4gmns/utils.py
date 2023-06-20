@@ -1448,15 +1448,17 @@ def output_agent_trajectory(ui, output_dir='.'):
         st = base.get_simu_start_time()
 
         pre_dt = -1
+        pre_od = -1, -1
         for a in agents:
             if a.get_node_path() is None:
                 continue
 
             # do not output agents of the same OD pair with the same departure time
-            if a.get_dep_time() == pre_dt:
+            if a.get_dep_time() == pre_dt and a.get_od() == pre_od:
                 continue
 
             pre_dt = a.get_dep_time()
+            pre_od = a.get_od()
 
             at = a.link_arr_interval[-1] * r / 60 + st
             dt = a.link_dep_interval[-1] * r / 60 + st

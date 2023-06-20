@@ -165,7 +165,7 @@ A special event often comes with capacity reduction over affected links, which i
 ```yaml
 demand_periods:
   - period: AM
-    time_period: 0700_0800
+    time_period: 0700-0800
     special_event:
       name: work_zone
       enable: true
@@ -260,7 +260,7 @@ agents:
 
 demand_periods:
   - period: AM
-    time_period: 0700_0800
+    time_period: 0700-0800
 
 demand_files:
   - file_name: demand.csv
@@ -429,7 +429,7 @@ agents:
 
 demand_periods:
   - period: AM
-    time_period: 0700_0800
+    time_period: 0700-0800
 
 demand_files:
   - file_name: demand.csv
