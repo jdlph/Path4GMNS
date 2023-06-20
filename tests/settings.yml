@@ -18,7 +18,7 @@ agents:
 
 demand_periods:
   - period: AM
-    time_period: 0700_0800
+    time_period: 0700-0800
     special_event:
       name: work_zone
       enable: false

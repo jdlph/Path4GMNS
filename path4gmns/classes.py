@@ -940,7 +940,7 @@ class DemandPeriod:
 
     def _setup_time(self):
         try:
-            s1, s2 = self.time_period.split('_')
+            s1, s2 = self.time_period.split('-')
             t1 = datetime.strptime(s1, '%H%M')
             t2 = datetime.strptime(s2, '%H%M')
             st_ = t1.hour * 60 + t1.minute

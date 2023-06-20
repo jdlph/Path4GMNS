@@ -15,4 +15,5 @@ engine_cpp/build/
 */trajectory.csv
 accessibility*.csv
 *accessibility.csv
+final_summary.csv
 **log*

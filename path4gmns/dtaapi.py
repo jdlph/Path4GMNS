@@ -3,25 +3,29 @@ import ctypes
 import platform
 
 
-__all__ = ['perform_network_assignment_DTALite']
+__all__ = ['perform_network_assignment_DTALite', 'run_DTALite']
 
 
 _os = platform.system()
 if _os.startswith('Windows'):
     _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite.dll')
+    _dtalitemm_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALiteMM.dll')
 elif _os.startswith('Linux'):
     _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite.so')
 elif _os.startswith('Darwin'):
     # check CPU is Intel or Apple Silicon
     if platform.machine().startswith('x86_64'):
         _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite_x86.dylib')
+        _dtalitemm_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALiteMM_x86.dylib')
     else:
         _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite_arm.dylib')
 else:
     raise Exception('Please build the shared library compatible to your OS\
                     using source files')
 
+_dtalitemm_engine = ctypes.cdll.LoadLibrary(_dtalitemm_dll)
 _dtalite_engine = ctypes.cdll.LoadLibrary(_dtalite_dll)
+
 
 _dtalite_engine.network_assignment.argtypes = [ctypes.c_int,
                                                ctypes.c_int,
@@ -94,3 +98,11 @@ def perform_network_assignment_DTALite(assignment_mode,
         f'check link_performance.csv in {os.getcwd()} for link performance\n'
         f'check agent.csv in {os.getcwd()} for unique agent paths\n'
     )
+
+
+def run_DTALite():
+    print('\nDTALite run starts')
+
+    _dtalitemm_engine.DTALiteAPI()
+
+    print('\nDTALite run completes\n')
