@@ -248,7 +248,7 @@ class Agent:
 
     def get_dp_id(self):
         return self.dp_id
-    
+
     def get_od(self):
         return self.o_zone_id, self.d_zone_id
 
@@ -941,17 +941,26 @@ class DemandPeriod:
         self.special_event = None
         self._setup_time()
 
+    def _parse_time_period(self, delim='-'):
+        s1, s2 = self.time_period.split(delim)
+        t1 = datetime.strptime(s1, '%H%M')
+        t2 = datetime.strptime(s2, '%H%M')
+        if t2 <= t1:
+            raise ValueError('ending time <= starting time')
+
+        st_ = t1.hour * 60 + t1.minute
+        et_ = t2.hour * 60 + t2.minute
+
+        return st_, et_
+
     def _setup_time(self):
         try:
-            s1, s2 = self.time_period.split('-')
-            t1 = datetime.strptime(s1, '%H%M')
-            t2 = datetime.strptime(s2, '%H%M')
-            st_ = t1.hour * 60 + t1.minute
-            et_ = t2.hour * 60 + t2.minute
-            if et_ <= st_:
-                raise ValueError('ending time <= starting time')
-        except ValueError as ve:
-            print('Invalid time_periods: ', ve)
+            st_, et_ = self._parse_time_period()
+        except ValueError:
+            # backward compatibility for versions <= v0.9.3
+            st_, et_ = self._parse_time_period('_')
+        except Exception as e:
+            raise e
 
         self.st = st_
         self.et = et_
