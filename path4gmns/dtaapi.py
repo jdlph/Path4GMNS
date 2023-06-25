@@ -1,6 +1,8 @@
 import os
 import ctypes
 import platform
+from multiprocessing import Process
+from time import sleep
 
 
 __all__ = ['perform_network_assignment_DTALite', 'run_DTALite']
@@ -34,11 +36,7 @@ _dtalite_engine.network_assignment.argtypes = [ctypes.c_int,
 
 def _print_log(input_dir='.'):
     with open(input_dir + '/log_main.txt', 'r') as fp:
-        while True:
-            line = fp.readline()
-            if not line:
-                break
-
+        for line in fp:
             print(line)
 
 
@@ -111,10 +109,17 @@ def perform_network_assignment_DTALite(assignment_mode,
 
 
 def run_DTALite():
-    print('\nDTALite run starts\n')
-    print(f'\ncheck log_main.txt in {os.getcwd()} for more information')
+    print('\nDTALite run starts')
 
-    _dtalitemm_engine.DTALiteAPI()
-    _print_log()
+    proc_dta = Process(target=_dtalitemm_engine.DTALiteAPI())
+    proc_print = Process(target=_print_log)
+
+    proc_dta.start()
+    proc_print.start()
+
+    proc_dta.join()
+    if proc_dta.exitcode is not None:
+        sleep(0.1)
+        proc_print.join()
 
     print('\nDTALite run completes\n')
