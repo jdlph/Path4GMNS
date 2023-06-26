@@ -34,7 +34,7 @@ _dtalite_engine.network_assignment.argtypes = [ctypes.c_int,
                                                ctypes.c_int]
 
 
-def _print_log(input_dir='.'):
+def _emit_log(input_dir='.'):
     with open(input_dir + '/log_main.txt', 'r') as fp:
         for line in fp:
             print(line)
@@ -95,14 +95,37 @@ def perform_network_assignment_DTALite(assignment_mode,
     assert(column_gen_num>=0)
     assert(column_update_num>=0)
 
-    print('\nDTALite run starts')
+    print('\nDTALite run starts\n')
 
     proc_dta = Process(
         target=_dtalite_engine.network_assignment,
         args=(assignment_mode, column_gen_num, column_update_num,)
     )
 
-    proc_print = Process(target=_print_log)
+    proc_print = Process(target=_emit_log)
+
+    proc_dta.start()
+    proc_dta.join()
+
+    if proc_dta.exitcode is not None:
+        sleep(0.1)
+        proc_print.start()
+        proc_print.join()
+        if proc_dta.exitcode == 0:
+            print('DTALite run completes!\n')
+            print(
+                f'check link_performance.csv in {os.getcwd()} for link performance\n'
+                f'check agent.csv in {os.getcwd()} for unique agent paths\n'
+            )
+        else:
+            print('DTALite run terminates!')
+
+
+def run_DTALite():
+    print('\nDTALite run starts\n')
+
+    proc_dta = Process(target=_dtalitemm_engine.DTALiteAPI())
+    proc_print = Process(target=_emit_log)
 
     proc_dta.start()
     proc_print.start()
@@ -112,22 +135,6 @@ def perform_network_assignment_DTALite(assignment_mode,
         sleep(0.1)
         proc_print.join()
         if proc_dta.exitcode == 0:
-            print(
-                f'check link_performance.csv in {os.getcwd()} for link performance\n'
-                f'check agent.csv in {os.getcwd()} for unique agent paths\n'
-            )
-
-
-def run_DTALite():
-    print('\nDTALite run starts')
-
-    proc_dta = Process(target=_dtalitemm_engine.DTALiteAPI())
-    proc_print = Process(target=_print_log)
-
-    proc_dta.start()
-    proc_print.start()
-
-    proc_dta.join()
-    if proc_dta.exitcode is not None:
-        sleep(0.1)
-        proc_print.join()
+            print('DTALite run completes!')
+        else:
+            print('DTALite run terminates!')
