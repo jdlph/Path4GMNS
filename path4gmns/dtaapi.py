@@ -98,28 +98,43 @@ def perform_network_assignment_DTALite(assignment_mode,
 
     print('\nDTALite run starts\n')
 
-    proc_dta = Process(
-        target=_dtalite_engine.network_assignment,
-        args=(assignment_mode, column_gen_num, column_update_num,)
-    )
+    if _os.startswith('Windows'):
+        _dtalite_engine.network_assignment(assignment_mode,
+                                           column_gen_num,
+                                           column_update_num)
 
-    proc_print = Process(target=_emit_log)
+        _emit_log()
 
-    proc_dta.start()
-    proc_dta.join()
+        print('\nDTALite run completes\n')
+        print(
+            f'check link_performance.csv in {os.getcwd()} for link performance\n'
+            f'check agent.csv in {os.getcwd()} for unique agent paths\n'
+        )
+    else:
+        # the following does not work for Windows.
+        # ValueError: ctypes objects containing pointers cannot be pickled
+        proc_dta = Process(
+            target=_dtalite_engine.network_assignment,
+            args=(assignment_mode, column_gen_num, column_update_num,)
+        )
 
-    if proc_dta.exitcode is not None:
-        sleep(0.1)
-        proc_print.start()
-        proc_print.join()
-        if proc_dta.exitcode == 0:
-            print('DTALite run completes!\n')
-            print(
-                f'check link_performance.csv in {os.getcwd()} for link performance\n'
-                f'check agent.csv in {os.getcwd()} for unique agent paths\n'
-            )
-        else:
-            print('DTALite run terminates!')
+        proc_print = Process(target=_emit_log)
+
+        proc_dta.start()
+        proc_dta.join()
+
+        if proc_dta.exitcode is not None:
+            sleep(0.1)
+            proc_print.start()
+            proc_print.join()
+            if proc_dta.exitcode == 0:
+                print('DTALite run completes!\n')
+                print(
+                    f'check link_performance.csv in {os.getcwd()} for link performance\n'
+                    f'check agent.csv in {os.getcwd()} for unique agent paths\n'
+                )
+            else:
+                print('DTALite run terminates!')
 
 
 def run_DTALite():
@@ -129,11 +144,11 @@ def run_DTALite():
     proc_print = Process(target=_emit_log)
 
     proc_dta.start()
-    proc_print.start()
-
     proc_dta.join()
+
     if proc_dta.exitcode is not None:
         sleep(0.1)
+        proc_print.start()
         proc_print.join()
         if proc_dta.exitcode == 0:
             print('DTALite run completes!')
