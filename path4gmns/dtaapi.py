@@ -14,6 +14,7 @@ if _os.startswith('Windows'):
     _dtalitemm_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALiteMM.dll')
 elif _os.startswith('Linux'):
     _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite.so')
+    _dtalitemm_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALiteMM.so')
 elif _os.startswith('Darwin'):
     # check CPU is Intel or Apple Silicon
     if platform.machine().startswith('x86_64'):
