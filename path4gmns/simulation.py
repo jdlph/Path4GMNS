@@ -42,6 +42,8 @@ def perform_simple_simulation(ui, loading_profile='uniform'):
     """
     A = ui._base_assignment
     A.initialize_simulation(loading_profile)
+    if A.get_agent_count() == 0:
+        return
 
     links = A.get_links()
     nodes = A.get_nodes()
@@ -79,7 +81,7 @@ def perform_simple_simulation(ui, loading_profile='uniform'):
                 a_no = link.entr_queue.popleft()
                 agent = A.get_agent(a_no)
                 link.exit_queue.append(a_no)
-                tt = ceil(link.get_period_travel_time(0) * num)
+                tt = ceil(link.get_period_fftt(0) * num)
                 agent.update_dep_interval(tt)
 
         for node in nodes:
@@ -97,7 +99,7 @@ def perform_simple_simulation(ui, loading_profile='uniform'):
                         break
 
                     if agent.reached_last_link():
-                        link.cum_dep[i] += 1
+                        # link.cum_dep[i] += 1
                         cum_dep += 1
                     else:
                         link_no = agent.get_next_link_no()
@@ -108,9 +110,10 @@ def perform_simple_simulation(ui, loading_profile='uniform'):
                         agent.set_arr_interval(i, 1)
 
                         actual_tt = i - agent.get_arr_interval()
-                        waiting_t = actual_tt - link.get_period_travel_time(0)
-                        minute = agent.get_arr_interval() // A.get_simu_resolution()
-                        link.update_waiting_time(minute, waiting_t)
+                        waiting_t = actual_tt - link.get_period_fftt(0)
+                        # arrival time in minutes
+                        arr_minute = agent.get_arr_interval() // num
+                        link.update_waiting_time(arr_minute, waiting_t)
                         # link.cum_dep[i] += 1
                         # next_link.cum_arr[i] += 1
 

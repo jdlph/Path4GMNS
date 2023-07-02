@@ -1336,7 +1336,7 @@ class Assignment:
         self.map_atstr_id = {}
         self.map_dpstr_id = {}
         self.map_name_atstr = {}
-        # number of seconds per simulation
+        # number of seconds per simulation interval
         self.simu_rez = 6
         # duration of simulation in minutes
         self.simu_dur = 60
@@ -1694,7 +1694,6 @@ class Assignment:
             if link.length == 0:
                 continue
 
-            link.calculate_td_vdf()
             # link_capacity is for one hour, i.e., 60 minutes
             c1 = link.link_capacity / (60 * self.simu_rez)
             c2 = link.link_capacity // (60 * self.simu_rez)

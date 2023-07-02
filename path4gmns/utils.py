@@ -871,7 +871,14 @@ def read_settings(input_dir, assignment):
                 dp_str = simulation['period']
                 dp = assignment.get_demand_period(dp_str)
                 st = dp.get_start_time()
-                dur = dp.get_duration()
+
+                extra_time = 0
+                try:
+                    extra_time = simulation['extra_minutes']
+                except KeyError:
+                    pass
+
+                dur = dp.get_duration() + extra_time
                 assignment.set_simu_start_time(st)
                 assignment.set_simu_duration(dur)
             except KeyError:
