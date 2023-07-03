@@ -51,7 +51,7 @@ def perform_simple_simulation(ui, loading_profile='uniform'):
     cum_arr = cum_dep = 0
 
     # number of simulation intervals in one minute (60s)
-    num = 60 // A.get_simu_resolution()
+    num = A.cast_minute_to_interval(1)
     for i in range(A.get_total_simu_intervals()):
         if i % num == 0:
             print(f'simu time = {i/num} min, CA = {cum_arr}, CD = {cum_dep}')
@@ -81,8 +81,8 @@ def perform_simple_simulation(ui, loading_profile='uniform'):
                 a_no = link.entr_queue.popleft()
                 agent = A.get_agent(a_no)
                 link.exit_queue.append(a_no)
-                tt = ceil(link.get_period_fftt(0) * num)
-                agent.update_dep_interval(tt)
+                intvl = A.cast_minute_to_interval(link.get_period_fftt(0))
+                agent.update_dep_interval(intvl)
 
         for node in nodes:
             m = node.get_incoming_link_num()
@@ -109,11 +109,11 @@ def perform_simple_simulation(ui, loading_profile='uniform'):
                         # set up arrival time for the next link, i.e., next_link
                         agent.set_arr_interval(i, 1)
 
-                        actual_tt = i - agent.get_arr_interval()
-                        waiting_t = actual_tt - link.get_period_fftt(0)
+                        travel_intvl = i - agent.get_arr_interval()
+                        waiting_intvl = travel_intvl - A.cast_minute_to_interval(link.get_period_fftt(0))
                         # arrival time in minutes
-                        arr_minute = agent.get_arr_interval() // num
-                        link.update_waiting_time(arr_minute, waiting_t)
+                        arr_minute = A.cast_interval_to_minute(agent.get_arr_interval())
+                        link.update_waiting_time(arr_minute, waiting_intvl)
                         # link.cum_dep[i] += 1
                         # next_link.cum_arr[i] += 1
 
