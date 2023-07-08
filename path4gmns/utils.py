@@ -871,14 +871,7 @@ def read_settings(input_dir, assignment):
                 dp_str = simulation['period']
                 dp = assignment.get_demand_period(dp_str)
                 st = dp.get_start_time()
-
-                extra_time = 0
-                try:
-                    extra_time = simulation['extra_minutes']
-                except KeyError:
-                    pass
-
-                dur = dp.get_duration() + extra_time
+                dur = dp.get_duration()
                 assignment.set_simu_start_time(st)
                 assignment.set_simu_duration(dur)
             except KeyError:
@@ -1448,11 +1441,10 @@ def output_agent_trajectory(ui, output_dir='.'):
 
         writer.writerow(line)
 
-        base = ui._base_assignment
-        nodes = base.get_nodes()
-        agents = base.get_agents()
-        r = base.get_simu_resolution()
-        st = base.get_simu_start_time()
+        A = ui._base_assignment
+        nodes = A.get_nodes()
+        agents = A.get_agents()
+        st = A.get_simu_start_time()
 
         pre_dt = -1
         pre_od = -1, -1
@@ -1467,8 +1459,8 @@ def output_agent_trajectory(ui, output_dir='.'):
             pre_dt = a.get_dep_time()
             pre_od = a.get_od()
 
-            at = a.link_arr_interval[-1] * r / 60 + st
-            dt = a.link_dep_interval[-1] * r / 60 + st
+            at = A.cast_interval_to_minute_float(a.link_arr_interval[-1]) + st
+            dt = A.cast_interval_to_minute_float(a.link_dep_interval[-1]) + st
             time_seq1 = [at, dt]
             time_seq2 = [_get_time_stamp(at), _get_time_stamp(dt)]
 
@@ -1479,7 +1471,7 @@ def output_agent_trajectory(ui, output_dir='.'):
                 if k < 0:
                     break
 
-                dt_ = k * r / 60 + st
+                dt_ = A.cast_interval_to_minute_float(k) + st
                 time_seq1.append(dt_)
                 time_seq2.append(_get_time_stamp(dt_))
 
@@ -1494,9 +1486,9 @@ def output_agent_trajectory(ui, output_dir='.'):
             at_ = time_seq1[-1]
             # the original implementation using arrival time to the last link
             # to calculate trip time does not make sense
-            tt = at_ - a.get_dep_time() + st
+            tt = at_ - a.get_dep_time()
 
-            node_path_str = base.get_agent_node_path(a.get_id(), True)
+            node_path_str = A.get_agent_node_path(a.get_id(), True)
             geometry = ', '.join(
                 nodes[x].get_coordinate() for x in reversed(a.get_node_path())
             )

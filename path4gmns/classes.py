@@ -1741,6 +1741,9 @@ class Assignment:
     def cast_interval_to_minute(self, i):
         return floor(i * self.simu_rez / SECONDS_IN_MINUTE)
 
+    def cast_interval_to_minute_float(self, i):
+        return i * self.simu_rez / SECONDS_IN_MINUTE
+
     def cast_minute_to_interval(self, m):
         return floor(m * SECONDS_IN_MINUTE / self.simu_rez)
 

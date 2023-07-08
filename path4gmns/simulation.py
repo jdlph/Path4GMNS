@@ -42,7 +42,7 @@ def perform_simple_simulation(ui, loading_profile='uniform'):
     """
     A = ui._base_assignment
     A.initialize_simulation(loading_profile)
-    if A.get_agent_count() == 0:
+    if not A.get_agents():
         return
 
     links = A.get_links()

@@ -40,9 +40,5 @@ demand_files:
 
 simulation:
   period: AM
-  # add extra time to the default simulation duration (which is
-  # defined by the time_period of the chosen period) to flow all
-  # the traffic
-  extra_minutes: 60
   # number of seconds per simulation interval
   resolution: 6
