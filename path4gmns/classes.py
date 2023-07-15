@@ -1696,7 +1696,7 @@ class Assignment:
 
             # link_capacity is for one hour, i.e., 3600 s
             c1 = link.link_capacity / SECONDS_IN_HOUR * self.simu_rez
-            c2 = link.link_capacity // SECONDS_IN_HOUR * self.simu_rez
+            c2 = floor(c1)
             residual = c1 - c2
 
             r = uniform(0, 1)
