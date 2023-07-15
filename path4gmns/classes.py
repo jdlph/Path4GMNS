@@ -1332,7 +1332,6 @@ class Assignment:
         self.network = None
         self.spnetworks = []
         self.accessnetwork = None
-        self.memory_blocks = 1
         self.map_atstr_id = {}
         self.map_dpstr_id = {}
         self.map_name_atstr = {}
@@ -1529,17 +1528,14 @@ class Assignment:
             for d in self.demands:
                 at = self.get_agent_type(d.get_agent_type_str())
                 dp = self.get_demand_period(d.get_period())
-                # it requires an ascending order of zone ids
-                # otherwise, a KeyError may be encountered, where else block is
-                # executed before the if block
-                if z - 1 < self.memory_blocks:
+                k = (at.get_id(), dp.get_id())
+                if k not in spvec.keys():
                     sp = SPNetwork(self.network, at, dp)
-                    spvec[(at.get_id(), dp.get_id(), z-1)] = sp
+                    spvec[k] = sp
                     sp.orig_zones.append(z)
                     self.spnetworks.append(sp)
                 else:
-                    m = (z - 1) % self.memory_blocks
-                    sp = spvec[(at.get_id(), dp.get_id(), m)]
+                    sp = spvec[k]
                     sp.orig_zones.append(z)
 
     def get_link(self, seq_no):
