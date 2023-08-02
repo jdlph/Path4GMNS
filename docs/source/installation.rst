@@ -2,17 +2,17 @@
 Installation
 ============
 
-Path4GMNS has been published on `PyPI <https://pypi.org/project/path4gmns/0.9.3/>`_, and can be installed using
+Path4GMNS has been published on `PyPI <https://pypi.org/project/path4gmns/0.9.4/>`_, and can be installed using
 
 .. code-block:: bash
 
     $ pip install path4gmns
 
-If you need a specific version of Path4GMNS, say, 0.9.3,
+If you need a specific version of Path4GMNS, say, 0.9.4,
 
 .. code-block:: bash
 
-    $ pip install path4gmns==0.9.3
+    $ pip install path4gmns==0.9.4
 
 
 Dependency
@@ -55,7 +55,7 @@ As CMAKE_BUILD_TYPE will be IGNORED for IDE (Integrated Development Environment)
     # from the root directory of PATH4GMNS
     $ python setup.py sdist bdist_wheel
     $ cd dist
-    # or python -m pip install path4gmns-0.9.3.tar.gz
-    $ python -m pip instal pypath4gmns-0.9.3-py3-none-any.whl
+    # or python -m pip install path4gmns-0.9.4.tar.gz
+    $ python -m pip instal pypath4gmns-0.9.4-py3-none-any.whl
 
-Here, 0.9.3 is the version number. Replace it with the one specified in setup.py.
+Here, 0.9.4 is the version number. Replace it with the one specified in setup.py.

@@ -2,10 +2,10 @@ import ctypes
 from collections import deque
 from copy import deepcopy
 from datetime import datetime
-from math import ceil
+from math import ceil, floor
 from random import choice, randint, uniform
 
-from .consts import MAX_LABEL_COST, SMALL_DIVISOR
+from .consts import MAX_LABEL_COST, SMALL_DIVISOR, SECONDS_IN_MINUTE, SECONDS_IN_HOUR
 from .path import find_path_for_agents, find_shortest_path, \
                   single_source_shortest_path, benchmark_apsp
 
@@ -252,9 +252,9 @@ class Agent:
     def get_od(self):
         return self.o_zone_id, self.d_zone_id
 
-    def update_dep_interval(self, tt):
+    def update_dep_interval(self, intvl):
         self.link_dep_interval[self.curr_link_pos] = (
-            self.link_arr_interval[self.curr_link_pos] + tt
+            self.link_arr_interval[self.curr_link_pos] + intvl
         )
 
     def get_curr_dep_interval(self):
@@ -1332,11 +1332,10 @@ class Assignment:
         self.network = None
         self.spnetworks = []
         self.accessnetwork = None
-        self.memory_blocks = 1
         self.map_atstr_id = {}
         self.map_dpstr_id = {}
         self.map_name_atstr = {}
-        # number of seconds per simulation
+        # number of seconds per simulation interval
         self.simu_rez = 6
         # duration of simulation in minutes
         self.simu_dur = 60
@@ -1529,17 +1528,14 @@ class Assignment:
             for d in self.demands:
                 at = self.get_agent_type(d.get_agent_type_str())
                 dp = self.get_demand_period(d.get_period())
-                # it requires an ascending order of zone ids
-                # otherwise, a KeyError may be encountered, where else block is
-                # executed before the if block
-                if z - 1 < self.memory_blocks:
+                k = (at.get_id(), dp.get_id())
+                if k not in spvec.keys():
                     sp = SPNetwork(self.network, at, dp)
-                    spvec[(at.get_id(), dp.get_id(), z-1)] = sp
+                    spvec[k] = sp
                     sp.orig_zones.append(z)
                     self.spnetworks.append(sp)
                 else:
-                    m = (z - 1) % self.memory_blocks
-                    sp = spvec[(at.get_id(), dp.get_id(), m)]
+                    sp = spvec[k]
                     sp.orig_zones.append(z)
 
     def get_link(self, seq_no):
@@ -1674,7 +1670,7 @@ class Assignment:
                         t += randint(0, self.simu_dur - 1)
 
                     # simulation interval
-                    i = (t - self.simu_st) * 60 // self.simu_rez
+                    i = self.cast_minute_to_interval(t - self.simu_st)
                     agent.link_arr_interval[-1] = i
                     agent.dep_time = t
 
@@ -1694,10 +1690,9 @@ class Assignment:
             if link.length == 0:
                 continue
 
-            link.calculate_td_vdf()
-            # link_capacity is for one hour, i.e., 60 minutes
-            c1 = link.link_capacity / (60 * self.simu_rez)
-            c2 = link.link_capacity // (60 * self.simu_rez)
+            # link_capacity is for one hour, i.e., 3600 s
+            c1 = link.link_capacity / SECONDS_IN_HOUR * self.simu_rez
+            c2 = floor(c1)
             residual = c1 - c2
 
             r = uniform(0, 1)
@@ -1712,6 +1707,7 @@ class Assignment:
             link.outflow_cap = [cap] * n1
             link.cum_arr = [0] * n1
             link.cum_dep = [0] * n1
+            # waiting time in terms of simulation interval
             link.waiting_time = [0] * n2
 
     def get_simu_resolution(self):
@@ -1737,6 +1733,15 @@ class Assignment:
 
         link = self.get_link(link_no)
         link.set_capacity_ratio(tau, r)
+
+    def cast_interval_to_minute(self, i):
+        return floor(i * self.simu_rez / SECONDS_IN_MINUTE)
+
+    def cast_interval_to_minute_float(self, i):
+        return i * self.simu_rez / SECONDS_IN_MINUTE
+
+    def cast_minute_to_interval(self, m):
+        return floor(m * SECONDS_IN_MINUTE / self.simu_rez)
 
 
 class UI:

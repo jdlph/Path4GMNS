@@ -294,11 +294,13 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
     print(f'\nprocessing time of generating columns: {time()-st:.2f} s\n')
 
     for i in range(column_update_num):
-        _update_column_gradient_cost_and_flow(column_pool, links, ats, i)
-        _update_link_and_column_volume(column_pool, links, i + 1, False)
+        _update_link_and_column_volume(column_pool, links, i, False)
         _update_link_travel_time(links)
+        _update_column_gradient_cost_and_flow(column_pool, links, ats, i)
 
     # postprocessing
+    _update_link_and_column_volume(column_pool, links, column_gen_num, False)
+    _update_link_travel_time(links)
     _update_column_attributes(column_pool, links)
 
 
