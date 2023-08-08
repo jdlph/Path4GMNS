@@ -95,7 +95,7 @@ DTALite uses arrays rather than STL containers to store columns. These arrays ar
 40. Deprecate find_path_for_agents() (v0.9.3)
 41. Remove beg_iteration and end_iteration from setting up a special event (v0.9.4)
 42. Enhance DemandPeriod setup on time_period (v0.9.4)
-43. fix multiple bugs related to simulation including calculation of agent arrival time and agent waiting time, link traverse time, and link outflow cap (v0.9.4)
+43. Fix multiple bugs related to simulation including calculation of agent arrival time and agent waiting time, link traverse time, and link outflow cap (v0.9.4)
 44. Remove memory_blocks and its implementations (which were intended for multiprocessing) (v0.9.4)
 45. Bring back the postprocessing after UE in case users do not do column updating (i.e., column_update_num = 0) (v0.9.4)
 

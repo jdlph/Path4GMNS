@@ -269,11 +269,11 @@ def read_nodes(input_dir,
             except InvalidRecord:
                 continue
 
-            # set up zone_id, which should be an integer
+            # set up zone_id
             try:
-                zone_id = _convert_str_to_int(line['zone_id'])
-            except (KeyError, InvalidRecord):
-                zone_id = -1
+                zone_id = line['zone_id']
+            except KeyError:
+                zone_id = ''
 
             # treat them as string
             coord_x = line['x_coord']
@@ -303,15 +303,16 @@ def read_nodes(input_dir,
                 bin_index = 0
 
             # associate node_id with corresponding zone
-            if zone_id not in zones.keys():
-                # only take the value of bin_index from the first node
-                # associated with each zone
-                z = Zone(zone_id, bin_index)
-                zones[zone_id] = z
+            if zone_id:
+                if zone_id not in zones.keys():
+                    # only take the value of bin_index from the first node
+                    # associated with each zone
+                    z = Zone(zone_id, bin_index)
+                    zones[zone_id] = z
 
-            zones[zone_id].add_node(node_id)
-            if is_activity_node:
-                zones[zone_id].add_activity_node(node_id)
+                zones[zone_id].add_node(node_id)
+                if is_activity_node:
+                    zones[zone_id].add_activity_node(node_id)
 
             node_no += 1
 
@@ -551,22 +552,12 @@ def read_demand(input_dir,
         reader = csv.DictReader(fp)
         total_vol = 0
         for line in reader:
-            # invalid origin zone id, discard it
-            try:
-                oz_id = _convert_str_to_int(line['o_zone_id'])
-            except InvalidRecord:
-                continue
-
-            # invalid destination zone id, discard it
-            try:
-                dz_id = _convert_str_to_int(line['d_zone_id'])
-            except InvalidRecord:
-                continue
-
+            oz_id = line['o_zone_id']
             # o_zone_id does not exist in node.csv, discard it
             if oz_id not in zones.keys():
                 continue
 
+            dz_id = line['d_zone_id']
             # d_zone_id does not exist in node.csv, discard it
             if dz_id not in zones.keys():
                 continue
@@ -630,9 +621,8 @@ def read_zones(ui, input_dir='.', filename='zone.csv'):
 
         reader = csv.DictReader(fp)
         for line in reader:
-            try:
-                zone_id = _convert_str_to_int(line['zone_id'])
-            except InvalidRecord:
+            zone_id = line['zone_id']
+            if not zone_id:
                 continue
 
             nodes = line['activity_nodes']
@@ -701,7 +691,6 @@ def read_demand_matrix(input_dir, agent_type_id, demand_period_id,
         dp = demand_period_id
 
         total_agents = 0
-
         reader = csv.DictReader(fp)
         for line in reader:
             try:
@@ -977,10 +966,9 @@ def load_columns(ui, input_dir='.'):
         A = ui._base_assignment
         cp = A.get_column_pool()
 
-        reader = csv.DictReader(f)
-
         # just in case agent_id was not output
         last_agent_id = 0
+        reader = csv.DictReader(f)
         for line in reader:
             # critical info
             try:
@@ -1203,10 +1191,6 @@ def output_columns(ui, output_geometry=True, output_dir='.'):
 
 def output_link_performance(ui, output_dir='.'):
     with open(output_dir+'/link_performance.csv', 'w',  newline='') as fp:
-        base = ui._base_assignment
-
-        links = base.get_links()
-
         writer = csv.writer(fp)
 
         line = ['link_id',
@@ -1217,13 +1201,12 @@ def output_link_performance(ui, output_dir='.'):
                 'travel_time',
                 'speed',
                 'VOC',
-                'queue',
-                'density',
-                'geometry',
-                'notes']
+                'geometry']
 
         writer.writerow(line)
 
+        base = ui._base_assignment
+        links = base.get_links()
         for link in links:
             # connector
             if not link.length:
@@ -1241,10 +1224,7 @@ def output_link_performance(ui, output_dir='.'):
                         avg_travel_time,
                         speed,
                         link.get_period_voc(dp.get_id()),
-                        '',
-                        '',
-                        link.get_geometry(),
-                        '']
+                        link.get_geometry()]
 
                 writer.writerow(line)
 
@@ -1363,25 +1343,13 @@ def output_zones(ui, output_dir='.'):
 
         for k, v in zones.items():
             bi = v.get_bin_index()
-
-            nodes = '; '.join(
-                str(x) for x in v.get_activity_nodes()
-            )
-
-            [U, D, L, R] = v.get_boundaries()
+            nodes = '; '.join(str(x) for x in v.get_activity_nodes())
+            # [U, D, L, R] = v.get_boundaries()
             x, y = v.get_coordinate()
             prod = v.get_production()
             geo = v.get_geo()
 
-            line = [k,
-                    bi,
-                    nodes,
-                    x,
-                    y,
-                    geo,
-                    prod,
-                    prod]
-
+            line = [k, bi, nodes, x, y, geo, prod, prod]
             writer.writerow(line)
 
         if output_dir == '.':
@@ -1397,18 +1365,12 @@ def output_synthesized_demand(ui, output_dir='.'):
     with open(output_dir+'/demand.csv', 'w',  newline='') as f:
         writer = csv.writer(f)
 
-        line = ['o_zone_id',
-                'd_zone_id',
-                'volume']
-
+        line = ['o_zone_id', 'd_zone_id', 'volume']
         writer.writerow(line)
 
         ODMatrix = ui.get_ODMatrix()
         for k, v in ODMatrix.items():
-            line = [k[0],
-                    k[1],
-                    v]
-
+            line = [k[0], k[1], v]
             writer.writerow(line)
 
         if output_dir == '.':
