@@ -114,7 +114,7 @@ def _output_zone_accessibility(min_travel_times, interval_num,
 
         # calculate accessibility
         for oz, v in zones.items():
-            if oz == -1:
+            if not oz:
                 continue
 
             for at in ats:
@@ -388,7 +388,7 @@ def evaluate_equity(ui, single_mode=False, mode='auto', time_dependent=False,
 
     # v is zone object
     for oz, v in zones.items():
-        if oz == -1:
+        if not oz:
             continue
 
         bin_index = v.get_bin_index()

@@ -263,10 +263,10 @@ def read_nodes(input_dir,
         reader = csv.DictReader(fp)
         node_no = 0
         for line in reader:
-            # set up node_id, which should be an integer
-            try:
-                node_id = _convert_str_to_int(line['node_id'])
-            except InvalidRecord:
+            # set up node_id
+            node_id = line['node_id']
+            # node_id should be unique
+            if node_id in map_id_to_no.keys():
                 continue
 
             # set up zone_id
@@ -303,16 +303,15 @@ def read_nodes(input_dir,
                 bin_index = 0
 
             # associate node_id with corresponding zone
-            if zone_id:
-                if zone_id not in zones.keys():
-                    # only take the value of bin_index from the first node
-                    # associated with each zone
-                    z = Zone(zone_id, bin_index)
-                    zones[zone_id] = z
+            if zone_id not in zones.keys():
+                # only take the value of bin_index from the first node
+                # associated with each zone
+                z = Zone(zone_id, bin_index)
+                zones[zone_id] = z
 
-                zones[zone_id].add_node(node_id)
-                if is_activity_node:
-                    zones[zone_id].add_activity_node(node_id)
+            zones[zone_id].add_node(node_id)
+            if is_activity_node:
+                zones[zone_id].add_activity_node(node_id)
 
             node_no += 1
 
@@ -320,14 +319,13 @@ def read_nodes(input_dir,
 
         if load_demand:
             zone_size = len(zones)
-            # do not count virtual zone with id as -1
-            if -1 in zones.keys():
+            if '' in zones.keys():
                 zone_size -= 1
-
-            print(f'the number of zones is {zone_size}')
 
             if zone_size == 0:
                 raise Exception('there are NO VALID zones from node.csv')
+
+            print(f'the number of zones is {zone_size}')
 
 
 def read_links(input_dir,
@@ -349,23 +347,9 @@ def read_links(input_dir,
             # it can be an empty string
             link_id = line['link_id']
 
-            # check the validity
-            try:
-                from_node_id = _convert_str_to_int(line['from_node_id'])
-            except InvalidRecord:
-                continue
-
-            try:
-                to_node_id =_convert_str_to_int(line['to_node_id'])
-            except InvalidRecord:
-                continue
-
-            try:
-                length = _convert_str_to_float(line['length'])
-            except InvalidRecord:
-                continue
-
-            # pass validity check
+            # validity check
+            from_node_id = line['from_node_id']
+            to_node_id = line['to_node_id']
 
             try:
                 from_node_no = map_id_to_no[from_node_id]
@@ -376,6 +360,13 @@ def read_links(input_dir,
                     f'or/and Node ID {to_node_id} NOT IN THE NETWORK!!'
                 )
                 continue
+
+            try:
+                length = _convert_str_to_float(line['length'])
+            except InvalidRecord:
+                continue
+
+            # pass validity check
 
             # for the following attributes,
             # if they are not None, convert them to the corresponding types
@@ -971,15 +962,8 @@ def load_columns(ui, input_dir='.'):
         reader = csv.DictReader(f)
         for line in reader:
             # critical info
-            try:
-                oz_id = _convert_str_to_int(line['o_zone_id'])
-            except InvalidRecord:
-                continue
-
-            try:
-                dz_id = _convert_str_to_int(line['d_zone_id'])
-            except InvalidRecord:
-                continue
+            oz_id = line['o_zone_id']
+            dz_id = line['d_zone_id']
 
             node_seq = line['node_sequence']
             if not node_seq:
@@ -1055,7 +1039,7 @@ def load_columns(ui, input_dir='.'):
             col = Column(path_id)
 
             try:
-                col.nodes = [A.get_node_no(int(x)) for x in reversed(node_seq.split(';')) if x]
+                col.nodes = [A.get_node_no(x) for x in reversed(node_seq.split(';')) if x]
             except KeyError:
                 raise Exception(
                     'Invalid node found on column!!'

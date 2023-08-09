@@ -471,7 +471,7 @@ class Network:
         link_no = self.link_size
         # get zones
         for z in self.get_zones():
-            if z == -1:
+            if not z:
                 continue
 
             # create a centroid
@@ -736,7 +736,7 @@ class Network:
 
     def get_centroids(self):
         for k, v in self.zones.items():
-            if k == -1:
+            if not k:
                 continue
 
             yield v.get_centroid()
@@ -1520,9 +1520,9 @@ class Assignment:
         self.network.add_centroids_connectors()
         spvec = {}
 
-        # z is zone id starting from 1
+        # z is zone id
         for z in self.get_zones():
-            if z == -1:
+            if not z:
                 continue
 
             for d in self.demands:
