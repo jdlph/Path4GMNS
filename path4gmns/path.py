@@ -111,7 +111,7 @@ def _single_source_shortest_path_fifo(G, origin_node_no):
         from_node = SEList.pop(0)
         status[from_node] = 0
         for link in G.nodes[from_node].outgoing_links:
-            to_node = link.to_node_seq_no
+            to_node = link.to_node_no
             new_to_node_cost = (G.node_label_cost[from_node]
                                 + link.fftt)
             # we only compare cost at the downstream node ToID
@@ -124,7 +124,7 @@ def _single_source_shortest_path_fifo(G, origin_node_no):
                 G.node_preds[to_node] = from_node
                 # pointer to previous physical node index
                 # from the current label at current node and time
-                G.link_preds[to_node] = link.link_seq_no
+                G.link_preds[to_node] = link.link_no
                 if not status[to_node]:
                     SEList.append(to_node)
                     status[to_node] = 1
@@ -151,7 +151,7 @@ def _single_source_shortest_path_deque(G, origin_node_no):
         from_node = SEList.popleft()
         status[from_node] = 2
         for link in G.nodes[from_node].outgoing_links:
-            to_node = link.to_node_seq_no
+            to_node = link.to_node_no
             new_to_node_cost = (G.node_label_cost[from_node]
                                 + link.fftt)
             # we only compare cost at the downstream node ToID
@@ -164,7 +164,7 @@ def _single_source_shortest_path_deque(G, origin_node_no):
                 G.node_preds[to_node] = from_node
                 # pointer to previous physical node index
                 # from the current label at current node and time
-                G.link_preds[to_node] = link.link_seq_no
+                G.link_preds[to_node] = link.link_no
                 if status[to_node] != 1:
                     if status[to_node] == 2:
                         SEList.appendleft(to_node)
@@ -198,7 +198,7 @@ def _single_source_shortest_path_dijkstra(G, origin_node_no):
             continue
         status[from_node] = 1
         for link in G.nodes[from_node].outgoing_links:
-            to_node = link.to_node_seq_no
+            to_node = link.to_node_no
             new_to_node_cost = label_cost + link.fftt
             # we only compare cost at the downstream node ToID
             # at the new arrival time t
@@ -210,7 +210,7 @@ def _single_source_shortest_path_dijkstra(G, origin_node_no):
                 G.node_preds[to_node] = from_node
                 # pointer to previous physical node index
                 # from the current label at current node and time
-                G.link_preds[to_node] = link.link_seq_no
+                G.link_preds[to_node] = link.link_no
                 heapq.heappush(SEList, (G.node_label_cost[to_node], to_node))
 
 
@@ -255,26 +255,26 @@ def output_path_sequence(G, to_node_id, type='node'):
     Note that this function returns GENERATOR rather than list.
     """
     path = []
-    current_node_seq_no = G.map_id_to_no[to_node_id]
+    curr_node_no = G.map_id_to_no[to_node_id]
 
     if type.startswith('node'):
         # retrieve the sequence backwards
-        while current_node_seq_no >= 0:
-            path.append(current_node_seq_no)
-            current_node_seq_no = G.node_preds[current_node_seq_no]
+        while curr_node_no >= 0:
+            path.append(curr_node_no)
+            curr_node_no = G.node_preds[curr_node_no]
         # reverse the sequence
-        for node_seq_no in reversed(path):
-            yield G.map_no_to_id[node_seq_no]
+        for node_no in reversed(path):
+            yield G.map_no_to_id[node_no]
     else:
         # retrieve the sequence backwards
-        current_link_seq_no = G.link_preds[current_node_seq_no]
-        while current_link_seq_no >= 0:
-            path.append(current_link_seq_no)
-            current_node_seq_no = G.node_preds[current_node_seq_no]
-            current_link_seq_no = G.link_preds[current_node_seq_no]
+        curr_link_no = G.link_preds[curr_node_no]
+        while curr_link_no >= 0:
+            path.append(curr_link_no)
+            curr_node_no = G.node_preds[curr_node_no]
+            curr_link_no = G.link_preds[curr_node_no]
         # reverse the sequence
-        for link_seq_no in reversed(path):
-            yield G.links[link_seq_no].get_link_id()
+        for link_no in reversed(path):
+            yield G.links[link_no].get_link_id()
 
 
 def _get_path_cost(G, to_node_id):
@@ -320,7 +320,7 @@ def find_path_for_agents(G, column_pool, engine_type='c'):
         print('setting up individual agents')
         G.setup_agents(column_pool)
 
-    from_node_id_prev = -1
+    from_node_id_prev = ''
     for agent in G.agents:
         from_node_id = agent.o_node_id
         to_node_id = agent.d_node_id
@@ -344,17 +344,17 @@ def find_path_for_agents(G, column_pool, engine_type='c'):
         node_path = []
         link_path = []
 
-        current_node_seq_no = G.map_id_to_no[to_node_id]
+        curr_node_no = G.map_id_to_no[to_node_id]
         # set up the cost
-        agent.path_cost = G.node_label_cost[current_node_seq_no]
+        agent.path_cost = G.node_label_cost[curr_node_no]
 
         # retrieve the sequence backwards
-        while current_node_seq_no >= 0:
-            node_path.append(current_node_seq_no)
-            current_link_seq_no = G.link_preds[current_node_seq_no]
-            if current_link_seq_no >= 0:
-                link_path.append(current_link_seq_no)
-            current_node_seq_no = G.node_preds[current_node_seq_no]
+        while curr_node_no >= 0:
+            node_path.append(curr_node_no)
+            curr_link_no = G.link_preds[curr_node_no]
+            if curr_link_no >= 0:
+                link_path.append(curr_link_no)
+            curr_node_no = G.node_preds[curr_node_no]
 
         # make sure it is a valid path
         if not link_path:

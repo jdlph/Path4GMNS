@@ -15,10 +15,10 @@ __all__ = ['UI']
 
 class Node:
 
-    def __init__(self, node_seq_no, node_id, zone_id, x='', y='', is_activity_node=False):
+    def __init__(self, node_no, node_id, zone_id, x='', y='', is_activity_node=False):
         """ the attributes of node  """
-        # node_seq_no: internal node index used for calculation
-        self.node_seq_no = node_seq_no
+        # node_no: internal node index used for calculation
+        self.node_no = node_no
         # node_id: user defined node id from input
         self.node_id = node_id
         # link objects
@@ -42,7 +42,7 @@ class Node:
         return self.node_id
 
     def get_node_no(self):
-        return self.node_seq_no
+        return self.node_no
 
     def get_coordinate(self):
         return self.coord_x + ' ' + self.coord_y
@@ -65,7 +65,7 @@ class Link:
 
     def __init__(self,
                  id,
-                 link_seq_no,
+                 link_no,
                  from_node_no,
                  to_node_no,
                  from_node_id,
@@ -80,9 +80,9 @@ class Link:
                  demand_period_size=1):
         """ the attributes of link """
         self.id = id
-        self.link_seq_no = link_seq_no
-        self.from_node_seq_no = from_node_no
-        self.to_node_seq_no = to_node_no
+        self.link_no = link_no
+        self.from_node_no = from_node_no
+        self.to_node_no = to_node_no
         self.from_node_id = from_node_id
         self.to_node_id = to_node_id
         # length is mile or km
@@ -117,7 +117,7 @@ class Link:
         return self.id
 
     def get_seq_no(self):
-        return self.link_seq_no
+        return self.link_no
 
     def get_from_node_id(self):
         return self.from_node_id
@@ -195,11 +195,11 @@ class Agent:
     id: integer starts from 1
     seq_no: internal agent index starting from 0 used for calculation
     """
-    def __init__(self, agent_id, agent_seq_no, agent_type_id, demand_period_id,
+    def __init__(self, agent_id, agent_no, agent_type_id, demand_period_id,
                  o_zone_id, d_zone_id):
         """ the attribute of agent """
         self.id = agent_id
-        self.seq_no = agent_seq_no
+        self.seq_no = agent_no
         # vehicle
         self.at_id = agent_type_id
         self.dp_id = demand_period_id
@@ -416,8 +416,8 @@ class Network:
         node_label_cost = [MAX_LABEL_COST] * node_size
 
         # initialize from_node_no_array, to_node_no_array, and link_cost_array
-        from_node_no_array = [link.from_node_seq_no for link in self.links]
-        to_node_no_array = [link.to_node_seq_no for link in self.links]
+        from_node_no_array = [link.from_node_no for link in self.links]
+        to_node_no_array = [link.to_node_no for link in self.links]
         link_cost_array = [link.fftt for link in self.links]
 
         # initialize others
@@ -434,7 +434,7 @@ class Network:
             first_link_from[i] = j
             for link in node.outgoing_links:
                 # set up the mapping from j to the true link seq no
-                sorted_link_no_array[j] = link.link_seq_no
+                sorted_link_no_array[j] = link.link_no
                 j += 1
             last_link_from[i] = j
 
@@ -475,7 +475,7 @@ class Network:
                 continue
 
             # create a centroid
-            node_id = 'c_' + str(z)
+            node_id = 'c_' + z
             centroid = Node(node_no, node_id, z)
             # try coordinate of the centroid from each zone first. if the values
             # are invalid, then use that of the first node from each zone.
@@ -607,7 +607,7 @@ class Network:
         path = ''
         if agent.node_path:
             path = ';'.join(
-                str(self.map_no_to_id[x]) for x in reversed(agent.node_path)
+                self.map_no_to_id[x] for x in reversed(agent.node_path)
             )
 
         if path_only:
@@ -721,7 +721,7 @@ class Network:
         """ for allowed uses in single_source_shortest_path()"""
         return self.agent_type_name
 
-    def get_link_seq_no(self, id):
+    def get_link_no(self, id):
         return self.link_ids[id]
 
     def get_agents(self):
@@ -1171,7 +1171,7 @@ class AccessNetwork(Network):
         self.link_size = base.get_link_size()
         self.centroids_added = self.base.centroids_added
         self.agent_type_name = 'all'
-        self.pre_source_node_id = -1
+        self.pre_source_node_id = ''
         if add_cc:
             self._add_centroids_connectors()
         self.capi_allocated = False
@@ -1196,8 +1196,8 @@ class AccessNetwork(Network):
     def _get_zone_coord(self, zone_id):
         """ coordinate of each zone is from its first node """
         node_id = self.get_nodes_from_zone(zone_id)[0]
-        node_seq_no = self.base.get_node_no(node_id)
-        node = self.base.get_nodes()[node_seq_no]
+        node_no = self.base.get_node_no(node_id)
+        node = self.base.get_nodes()[node_no]
         return node.coord_x, node.coord_y
 
     def set_target_mode(self, mode):
@@ -1279,9 +1279,9 @@ class AccessNetwork(Network):
 
         dist = 0
         while node_no >= 0:
-            link_seq_no = self.link_preds[node_no]
-            if link_seq_no >= 0:
-                dist += self.get_link(link_seq_no).get_length()
+            link_no = self.link_preds[node_no]
+            if link_no >= 0:
+                dist += self.get_link(link_no).get_length()
 
             node_no = self.node_preds[node_no]
 
@@ -1497,6 +1497,10 @@ class Assignment:
         at_name, _ = self._convert_mode(mode)
         self.network.set_agent_type_name(at_name)
 
+        # add backward compatibility in case the user still use integer node id's
+        from_node_id = str(from_node_id)
+        to_node_id = str(to_node_id)
+
         return find_shortest_path(self.network, from_node_id,
                                   to_node_id, seq_type)
 
@@ -1542,9 +1546,9 @@ class Assignment:
         """ return link object corresponding to link seq no """
         return self.network.get_link(seq_no)
 
-    def get_link_seq_no(self, id):
+    def get_link_no(self, id):
         """ id is string """
-        return self.network.get_link_seq_no(id)
+        return self.network.get_link_no(id)
 
     def get_node_no(self, id):
         """ id is integer """
@@ -1558,6 +1562,8 @@ class Assignment:
 
     def get_accessible_nodes(self, source_node_id, time_budget,
                              mode, time_dependent, tau):
+        source_node_id = str(source_node_id)
+
         if source_node_id not in self.network.map_id_to_no.keys():
             raise Exception(f'Node ID: {source_node_id} not in the network')
 
@@ -1727,7 +1733,7 @@ class Assignment:
 
     def set_capacity_ratio(self, tau, link_id, r):
         try:
-            link_no = self.get_link_seq_no(link_id)
+            link_no = self.get_link_no(link_id)
         except KeyError:
             return
 
@@ -1793,10 +1799,10 @@ class UI:
         Parameters
         ----------
         from_node_id
-            the starting node id
+            the starting node id, which shall be a string
 
         to_node_id
-            the ending node id
+            the ending node id, which shall be a string
 
         seq_type
             'node' or 'link'. You will get the shortest path in sequence of
@@ -1837,7 +1843,7 @@ class UI:
         Parameters
         ----------
         source_node_id
-            the starting node id for evaluation
+            the starting node id for evaluation, which shall be string
 
         time_budget
             the amount of time to travel in minutes
@@ -1894,7 +1900,7 @@ class UI:
         Parameters
         ----------
         source_node_id
-            the starting node id for evaluation
+            the starting node id for evaluation, which shall be string
 
         time_budget
             the amount of time to travel in minutes

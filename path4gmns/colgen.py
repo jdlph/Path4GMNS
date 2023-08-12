@@ -150,15 +150,15 @@ def _backtrace_shortest_path_tree(centroid,
         link_path = []
         dist = 0
 
-        curr_node_seq_no = c.get_node_no()
+        curr_node_no = c.get_node_no()
         # retrieve the sequence backwards
-        while curr_node_seq_no >= 0:
-            curr_link_seq_no = link_preds[curr_node_seq_no]
-            if curr_link_seq_no >= 0:
-                link_path.append(curr_link_seq_no)
-                dist += links[curr_link_seq_no].length
+        while curr_node_no >= 0:
+            curr_link_no = link_preds[curr_node_no]
+            if curr_link_no >= 0:
+                link_path.append(curr_link_no)
+                dist += links[curr_link_no].length
 
-            curr_node_seq_no = node_preds[curr_node_seq_no]
+            curr_node_no = node_preds[curr_node_no]
 
         # make sure this is a valid path
         if not link_path:
@@ -199,12 +199,12 @@ def _update_column_attributes(column_pool, links):
 
             for j in col.links:
                 link = links[j]
-                nodes.append(links[j].to_node_seq_no)
+                nodes.append(links[j].to_node_no)
                 travel_time += link.travel_time_by_period[dp]
                 path_toll += links[j].get_toll()
 
             # last node
-            nodes.append(links[col.links[-1]].from_node_seq_no)
+            nodes.append(links[col.links[-1]].from_node_no)
 
             col.set_travel_time(travel_time)
             col.set_toll(path_toll)

@@ -292,7 +292,7 @@ def read_nodes(input_dir,
             node = Node(node_no, node_id, zone_id, coord_x, coord_y, is_activity_node)
             nodes.append(node)
 
-            # set up mapping between node_seq_no and node_id
+            # set up mapping between node_no and node_id
             map_id_to_no[node_id] = node_no
             map_no_to_id[node_no] = node_id
 
@@ -342,7 +342,7 @@ def read_links(input_dir,
         print('read link.csv')
 
         reader = csv.DictReader(fp)
-        link_seq_no = 0
+        link_no = 0
         for line in reader:
             # it can be an empty string
             link_id = line['link_id']
@@ -411,7 +411,7 @@ def read_links(input_dir,
             except KeyError:
                 geometry = ''
 
-            link_ids[link_id] = link_seq_no
+            link_ids[link_id] = link_no
 
             # unit conversion
             if length_unit.startswith('meter') or length_unit == 'm':
@@ -424,7 +424,7 @@ def read_links(input_dir,
 
             # construct link object
             link = Link(link_id,
-                        link_seq_no,
+                        link_no,
                         from_node_no,
                         to_node_no,
                         from_node_id,
@@ -520,9 +520,9 @@ def read_links(input_dir,
                 _update_orig_zone(oz_id)
                 _update_dest_zone(dz_id)
 
-            link_seq_no += 1
+            link_no += 1
 
-        print(f'the number of links is {link_seq_no}')
+        print(f'the number of links is {link_no}')
 
 
 def read_demand(input_dir,
@@ -1050,7 +1050,7 @@ def load_columns(ui, input_dir='.'):
                 # if x is only needed for columns generated from DTALite,
                 # which have the trailing ';' and leads to '' after split
                 col.links = [
-                    A.get_link_seq_no(x) for x in reversed(link_seq.split(';')) if x
+                    A.get_link_no(x) for x in reversed(link_seq.split(';')) if x
                 ]
             except KeyError:
                 raise Exception(
@@ -1135,10 +1135,10 @@ def output_columns(ui, output_geometry=True, output_dir='.'):
             for col in cv.get_columns():
                 i += 1
                 node_seq = path_sep.join(
-                    str(nodes[x].get_node_id()) for x in reversed(col.nodes)
+                    nodes[x].get_node_id() for x in reversed(col.nodes)
                 )
                 link_seq = path_sep.join(
-                    str(links[x].get_link_id()) for x in reversed(col.links)
+                    links[x].get_link_id() for x in reversed(col.links)
                 )
 
                 geometry = ''

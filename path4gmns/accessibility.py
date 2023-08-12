@@ -57,10 +57,7 @@ def _update_min_travel_time(an, at, min_travel_times, time_dependent, demand_per
 def _output_od_accessibility(min_travel_times, zones, mode, output_dir):
     """ output accessibility for each OD pair (i.e., travel time) """
     with open(output_dir+'/od_accessibility.csv', 'w',  newline='') as f:
-        headers = ['o_zone_id', 'o_zone_name',
-                   'd_zone_id', 'd_zone_name',
-                   'accessibility', 'distance',
-                   'geometry']
+        headers = ['o_zone_id', 'd_zone_id', 'accessibility', 'distance', 'geometry']
 
         writer = csv.writer(f)
         writer.writerow(headers)
