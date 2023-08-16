@@ -681,25 +681,17 @@ def read_demand_matrix(input_dir, agent_type_id, demand_period_id,
         at = agent_type_id
         dp = demand_period_id
 
-        total_agents = 0
+        total_vol = 0
         reader = csv.DictReader(fp)
         for line in reader:
-            try:
-                oz_id = _convert_str_to_int(line['od'])
-            except InvalidRecord:
+            oz_id = line['od']
+            # o_zone_id does not exist in node.csv, discard it
+            if oz_id not in zone_to_node_dict.keys():
                 continue
 
             for dz_str, vol_str in line:
-                try:
-                    dz_id = _convert_str_to_int(dz_str)
-                except InvalidRecord:
-                    continue
-
-                if oz_id == dz_id:
-                    continue
-
-                # o_zone_id does not exist in node.csv, discard it
-                if oz_id not in zone_to_node_dict.keys():
+                dz_id = _convert_str_to_int(dz_str)
+                if dz_id == oz_id:
                     continue
 
                 # d_zone_id does not exist in node.csv, discard it
@@ -725,11 +717,11 @@ def read_demand_matrix(input_dir, agent_type_id, demand_period_id,
                         f'DUPLICATE OD pair found between {oz_id} and {dz_id}'
                     )
 
-                total_agents += int(vol + 1)
+                total_vol += vol
 
-            print(f'the number of agents is {total_agents}')
+            print(f'the number of agents is {total_vol}')
 
-            if total_agents == 0:
+            if total_vol == 0:
                 raise Exception(
                     'NO VALID OD VOLUME!! DOUBLE CHECK YOUR input_matrix.csv'
                 )
