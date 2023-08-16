@@ -221,7 +221,7 @@ The OpenMP run-time library must be installed to utilize the built-in parallel c
 
 ***Windows Users***
 
-Download [Microsoft Visual C++ Redistributable for Visual Studio 2019](https://visualstudio.microsoft.com/downloads/#microsoft-visual-c-redistributable-for-visual-studio-2019) and check [here](https://support.microsoft.com/en-us/topic/the-latest-supported-visual-c-downloads-2647da03-1eea-4433-9aff-95f26a218cc0) for more information and earlier versions.
+Download and install [Microsoft Visual C++ Redistributable for Visual Studio](https://support.microsoft.com/en-us/topic/the-latest-supported-visual-c-downloads-2647da03-1eea-4433-9aff-95f26a218cc0).
 
 ***Linux Users***
 
@@ -264,7 +264,6 @@ demand_periods:
 
 demand_files:
   - file_name: demand.csv
-    format_type: column
     period: AM
     agent_type: a
 ```
@@ -433,7 +432,6 @@ demand_periods:
 
 demand_files:
   - file_name: demand.csv
-    format_type: column
     period: AM
     agent_type: a
 

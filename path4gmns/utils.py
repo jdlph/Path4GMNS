@@ -828,7 +828,6 @@ def read_settings(input_dir, assignment):
             demands = settings['demand_files']
             for i, d in enumerate(demands):
                 demand_file = d['file_name']
-                # demand_format_type = d['format_type']
                 demand_period = d['period']
                 demand_type = d['agent_type']
 

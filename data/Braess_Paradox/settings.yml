@@ -22,6 +22,5 @@ demand_periods:
 
 demand_files:
   - file_name: demand.csv
-    format_type: column
     period: AM
     agent_type: a
