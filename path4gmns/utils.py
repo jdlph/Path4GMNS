@@ -956,6 +956,15 @@ def load_columns(ui, input_dir='.'):
             oz_id = line['o_zone_id']
             dz_id = line['d_zone_id']
 
+            try:
+                vol = _convert_str_to_float(line['volume'])
+            except InvalidRecord:
+                continue
+
+            # skip zero-volume column
+            if not vol:
+                continue
+
             node_seq = line['node_sequence']
             if not node_seq:
                 continue
@@ -998,11 +1007,6 @@ def load_columns(ui, input_dir='.'):
                 continue
             else:
                 dp = A.get_demand_period_id(dp)
-
-            try:
-                vol = _convert_str_to_float(line['volume'])
-            except InvalidRecord:
-                continue
 
             try:
                 toll = _convert_str_to_float(line['toll'])
@@ -1124,6 +1128,10 @@ def output_columns(ui, output_geometry=True, output_dir='.'):
             dp_str = base.get_demand_period_str(dp_id)
 
             for col in cv.get_columns():
+                # skip zero-volume column
+                if not col.get_volume():
+                    continue
+                
                 i += 1
                 node_seq = path_sep.join(
                     nodes[x].get_node_id() for x in reversed(col.nodes)

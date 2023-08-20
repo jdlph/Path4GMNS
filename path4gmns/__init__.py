@@ -6,7 +6,7 @@ from .utils import *
 from .zonesyn import *
 
 
-__version__ = '0.9.5'
+__version__ = '0.9.6'
 
 
 # print out the current version

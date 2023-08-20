@@ -88,6 +88,9 @@ def _update_column_gradient_cost_and_flow(column_pool, links, agent_types, iter_
                 if col.get_id() == least_gradient_cost_path_id:
                     continue
 
+                if not col.get_volume():
+                    continue
+
                 col.update_gradient_cost_diffs(least_gradient_cost)
 
                 total_gap += col.get_gap()
