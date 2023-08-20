@@ -2,7 +2,7 @@ from time import time
 
 from .path import single_source_shortest_path
 from .classes import Column
-from .consts import MAX_LABEL_COST, SMALL_DIVISOR
+from .consts import MAX_LABEL_COST, SMALL_DIVISOR, MIN_COL_VOL
 
 
 __all__ = ['perform_column_generation', 'perform_network_assignment']
@@ -97,18 +97,20 @@ def _update_column_gradient_cost_and_flow(column_pool, links, agent_types, iter_
                 total_sys_travel_time += col.get_sys_travel_time()
 
                 step_size = 1 / (iter_num + 2) * cv.get_od_volume()
-                previous_path_vol = col.get_volume()
+                cur_vol = col.get_volume()
 
-                vol = max(
-                    0,
-                    (previous_path_vol
+                new_vol = (
+                     cur_vol
                      - step_size
-                     * col.get_gradient_cost_rel_diff())
+                     * col.get_gradient_cost_rel_diff()
                 )
 
-                col.set_volume(vol)
+                if new_vol <= MIN_COL_VOL:
+                    new_vol = 0
+
+                col.set_volume(new_vol)
                 total_switched_out_path_vol += (
-                    previous_path_vol - vol
+                    cur_vol - new_vol
                 )
 
         if least_gradient_cost_path_id != -1:
