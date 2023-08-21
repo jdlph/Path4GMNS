@@ -8,7 +8,7 @@ from .classes import Node, Link, Zone, Network, Column, ColumnVec, VDFPeriod, \
                      AgentType, DemandPeriod, Demand, SpecialEvent, Assignment, UI
 
 from .colgen import update_links_using_columns
-from .consts import MILE_TO_METER, MPH_TO_KPH, SMALL_DIVISOR
+from .consts import MILE_TO_METER, MPH_TO_KPH, MIN_COL_VOL, SMALL_DIVISOR
 
 
 __all__ = [
@@ -542,6 +542,8 @@ def read_demand(input_dir,
 
         reader = csv.DictReader(fp)
         total_vol = 0
+        invalid_vol = 0
+        invalid_od_num = 0
         for line in reader:
             oz_id = line['o_zone_id']
             # o_zone_id does not exist in node.csv, discard it
@@ -558,7 +560,10 @@ def read_demand(input_dir,
             except InvalidRecord:
                 continue
 
-            if volume == 0:
+            # discard extremely low-volume OD pair
+            if volume < MIN_COL_VOL:
+                invalid_vol += volume
+                invalid_od_num += 1
                 continue
 
             # precheck on connectivity of each OD pair
@@ -572,7 +577,10 @@ def read_demand(input_dir,
 
             total_vol += volume
 
-        print(f'the total demand is {total_vol:.2f}')
+        print(
+            f'the total demand is {total_vol:.2f}\n'
+            f'{invalid_od_num} extremely low-volume OD pairs are discarded with a total volume of {invalid_vol:.4f}'
+        )
 
         if total_vol == 0:
             raise Exception(
@@ -1131,7 +1139,7 @@ def output_columns(ui, output_geometry=True, output_dir='.'):
                 # skip zero-volume column
                 if not col.get_volume():
                     continue
-                
+
                 i += 1
                 node_seq = path_sep.join(
                     nodes[x].get_node_id() for x in reversed(col.nodes)

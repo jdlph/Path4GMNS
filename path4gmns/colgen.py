@@ -15,7 +15,7 @@ def _update_link_cost_array(spnetworks):
         vot = sp.get_agent_type().get_vot()
 
         for link in sp.get_links():
-            if link.length == 0:
+            if not link.length:
                 break
 
             sp.link_cost_array[link.get_seq_no()] = (
@@ -25,18 +25,18 @@ def _update_link_cost_array(spnetworks):
 
 def _update_link_travel_time(links):
     for link in links:
-        if link.length == 0:
+        if not link.length:
             break
 
         link.calculate_td_vdf()
 
 
 def _update_link_and_column_volume(column_pool, links, iter_num, reduce_path_vol = True):
-    if iter_num == 0:
+    if not iter_num:
         return
 
     for link in links:
-        if link.length == 0:
+        if not link.length:
             break
 
         link.reset_period_flow_vol()
@@ -50,10 +50,7 @@ def _update_link_and_column_volume(column_pool, links, iter_num, reduce_path_vol
             for i in col.links:
                 # 04/10/22, remove it from now on as it is not in need
                 # pce_ratio = 1 and path_vol * pce_ratio
-                links[i].increase_period_flow_vol(
-                    tau,
-                    path_vol
-                )
+                links[i].increase_period_flow_vol(tau, path_vol)
 
             if reduce_path_vol and not cv.is_route_fixed():
                 col.vol *= iter_num / (iter_num + 1)
@@ -105,13 +102,11 @@ def _update_column_gradient_cost_and_flow(column_pool, links, agent_types, iter_
                      * col.get_gradient_cost_rel_diff()
                 )
 
-                if new_vol <= MIN_COL_VOL:
+                if new_vol < MIN_COL_VOL:
                     new_vol = 0
 
                 col.set_volume(new_vol)
-                total_switched_out_path_vol += (
-                    cur_vol - new_vol
-                )
+                total_switched_out_path_vol += cur_vol - new_vol
 
         if least_gradient_cost_path_id != -1:
             col = cv.get_column(least_gradient_cost_path_id)
@@ -150,6 +145,10 @@ def _backtrace_shortest_path_tree(centroid,
 
         cv = column_pool[(at_id, dp_id, oz_id, dz_id)]
         if cv.is_route_fixed():
+            continue
+
+        # skip alternative path finding for low-volume OD pair
+        if cv.get_od_volume() < MIN_COL_VOL and iter_num:
             continue
 
         link_path = []
