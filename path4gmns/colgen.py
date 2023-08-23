@@ -61,7 +61,7 @@ def _update_column_gradient_cost_and_flow(column_pool, links, agent_types, iter_
     total_sys_travel_time = 0
 
     for k, cv in column_pool.items():
-        # k= (at, tau, oz_id, dz_id)
+        # k = (at, tau, oz_id, dz_id)
         vot = agent_types[k[0]].get_vot()
         tau = k[1]
 
@@ -111,6 +111,7 @@ def _update_column_gradient_cost_and_flow(column_pool, links, agent_types, iter_
         if least_gradient_cost_path_id != -1:
             col = cv.get_column(least_gradient_cost_path_id)
             total_sys_travel_time += col.get_sys_travel_time()
+            # col.reset_gradient_diffs()
             col.increase_volume(total_switched_out_path_vol)
 
     rel_gap = total_gap / max(total_sys_travel_time, EPSILON)
@@ -186,29 +187,59 @@ def _backtrace_shortest_path_tree(centroid,
             cv.add_new_column(col)
 
 
-def _update_column_attributes(column_pool, links):
+def _update_column_attributes(column_pool, links, ats):
     """ update toll and travel time for each column """
+    total_gap = 0
+    total_sys_travel_time = 0
+
     for k, cv in column_pool.items():
         # k = (at, dp, oz, dz)
+        vot = ats[k[0]].get_vot()
         dp = k[1]
+
+        least_gradient_cost = MAX_LABEL_COST
+        least_gradient_cost_path_id = -1
 
         for col in cv.get_columns():
             nodes = []
             path_toll = 0
             travel_time = 0
 
+            path_gradient_cost = 0
             for j in col.links:
                 link = links[j]
-                nodes.append(links[j].to_node_no)
+                nodes.append(link.to_node_no)
                 travel_time += link.travel_time_by_period[dp]
-                path_toll += links[j].get_toll()
+                path_toll += link.get_toll()
+                path_gradient_cost += link.get_generalized_cost(dp, vot)
 
             # last node
             nodes.append(links[col.links[-1]].from_node_no)
 
+            col.set_gradient_cost(path_gradient_cost)
             col.set_travel_time(travel_time)
             col.set_toll(path_toll)
             col.nodes = [x for x in nodes]
+
+            if path_gradient_cost < least_gradient_cost and col.get_volume():
+                least_gradient_cost = path_gradient_cost
+                least_gradient_cost_path_id = col.get_id()
+
+        for col in cv.get_columns():
+            col.update_gradient_cost_diffs(least_gradient_cost)
+            total_sys_travel_time += col.get_sys_travel_time()
+
+            if col.get_id() == least_gradient_cost_path_id:
+                continue
+
+            if not col.get_volume():
+                continue
+
+            total_gap += col.get_gap()
+
+    rel_gap = total_gap / max(total_sys_travel_time, EPSILON)
+    print('Final UE Convergency\n'
+          f'total gap: {total_gap:.2f}; relative gap: {rel_gap:.4%}')
 
 
 def _generate(spn, column_pool, iter_num):
@@ -301,7 +332,7 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
     # postprocessing
     _update_link_and_column_volume(column_pool, links, column_gen_num, False)
     _update_link_travel_time(links)
-    _update_column_attributes(column_pool, links)
+    _update_column_attributes(column_pool, links, ats)
 
 
 def update_links_using_columns(network):
