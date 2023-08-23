@@ -1,9 +1,8 @@
 """ global constants """
 # for shortest path calculation
 MAX_LABEL_COST = 2147483647
-# in case where the divisor/denominator is ZERO
-SMALL_DIVISOR = 0.00001
-# for column generation and demand loading
+EPSILON = 0.00001
+# for column generation
 MIN_COL_VOL = 0.1
 # for accessibility evaluation
 MIN_TIME_BUDGET = 10

@@ -2,7 +2,7 @@ from time import time
 
 from .path import single_source_shortest_path
 from .classes import Column
-from .consts import MAX_LABEL_COST, SMALL_DIVISOR, MIN_COL_VOL
+from .consts import EPSILON, MAX_LABEL_COST, MIN_COL_VOL
 
 
 __all__ = ['perform_column_generation', 'perform_network_assignment']
@@ -75,7 +75,10 @@ def _update_column_gradient_cost_and_flow(column_pool, links, agent_types, iter_
             )
             col.set_gradient_cost(path_gradient_cost)
 
-            if path_gradient_cost < least_gradient_cost:
+            # col.get_volume() >= EPSILON is the key to eliminate ultra-low-volume
+            # columns. along with the blow new_vol reset if new_vol < MIN_COL_VOL,
+            # it enables shifting volume from the shortest path to a non-shortest path.
+            if path_gradient_cost < least_gradient_cost and col.get_volume() >= EPSILON:
                 least_gradient_cost = path_gradient_cost
                 least_gradient_cost_path_id = col.get_id()
 
@@ -90,18 +93,15 @@ def _update_column_gradient_cost_and_flow(column_pool, links, agent_types, iter_
 
                 col.update_gradient_cost_diffs(least_gradient_cost)
 
+                # with the forgoing col.get_volume() >= EPSILON,
+                # col.get_cap() could be negative
                 total_gap += col.get_gap()
                 total_sys_travel_time += col.get_sys_travel_time()
 
                 step_size = 1 / (iter_num + 2) * cv.get_od_volume()
                 cur_vol = col.get_volume()
 
-                new_vol = (
-                     cur_vol
-                     - step_size
-                     * col.get_gradient_cost_rel_diff()
-                )
-
+                new_vol = cur_vol - step_size * col.get_gradient_cost_rel_diff()
                 if new_vol < MIN_COL_VOL:
                     new_vol = 0
 
@@ -113,7 +113,7 @@ def _update_column_gradient_cost_and_flow(column_pool, links, agent_types, iter_
             total_sys_travel_time += col.get_sys_travel_time()
             col.increase_volume(total_switched_out_path_vol)
 
-    rel_gap = total_gap / max(total_sys_travel_time, SMALL_DIVISOR)
+    rel_gap = total_gap / max(total_sys_travel_time, EPSILON)
 
     print(f'current iteration number in column update: {iter_num}\n'
           f'total gap: {total_gap:.2f}; relative gap: {rel_gap:.4%}')
@@ -145,10 +145,6 @@ def _backtrace_shortest_path_tree(centroid,
 
         cv = column_pool[(at_id, dp_id, oz_id, dz_id)]
         if cv.is_route_fixed():
-            continue
-
-        # skip alternative path finding for low-volume OD pair
-        if cv.get_od_volume() < MIN_COL_VOL and iter_num:
             continue
 
         link_path = []

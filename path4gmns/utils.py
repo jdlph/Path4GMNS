@@ -8,7 +8,7 @@ from .classes import Node, Link, Zone, Network, Column, ColumnVec, VDFPeriod, \
                      AgentType, DemandPeriod, Demand, SpecialEvent, Assignment, UI
 
 from .colgen import update_links_using_columns
-from .consts import MILE_TO_METER, MPH_TO_KPH, MIN_COL_VOL, SMALL_DIVISOR
+from .consts import EPSILON, MILE_TO_METER, MPH_TO_KPH
 
 
 __all__ = [
@@ -485,7 +485,7 @@ def read_links(input_dir,
                     VDF_fftt = _convert_str_to_float(line[header_vdf_fftt])
                 except (KeyError, InvalidRecord):
                     # set it up using length and free_speed from link
-                    VDF_fftt = length / max(SMALL_DIVISOR, free_speed) * 60
+                    VDF_fftt = length / max(EPSILON, free_speed) * 60
 
                 try:
                     VDF_cap = _convert_str_to_float(line[header_vdf_cap])
@@ -541,8 +541,7 @@ def read_demand(input_dir,
         column_pool.clear()
 
         reader = csv.DictReader(fp)
-        total_vol = 0
-        invalid_vol = 0
+        valid_vol = 0
         invalid_od_num = 0
         for line in reader:
             oz_id = line['o_zone_id']
@@ -556,13 +555,12 @@ def read_demand(input_dir,
                 continue
 
             try:
-                volume = _convert_str_to_float(line['volume'])
+                vol = _convert_str_to_float(line['volume'])
             except InvalidRecord:
                 continue
 
-            # discard extremely low-volume OD pair
-            if volume < MIN_COL_VOL:
-                invalid_vol += volume
+            # discard invalid OD pair
+            if vol <= 0:
                 invalid_od_num += 1
                 continue
 
@@ -573,16 +571,16 @@ def read_demand(input_dir,
             # set up volume for ColumnVec
             if (at, dp, oz_id, dz_id) not in column_pool.keys():
                 column_pool[(at, dp, oz_id, dz_id)] = ColumnVec()
-            column_pool[(at, dp, oz_id, dz_id)].increase_volume(volume)
+            column_pool[(at, dp, oz_id, dz_id)].increase_volume(vol)
 
-            total_vol += volume
+            valid_vol += vol
 
         print(
-            f'the total demand is {total_vol:.2f}\n'
-            f'{invalid_od_num} extremely low-volume OD pairs are discarded with a total volume of {invalid_vol:.4f}'
+            f'the total demand is {valid_vol:.2f}\n'
+            f'{invalid_od_num} invalid OD pairs are discarded'
         )
 
-        if total_vol == 0:
+        if valid_vol == 0:
             raise Exception(
                 'NO VALID OD VOLUME!! Double check your demand.csv and '
                 'make sure there is zone info in node.csv'
@@ -1094,7 +1092,8 @@ def load_columns(ui, input_dir='.'):
         update_links_using_columns(ui)
 
 
-def output_columns(ui, output_geometry=True, output_dir='.'):
+def output_columns(ui, output_zero_vol_columns=False,
+                   output_geometry=True, output_dir='.'):
     with open(output_dir+'/agent.csv', 'w',  newline='') as fp:
         base = ui._base_assignment
 
@@ -1123,9 +1122,6 @@ def output_columns(ui, output_geometry=True, output_dir='.'):
         path_sep = ';'
         i = 0
         for k, cv in column_pool.items():
-            if cv.get_od_volume() <= 0:
-                continue
-
             # k = (at_id, dp_id, oz_id, dz_id)
             at_id = k[0]
             dp_id = k[1]
@@ -1137,7 +1133,7 @@ def output_columns(ui, output_geometry=True, output_dir='.'):
 
             for col in cv.get_columns():
                 # skip zero-volume column
-                if not col.get_volume():
+                if not output_zero_vol_columns and not col.get_volume():
                     continue
 
                 i += 1
@@ -1161,7 +1157,7 @@ def output_columns(ui, output_geometry=True, output_dir='.'):
                         col.get_id(),
                         at_str,
                         dp_str,
-                        col.get_volume(),
+                        '{:.4f}'.format(col.get_volume()),
                         col.get_toll(),
                         col.get_travel_time(),
                         col.get_distance(),
@@ -1205,7 +1201,7 @@ def output_link_performance(ui, output_dir='.'):
 
             for dp in base.get_demand_periods():
                 avg_travel_time = link.get_period_avg_travel_time(dp.get_id())
-                speed = link.get_length() / (max(SMALL_DIVISOR, avg_travel_time) / 60)
+                speed = link.get_length() / (max(EPSILON, avg_travel_time) / 60)
 
                 line = [link.get_link_id(),
                         link.get_from_node_id(),

@@ -5,7 +5,7 @@ from datetime import datetime
 from math import ceil, floor
 from random import choice, randint, uniform
 
-from .consts import MAX_LABEL_COST, SMALL_DIVISOR, SECONDS_IN_MINUTE, SECONDS_IN_HOUR
+from .consts import EPSILON, MAX_LABEL_COST, SECONDS_IN_MINUTE, SECONDS_IN_HOUR
 from .path import find_path_for_agents, find_shortest_path, \
                   single_source_shortest_path, benchmark_apsp
 
@@ -92,7 +92,7 @@ class Link:
         self.type = link_type
         # free flow travel time in minutes, free_speed is either mile/h or km/h
         self.fftt = (
-            length / max(SMALL_DIVISOR, free_speed) * 60
+            length / max(EPSILON, free_speed) * 60
         )
         # capacity is lane capacity per hour
         self.link_capacity = capacity * lanes
@@ -163,7 +163,7 @@ class Link:
         return (
             self.travel_time_by_period[tau]
             + self.route_choice_cost
-            + self.toll / max(SMALL_DIVISOR, value_of_time) * 60
+            + self.toll / max(EPSILON, value_of_time) * 60
         )
 
     def reset_period_flow_vol(self):
@@ -825,7 +825,7 @@ class Column:
     def update_gradient_cost_diffs(self, least_gc):
         self.gradient_cost_abs_diff = self.gradient_cost - least_gc
         self.gradient_cost_rel_diff = (
-            self.gradient_cost_abs_diff / max(SMALL_DIVISOR, least_gc)
+            self.gradient_cost_abs_diff / max(EPSILON, least_gc)
         )
 
     def get_gap(self):
@@ -1030,7 +1030,7 @@ class VDFPeriod:
 
     def run_bpr(self, vol):
         vol = max(0, vol)
-        self.voc = vol / max(SMALL_DIVISOR, self.capacity * self.capacity_ratio)
+        self.voc = vol / max(EPSILON, self.capacity * self.capacity_ratio)
         self.avg_travel_time = (
             self.fftt
             + self.fftt
@@ -1300,7 +1300,7 @@ class AccessNetwork(Network):
                 self.link_cost_array[link.get_seq_no()] = (
                     link.get_period_fftt(demand_period_id)
                     + link.get_route_choice_cost()
-                    + link.get_toll() / max(SMALL_DIVISOR, vot) * 60
+                    + link.get_toll() / max(EPSILON, vot) * 60
                 )
         else:
             if not at.use_link_ffs:
@@ -1308,16 +1308,16 @@ class AccessNetwork(Network):
 
                 for link in self.get_links():
                     self.link_cost_array[link.get_seq_no()] = (
-                        (link.get_length() / max(SMALL_DIVISOR, ffs) * 60)
+                        (link.get_length() / max(EPSILON, ffs) * 60)
                         + link.get_route_choice_cost()
-                        + link.get_toll() / max(SMALL_DIVISOR, vot) * 60
+                        + link.get_toll() / max(EPSILON, vot) * 60
                     )
             else:
                 for link in self.get_links():
                     self.link_cost_array[link.get_seq_no()] = (
                         link.get_free_flow_travel_time()
                         + link.get_route_choice_cost()
-                        + link.get_toll() / max(SMALL_DIVISOR, vot) * 60
+                        + link.get_toll() / max(EPSILON, vot) * 60
                     )
 
 
