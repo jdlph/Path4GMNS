@@ -111,7 +111,6 @@ def _update_column_gradient_cost_and_flow(column_pool, links, agent_types, iter_
         if least_gradient_cost_path_id != -1:
             col = cv.get_column(least_gradient_cost_path_id)
             total_sys_travel_time += col.get_sys_travel_time()
-            # col.reset_gradient_diffs()
             col.increase_volume(total_switched_out_path_vol)
 
     rel_gap = total_gap / max(total_sys_travel_time, EPSILON)
@@ -187,18 +186,16 @@ def _backtrace_shortest_path_tree(centroid,
             cv.add_new_column(col)
 
 
-def _update_column_attributes(column_pool, links, ats):
-    """ update toll and travel time for each column """
+def _update_column_attributes(column_pool, links, agent_types):
+    """ update toll and travel time for each column, and compute final UE convergency """
     total_gap = 0
     total_sys_travel_time = 0
 
     for k, cv in column_pool.items():
         # k = (at, dp, oz, dz)
-        vot = ats[k[0]].get_vot()
         dp = k[1]
-
+        vot = agent_types[k[0]].get_vot()
         least_gradient_cost = MAX_LABEL_COST
-        least_gradient_cost_path_id = -1
 
         for col in cv.get_columns():
             nodes = []
@@ -223,22 +220,14 @@ def _update_column_attributes(column_pool, links, ats):
 
             if path_gradient_cost < least_gradient_cost and col.get_volume():
                 least_gradient_cost = path_gradient_cost
-                least_gradient_cost_path_id = col.get_id()
 
         for col in cv.get_columns():
             col.update_gradient_cost_diffs(least_gradient_cost)
             total_sys_travel_time += col.get_sys_travel_time()
-
-            if col.get_id() == least_gradient_cost_path_id:
-                continue
-
-            if not col.get_volume():
-                continue
-
             total_gap += col.get_gap()
 
     rel_gap = total_gap / max(total_sys_travel_time, EPSILON)
-    print('Final UE Convergency\n'
+    print('current iteration number in column update: postprocessing\n'
           f'total gap: {total_gap:.2f}; relative gap: {rel_gap:.4%}')
 
 

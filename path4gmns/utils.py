@@ -542,6 +542,7 @@ def read_demand(input_dir,
 
         reader = csv.DictReader(fp)
         valid_vol = 0
+        invalid_vol = 0
         invalid_od_num = 0
         for line in reader:
             oz_id = line['o_zone_id']
@@ -559,9 +560,15 @@ def read_demand(input_dir,
             except InvalidRecord:
                 continue
 
-            # discard invalid OD pair
+            # discard invalid OD pair, case I: invalid volume
             if vol <= 0:
                 invalid_od_num += 1
+                continue
+
+            # discard invalid OD pair, case II: O and D are the same
+            if oz_id == dz_id:
+                invalid_od_num += 1
+                invalid_vol += vol
                 continue
 
             # precheck on connectivity of each OD pair
@@ -577,7 +584,7 @@ def read_demand(input_dir,
 
         print(
             f'the total demand is {valid_vol:.2f}\n'
-            f'{invalid_od_num} invalid OD pairs are discarded'
+            f'{invalid_od_num} invalid OD pairs are discarded with with a total volume of {invalid_vol:.2f}'
         )
 
         if valid_vol == 0:

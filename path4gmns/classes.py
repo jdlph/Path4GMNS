@@ -828,9 +828,6 @@ class Column:
             self.gradient_cost_abs_diff / max(EPSILON, least_gc)
         )
 
-    def reset_gradient_diffs(self):
-        self.gradient_cost_abs_diff = self.gradient_cost_rel_diff = 0
-
     def get_gap(self):
         return self.gradient_cost_abs_diff * self.vol
 
