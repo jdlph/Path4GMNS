@@ -36,7 +36,7 @@ _dtalite_engine.network_assignment.argtypes = [ctypes.c_int,
 
 
 def _emit_log(input_dir='.'):
-    with open(input_dir + '/log_main.txt', 'r') as fp:
+    with open(input_dir + '/log_DTA.txt', 'r') as fp:
         for line in fp:
             print(line)
 
