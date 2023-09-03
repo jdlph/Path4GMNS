@@ -197,7 +197,16 @@ def _update_column_attributes(column_pool, links, agent_types):
         vot = agent_types[k[0]].get_vot()
         least_gradient_cost = MAX_LABEL_COST
 
+        k = 0
         for col in cv.get_columns():
+            if not col.get_volume():
+                col.reset()
+                continue
+
+            # reset column id
+            col.set_id(k)
+            k += 1
+
             nodes = []
             path_toll = 0
             travel_time = 0
@@ -218,10 +227,13 @@ def _update_column_attributes(column_pool, links, agent_types):
             col.set_toll(path_toll)
             col.nodes = [x for x in nodes]
 
-            if path_gradient_cost < least_gradient_cost and col.get_volume():
+            if path_gradient_cost < least_gradient_cost:
                 least_gradient_cost = path_gradient_cost
 
         for col in cv.get_columns():
+            if not col.get_volume():
+                continue
+
             col.update_gradient_cost_diffs(least_gradient_cost)
             total_sys_travel_time += col.get_sys_travel_time()
             total_gap += col.get_gap()

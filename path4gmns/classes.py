@@ -834,6 +834,15 @@ class Column:
     def get_sys_travel_time(self):
         return self.gradient_cost * self.vol
 
+    def reset(self):
+        self.id = -1
+        self.nodes = self.links = None
+        self.travel_time = self.gradient_cost = 0
+        self.gradient_cost_abs_diff = self.gradient_cost_rel_diff = 0
+
+    def set_id(self, id):
+        self.id = id
+
 
 class ColumnVec:
     """ column pool for (at, dp, oz, dz)

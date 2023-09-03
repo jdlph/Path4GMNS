@@ -5,7 +5,7 @@ from multiprocessing import Process
 from time import sleep
 
 
-__all__ = ['perform_network_assignment_DTALite']
+__all__ = ['perform_network_assignment_DTALite', 'run_DTALite']
 
 
 _os = platform.system()

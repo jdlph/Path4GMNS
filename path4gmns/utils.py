@@ -1099,8 +1099,7 @@ def load_columns(ui, input_dir='.'):
         update_links_using_columns(ui)
 
 
-def output_columns(ui, output_zero_vol_columns=False,
-                   output_geometry=True, output_dir='.'):
+def output_columns(ui, output_geometry=True, output_dir='.'):
     with open(output_dir+'/agent.csv', 'w',  newline='') as fp:
         base = ui._base_assignment
 
@@ -1140,7 +1139,7 @@ def output_columns(ui, output_zero_vol_columns=False,
 
             for col in cv.get_columns():
                 # skip zero-volume column
-                if not output_zero_vol_columns and not col.get_volume():
+                if not col.get_volume():
                     continue
 
                 i += 1
