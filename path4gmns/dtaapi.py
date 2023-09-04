@@ -22,6 +22,7 @@ elif _os.startswith('Darwin'):
         _dtalitemm_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALiteMM_x86.dylib')
     else:
         _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite_arm.dylib')
+        _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALiteMM_arm.dylib')
 else:
     raise Exception('Please build the shared library compatible to your OS\
                     using source files')
