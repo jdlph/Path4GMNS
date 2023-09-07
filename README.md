@@ -24,7 +24,10 @@ Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.9.6/
 $ pip install path4gmns
 ```
 
-v0.9.6 reduces the assignment noise by eliminating ultra-low-volume paths and computes the final UE convergency after the postprocessing. Note that any versions prior to v0.9.4 will generate INCORRECT simulation results. Please **update to or install the latest version** and **discard all old versions**.
+v0.9.6 improves the assignment results by eliminating ultra-low-volume paths and computes the final UE convergency after the postprocessing. Please **update to or install the latest version** and **discard all old versions**.
+
+> [!WARNING]
+> Any versions prior to v0.9.4 will generate INCORRECT simulation results.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding **[Use Cases](https://path4gmns.readthedocs.io/en/latest/)**.
@@ -112,9 +115,11 @@ You are encouraged to join our [Discord Channel](https://discord.gg/JGFMta7kxZ) 
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2023, August 15). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2023, September 7). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## References
 Lu, C. C., Mahmassani, H. S., Zhou, X. (2009). [Equivalent gap function-based reformulation and solution algorithm for the dynamic user equilibrium problem](https://www.sciencedirect.com/science/article/abs/pii/S0191261508000829). Transportation Research Part B: Methodological, 43, 345-364.
 
 Jayakrishnan, R., Tsai, W. K., Prashker, J. N., Rajadyaksha, S. (1994). [A Faster Path-Based Algorithm for Traffic Assignment](https://escholarship.org/uc/item/2hf4541x) (Working Paper UCTC No. 191). The University of California Transportation Center.
+
+Bertsekas, D., Gafni, E. (1983). [Projected Newton methods and optimization of multicommodity flows](https://web.mit.edu/dimitrib/www/Gafni_Newton.pdf). IEEE Transactions on Automatic Control, 28(12), 1090–1096.
