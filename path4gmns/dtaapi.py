@@ -22,13 +22,13 @@ elif _os.startswith('Darwin'):
         _dtalitemm_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALiteMM_x86.dylib')
     else:
         _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite_arm.dylib')
-        _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALiteMM_arm.dylib')
+        _dtalitemm_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALiteMM_arm.dylib')
 else:
     raise Exception('Please build the shared library compatible to your OS\
                     using source files')
 
-_dtalitemm_engine = ctypes.cdll.LoadLibrary(_dtalitemm_dll)
 _dtalite_engine = ctypes.cdll.LoadLibrary(_dtalite_dll)
+_dtalitemm_engine = ctypes.cdll.LoadLibrary(_dtalitemm_dll)
 
 
 _dtalite_engine.network_assignment.argtypes = [ctypes.c_int,
@@ -139,6 +139,29 @@ def perform_network_assignment_DTALite(assignment_mode,
 
 
 def run_DTALite():
+    """ Python interface to call the latest DTALite
+
+    This version of DTALite includes all-new Logbook, enhanced scenarios
+    handling, improved I/O functionality, and so on.
+
+    Its source code can be found at https://github.com/asu-trans-ai-lab/DTALite.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    None
+
+    WARNING
+    -------
+    It is not compatible with the classic DTALite and the corresponding data sets
+    from https://github.com/jdlph/Path4GMNS/tree/dev/data.
+
+    Run it only with data sets from
+    https://github.com/asu-trans-ai-lab/DTALite/tree/main/dataset_v1.
+    """
     print('\nDTALite run starts\n')
 
     proc_dta = Process(target=_dtalitemm_engine.DTALiteAPI())
