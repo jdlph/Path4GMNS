@@ -291,7 +291,7 @@ class Zone:
 
     def __init__(self, zone_id, bin_index=0):
         self.no = -1
-        self.id = zone_id
+        self.id = str(zone_id)
         self.bin_id = bin_index
         self.production = 0
         self.centroid = None

@@ -139,7 +139,7 @@ def _synthesize_grid(ui, grid_dim, max_bin):
 
         (i, j) = _get_grid_id(x, y, res)
         if (i, j) not in grids.keys():
-            grids[(i, j)] = k
+            grids[(i, j)] = str(k)
             z = Zone(k)
             # boundaries (roughly)
             L_ = i * res
@@ -150,7 +150,7 @@ def _synthesize_grid(ui, grid_dim, max_bin):
             cx = (2 * x + L_ + R_) / 4
             cy = (2 * y + U_ + D_) / 4
             z.setup_geo(U_, D_, L_, R_, cx, cy)
-            zones[k] = z
+            zones[str(k)] = z
             k += 1
 
         zones[grids[(i, j)]].add_activity_node(node.get_node_id())
