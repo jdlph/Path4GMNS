@@ -24,6 +24,7 @@ path4gmns.colgen
 path4gmns.dtaapi
 ================
 .. autofunction:: path4gmns.dtaapi.perform_network_assignment_DTALite
+.. autofunction:: path4gmns.dtaapi.run_DTALite
 
 
 path4gmns.simulation

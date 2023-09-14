@@ -27,17 +27,9 @@ else:
     raise Exception('Please build the shared library compatible to your OS\
                     using source files')
 
-_dtalite_engine = ctypes.cdll.LoadLibrary(_dtalite_dll)
-_dtalitemm_engine = ctypes.cdll.LoadLibrary(_dtalitemm_dll)
 
-
-_dtalite_engine.network_assignment.argtypes = [ctypes.c_int,
-                                               ctypes.c_int,
-                                               ctypes.c_int]
-
-
-def _emit_log(input_dir='.'):
-    with open(input_dir + '/log_DTA.txt', 'r') as fp:
+def _emit_log(log_file='log_main.txt'):
+    with open(log_file, 'r') as fp:
         for line in fp:
             print(line)
 
@@ -97,6 +89,12 @@ def perform_network_assignment_DTALite(assignment_mode,
     assert(column_gen_num>=0)
     assert(column_update_num>=0)
 
+    _dtalite_engine = ctypes.cdll.LoadLibrary(_dtalite_dll)
+    _dtalite_engine.network_assignment.argtypes = [ctypes.c_int,
+                                                   ctypes.c_int,
+                                                   ctypes.c_int]
+
+
     print('\nDTALite run starts\n')
 
     if _os.startswith('Windows'):
@@ -141,8 +139,8 @@ def perform_network_assignment_DTALite(assignment_mode,
 def run_DTALite():
     """ Python interface to call the latest DTALite
 
-    This version of DTALite includes all-new Logbook, enhanced scenarios
-    handling, improved I/O functionality, and so on.
+    This version of DTALite includes all-new Logbook, enhanced scenario handling,
+    improved I/O functionality, and so on.
 
     Its source code can be found at https://github.com/asu-trans-ai-lab/DTALite.
 
@@ -162,10 +160,11 @@ def run_DTALite():
     Run it only with data sets from
     https://github.com/asu-trans-ai-lab/DTALite/tree/main/dataset_v1.
     """
+    _dtalitemm_engine = ctypes.cdll.LoadLibrary(_dtalitemm_dll)
     print('\nDTALite run starts\n')
 
     proc_dta = Process(target=_dtalitemm_engine.DTALiteAPI())
-    proc_print = Process(target=_emit_log)
+    proc_print = Process(target=_emit_log,  args='log_DTA.txt')
 
     proc_dta.start()
     proc_dta.join()

@@ -160,7 +160,7 @@ pg.output_link_performance(network)
 
 ### In Case of Special Events
 
-A special event often comes with capacity reduction over affected links, which is now supported in v0.8.4. You can introduce one special event for each demand period in settings.yml as below.
+A special event often comes with capacity reduction over affected links, which is now supported in v0.8.4 or higher. You can introduce one special event for each demand period in settings.yml as below.
 
 ```yaml
 demand_periods:
@@ -407,7 +407,7 @@ Traffic simulation is to capture/mimic the traffic evolution over time through s
 
 The traffic simulation module in Path4GMNS is a mesoscopic simulator using the point queue model and the routing decision of each individual agent (as disaggregated demand). The routing decisions are from the UE traffic assignment.
 
-The demand loading profile with respect to the departure times of all agents is either constant (start time of the selected demand period) or random (within the selected demand period). The future release will introduce a linear or piece-wise linear loading profile. v0.9.0 only supports one demand period, which must be specified in settings.yml and be corresponding to one from the list of demand_periods. The default simulation resolution is 6 seconds. In other words, a simulation interval is 6 seconds.
+The demand loading profile with respect to the departure times of all agents is either constant (start time of the selected demand period) or random (within the selected demand period). The future release will introduce a linear or piece-wise linear loading profile. Path4GMNS only supports one demand period, which must be specified in settings.yml and be corresponding to one from the list of demand_periods. If you need the multi-demand-period support, please use DTALite or [TransOMS](https://github.com/jdlph/TransOMS). The default simulation resolution is 6 seconds. In other words, a simulation interval is 6 seconds.
 
 ```yaml
 agents:
