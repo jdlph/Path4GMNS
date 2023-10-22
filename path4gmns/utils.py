@@ -583,8 +583,8 @@ def read_demand(input_dir,
             valid_vol += vol
 
         print(
-            f'the total demand is {valid_vol:.2f}\n'
-            f'{invalid_od_num} invalid OD pairs are discarded with with a total volume of {invalid_vol:.2f}'
+            f'the total valid demand is {valid_vol:.2f}\n'
+            f'{invalid_od_num} invalid OD pairs are found. Total discarded volume: {invalid_vol:.2f}'
         )
 
         if valid_vol == 0:

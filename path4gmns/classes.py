@@ -320,7 +320,7 @@ class Zone:
         return self.coord_x, self.coord_y
 
     def get_coordinate_str(self):
-        s = ' '
+        s = ''
         if self.coord_x == 91 or self.coord_y == 181:
             return s
 

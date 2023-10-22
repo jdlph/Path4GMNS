@@ -74,7 +74,9 @@ def _output_od_accessibility(min_travel_times, zones, mode, output_dir):
             # directly using an.get_centroids()
             coord_oz = zones[k[0]].get_coordinate_str()
             coord_dz = zones[k[1]].get_coordinate_str()
-            geo = 'LINESTRING (' + coord_oz + ', ' + coord_dz + ')'
+            geo = 'LINESTRING ()'
+            if coord_oz and coord_dz:
+                geo = 'LINESTRING (' + coord_oz + ', ' + coord_dz + ')'
 
             tt = v[0]
             dis = v[1]
@@ -82,7 +84,7 @@ def _output_od_accessibility(min_travel_times, zones, mode, output_dir):
                 tt = 'N/A'
                 dis = 'N/A'
 
-            line = [k[0], '', k[1], '', tt, dis, geo]
+            line = [k[0], k[1], tt, dis, geo]
             writer.writerow(line)
 
         if output_dir == '.':
