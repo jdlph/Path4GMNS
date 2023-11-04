@@ -36,6 +36,7 @@ release = 'v0.9.8'
 # ones.
 extensions = [
     'myst_parser',
+    'sphinx_rtd_theme',
     'sphinx.ext.mathjax',
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
