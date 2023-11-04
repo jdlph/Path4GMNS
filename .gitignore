@@ -6,8 +6,9 @@ dist/
 __pycache__/
 engine_cpp/build/
 .DS_Store
-*/agent.csv
+*/route_assignment.csv
 */link_performance.csv
+*/agent.csv
 */agent_paths.csv
 */equity*.csv
 */zone.csv

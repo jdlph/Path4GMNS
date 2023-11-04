@@ -954,9 +954,8 @@ def read_network(length_unit='mile', speed_unit='mph', load_demand=False, input_
 
 
 def load_columns(ui, input_dir='.'):
-    """ developer note: do we use agent.csv to set up network? """
-    with open(input_dir+'/agent.csv', 'r') as f:
-        print('read agent.csv')
+    with open(input_dir+'/route_assignment.csv', 'r') as f:
+        print('read route_assignment.csv')
 
         A = ui._base_assignment
         cp = A.get_column_pool()
@@ -1051,7 +1050,7 @@ def load_columns(ui, input_dir='.'):
             except KeyError:
                 raise Exception(
                     'Invalid node found on column!!'
-                    'Did you use agent.csv from a different network?'
+                    'Did you use route_assignment.csv from a different network?'
                 )
 
             try:
@@ -1063,7 +1062,7 @@ def load_columns(ui, input_dir='.'):
             except KeyError:
                 raise Exception(
                     'INVALID link found on column!!'
-                    'Did you use agent.csv from a different network?'
+                    'Did you use route_assignment.csv from a different network?'
                 )
             except ValueError:
                 raise Exception(
@@ -1100,7 +1099,7 @@ def load_columns(ui, input_dir='.'):
 
 
 def output_columns(ui, output_geometry=True, output_dir='.'):
-    with open(output_dir+'/agent.csv', 'w',  newline='') as fp:
+    with open(output_dir+'/route_assignment.csv', 'w',  newline='') as fp:
         base = ui._base_assignment
 
         nodes = base.get_nodes()
@@ -1174,10 +1173,10 @@ def output_columns(ui, output_geometry=True, output_dir='.'):
                 writer.writerow(line)
 
         if output_dir == '.':
-            print(f'\ncheck agent.csv in {os.getcwd()} for path finding results')
+            print(f'\ncheck route_assignment.csv in {os.getcwd()} for path finding results')
         else:
             print(
-                f'\ncheck agent.csv in {os.path.join(os.getcwd(), output_dir)}'
+                f'\ncheck route_assignment.csv in {os.path.join(os.getcwd(), output_dir)}'
                 ' for path finding results'
             )
 

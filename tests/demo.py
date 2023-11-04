@@ -100,7 +100,7 @@ def test_column_generation_dtalite():
           f' for {column_gen_num} iterations in column generation and '
           f'{column_update_num} iterations in column update')
 
-    print('\npath finding results can be found in agent.csv')
+    print('\npath finding results can be found in route_assignment.csv')
 
 
 def test_loading_columns():
@@ -229,7 +229,7 @@ def test_simulation():
     # pg.perform_column_generation(column_gen_num, column_update_num, network)
 
     # you can bypass the above perform_column_generation() and call
-    # load_columns(network) if you have agent.csv
+    # load_columns(network) if you have route_assignment.csv
     pg.load_columns(network)
     pg.perform_simple_simulation(network, 'uniform')
     print('complete simple simulation.\n')
