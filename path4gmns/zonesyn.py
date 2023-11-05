@@ -1,4 +1,5 @@
 from math import ceil, floor
+import warnings
 
 from .accessibility import _update_min_travel_time
 from .classes import AccessNetwork, Zone
@@ -216,6 +217,12 @@ def _synthesize_demand(ui, total_demand, time_budget, mode):
             prod_ = v_.get_production()
             portion = prod_ / total_attr
             ODMatrix[(z, z_)] = round(prod * portion, 2)
+
+    if not ODMatrix:
+        warnings.warn(
+            f'ZERO demand is synthesized!! Please check speed and length units'
+            ' in link.csv, and time_budget!'
+        )
 
 
 def network_to_zones(ui, grid_dimension=8, max_bin=5, total_demand=10000, time_budget=120, mode='auto'):
