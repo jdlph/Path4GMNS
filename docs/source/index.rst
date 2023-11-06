@@ -50,5 +50,5 @@ Contents
    installation
    usecases
    implnotes
-   updates
    api
+   updates
