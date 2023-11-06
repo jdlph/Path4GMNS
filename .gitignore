@@ -18,3 +18,4 @@ accessibility*.csv
 *accessibility.csv
 final_summary.csv
 **log*
+*.code-workspace
