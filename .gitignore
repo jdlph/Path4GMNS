@@ -19,4 +19,5 @@ tests/data/
 *accessibility.csv
 *final_summary.csv
 **log*
+*.coverage
 *.code-workspace
