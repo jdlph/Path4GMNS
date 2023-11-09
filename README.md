@@ -21,7 +21,7 @@ Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jd
 
 ## Quick Start
 
-1. **[Tutorial](https://github.com/jdlph/Path4GMNS/tree/dev/tests/tutorial.ipynb)** written in Jupyter notebook with step-by-step demonstration.
+1. **[Tutorial](https://github.com/jdlph/Path4GMNS/tree/dev/tutorial/tutorial.ipynb)** written in Jupyter notebook with step-by-step demonstration.
 2. **[Documentation](https://path4gmns.readthedocs.io/en/latest/)** on Installation, Use Cases, Public API, and more.
 
 We highly recommend that you go through the above [Tutorial](https://github.com/jdlph/Path4GMNS/tree/dev/tests/tutorial.ipynb), no matter you are one of the existing users or new to Path4GMNS.

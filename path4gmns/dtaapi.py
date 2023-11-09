@@ -111,8 +111,9 @@ def perform_network_assignment_DTALite(assignment_mode,
             f'check route_assignment.csv in {os.getcwd()} for unique agent paths\n'
         )
     else:
-        # the following does not work for Windows.
-        # ValueError: ctypes objects containing pointers cannot be pickled
+        # the following multiprocessing call does not work for Windows,
+        # and there is no solution.
+        # OSError: [WinError 87] The parameter is incorrect
         proc_dta = Process(
             target=_dtalite_engine.network_assignment,
             args=(assignment_mode, column_gen_num, column_update_num,)

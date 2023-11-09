@@ -863,18 +863,18 @@ def read_settings(input_dir, assignment):
 
     except ImportError:
         # just in case user does not have pyyaml installed
-        warnings.warn('Please install pyyaml next time!')
         warnings.warn(
+            'Please install pyyaml next time!\n'
             'Engine will set up one demand period and one agent type using '
-            'default values for you, which might NOT reflect your case!\n'
+            'default values for you, which might NOT reflect your case!'
         )
         _auto_setup(assignment)
     except FileNotFoundError:
         # just in case user does not provide settings.yml
-        warnings.warn('Please provide settings.yml next time!')
         warnings.warn(
+            'Please provide settings.yml next time!\n'
             'Engine will set up one demand period and one agent type using '
-            'default values for you, which might NOT reflect your case!\n'
+            'default values for you, which might NOT reflect your case!'
         )
         _auto_setup(assignment)
     except Exception as e:
