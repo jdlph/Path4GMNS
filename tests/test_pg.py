@@ -1,4 +1,5 @@
-from os import chdir
+from os import chdir, mkdir, remove
+from os.path import isdir
 from shutil import rmtree
 
 from path4gmns.accessibility import evaluate_accessibility, evaluate_equity
@@ -16,24 +17,35 @@ from path4gmns.zonesyn import network_to_zones
 
 
 def test_download_sample_data_sets():
+    chdir('tests')
     download_sample_data_sets()
+        
+    if not isdir('tmp'):
+        mkdir('tmp')
+    
     rmtree('data')
+    chdir('..')
+
+
+def test_routing_engine():
+    network = read_network(input_dir='tests/fixtures')
+    network.benchmark_apsp()
 
 
 def test_find_shortest_path():
-    network = read_network(input_dir='fixtures')
+    network = read_network(input_dir='tests/fixtures')
 
-    print('\nshortest path (node id) from node 1 to node 2, '
-          +network.find_shortest_path(1, 2))
-    print('\nshortest path (link id) from node 1 to node 2, '
-          +network.find_shortest_path(1, 2, seq_type='link'))
+    # shortest path (node id) from node 1 to node 2
+    network.find_shortest_path(1, 2)
+    # shortest path (link id) from node 1 to node 2
+    network.find_shortest_path(1, 2, seq_type='link')
 
     # retrieve the shortest path under a specific mode (which must be defined
     # in settings.yaml)
-    print('\nshortest path (node id) from node 1 to node 2, '
-          +network.find_shortest_path(1, 2, mode='a'))
-    print('\nshortest path (link id) from node 1 to node 2, '
-          +network.find_shortest_path(1, 2, mode='a', seq_type='link'))
+    # shortest path (node id) from node 1 to node 2
+    network.find_shortest_path(1, 2, mode='a')
+    # shortest path (link id) from node 1 to node 2
+    network.find_shortest_path(1, 2, mode='a', seq_type='link')
 
 
 def test_find_shortest_path_for_agents():
@@ -75,45 +87,45 @@ def test_find_shortest_path_for_agents():
 
 
 def test_column_generation_py():
-    network = read_network(load_demand=True, input_dir='fixtures')
+    network = read_network(load_demand=True, input_dir='tests/fixtures')
 
-    column_gen_num = 20
-    column_update_num = 20
+    column_gen_num = 10
+    column_update_num = 10
     perform_column_generation(column_gen_num, column_update_num, network)
 
     # use output_columns(network, False) to exclude geometry info in the output file,
-    output_columns(network)
-    output_link_performance(network)
+    output_columns(network, output_dir='tests/tmp')
+    output_link_performance(network, output_dir='tests/tmp')
 
 
 def test_column_generation_dtalite():
-    chdir('fixtures')
+    chdir('tests/fixtures')
 
     mode = 1
     column_gen_num = 20
     column_update_num = 20
     perform_network_assignment_DTALite(mode, column_gen_num, column_update_num)
 
-    chdir('..')
+    chdir('../..')
 
 
 def test_loading_columns():
-    network = read_network(input_dir='fixtures')
-    load_columns(network)
+    network = read_network(input_dir='tests/fixtures')
+    load_columns(network, input_dir='tests/tmp')
 
     column_gen_num = 0
     column_update_num = 10
     perform_column_generation(column_gen_num, column_update_num, network)
 
-    output_columns(network)
-    output_link_performance(network)
+    output_columns(network, output_dir='tests/tmp')
+    output_link_performance(network, output_dir='tests/tmp')
 
 
 def test_accessibility():
-    network = read_network(input_dir='fixtures')
+    network = read_network(input_dir='tests/fixtures')
 
     # multimodal accessibility evaluation
-    evaluate_accessibility(network)
+    evaluate_accessibility(network, output_dir='tests/tmp')
     # accessibility evaluation for a target mode
     # evaluate_accessibility(network, single_mode=True, mode='auto')
 
@@ -146,38 +158,16 @@ def test_accessibility():
 
 
 def test_equity():
-    network = read_network(input_dir='fixtures')
+    network = read_network(input_dir='tests/fixtures')
 
     # multimodal equity evaluation under default time budget (60 min)
-    evaluate_equity(network)
+    evaluate_equity(network, output_dir='tests/tmp')
     # equity evaluation for a target mode with time budget as 30 min
     # evaluate_equity(network, single_mode=True, mode='auto', time_budget=30)
 
 
-def test_zone_synthesis():
-    network = read_network(input_dir='fixtures')
-    network_to_zones(network)
-
-    output_zones(network)
-    output_synthesized_demand(network)
-
-
-def test_loading_synthesized_zones_demand():
-    network = read_network(input_dir='fixtures')
-
-    read_zones(network)
-    load_demand(network, filename='demand.csv')
-
-    column_gen_num = 20
-    column_update_num = 20
-    perform_column_generation(column_gen_num, column_update_num, network)
-
-    output_columns(network)
-    output_link_performance(network)
-
-
 def test_simulation():
-    network = read_network(load_demand=True, input_dir='fixtures')
+    network = read_network(load_demand=True, input_dir='tests/fixtures')
 
     # column_gen_num = 20
     # column_update_num = 20
@@ -185,12 +175,35 @@ def test_simulation():
 
     # you can bypass the above perform_column_generation() and call
     # load_columns(network) if you have route_assignment.csv
-    load_columns(network)
+    load_columns(network, input_dir='tests/tmp')
     perform_simple_simulation(network, 'uniform')
 
-    output_agent_trajectory(network)
+    output_agent_trajectory(network, output_dir='tests/tmp')
 
 
-def test_routing_engine():
-    network = read_network(input_dir='fixtures')
-    network.benchmark_apsp()
+def test_zone_synthesis():
+    network = read_network(input_dir='tests/fixtures')
+    network_to_zones(network)
+
+    output_zones(network, output_dir='tests/tmp')
+    output_synthesized_demand(network, output_dir='tests/tmp')
+
+
+def test_loading_synthesized_zones_demand():
+    network = read_network(input_dir='tests/fixtures')
+
+    read_zones(network, input_dir='tests/tmp')
+    load_demand(network, input_dir='tests/tmp', filename='demand.csv')
+
+    column_gen_num = 20
+    column_update_num = 20
+    perform_column_generation(column_gen_num, column_update_num, network)
+
+    output_columns(network, output_dir='tests/tmp')
+    output_link_performance(network, output_dir='tests/tmp')
+
+    # clean up
+    remove('tests/fixtures/agent.csv')
+    remove('tests/fixtures/link_performance.csv')
+    # remove('tests/fixtures/log_main.txt')
+    rmtree('tmp')
