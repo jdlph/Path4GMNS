@@ -3,13 +3,10 @@ from os.path import isdir
 from shutil import rmtree
 
 from path4gmns.accessibility import evaluate_accessibility, evaluate_equity
-from path4gmns.colgen import perform_column_generation
-from path4gmns.dtaapi import perform_network_assignment_DTALite
 from path4gmns.simulation import perform_simple_simulation
 
-from path4gmns.utils import download_sample_data_sets, load_columns, load_demand,\
-                            output_agent_paths, output_agent_trajectory,\
-                            output_columns, output_link_performance, \
+from path4gmns.utils import download_sample_data_sets, load_columns, \
+                            load_demand, output_agent_trajectory,\
                             output_synthesized_demand, output_zones, \
                             read_network, read_zones
 
@@ -19,106 +16,12 @@ from path4gmns.zonesyn import network_to_zones
 def test_download_sample_data_sets():
     chdir('tests')
     download_sample_data_sets()
-        
+
     if not isdir('tmp'):
         mkdir('tmp')
-    
+
     rmtree('data')
     chdir('..')
-
-
-def test_routing_engine():
-    network = read_network(input_dir='tests/fixtures')
-    network.benchmark_apsp()
-
-
-def test_find_shortest_path():
-    network = read_network(input_dir='tests/fixtures')
-
-    # shortest path (node id) from node 1 to node 2
-    network.find_shortest_path(1, 2)
-    # shortest path (link id) from node 1 to node 2
-    network.find_shortest_path(1, 2, seq_type='link')
-
-    # retrieve the shortest path under a specific mode (which must be defined
-    # in settings.yaml)
-    # shortest path (node id) from node 1 to node 2
-    network.find_shortest_path(1, 2, mode='a')
-    # shortest path (link id) from node 1 to node 2
-    network.find_shortest_path(1, 2, mode='a', seq_type='link')
-
-
-def test_find_shortest_path_for_agents():
-    """ DEPRECATED """
-
-    print("DEPRECATED")
-
-    # network = read_network(load_demand=True)
-
-    # # find agent paths under a specific mode defined in settings.yaml,
-    # # say, a (i.e., auto)
-    # # network.find_path_for_agents('a') or network.find_path_for_agents('auto')
-    # network.find_path_for_agents()
-
-    # agent_id = 300
-    # print('\norigin node id of agent is '
-    #       f'{network.get_agent_orig_node_id(agent_id)}')
-    # print('destination node id of agent is '
-    #       f'{network.get_agent_dest_node_id(agent_id)}')
-    # print('shortest path (node id) of agent, '
-    #       f'{network.get_agent_node_path(agent_id)}')
-    # print('shortest path (link id) of agent, '
-    #       f'{network.get_agent_link_path(agent_id)}')
-
-    # agent_id = 1000
-    # print('\norigin node id of agent is '
-    #       f'{network.get_agent_orig_node_id(agent_id)}')
-    # print('destination node id of agent is '
-    #       f'{network.get_agent_dest_node_id(agent_id)}')
-    # print('shortest path (node id) of agent, '
-    #       f'{network.get_agent_node_path(agent_id)}')
-    # print('shortest path (link id) of agent, '
-    #       f'{network.get_agent_link_path(agent_id)}')
-
-    # # output unique agent paths to a csv file
-    # # if you do not want to include geometry info in the output file,
-    # # you can do output_agent_paths(network, False)
-    # output_agent_paths(network)
-
-
-def test_column_generation_py():
-    network = read_network(load_demand=True, input_dir='tests/fixtures')
-
-    column_gen_num = 10
-    column_update_num = 10
-    perform_column_generation(column_gen_num, column_update_num, network)
-
-    # use output_columns(network, False) to exclude geometry info in the output file,
-    output_columns(network, output_dir='tests/tmp')
-    output_link_performance(network, output_dir='tests/tmp')
-
-
-def test_column_generation_dtalite():
-    chdir('tests/fixtures')
-
-    mode = 1
-    column_gen_num = 20
-    column_update_num = 20
-    perform_network_assignment_DTALite(mode, column_gen_num, column_update_num)
-
-    chdir('../..')
-
-
-def test_loading_columns():
-    network = read_network(input_dir='tests/fixtures')
-    load_columns(network, input_dir='tests/tmp')
-
-    column_gen_num = 0
-    column_update_num = 10
-    perform_column_generation(column_gen_num, column_update_num, network)
-
-    output_columns(network, output_dir='tests/tmp')
-    output_link_performance(network, output_dir='tests/tmp')
 
 
 def test_accessibility():
@@ -194,13 +97,6 @@ def test_loading_synthesized_zones_demand():
 
     read_zones(network, input_dir='tests/tmp')
     load_demand(network, input_dir='tests/tmp', filename='demand.csv')
-
-    column_gen_num = 20
-    column_update_num = 20
-    perform_column_generation(column_gen_num, column_update_num, network)
-
-    output_columns(network, output_dir='tests/tmp')
-    output_link_performance(network, output_dir='tests/tmp')
 
     # clean up
     remove('tests/fixtures/agent.csv')

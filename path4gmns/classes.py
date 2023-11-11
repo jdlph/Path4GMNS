@@ -589,7 +589,7 @@ class Network:
             return self.agents[agent_no]
         except IndexError:
             agent_id = agent_no + 1
-            print('Please provide a valid agent id. agent_id: {agent_id} does NOT EXIST!')
+            print(f'Please provide a valid agent id. agent_id: {agent_id} does NOT EXIST!')
 
     def get_agent_node_path(self, agent_id, path_only):
         """ return the sequence of node IDs along the agent path
@@ -1572,7 +1572,6 @@ class Assignment:
     def get_accessible_nodes(self, source_node_id, time_budget,
                              mode, time_dependent, tau):
         source_node_id = str(source_node_id)
-
         if source_node_id not in self.network.map_id_to_no.keys():
             raise Exception(f'Node ID: {source_node_id} not in the network')
 
@@ -1790,6 +1789,9 @@ class UI:
     def get_agent_link_path(self, agent_id):
         """ return the sequence of link IDs along the agent path """
         return self._base_assignment.get_agent_link_path(agent_id)
+
+    def get_agent_num(self):
+        return self._base_assignment.get_agent_count()
 
     def get_ODMatrix(self):
         return self._base_assignment.network.ODMatrix
