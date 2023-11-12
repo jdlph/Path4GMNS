@@ -25,7 +25,7 @@ def test_find_shortest_path():
 
     # retrieve the shortest path under a specific mode (which must be defined
     # in settings.yaml)
-    if os.path.isfile('tests/fixtures/settings.yaml'):  
+    if os.path.isfile('tests/fixtures/settings.yml'):
         # shortest path (node id) from node 1 to node 2
         network.find_shortest_path(1, 2, mode='a')
         # shortest path (link id) from node 1 to node 2
@@ -61,4 +61,5 @@ def test_find_shortest_path_for_agents(tmp_dir):
 def cleanup(tmp_dir):
     for tmp_file in tmp_dir.iterdir():
         if tmp_file.isfile():
+            yield
             os.remove(tmp_file)
