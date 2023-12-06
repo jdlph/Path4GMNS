@@ -5,11 +5,6 @@ from random import choice
 from path4gmns.utils import output_agent_paths, read_network
 
 
-@pytest.fixture
-def tmp_dir(tmp_path):
-    return tmp_path
-
-
 def test_routing_engine():
     network = read_network(input_dir='tests/fixtures')
     network.benchmark_apsp()
@@ -55,11 +50,3 @@ def test_find_shortest_path_for_agents(tmp_dir):
     output_agent_paths(network, output_dir=tmp_dir)
     # exclude geometry info from the output file
     output_agent_paths(network, False, output_dir=tmp_dir)
-
-
-@pytest.fixture(autouse=True)
-def cleanup(tmp_dir):
-    for tmp_file in tmp_dir.iterdir():
-        if tmp_file.isfile():
-            yield
-            os.remove(tmp_file)

@@ -1,7 +1,6 @@
 from os import chdir
 
-from path4gmns.dtaapi import perform_network_assignment_DTALite, \
-                             run_DTALite
+from path4gmns.dtaapi import perform_network_assignment_DTALite, run_DTALite
 
 
 def test_dtalite_link_ue():

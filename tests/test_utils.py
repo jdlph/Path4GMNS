@@ -21,7 +21,7 @@ def test_download_sample_data_sets():
     chdir('..')
 
 
-def test_zone_synthesis():
+def test_data_synthesis():
     network = read_network(input_dir='tests/fixtures')
     network_to_zones(network)
 
@@ -29,7 +29,7 @@ def test_zone_synthesis():
     output_synthesized_demand(network, output_dir='tests/tmp')
 
 
-def test_loading_synthesized_zones_demand():
+def test_loading_synthesized_data():
     network = read_network(input_dir='tests/fixtures')
 
     read_zones(network, input_dir='tests/tmp')
