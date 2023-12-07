@@ -1791,7 +1791,7 @@ class UI:
         return self._base_assignment.get_agent_link_path(agent_id)
 
     def get_agent_num(self):
-        return self._base_assignment.get_agent_count()
+        return self._base_assignment.network.get_agent_count()
 
     def get_ODMatrix(self):
         return self._base_assignment.network.ODMatrix
