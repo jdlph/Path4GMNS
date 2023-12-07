@@ -1,22 +1,18 @@
 import os
 import pytest
 
-from conftest import copy_files
-
 from path4gmns.colgen import perform_column_generation
 from path4gmns.simulation import perform_simple_simulation
 from path4gmns.utils import load_columns, read_network, output_agent_trajectory
 
 
-@pytest.mark.parametrize('tmp_cwd', ['sim_py'])
-def test_simulation(tmp_cwd):
-    copy_files(tmp_cwd)
-    network = read_network(load_demand=True, input_dir=tmp_cwd)
+def test_simulation(sample_data_dir, tmp_output_dir):
+    network = read_network(load_demand=True, input_dir=sample_data_dir)
 
-    if os.path.isfile('tests/fixtures/agent.csv'):
+    if os.path.isfile(tmp_output_dir/agent.csv):
         # bypass perform_column_generation() and call load_columns(network)
         # when there is agent.csv
-        load_columns(network, input_dir='tests/tmp')
+        load_columns(network, input_dir=tmp_output_dir)
     else:
         column_gen_num = 20
         column_update_num = 20
@@ -25,4 +21,4 @@ def test_simulation(tmp_cwd):
     # simulation
     perform_simple_simulation(network, 'uniform')
     # simulation output
-    output_agent_trajectory(network, output_dir='tests/tmp')
+    output_agent_trajectory(network, output_dir=tmp_output_dir)
