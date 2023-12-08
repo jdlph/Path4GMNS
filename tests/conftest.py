@@ -1,41 +1,31 @@
-import os
 import pytest
-from shutil import copytree, rmtree
+
+from os import getcwd
 from os.path import join
+from shutil import copytree
 
 
-ORIG_CWD = os.getcwd()
+ORIG_CWD = getcwd()
 SRC_DATA_DIR = join(ORIG_CWD, 'data/Chicago_Sketch')
 
 
 @pytest.fixture(scope="session")
 def sample_data_dir(tmp_path_factory):
-    print(os.getcwd())
-    
-    tmp_dir = tmp_path_factory.mktemp("data")
-    copytree(SRC_DATA_DIR, tmp_dir, dirs_exist_ok=True)
-    
-    print(tmp_dir)
+    """ create a temporary directory with sample data set
 
-    yield tmp_dir
-    
-    for tmp_file in tmp_dir.iterdir():
-        try:
-            if tmp_file.isfile():
-                yield
-                os.remove(tmp_file)
-                print('remove tmp input file')
-        except AttributeError:
-            continue
+    do not explicitly remove temporary folder and files but leave the removal
+    to Pytest (i.e., entries older than 3 temporary directories will be removed).
+
+    output files from DTALite would not be released and removing them will trigger
+    PermissionError. A possible remedy is to use multiprocessing to handle test
+    case of DTALite.
+    """
+    tmp_dir = tmp_path_factory.mktemp('data')
+    copytree(SRC_DATA_DIR, tmp_dir, dirs_exist_ok=True)
+    yield str(tmp_dir)
 
 
 @pytest.fixture(scope="session")
 def tmp_output_dir(tmp_path_factory):
-    print(os.getcwd())
-    
     tmp_dir = tmp_path_factory.mktemp("output")
-    print(tmp_dir)
-
-    yield tmp_dir
-    
-    rmtree(tmp_dir)
+    yield str(tmp_dir)
