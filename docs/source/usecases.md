@@ -210,7 +210,7 @@ pg.perform_network_assignment_DTALite(mode, column_gen_num, column_update_num)
 # no need to call output_columns() and output_link_performance()
 # since outputs will be processed within DTALite
 
-print('\npath finding results can be found in route_assignment.csv')
+print('\npath finding results can be found in agent.csv')
 ```
 
 (target_to_paragraph)=
@@ -461,7 +461,7 @@ print('writing agent trajectories')
 pg.output_agent_trajectory(network)
 ```
 
-If you have route_assignment.csv (i.e.columns) from a previous run or DTALite, you can bypass perform_column_generation() and directly load it to conduct simulation.
+If you have agent.csv (i.e.columns) from a previous run or DTALite, you can bypass perform_column_generation() and directly load it to conduct simulation.
 
 ```python
 import path4gmns as pg
