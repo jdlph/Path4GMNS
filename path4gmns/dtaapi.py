@@ -161,6 +161,9 @@ def run_DTALite():
 
     Additional data set can be found at
     https://github.com/asu-trans-ai-lab/DTALite/tree/main/data.
+
+    Please run the script calling this API using system terminal rather than
+    Python console for proper logging.
     """
     _dtalitemm_engine = ctypes.cdll.LoadLibrary(_dtalitemm_dll)
     print('\nDTALite run starts\n')

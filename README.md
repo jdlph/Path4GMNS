@@ -33,7 +33,7 @@ Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.9.8/
 $ pip install path4gmns
 ```
 
-v0.9.7 serves as a hotfix over v0.9.5 and v0.9.6 on emitting DTALite log and synthesizing zone and demand. Please **update to or install the latest version** and **discard all old versions**.
+v0.9.8 fixes issues regarding accessibility output and run_DTALite(). Please **update to or install the latest version** and **discard all old versions**.
 
 > [!WARNING]
 > Any versions prior to v0.9.4 will generate INCORRECT simulation results.
@@ -46,7 +46,7 @@ The Python modules are written in **Python 3.x**, which is the minimum requireme
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2023, September 13). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2023, December 17). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## Please Contribute
 

@@ -51,6 +51,7 @@
 49. Calculate and print out the final UE convergency after the postprocessing (v0.9.6)
 50. Embed and support the latest [DTALite](https://github.com/asu-trans-ai-lab/DTALite) in addition to the existing [classic version](https://github.com/jdlph/DTALite) (v0.9.6)
 51. Complete update 47 introduced in v0.9.5 (v0.9.7)
-52. Support recurring calls of run_DTALite() (v0.9.8)
+52. Introduce unit testing (v0.9.8)
+53. Support recurring calls of run_DTALite() in terminal and fixes issues regarding accessibility output (v0.9.8)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
