@@ -36,7 +36,7 @@ Quick Start
 -----------
 
 We highly recommend that you go through
-`this tutorial <https://github.com/jdlph/Path4GMNS/tree/dev/tests/tutorial.ipynb>`_
+`this tutorial <https://github.com/jdlph/Path4GMNS/blob/dev/tutorial/tutorial.ipynb>`_
 written in Jupyter notebook with step-by-step demonstration using the latest
 version, no matter you are one of the existing users or new to Path4GMNS.
 
