@@ -75,6 +75,7 @@ class Link:
                  link_type=1,
                  free_speed=60,
                  capacity=1999,
+                 toll = 0,
                  allowed_uses='all',
                  geometry='',
                  demand_period_size=1):
@@ -100,7 +101,7 @@ class Link:
         self.geometry = geometry
         # add for CG
         self.demand_period_size = demand_period_size
-        self.toll = 0
+        self.toll = toll
         self.route_choice_cost = 0
         self.travel_time_by_period = [0] * demand_period_size
         self.flow_vol_by_period = [0] * demand_period_size

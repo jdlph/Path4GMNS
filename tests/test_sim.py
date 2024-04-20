@@ -8,9 +8,9 @@ from path4gmns.utils import load_columns, read_network, output_agent_trajectory
 def test_simulation(sample_data_dir, tmp_output_dir):
     network = read_network(load_demand=True, input_dir=sample_data_dir)
 
-    if isfile(tmp_output_dir + '/agent.csv'):
+    if isfile(tmp_output_dir + '/route_assignment.csv'):
         # bypass perform_column_generation() and call load_columns(network)
-        # when there is agent.csv
+        # when there is route_assignment.csv
         load_columns(network, input_dir=tmp_output_dir)
     else:
         column_gen_num = 20

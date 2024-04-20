@@ -392,6 +392,11 @@ def read_links(input_dir,
             except InvalidRecord:
                 capacity = 1999
 
+            try:
+                toll = _convert_str_to_float(line['toll'])
+            except (KeyError, InvalidRecord):
+                toll = 0
+
             # if link.csv does not have no column 'allowed_uses',
             # set allowed_uses to 'all'
             # developer's note:
@@ -434,6 +439,7 @@ def read_links(input_dir,
                         link_type,
                         free_speed,
                         capacity,
+                        toll,
                         allowed_uses,
                         geometry,
                         demand_period_size)
@@ -954,8 +960,8 @@ def read_network(length_unit='mile', speed_unit='mph', load_demand=False, input_
 
 
 def load_columns(ui, input_dir='.'):
-    with open(input_dir+'/agent.csv', 'r') as f:
-        print('read agent.csv')
+    with open(input_dir+'/route_assignment.csv', 'r') as f:
+        print('read route_assignment.csv')
 
         A = ui._base_assignment
         cp = A.get_column_pool()
@@ -1050,7 +1056,7 @@ def load_columns(ui, input_dir='.'):
             except KeyError:
                 raise Exception(
                     'Invalid node found on column!!'
-                    'Did you use agent.csv from a different network?'
+                    'Did you use route_assignment.csv from a different network?'
                 )
 
             try:
@@ -1062,7 +1068,7 @@ def load_columns(ui, input_dir='.'):
             except KeyError:
                 raise Exception(
                     'INVALID link found on column!!'
-                    'Did you use agent.csv from a different network?'
+                    'Did you use route_assignment.csv from a different network?'
                 )
             except ValueError:
                 raise Exception(
@@ -1099,7 +1105,7 @@ def load_columns(ui, input_dir='.'):
 
 
 def output_columns(ui, output_geometry=True, output_dir='.'):
-    with open(output_dir+'/agent.csv', 'w',  newline='') as fp:
+    with open(output_dir+'/route_assignment.csv', 'w',  newline='') as fp:
         base = ui._base_assignment
 
         nodes = base.get_nodes()
@@ -1173,10 +1179,10 @@ def output_columns(ui, output_geometry=True, output_dir='.'):
                 writer.writerow(line)
 
         if output_dir == '.':
-            print(f'\ncheck agent.csv in {os.getcwd()} for path finding results')
+            print(f'\ncheck route_assignment.csv in {os.getcwd()} for path finding results')
         else:
             print(
-                f'\ncheck agent.csv in {os.path.join(os.getcwd(), output_dir)}'
+                f'\ncheck route_assignment.csv in {os.path.join(os.getcwd(), output_dir)}'
                 ' for path finding results'
             )
 
@@ -1230,6 +1236,10 @@ def output_link_performance(ui, output_dir='.'):
 
 
 def output_agent_paths(ui, output_geometry=True, output_dir='.'):
+    """ output unique agent path
+
+    use it with find_path_for_agents() (which has been DEPRECATED)
+    """
     with open(output_dir+'/agent_paths.csv', 'w',  newline='') as f:
         writer = csv.writer(f)
 
