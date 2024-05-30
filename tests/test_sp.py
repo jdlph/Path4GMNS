@@ -5,12 +5,12 @@ from path4gmns.utils import output_agent_paths, read_network
 
 
 def test_routing_engine(sample_data_dir):
-    network = read_network(input_dir=sample_data_dir)
+    network = read_network(load_demand=False, input_dir=sample_data_dir)
     network.benchmark_apsp()
 
 
 def test_find_shortest_path(sample_data_dir):
-    network = read_network(input_dir=sample_data_dir)
+    network = read_network(load_demand=False, input_dir=sample_data_dir)
 
     # shortest path (node id) from node 1 to node 2
     network.find_shortest_path(1, 2)
@@ -28,7 +28,7 @@ def test_find_shortest_path(sample_data_dir):
 
 def test_find_shortest_path_for_agents(sample_data_dir, tmp_output_dir):
     """ find_path_for_agents has been DEPRECATED """
-    network = read_network(load_demand=True, input_dir=sample_data_dir)
+    network = read_network(input_dir=sample_data_dir)
 
     # find agent paths under a specific mode defined in settings.yaml,
     # say, a (i.e., auto)
