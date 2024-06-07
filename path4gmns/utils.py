@@ -1480,3 +1480,56 @@ def output_agent_trajectory(ui, output_dir='.'):
                 f'\ncheck trajectory.csv in {os.path.join(os.getcwd(), output_dir)}'
                 ' for trajectories'
             )
+
+
+def read_measurements(input_dir, map_id_to_no, zones):
+    with open(input_dir+'/measurement.csv') as fp:
+        print('read measurement.csv')
+
+        reader = csv.DictReader(fp)
+
+        record_no = 0
+        for line in reader:
+            # get measurement type, which could be link, production, and attraction
+            meas_type = line['measurement_type']
+            if not meas_type:
+                continue
+
+            try:
+                count = _convert_str_to_float(line['count'])
+            except (KeyError, InvalidRecord):
+                continue
+
+            if meas_type.startswith('link'):
+                from_node_id = line['from_node_id']
+                to_node_id = line['to_node_id']
+
+                try:
+                    from_node_no = map_id_to_no[from_node_id]
+                    to_node_no = map_id_to_no[to_node_id]
+                except KeyError:
+                    print(
+                        f'EXCEPTION: Node ID {from_node_id} '
+                        f'or/and Node ID {to_node_id} NOT IN THE NETWORK!!'
+                    )
+                    continue
+            elif meas_type.startswith('production'):
+                try:
+                    zone_id = line['o_zone_id']
+                except KeyError:
+                    continue
+
+                if not zone_id or zone_id not in zones.keys():
+                    continue
+            elif meas_type.startswith('attraction'):
+                try:
+                    zone_id = line['d_zone_id']
+                except KeyError:
+                    continue
+
+                if not zone_id or zone_id not in zones.keys():
+                    continue
+            else:
+                continue
+
+            record_no += 1
