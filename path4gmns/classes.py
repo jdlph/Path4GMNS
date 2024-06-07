@@ -113,6 +113,9 @@ class Link:
         self.waiting_time = None
         self.entr_queue = deque()
         self.exit_queue = deque()
+        # for ODME
+        self.obs_count = 0
+        self.has_upper_bound_obs = False
 
     def get_link_id(self):
         return self.id
@@ -301,6 +304,11 @@ class Zone:
         self.coord_y = 181
         self.nodes = []
         self.activity_nodes = []
+        # for ODME
+        self.obs_prod = 0
+        self.obs_attr = 0
+        self.has_upper_bound_prod_obs = False
+        self.has_upper_bound_attr_obs = False
 
     def get_activity_nodes(self):
         return self.activity_nodes

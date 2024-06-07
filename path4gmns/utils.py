@@ -1482,9 +1482,12 @@ def output_agent_trajectory(ui, output_dir='.'):
             )
 
 
-def read_measurements(input_dir, map_id_to_no, zones):
+def read_measurements(ui, input_dir, map_id_to_no, zones):
     with open(input_dir+'/measurement.csv') as fp:
         print('read measurement.csv')
+
+        base = ui._base_assignment
+        links = base.get_links()
 
         reader = csv.DictReader(fp)
 
@@ -1500,6 +1503,17 @@ def read_measurements(input_dir, map_id_to_no, zones):
             except (KeyError, InvalidRecord):
                 continue
 
+            try:
+                ub = line['upper_bound_flag']
+            except KeyError:
+                ub = 'false'
+
+            is_upper_bound = False
+            ub_lowercase = ub.lower()
+            if ub_lowercase.startswith('true') or ub_lowercase.startswith('1'):
+                is_upper_bound = True
+                # all the other strings will be taken as False
+
             if meas_type.startswith('link'):
                 from_node_id = line['from_node_id']
                 to_node_id = line['to_node_id']
@@ -1513,6 +1527,8 @@ def read_measurements(input_dir, map_id_to_no, zones):
                         f'or/and Node ID {to_node_id} NOT IN THE NETWORK!!'
                     )
                     continue
+
+                # need to retrieve the link using from node and to node
             elif meas_type.startswith('production'):
                 try:
                     zone_id = line['o_zone_id']
@@ -1521,6 +1537,10 @@ def read_measurements(input_dir, map_id_to_no, zones):
 
                 if not zone_id or zone_id not in zones.keys():
                     continue
+
+                zone = zones[zone_id]
+                zone.obs_prod = count
+                zone.has_upper_bound_prod_obs = is_upper_bound
             elif meas_type.startswith('attraction'):
                 try:
                     zone_id = line['d_zone_id']
@@ -1529,6 +1549,10 @@ def read_measurements(input_dir, map_id_to_no, zones):
 
                 if not zone_id or zone_id not in zones.keys():
                     continue
+
+                zone = zones[zone_id]
+                zone.obs_attr = count
+                zone.has_upper_bound_attr_obs = is_upper_bound
             else:
                 continue
 
