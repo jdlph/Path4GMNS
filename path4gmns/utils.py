@@ -353,11 +353,19 @@ def read_links(input_dir,
 
             try:
                 from_node_no = map_id_to_no[from_node_id]
+            except KeyError:
+                print(
+                    f'EXCEPTION: Node ID {from_node_id}'
+                    ' NOT IN THE NETWORK!!'
+                )
+                continue
+
+            try:
                 to_node_no = map_id_to_no[to_node_id]
             except KeyError:
                 print(
-                    f'EXCEPTION: Node ID {from_node_id} '
-                    f'or/and Node ID {to_node_id} NOT IN THE NETWORK!!'
+                    f'EXCEPTION: Node ID {to_node_id}'
+                    ' NOT IN THE NETWORK!!'
                 )
                 continue
 
@@ -1474,7 +1482,7 @@ def output_agent_trajectory(ui, output_dir='.'):
             writer.writerow(line)
 
         if output_dir == '.':
-                print(f'\ncheck trajectory.csv in {os.getcwd()} for trajectories')
+            print(f'\ncheck trajectory.csv in {os.getcwd()} for trajectories')
         else:
             print(
                 f'\ncheck trajectory.csv in {os.path.join(os.getcwd(), output_dir)}'
@@ -1486,10 +1494,14 @@ def read_measurements(ui, input_dir, map_id_to_no, zones):
     with open(input_dir+'/measurement.csv') as fp:
         print('read measurement.csv')
 
+        reader = csv.DictReader(fp)
+
         base = ui._base_assignment
         links = base.get_links()
-
-        reader = csv.DictReader(fp)
+        # a temporary lookup table to retrieve a link using its head and tail
+        link_lookup = {
+            (link.from_node_no, link.to_node_no) : link for link in links
+        }
 
         record_no = 0
         for line in reader:
@@ -1508,10 +1520,10 @@ def read_measurements(ui, input_dir, map_id_to_no, zones):
             except KeyError:
                 ub = 'false'
 
-            is_upper_bound = False
+            is_upper_bounded = False
             ub_lowercase = ub.lower()
             if ub_lowercase.startswith('true') or ub_lowercase.startswith('1'):
-                is_upper_bound = True
+                is_upper_bounded = True
                 # all the other strings will be taken as False
 
             if meas_type.startswith('link'):
@@ -1520,15 +1532,30 @@ def read_measurements(ui, input_dir, map_id_to_no, zones):
 
                 try:
                     from_node_no = map_id_to_no[from_node_id]
+                except KeyError:
+                    print(
+                        f'EXCEPTION: Node ID {from_node_id}'
+                        ' NOT IN THE NETWORK!!'
+                    )
+                    continue
+
+                try:
                     to_node_no = map_id_to_no[to_node_id]
                 except KeyError:
                     print(
-                        f'EXCEPTION: Node ID {from_node_id} '
-                        f'or/and Node ID {to_node_id} NOT IN THE NETWORK!!'
+                        f'EXCEPTION: Node ID {to_node_id}'
+                        ' NOT IN THE NETWORK!!'
                     )
                     continue
 
                 # need to retrieve the link using from node and to node
+                link_key = (from_node_no, to_node_no)
+                if link_key not in link_lookup:
+                    continue
+
+                link = link_lookup[link_key]
+                link.obs = count
+                link.is_obs_upper_bounded = is_upper_bounded
             elif meas_type.startswith('production'):
                 try:
                     zone_id = line['o_zone_id']
@@ -1539,8 +1566,8 @@ def read_measurements(ui, input_dir, map_id_to_no, zones):
                     continue
 
                 zone = zones[zone_id]
-                zone.obs_prod = count
-                zone.has_upper_bound_prod_obs = is_upper_bound
+                zone.prod_obs = count
+                zone.is_prod_obs_upper_bounded = is_upper_bounded
             elif meas_type.startswith('attraction'):
                 try:
                     zone_id = line['d_zone_id']
@@ -1551,9 +1578,11 @@ def read_measurements(ui, input_dir, map_id_to_no, zones):
                     continue
 
                 zone = zones[zone_id]
-                zone.obs_attr = count
-                zone.has_upper_bound_attr_obs = is_upper_bound
+                zone.attr_obs = count
+                zone.is_attr_obs_upper_bounded = is_upper_bounded
             else:
                 continue
 
             record_no += 1
+
+        print(f'the number of valid measurements is {record_no}')
