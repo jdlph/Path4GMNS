@@ -197,15 +197,15 @@ def _update_column_attributes(column_pool, links, agent_types):
         vot = agent_types[k[0]].get_vot()
         least_gradient_cost = MAX_LABEL_COST
 
-        k = 0
+        i = 0
         for col in cv.get_columns():
             if not col.get_volume():
                 col.reset()
                 continue
 
             # reset column id
-            col.set_id(k)
-            k += 1
+            col.set_id(i)
+            i += 1
 
             nodes = []
             path_toll = 0
