@@ -308,6 +308,8 @@ class Zone:
         # for ODME
         self.prod_obs = 0
         self.attr_obs = 0
+        self.est_attr = 0
+        self.est_prod = 0
         self.est_prod_dev = 0
         self.est_attr_dev = 0
         self.is_prod_obs_upper_bounded = False

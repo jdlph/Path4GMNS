@@ -52,6 +52,9 @@ def _update_link_and_column_volume(column_pool, links, iter_num, reduce_path_vol
                 # pce_ratio = 1 and path_vol * pce_ratio
                 links[i].increase_period_flow_vol(tau, path_vol)
 
+            # 06/11/24: if we check cv.is_route_fixed() here,
+            # 1. shall we check it anywhere else??
+            # 2. is it really necessary?
             if reduce_path_vol and not cv.is_route_fixed():
                 col.vol *= iter_num / (iter_num + 1)
 
