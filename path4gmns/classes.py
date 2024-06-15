@@ -1081,9 +1081,9 @@ class SPNetwork(Network):
         # set up attributes unique to each instance
         node_preds = [-1] * base.node_size
         link_preds = [-1] * base.node_size
-        node_lables = [MAX_LABEL_COST] * base.node_size
+        node_labels = [MAX_LABEL_COST] * base.node_size
         queue_next = [0] * base.node_size
-        link_cost_array = [link.fftt for link in base.links]
+        link_cost_arr = [link.fftt for link in base.links]
 
         int_arr_node = ctypes.c_int * base.node_size
         double_arr_node = ctypes.c_double * base.node_size
@@ -1091,8 +1091,8 @@ class SPNetwork(Network):
 
         self.node_preds = int_arr_node(*node_preds)
         self.link_preds = int_arr_node(*link_preds)
-        self.node_label_cost = double_arr_node(*node_lables)
-        self.link_cost_array = double_arr_link(*link_cost_array)
+        self.node_label_cost = double_arr_node(*node_labels)
+        self.link_cost_array = double_arr_link(*link_cost_arr)
         self.queue_next = int_arr_node(*queue_next)
 
         # zone sequence no
@@ -1364,6 +1364,7 @@ class Assignment:
         self.simu_dur = 60
         # simulation start time in minutes
         self.simu_st = 0
+        self.has_created_spnet = False
 
     def update_agent_types(self, at):
         if at.get_type_str() not in self.map_atstr_id:
@@ -1544,6 +1545,9 @@ class Assignment:
         pass
 
     def setup_spnetwork(self):
+        if self.has_created_spnet:
+            return
+
         self.network.add_centroids_connectors()
         spvec = {}
 
@@ -1564,6 +1568,8 @@ class Assignment:
                 else:
                     sp = spvec[k]
                     sp.orig_zones.append(z)
+
+        self.has_created_spnet = True
 
     def get_link(self, seq_no):
         """ return link object corresponding to link seq no """
