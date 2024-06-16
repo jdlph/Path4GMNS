@@ -1195,7 +1195,7 @@ def output_columns(ui, output_geometry=True, output_dir='.'):
             )
 
 
-def output_link_performance(ui, output_dir='.'):
+def output_link_performance(ui, mode='ue', output_dir='.'):
     with open(output_dir+'/link_performance.csv', 'w',  newline='') as fp:
         writer = csv.writer(fp)
 
@@ -1209,30 +1209,67 @@ def output_link_performance(ui, output_dir='.'):
                 'VOC',
                 'geometry']
 
+        if mode.lower().startswith('odme'):
+            line.append('obs_count')
+            line.append('deviation')
+
         writer.writerow(line)
 
         base = ui._base_assignment
         links = base.get_links()
-        for link in links:
-            # connector
-            if not link.length:
-                continue
 
-            for dp in base.get_demand_periods():
-                avg_travel_time = link.get_period_avg_travel_time(dp.get_id())
-                speed = link.get_length() / (max(EPSILON, avg_travel_time) / 60)
+        if not mode.lower().startswith('odme'):
+            # UE or UE + Simulation
+            for link in links:
+                # connector
+                if not link.length:
+                    continue
 
-                line = [link.get_link_id(),
-                        link.get_from_node_id(),
-                        link.get_to_node_id(),
-                        dp.get_period(),
-                        link.get_period_flow_vol(dp.get_id()),
-                        avg_travel_time,
-                        speed,
-                        link.get_period_voc(dp.get_id()),
-                        link.get_geometry()]
+                for dp in base.get_demand_periods():
+                    avg_tt = link.get_period_avg_travel_time(dp.get_id())
+                    speed = link.get_length() / (max(EPSILON, avg_tt) / 60)
 
-                writer.writerow(line)
+                    line = [link.get_link_id(),
+                            link.get_from_node_id(),
+                            link.get_to_node_id(),
+                            dp.get_period(),
+                            link.get_period_flow_vol(dp.get_id()),
+                            avg_tt,
+                            speed,
+                            link.get_period_voc(dp.get_id()),
+                            link.get_geometry()]
+
+                    writer.writerow(line)
+        else:
+            # ODME
+            for link in links:
+                # connector
+                if not link.length:
+                    continue
+
+                for dp in base.get_demand_periods():
+                    avg_tt = link.get_period_avg_travel_time(dp.get_id())
+                    speed = link.get_length() / (max(EPSILON, avg_tt) / 60)
+
+                    obs_count = ''
+                    dev = ''
+                    if dp.get_id() == 0:
+                        obs_count = link.obs
+                        dev = link.est_count_dev
+
+                    line = [link.get_link_id(),
+                            link.get_from_node_id(),
+                            link.get_to_node_id(),
+                            dp.get_period(),
+                            link.get_period_flow_vol(dp.get_id()),
+                            avg_tt,
+                            speed,
+                            link.get_period_voc(dp.get_id()),
+                            link.get_geometry(),
+                            obs_count,
+                            dev]
+
+                    writer.writerow(line)
 
         if output_dir == '.':
             print(f'\ncheck link_performance.csv in {os.getcwd()} for link performance')

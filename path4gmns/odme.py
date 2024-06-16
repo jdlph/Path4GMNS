@@ -117,16 +117,18 @@ def _update_link_volume(column_pool, links, zones, iter_num):
     # calculate estimation deviations for each zone
     for zone in zones:
         if zone.attr_obs >= 1:
-            zone.est_attr_dev = zone.est_attr - zone.attr_obs
+            dev = zone.est_attr - zone.attr_obs
+            zone.est_attr_dev = dev
 
-            total_abs_gap += abs(zone.est_attr_dev)
-            total_attr_gap += zone.est_attr_dev / zone.attr_obs
+            total_abs_gap += abs(dev)
+            total_attr_gap += dev / zone.attr_obs
 
         if zone.prod_obs >= 1:
-            zone.est_prod_dev = zone.est_prod - zone.prod_obs
+            dev = zone.est_prod - zone.prod_obs
+            zone.est_prod_dev = dev
 
-            total_abs_gap += abs(zone.est_prod_dev)
-            total_prod_gap += zone.est_prod_dev / zone.prod_obs
+            total_abs_gap += abs(dev)
+            total_prod_gap += dev / zone.prod_obs
 
     print(f'current iteration number in ODME: {iter_num}\n'
           f'total absolute estimation gap: {total_abs_gap:.2f}\n'

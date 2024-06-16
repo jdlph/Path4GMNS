@@ -1115,8 +1115,7 @@ class SPNetwork(Network):
     def get_demand_period(self):
         return self.demand_period
 
-    # the following ten are shared by all SPNetworks
-    # network topology
+    # the following ten are shared by all SPNetwork as network topology
     def get_node_size(self):
         return self.base.get_node_size()
 
