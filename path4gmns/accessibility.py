@@ -120,8 +120,8 @@ def _output_zone_accessibility(min_travel_times, interval_num,
                 at_str = at.get_type_str()
                 # number of accessible zones from oz for each agent type
                 counts = [0] * interval_num
-                for dz in zones.keys():
-                    if (oz, dz, at_str) not in min_travel_times.keys():
+                for dz in zones:
+                    if (oz, dz, at_str) not in min_travel_times:
                         continue
 
                     min_tt = min_travel_times[(oz, dz, at_str)][0]
@@ -395,8 +395,8 @@ def evaluate_equity(ui, single_mode=False, mode='auto', time_dependent=False,
             at_str = at.get_type_str()
 
             count = 0
-            for dz in zones.keys():
-                if (oz, dz, at_str) not in min_travel_times.keys():
+            for dz in zones:
+                if (oz, dz, at_str) not in min_travel_times:
                     continue
 
                 min_tt = min_travel_times[(oz, dz, at_str)][0]
@@ -405,7 +405,7 @@ def evaluate_equity(ui, single_mode=False, mode='auto', time_dependent=False,
 
                 count += 1
 
-            if (bin_index, at_str) not in equity_metrics.keys():
+            if (bin_index, at_str) not in equity_metrics:
                 equity_metrics[(bin_index, at_str)] = [count, oz, count, oz, 0]
                 equity_zones[(bin_index, at_str)] = []
             equity_zones[(bin_index, at_str)].append(oz)

@@ -139,7 +139,7 @@ def _synthesize_grid(ui, grid_dim, max_bin):
                 continue
 
         (i, j) = _get_grid_id(x, y, res)
-        if (i, j) not in grids.keys():
+        if (i, j) not in grids:
             grids[(i, j)] = str(k)
             z = Zone(k)
             # boundaries (roughly)

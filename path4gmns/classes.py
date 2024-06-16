@@ -756,7 +756,7 @@ class Network:
             yield v.get_centroid()
 
     def have_dep_agents(self, i):
-        return i in self.td_agents.keys()
+        return i in self.td_agents
 
     def get_td_agents(self, i):
         return self.td_agents[i]
@@ -1559,7 +1559,7 @@ class Assignment:
                 at = self.get_agent_type(d.get_agent_type_str())
                 dp = self.get_demand_period(d.get_period())
                 k = (at.get_id(), dp.get_id())
-                if k not in spvec.keys():
+                if k not in spvec:
                     sp = SPNetwork(self.network, at, dp)
                     spvec[k] = sp
                     sp.orig_zones.append(z)
@@ -1591,7 +1591,7 @@ class Assignment:
     def get_accessible_nodes(self, source_node_id, time_budget,
                              mode, time_dependent, tau):
         source_node_id = str(source_node_id)
-        if source_node_id not in self.network.map_id_to_no.keys():
+        if source_node_id not in self.network.map_id_to_no:
             raise Exception(f'Node ID: {source_node_id} not in the network')
 
         assert(time_budget>=0)
@@ -1711,7 +1711,7 @@ class Assignment:
                     agent.link_path = [x for x in col.links]
                     agent.node_path = [x for x in col.nodes]
                     agent.path_cost = col.get_distance()
-                    if i not in self.network.td_agents.keys():
+                    if i not in self.network.td_agents:
                         self.network.td_agents[i] = []
                     self.network.td_agents[i].append(agent.get_seq_no())
                     self.network.agents.append(agent)

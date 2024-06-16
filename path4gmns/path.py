@@ -284,9 +284,9 @@ def _get_path_cost(G, to_node_id):
 
 
 def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
-    if from_node_id not in G.map_id_to_no.keys():
+    if from_node_id not in G.map_id_to_no:
         raise Exception(f'Node ID: {from_node_id} not in the network')
-    if to_node_id not in G.map_id_to_no.keys():
+    if to_node_id not in G.map_id_to_no:
         raise Exception(f'Node ID: {to_node_id} not in the network')
 
     single_source_shortest_path(G, from_node_id, engine_type='c')
@@ -329,9 +329,9 @@ def find_path_for_agents(G, column_pool, engine_type='c'):
         if from_node_id == to_node_id:
             continue
 
-        if from_node_id not in G.map_id_to_no.keys():
+        if from_node_id not in G.map_id_to_no:
             raise Exception(f'Node ID: {from_node_id} not in the network')
-        if to_node_id not in G.map_id_to_no.keys():
+        if to_node_id not in G.map_id_to_no:
             raise Exception(f'Node ID: {to_node_id} not in the network')
 
         # simple caching strategy
@@ -367,7 +367,7 @@ def find_path_for_agents(G, column_pool, engine_type='c'):
 def benchmark_apsp(G):
     st = time()
 
-    for k in G.map_id_to_no.keys():
+    for k in G.map_id_to_no:
         single_source_shortest_path(G, k, 'c')
 
     print(f'processing time of finding all-pairs shortest paths: {time()-st:.4f} s')

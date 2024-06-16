@@ -266,7 +266,7 @@ def read_nodes(input_dir,
             # set up node_id
             node_id = line['node_id']
             # node_id should be unique
-            if node_id in map_id_to_no.keys():
+            if node_id in map_id_to_no:
                 continue
 
             # set up zone_id
@@ -303,7 +303,7 @@ def read_nodes(input_dir,
                 bin_index = 0
 
             # associate node_id with corresponding zone
-            if zone_id not in zones.keys():
+            if zone_id not in zones:
                 # only take the value of bin_index from the first node
                 # associated with each zone
                 z = Zone(zone_id, bin_index)
@@ -319,7 +319,7 @@ def read_nodes(input_dir,
 
         if load_demand:
             zone_size = len(zones)
-            if '' in zones.keys():
+            if '' in zones:
                 zone_size -= 1
 
             if zone_size == 0:
@@ -561,12 +561,12 @@ def read_demand(input_dir,
         for line in reader:
             oz_id = line['o_zone_id']
             # o_zone_id does not exist in node.csv, discard it
-            if oz_id not in zones.keys():
+            if oz_id not in zones:
                 continue
 
             dz_id = line['d_zone_id']
             # d_zone_id does not exist in node.csv, discard it
-            if dz_id not in zones.keys():
+            if dz_id not in zones:
                 continue
 
             try:
@@ -590,7 +590,7 @@ def read_demand(input_dir,
                 continue
 
             # set up volume for ColumnVec
-            if (at, dp, oz_id, dz_id) not in column_pool.keys():
+            if (at, dp, oz_id, dz_id) not in column_pool:
                 column_pool[(at, dp, oz_id, dz_id)] = ColumnVec()
             column_pool[(at, dp, oz_id, dz_id)].increase_volume(vol)
 
@@ -676,7 +676,7 @@ def read_zones(ui, input_dir='.', filename='zone.csv'):
             except (KeyError, InvalidRecord):
                 prod = 0
 
-            if zone_id not in zones.keys():
+            if zone_id not in zones:
                 z = Zone(zone_id, bin_index)
                 z.activity_nodes = [int(x) for x in node_ids]
                 z.nodes = [x for x in z.activity_nodes]
@@ -713,7 +713,7 @@ def read_demand_matrix(input_dir, agent_type_id, demand_period_id,
         for line in reader:
             oz_id = line['od']
             # o_zone_id does not exist in node.csv, discard it
-            if oz_id not in zone_to_node_dict.keys():
+            if oz_id not in zone_to_node_dict:
                 continue
 
             for dz_str, vol_str in line:
@@ -722,7 +722,7 @@ def read_demand_matrix(input_dir, agent_type_id, demand_period_id,
                     continue
 
                 # d_zone_id does not exist in node.csv, discard it
-                if dz_id not in zone_to_node_dict.keys():
+                if dz_id not in zone_to_node_dict:
                     continue
 
                 try:
@@ -736,7 +736,7 @@ def read_demand_matrix(input_dir, agent_type_id, demand_period_id,
                 if not _are_od_connected(oz_id, dz_id):
                     continue
 
-                if (at, dp, oz_id, dz_id) not in column_pool.keys():
+                if (at, dp, oz_id, dz_id) not in column_pool:
                     column_pool[(at, dp, oz_id, dz_id)] = ColumnVec()
                     column_pool[(at, dp, oz_id, dz_id)].set_volume(vol)
                 else:
@@ -1052,7 +1052,7 @@ def load_columns(ui, input_dir='.'):
             # it could be empty
             geo = line['geometry']
 
-            if (at, dp, oz_id, dz_id) not in cp.keys():
+            if (at, dp, oz_id, dz_id) not in cp:
                 cp[(at, dp, oz_id, dz_id)] = ColumnVec()
 
             cv = A.get_column_vec(at, dp, oz_id, dz_id)
@@ -1599,7 +1599,7 @@ def read_measurements(ui, input_dir, map_id_to_no, zones):
                 except KeyError:
                     continue
 
-                if not zone_id or zone_id not in zones.keys():
+                if not zone_id or zone_id not in zones:
                     continue
 
                 zone = zones[zone_id]
@@ -1611,7 +1611,7 @@ def read_measurements(ui, input_dir, map_id_to_no, zones):
                 except KeyError:
                     continue
 
-                if not zone_id or zone_id not in zones.keys():
+                if not zone_id or zone_id not in zones:
                     continue
 
                 zone = zones[zone_id]

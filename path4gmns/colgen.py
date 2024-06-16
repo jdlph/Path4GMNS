@@ -143,7 +143,7 @@ def _backtrace_shortest_path_tree(centroid,
         if dz_id == oz_id:
             continue
 
-        if (at_id, dp_id, oz_id, dz_id) not in column_pool.keys():
+        if (at_id, dp_id, oz_id, dz_id) not in column_pool:
             continue
 
         cv = column_pool[(at_id, dp_id, oz_id, dz_id)]
