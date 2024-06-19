@@ -1255,7 +1255,7 @@ def output_link_performance(ui, mode='ue', output_dir='.'):
                     dev = ''
                     if dp.get_id() == 0:
                         obs_count = link.obs
-                        dev = link.est_count_dev
+                        dev = link.est_dev
 
                     line = [link.get_link_id(),
                             link.get_from_node_id(),

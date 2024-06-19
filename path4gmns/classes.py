@@ -115,7 +115,7 @@ class Link:
         self.exit_queue = deque()
         # for ODME
         self.obs = 0
-        self.est_count_dev = 0
+        self.est_dev = 0
         self.is_obs_upper_bounded = False
 
     def get_link_id(self):
@@ -308,10 +308,10 @@ class Zone:
         # for ODME
         self.prod_obs = 0
         self.attr_obs = 0
-        self.est_attr = 0
-        self.est_prod = 0
-        self.est_prod_dev = 0
-        self.est_attr_dev = 0
+        self.attr_est = 0
+        self.prod_est = 0
+        self.prod_est_dev = 0
+        self.attr_est_dev = 0
         self.is_prod_obs_upper_bounded = False
         self.is_attr_obs_upper_bounded = False
 

@@ -33,31 +33,31 @@ def conduct_odme(odme_update_num, ui):
                 orig_zone = zones[k[2]]
                 if orig_zone.prod_obs > 0:
                     if not orig_zone.is_prod_obs_upper_bounded:
-                        path_gradient_cost += orig_zone.est_prod_dev
-                    elif orig_zone.is_prod_obs_upper_bounded and orig_zone.est_prod_dev > 0:
-                        path_gradient_cost += orig_zone.est_prod_dev
+                        path_gradient_cost += orig_zone.prod_est_dev
+                    elif orig_zone.is_prod_obs_upper_bounded and orig_zone.prod_est_dev > 0:
+                        path_gradient_cost += orig_zone.prod_est_dev
 
                 dest_zone = zones[k[3]]
                 if dest_zone.attr_obs > 0:
                     if not dest_zone.is_attr_obs_upper_bounded:
-                        path_gradient_cost += dest_zone.est_attr_dev
-                    elif dest_zone.is_attr_obs_upper_bounded and dest_zone.est_attr_dev > 0:
-                        path_gradient_cost += dest_zone.est_attr_dev
+                        path_gradient_cost += dest_zone.attr_est_dev
+                    elif dest_zone.is_attr_obs_upper_bounded and dest_zone.attr_est_dev > 0:
+                        path_gradient_cost += dest_zone.attr_est_dev
 
                 for i in col.links:
                     link = links[i]
                     if link.obs >= 1:
                         if not link.is_obs_upper_bounded:
-                            path_gradient_cost += link.est_count_dev
-                        elif link.is_obs_upper_bounded and link.est_count_dev > 0:
-                            path_gradient_cost += link.est_count_dev
+                            path_gradient_cost += link.est_dev
+                        elif link.is_obs_upper_bounded and link.est_dev > 0:
+                            path_gradient_cost += link.est_dev
 
                 col.set_gradient_cost(path_gradient_cost)
 
-                change_vol = step_size * path_gradient_cost
                 change_vol_ub = vol * delta
                 change_vol_lb = -change_vol_ub
 
+                change_vol = step_size * path_gradient_cost
                 if change_vol < change_vol_lb:
                     change_vol = change_vol_lb
                 elif change_vol > change_vol_ub:
@@ -76,8 +76,8 @@ def _update_link_volume(column_pool, links, zones, iter_num):
 
     # reset the estimated attraction and production
     for z in zones:
-        z.est_attr = 0
-        z.est_prod = 0
+        z.attr_est = 0
+        z.prod_est = 0
 
     # update estimations and link volume
     # k = (at, dp, oz, dz)
@@ -86,8 +86,8 @@ def _update_link_volume(column_pool, links, zones, iter_num):
 
         for col in cv.get_columns():
             vol = col.get_volume()
-            zones[k[2]].est_prod += vol
-            zones[k[3]].est_attr += vol
+            zones[k[2]].prod_est += vol
+            zones[k[3]].attr_est += vol
 
             for i in col.links:
                 # to be consistent with _update_link_and_column_volume()
@@ -108,24 +108,24 @@ def _update_link_volume(column_pool, links, zones, iter_num):
         if link.obs < 1:
             continue
 
-        # problematic: est_count_dev is a scalar rather than a vector?
+        # problematic: est_dev is a scalar rather than a vector?
         # code optimization: wrap it as a member function for class Link
-        link.est_count_dev = link.get_period_flow_vol(tau) - link.obs
-        total_abs_gap += abs(link.est_count_dev)
-        total_link_gap += link.est_count_dev / link.obs
+        link.est_dev = link.get_period_flow_vol(tau) - link.obs
+        total_abs_gap += abs(link.est_dev)
+        total_link_gap += link.est_dev / link.obs
 
     # calculate estimation deviations for each zone
     for zone in zones:
         if zone.attr_obs >= 1:
-            dev = zone.est_attr - zone.attr_obs
-            zone.est_attr_dev = dev
+            dev = zone.attr_est - zone.attr_obs
+            zone.attr_est_dev = dev
 
             total_abs_gap += abs(dev)
             total_attr_gap += dev / zone.attr_obs
 
         if zone.prod_obs >= 1:
-            dev = zone.est_prod - zone.prod_obs
-            zone.est_prod_dev = dev
+            dev = zone.prod_est - zone.prod_obs
+            zone.prod_est_dev = dev
 
             total_abs_gap += abs(dev)
             total_prod_gap += dev / zone.prod_obs
