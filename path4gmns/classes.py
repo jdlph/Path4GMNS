@@ -1942,6 +1942,23 @@ class UI:
 
             The default is 'auto'.
 
+        time_dependent
+            True or False. Its default value is False.
+
+            If True, the accessibility will be evaluated using the period link
+            free-flow travel time (i.e., VDF_fftt). In other words, the
+            accessibility is time-dependent.
+
+            If False, the accessibility will be evaluated using the link length
+            and the free flow travel speed of each mode.
+
+        demand_period_id
+            The sequence number of demand period listed in demand_periods in
+            settings.yml. demand_period_id of the first demand_period is 0.
+
+            Use it with time_dependent when there are multiple demand periods.
+            Its default value is 0.
+
         Returns
         -------
         int
@@ -1958,6 +1975,26 @@ class UI:
 
         print(f'number of accessible links is {len(links)}')
         print(f'accessible links are: {link_strs}')
+
+    def get_demand_period_str(self, demand_period_id):
+        """ return the demand period name given its id
+
+        Parameters
+        ----------
+        demand_period_id
+            The sequence number of demand period listed in demand_periods in
+            settings.yml. demand_period_id of the first demand_period is 0.
+
+            Use it with time_dependent when there are multiple demand periods.
+            Its default value is 0.
+
+        Returns
+        -------
+        str
+            The name of the corresponding demand period given demand_period_id (
+            e.g., 'AM').
+        """
+        self._base_assignment.get_demand_period_str(demand_period_id)
 
     def benchmark_apsp(self):
         self._base_assignment.benchmark_apsp()

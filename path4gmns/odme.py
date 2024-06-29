@@ -4,7 +4,11 @@ from math import max
 __all__ = ['conduct_odme']
 
 
-def conduct_odme(odme_update_num, ui):
+def conduct_odme(odme_update_num, ui, dp_id=0):
+    # check whether dp_id (demand period id) exists or not
+    # exception will be thrown if dp_id does not exist
+    ui.get_demand_period_str(dp_id)
+
     # some constants
     delta = 0.05
     step_size = 0.01
@@ -18,11 +22,14 @@ def conduct_odme(odme_update_num, ui):
     links = A.get_links()
     zones = A.network.zones
 
+    # the current implementation of ODME only supports one demand period
+    column_pool_ = {k: v for k, v in column_pool.items() if k[1] == dp_id}
+
     for j in range(odme_update_num):
-        _update_link_volume(column_pool, links, zones, j)
+        _update_link_volume(column_pool_, links, zones, dp_id, j)
 
         # k = (at, dp, oz, dz)
-        for k, cv in column_pool.items():
+        for k, cv in column_pool_.items():
             if cv.is_route_fixed():
                 continue
 
@@ -66,7 +73,7 @@ def conduct_odme(odme_update_num, ui):
                 col.set_volume = max(1, vol - change_vol)
 
 
-def _update_link_volume(column_pool, links, zones, iter_num):
+def _update_link_volume(column_pool, links, zones, dp_id, iter_num):
     # reset the volume for each link
     for link in links:
         if not link.length:
@@ -101,7 +108,6 @@ def _update_link_volume(column_pool, links, zones, iter_num):
     total_link_gap = 0
 
     # calculate estimation deviation for each link
-    tau = 0
     for link in links:
         link.calculate_td_vdf()
 
@@ -110,7 +116,7 @@ def _update_link_volume(column_pool, links, zones, iter_num):
 
         # problematic: est_dev is a scalar rather than a vector?
         # code optimization: wrap it as a member function for class Link
-        link.est_dev = link.get_period_flow_vol(tau) - link.obs
+        link.est_dev = link.get_period_flow_vol(dp_id) - link.obs
         total_abs_gap += abs(link.est_dev)
         total_link_gap += link.est_dev / link.obs
 
