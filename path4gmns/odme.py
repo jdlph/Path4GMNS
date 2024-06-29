@@ -18,18 +18,16 @@ def conduct_odme(odme_update_num, ui, dp_id=0):
     # set up SPNetwork
     A.setup_spnetwork()
 
-    column_pool = A.get_column_pool()
+    # the current implementation of ODME only supports one demand period
+    column_pool = {k: v for k, v in A.get_column_pool().items() if k[1] == dp_id}
     links = A.get_links()
     zones = A.network.zones
 
-    # the current implementation of ODME only supports one demand period
-    column_pool_ = {k: v for k, v in column_pool.items() if k[1] == dp_id}
-
     for j in range(odme_update_num):
-        _update_link_volume(column_pool_, links, zones, dp_id, j)
+        _update_link_volume(column_pool, links, zones, dp_id, j)
 
         # k = (at, dp, oz, dz)
-        for k, cv in column_pool_.items():
+        for k, cv in column_pool.items():
             if cv.is_route_fixed():
                 continue
 
