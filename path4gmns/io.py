@@ -1,4 +1,5 @@
 import csv
+import os
 import warnings
 
 from .classes import Node, Link, Zone, Network, Column, ColumnVec, VDFPeriod, \
@@ -9,6 +10,7 @@ from .consts import EPSILON, MILE_TO_METER, MPH_TO_KPH
 from .utils import InvalidRecord, _are_od_connected, _convert_boundaries, \
                    _convert_str_to_float, _convert_str_to_int, _get_time_stamp, \
                    _update_dest_zone, _update_orig_zone
+from .zonesyn import network_to_zones
 
 
 __all__ = [
@@ -1431,17 +1433,17 @@ def read_demand(ui, save_synthetic_data=True, work_dir='.'):
     at = A.get_agent_type_id('a')
     dp = A.get_demand_period_id('AM')
     try:
-        read_demand(work_dir, 
-                    filename, 
-                    at, 
-                    dp, 
-                    A.network.zones, 
-                    A.column_pool)
+        read_zones(ui)
+        read_demand(
+            work_dir, filename, at, dp, A.network.zones, A.column_pool
+        )
         return
     except FileExistsError:
         pass
 
     # synthesize zones and demand
+    network_to_zones(ui)
     
-    # if save_synthetic_data:
-        # save synthesized files to disk
+    if save_synthetic_data:
+        output_zones(ui, work_dir)
+        output_synthesized_demand(ui, work_dir)
