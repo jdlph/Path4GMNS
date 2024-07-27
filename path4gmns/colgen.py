@@ -119,7 +119,7 @@ def _update_column_gradient_cost_and_flow(column_pool, links, agent_types, iter_
     rel_gap = total_gap / max(total_sys_travel_time, EPSILON)
 
     print(f'current iteration number in column update: {iter_num}\n'
-          f'total gap: {total_gap:.2f}; relative gap: {rel_gap:.4%}')
+          f'total gap: {total_gap:.4e}; relative gap: {rel_gap:.4%}')
 
 
 def _backtrace_shortest_path_tree(centroid,
@@ -243,7 +243,7 @@ def _update_column_attributes(column_pool, links, agent_types):
 
     rel_gap = total_gap / max(total_sys_travel_time, EPSILON)
     print('current iteration number in column update: postprocessing\n'
-          f'total gap: {total_gap:.2f}; relative gap: {rel_gap:.4%}')
+          f'total gap: {total_gap:.4e}; relative gap: {rel_gap:.4%}')
 
 
 def _generate(spn, column_pool, iter_num):

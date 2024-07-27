@@ -315,7 +315,7 @@ def read_nodes(input_dir,
 
             node_no += 1
 
-        print(f'the number of nodes is {node_no}')
+        print(f'the number of nodes is {node_no:,d}')
 
         if load_demand:
             zone_size = len(zones)
@@ -325,7 +325,7 @@ def read_nodes(input_dir,
             if zone_size == 0:
                 raise Exception('there are NO VALID zones from node.csv')
 
-            print(f'the number of zones is {zone_size}')
+            print(f'the number of zones is {zone_size:,d}')
 
 
 def read_links(input_dir,
@@ -536,7 +536,7 @@ def read_links(input_dir,
 
             link_no += 1
 
-        print(f'the number of links is {link_no}')
+        print(f'the number of links is {link_no:,d}')
 
 
 def read_demand(input_dir,
@@ -597,8 +597,8 @@ def read_demand(input_dir,
             valid_vol += vol
 
         print(
-            f'the total valid demand is {valid_vol:.2f}\n'
-            f'{invalid_od_num} invalid OD pairs are found. Total discarded volume: {invalid_vol:.2f}'
+            f'the total valid demand is {valid_vol:,.3f}\n'
+            f'{invalid_od_num:,d} invalid OD pairs are found. Total discarded volume: {invalid_vol:,.2f}'
         )
 
         if valid_vol == 0:
@@ -647,12 +647,10 @@ def read_zones(ui, input_dir='.', filename='zone.csv'):
             if not nodes:
                 continue
 
-            try:
-                node_ids = [int(x) for x in nodes.split(';') if x]
-            except ValueError:
-                raise Exception(
-                    f'INVALID ACCESS NODES for zone id: {zone_id}'
-                )
+            # just in case that there is empty space in between ';'
+            node_ids = [x.strip() for x in nodes.split(';') if x.strip()]
+            if not node_ids:
+                continue
 
             try:
                 bin_index = _convert_str_to_int(line['bin_index'])
@@ -678,8 +676,8 @@ def read_zones(ui, input_dir='.', filename='zone.csv'):
 
             if zone_id not in zones:
                 z = Zone(zone_id, bin_index)
-                z.activity_nodes = [int(x) for x in node_ids]
-                z.nodes = [x for x in z.activity_nodes]
+                z.activity_nodes = [x for x in node_ids]
+                z.nodes = [x for x in node_ids]
                 z.setup_geo(U, D, L, R, x, y)
                 z.setup_production(prod)
                 zones[zone_id] = z
@@ -693,7 +691,7 @@ def read_zones(ui, input_dir='.', filename='zone.csv'):
             else:
                 raise Exception(f'DUPLICATE zone id: {zone_id}')
 
-        print(f'the number of zones is {len(zones)}')
+        print(f'the number of zones is {len(zones):,d}')
 
 
 def read_demand_matrix(input_dir, agent_type_id, demand_period_id,
