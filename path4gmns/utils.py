@@ -397,7 +397,7 @@ def read_links(input_dir,
             # issue: int??
             try:
                 capacity = _convert_str_to_int(line['capacity'])
-            except InvalidRecord:
+            except (KeyError, InvalidRecord):
                 capacity = 1999
 
             try:
@@ -552,7 +552,7 @@ def read_demand(input_dir,
 
         at = agent_type_id
         dp = demand_period_id
-        column_pool.clear()
+        # column_pool.clear()
 
         reader = csv.DictReader(fp)
         valid_vol = 0
@@ -894,7 +894,7 @@ def read_settings(input_dir, assignment):
         raise e
 
 
-def read_network(length_unit='mile', speed_unit='mph', load_demand=True, input_dir='.'):
+def read_network(length_unit='mile', speed_unit='mph', load_demand=False, input_dir='.'):
     len_units = ['kilometer', 'km', 'meter', 'm', 'mile', 'mi']
     spd_units = ['kmh', 'kph', 'mph']
 
@@ -1622,3 +1622,48 @@ def read_measurements(ui, input_dir, map_id_to_no, zones):
             record_no += 1
 
         print(f'the number of valid measurements is {record_no}')
+
+
+def read_demand(ui, save_synthetic_data=True, work_dir='.'):
+    """ a dedicated API to read demand and zone information """
+    A = ui._base_assignment
+
+    demand_loaded = False
+    for d in A.get_demands():
+        try:
+            at = A.get_agent_type_id(d.get_agent_type_str())
+            dp = A.get_demand_period_id(d.get_period())
+            read_demand(work_dir,
+                        d.get_file_name(),
+                        at,
+                        dp,
+                        A.network.zones,
+                        A.column_pool)
+            
+            if not demand_loaded:
+                demand_loaded = True
+        except FileNotFoundError:
+            continue
+
+    if demand_loaded:
+        return
+    
+    # try to load the synthesized demand
+    filename = 'syn_demand.csv'
+    at = A.get_agent_type_id('a')
+    dp = A.get_demand_period_id('AM')
+    try:
+        read_demand(work_dir, 
+                    filename, 
+                    at, 
+                    dp, 
+                    A.network.zones, 
+                    A.column_pool)
+        return
+    except FileExistsError:
+        pass
+
+    # synthesize zones and demand
+    
+    # if save_synthetic_data:
+        # save synthesized files to disk
