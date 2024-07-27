@@ -150,7 +150,8 @@ def _synthesize_grid(ui, grid_dim, max_bin):
             # coordinates of the centroid, which are weighted by the first node
             cx = (2 * x + L_ + R_) / 4
             cy = (2 * y + U_ + D_) / 4
-            z.setup_geo(U_, D_, L_, R_, cx, cy)
+            z.set_coord(cx, cy)
+            z.set_geo(U_, D_, L_, R_)
             zones[str(k)] = z
             k += 1
 
@@ -182,7 +183,7 @@ def _synthesize_demand(ui, total_demand, time_budget, mode):
     # allocate trips proportionally to each zone
     trip_rate = total_demand / num
     for z in zones.values():
-        z.setup_production(int(z.get_activity_nodes_num() * trip_rate))
+        z.set_production(int(z.get_activity_nodes_num() * trip_rate))
 
     # allocate trips proportionally to each OD pair
     for z, v in zones.items():

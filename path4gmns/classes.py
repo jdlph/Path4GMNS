@@ -334,11 +334,10 @@ class Zone:
         return self.coord_x, self.coord_y
 
     def get_coordinate_str(self):
-        s = ''
         if self.coord_x == 91 or self.coord_y == 181:
-            return s
+            return ''
 
-        return str(self.coord_x) + s + str(self.coord_y)
+        return str(self.coord_x) + ' ' + str(self.coord_y)
 
     def get_geo(self):
         """ output the four vertices as boundary """
@@ -372,12 +371,14 @@ class Zone:
     def set_bin_index(self, bi):
         self.bin_id = bi
 
-    def setup_geo(self, U, D, L, R, cx, cy):
-        self.boundaries = [U, D, L, R]
+    def set_coord(self, cx, cy):
         self.coord_x = cx
         self.coord_y = cy
 
-    def setup_production(self, p):
+    def set_geo(self, U, D, L, R):
+        self.boundaries = [U, D, L, R]
+
+    def set_production(self, p):
         self.production = p
 
 
@@ -500,6 +501,7 @@ class Network:
                 node = self.get_nodes()[node_no_]
                 coord_x = node.coord_x
                 coord_y = node.coord_y
+                self.zones[z].set_coord(float(coord_x), float(coord_y))
             else:
                 coord_x = str(coord_x)
                 coord_y = str(coord_y)

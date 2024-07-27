@@ -678,8 +678,9 @@ def read_zones(ui, input_dir='.', filename='zone.csv'):
                 z = Zone(zone_id, bin_index)
                 z.activity_nodes = [x for x in node_ids]
                 z.nodes = [x for x in node_ids]
-                z.setup_geo(U, D, L, R, x, y)
-                z.setup_production(prod)
+                z.set_coord(x, y)
+                z.set_geo(U, D, L, R)
+                z.set_production(prod)
                 zones[zone_id] = z
                 # update zone info for each node
                 for id in node_ids:

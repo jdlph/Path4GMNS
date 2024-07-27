@@ -133,7 +133,16 @@ def _output_zone_accessibility(min_travel_times, interval_num,
                         counts[id] += 1
                         id += 1
                 # output accessibility
-                geo = v.get_geo()
+
+                # output the zone coordinates rather than the boundaries for the
+                # following two reasons:
+                # 1. to be consistent with _output_od_accessibility()
+                # 2. v.get_geo() is always empty as no boundary info is provided
+                #    in node.csv
+                geo = 'LINESTRING ()'
+                coord = v.get_coordinate_str()
+                if coord:
+                    geo = 'LINESTRING (' + coord + ')'
 
                 line = [oz, geo, at.get_type_str()]
                 line.extend(counts)
