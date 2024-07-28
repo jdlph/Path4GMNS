@@ -404,7 +404,6 @@ class Network:
         self.agent_type_name = 'all'
         # key: zone id, value: zone object
         self.zones = {}
-        self.ODMatrix = {}
         self.activity_node_num = 0
         self.last_thru_node = 0
         self.centroids_added = False
@@ -1813,9 +1812,6 @@ class UI:
 
     def get_agent_num(self):
         return self._base_assignment.network.get_agent_count()
-
-    def get_ODMatrix(self):
-        return self._base_assignment.network.ODMatrix
 
     def find_path_for_agents(self, mode='all'):
         """ DEPRECATED

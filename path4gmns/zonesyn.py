@@ -2,7 +2,7 @@ from math import ceil, floor
 import warnings
 
 from .accessibility import _update_min_travel_time
-from .classes import AccessNetwork, Zone
+from .classes import AccessNetwork, ColumnVec, Zone
 from .utils import _convert_str_to_float, InvalidRecord
 
 
@@ -167,7 +167,8 @@ def _synthesize_grid(ui, grid_dim, max_bin):
 def _synthesize_demand(ui, total_demand, time_budget, mode):
     A = ui._base_assignment
     network = A.network
-    ODMatrix = network.ODMatrix
+
+    column_pool = A.column_pool
     zones = network.zones
     num = network.activity_node_num
 
@@ -185,6 +186,8 @@ def _synthesize_demand(ui, total_demand, time_budget, mode):
     for z in zones.values():
         z.set_production(int(z.get_activity_nodes_num() * trip_rate))
 
+    dp_id = 0
+    at_id = at.get_id()
     # allocate trips proportionally to each OD pair
     for z, v in zones.items():
         if v.get_production() == 0:
@@ -217,9 +220,13 @@ def _synthesize_demand(ui, total_demand, time_budget, mode):
 
             prod_ = v_.get_production()
             portion = prod_ / total_attr
-            ODMatrix[(z, z_)] = round(prod * portion, 2)
 
-    if not ODMatrix:
+            # no need to check if (at_id, dp_id, z, z_) exits as the current
+            # way of iterating zones ensures the uniqueness of (z, z_)
+            column_pool[(at_id, dp_id, z, z_)] = ColumnVec()
+            column_pool[(at_id, dp_id, z, z_)].increase_volume(round(prod * portion, 2))
+
+    if not column_pool:
         warnings.warn(
             f'ZERO demand is synthesized!! Please check speed and length units'
             ' in link.csv, and time_budget!'

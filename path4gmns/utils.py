@@ -3,6 +3,9 @@ import threading
 from datetime import timedelta
 
 
+__all__ = ['download_sample_data_sets', 'download_sample_setting_file']
+
+
 # for precheck on connectivity of each OD pair
 # 0: isolated, has neither outgoing links nor incoming links
 # 1: has at least one outgoing link

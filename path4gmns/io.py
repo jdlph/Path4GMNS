@@ -16,15 +16,14 @@ from .zonesyn import network_to_zones
 __all__ = [
     'read_network',
     'read_zones',
+    'read_demand',
     'load_demand',
     'load_columns',
     'output_columns',
     'output_link_performance',
-    'download_sample_data_sets',
-    'download_sample_setting_file',
     'output_agent_paths',
-    'output_zones',
-    'output_synthesized_demand',
+    'output_synthetic_zones',
+    'output_synthetic_demand',
     'output_agent_trajectory'
 ]
 
@@ -319,13 +318,13 @@ def read_links(input_dir,
         print(f'the number of links is {link_no:,d}')
 
 
-def read_demand(input_dir,
-                file,
-                agent_type_id,
-                demand_period_id,
-                zones,
-                column_pool,
-                check_connectivity=True):
+def _read_demand(input_dir,
+                 file,
+                 agent_type_id,
+                 demand_period_id,
+                 zones,
+                 column_pool,
+                 check_connectivity=True):
     """ step 3:read input_agent """
     with open(input_dir+'/'+file, 'r') as fp:
         print('read '+file)
@@ -403,13 +402,13 @@ def load_demand(ui,
     at = A.get_agent_type_id(agent_type_str)
     dp = A.get_demand_period_id(demand_period_str)
     # do not check connectivity of OD pairs
-    read_demand(input_dir, filename, at, dp, A.network.zones, A.column_pool, False)
+    _read_demand(input_dir, filename, at, dp, A.network.zones, A.column_pool, False)
 
 
-def read_zones(ui, input_dir='.', filename='zone.csv'):
+def read_zones(ui, input_dir='.', filename='syn_zone.csv'):
     """ DEPRECATED! read zone.csv to set up zones """
     with open(input_dir+'/'+filename, 'r') as fp:
-        print('read zone.csv')
+        print('read syn_zone.csv')
 
         A = ui._base_assignment
         zones = A.network.zones
@@ -720,12 +719,12 @@ def read_network(length_unit='mile', speed_unit='mph', load_demand=False, input_
         for d in assignm.get_demands():
             at = assignm.get_agent_type_id(d.get_agent_type_str())
             dp = assignm.get_demand_period_id(d.get_period())
-            read_demand(input_dir,
-                        d.get_file_name(),
-                        at,
-                        dp,
-                        network.zones,
-                        assignm.column_pool)
+            _read_demand(input_dir,
+                         d.get_file_name(),
+                         at,
+                         dp,
+                         network.zones,
+                         assignm.column_pool)
 
     network.update()
     assignm.network = network
@@ -1148,8 +1147,8 @@ def output_agent_paths(ui, output_geometry=True, output_dir='.'):
             )
 
 
-def output_zones(ui, output_dir='.'):
-    with open(output_dir+'/zone.csv', 'w',  newline='') as f:
+def output_synthetic_zones(ui, output_dir='.'):
+    with open(output_dir+'/syn_zone.csv', 'w',  newline='') as f:
         writer = csv.writer(f)
 
         line = ['zone_id',
@@ -1187,16 +1186,17 @@ def output_zones(ui, output_dir='.'):
             )
 
 
-def output_synthesized_demand(ui, output_dir='.'):
-    with open(output_dir+'/demand.csv', 'w',  newline='') as f:
+def output_synthetic_demand(ui, output_dir='.'):
+    with open(output_dir+'/syn_demand.csv', 'w',  newline='') as f:
         writer = csv.writer(f)
 
         line = ['o_zone_id', 'd_zone_id', 'volume']
         writer.writerow(line)
 
-        ODMatrix = ui.get_ODMatrix()
-        for k, v in ODMatrix.items():
-            line = [k[0], k[1], v]
+        column_pool = ui.get_column_pool()
+        for k, v in column_pool.items():
+            # k = (at_id, dp_id, oz_id, dz_id)
+            line = [k[2], k[3], v.get_od_volume()]
             writer.writerow(line)
 
         if output_dir == '.':
@@ -1413,13 +1413,13 @@ def read_demand(ui, save_synthetic_data=True, work_dir='.'):
         try:
             at = A.get_agent_type_id(d.get_agent_type_str())
             dp = A.get_demand_period_id(d.get_period())
-            read_demand(work_dir,
-                        d.get_file_name(),
-                        at,
-                        dp,
-                        A.network.zones,
-                        A.column_pool)
-            
+            _read_demand(work_dir,
+                         d.get_file_name(),
+                         at,
+                         dp,
+                         A.network.zones,
+                         A.column_pool)
+
             if not demand_loaded:
                 demand_loaded = True
         except FileNotFoundError:
@@ -1427,23 +1427,25 @@ def read_demand(ui, save_synthetic_data=True, work_dir='.'):
 
     if demand_loaded:
         return
-    
+
     # try to load the synthesized demand
     filename = 'syn_demand.csv'
-    at = A.get_agent_type_id('a')
-    dp = A.get_demand_period_id('AM')
-    try:
-        read_zones(ui)
-        read_demand(
-            work_dir, filename, at, dp, A.network.zones, A.column_pool
-        )
-        return
-    except FileExistsError:
-        pass
+    for d in A.get_demands():
+        try:
+            at = A.get_agent_type_id(d.get_agent_type_str())
+            dp = A.get_demand_period_id(d.get_period())
+            read_zones(ui)
+            _read_demand(
+                work_dir, filename, at, dp, A.network.zones, A.column_pool, False
+            )
+            # early termination to load only one synthetic demand file
+            return
+        except FileNotFoundError:
+            break
 
     # synthesize zones and demand
     network_to_zones(ui)
-    
+
     if save_synthetic_data:
-        output_zones(ui, work_dir)
-        output_synthesized_demand(ui, work_dir)
+        output_synthetic_zones(ui, work_dir)
+        output_synthetic_demand(ui, work_dir)
