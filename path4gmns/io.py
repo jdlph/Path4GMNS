@@ -17,6 +17,7 @@ __all__ = [
     'read_network',
     'read_zones',
     'read_demand',
+    'read_measurements',
     'load_demand',
     'load_columns',
     'output_columns',
@@ -324,14 +325,13 @@ def _read_demand(input_dir,
                  demand_period_id,
                  zones,
                  column_pool,
-                 check_connectivity=True):
+                 check_connectivity=False):
     """ step 3:read input_agent """
     with open(input_dir+'/'+file, 'r') as fp:
         print('read '+file)
 
         at = agent_type_id
         dp = demand_period_id
-        # column_pool.clear()
 
         reader = csv.DictReader(fp)
         valid_vol = 0
@@ -1306,19 +1306,21 @@ def output_agent_trajectory(ui, output_dir='.'):
             )
 
 
-def read_measurements(ui, input_dir, map_id_to_no, zones):
+def read_measurements(ui, input_dir='.'):
     with open(input_dir+'/measurement.csv') as fp:
         print('read measurement.csv')
 
-        reader = csv.DictReader(fp)
-
         base = ui._base_assignment
+        map_id_to_no = base.network.map_id_to_no
+        zones = base.network.zones
+
         links = base.get_links()
         # a temporary lookup table to retrieve a link using its head and tail
         link_lookup = {
             (link.from_node_no, link.to_node_no) : link for link in links
         }
 
+        reader = csv.DictReader(fp)
         record_no = 0
         for line in reader:
             # get measurement type, which could be link, production, and attraction
@@ -1328,7 +1330,9 @@ def read_measurements(ui, input_dir, map_id_to_no, zones):
 
             try:
                 count = _convert_str_to_float(line['count'])
-            except (KeyError, InvalidRecord):
+            except KeyError:
+                count = _convert_str_to_float(line['count1'])
+            except InvalidRecord:
                 continue
 
             try:
@@ -1408,6 +1412,7 @@ def read_demand(ui, save_synthetic_data=True, work_dir='.'):
     """ a dedicated API to read demand and zone information """
     A = ui._base_assignment
 
+    print('Step 1: try to load the default demand files specified in settings.yml')
     demand_loaded = False
     for d in A.get_demands():
         try:
@@ -1430,21 +1435,29 @@ def read_demand(ui, save_synthetic_data=True, work_dir='.'):
 
     # try to load the synthesized demand
     filename = 'syn_demand.csv'
+    print('the default demand files are NOT found!\n'
+          f'Step 2: try to load the synthetic demand file: {filename}')
+
     for d in A.get_demands():
         try:
             at = A.get_agent_type_id(d.get_agent_type_str())
             dp = A.get_demand_period_id(d.get_period())
             read_zones(ui)
             _read_demand(
-                work_dir, filename, at, dp, A.network.zones, A.column_pool, False
+                work_dir, filename, at, dp, A.network.zones, A.column_pool
             )
             # early termination to load only one synthetic demand file
             return
         except FileNotFoundError:
             break
 
+    print('the synthetic data is missing or incomplete!\n'
+          'Step 3: start to synthesize zones and demand!')
+
     # synthesize zones and demand
     network_to_zones(ui)
+
+    print('data synthesis is complete\n!')
 
     if save_synthetic_data:
         output_synthetic_zones(ui, work_dir)

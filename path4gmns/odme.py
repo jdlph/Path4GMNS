@@ -1,19 +1,18 @@
 __all__ = ['conduct_odme']
 
 
-def conduct_odme(odme_update_num, ui, dp_id=0):
+def conduct_odme(ui, odme_update_num, dp_id=0):
+    # base assignment
+    A = ui._base_assignment
     # check whether dp_id (demand period id) exists or not
     # exception will be thrown if dp_id does not exist
-    ui.get_demand_period_str(dp_id)
+    A.get_demand_period_str(dp_id)
+    # set up SPNetwork
+    A.setup_spnetwork()
 
     # some constants
     delta = 0.05
     step_size = 0.01
-
-    # base assignment
-    A = ui._base_assignment
-    # set up SPNetwork
-    A.setup_spnetwork()
 
     # the current implementation of ODME only supports one demand period
     column_pool = {k: v for k, v in A.get_column_pool().items() if k[1] == dp_id}
@@ -30,6 +29,9 @@ def conduct_odme(odme_update_num, ui, dp_id=0):
 
             for col in cv.get_columns():
                 vol = col.get_volume()
+                if not vol:
+                    continue
+
                 path_gradient_cost = 0
 
                 orig_zone = zones[k[2]]
@@ -65,7 +67,7 @@ def conduct_odme(odme_update_num, ui, dp_id=0):
                 elif change_vol > change_vol_ub:
                     change_vol = change_vol_ub
 
-                col.set_volume = max(1, vol - change_vol)
+                col.set_volume(max(1, vol - change_vol))
 
 
 def _update_link_volume(column_pool, links, zones, dp_id, iter_num):
@@ -77,24 +79,25 @@ def _update_link_volume(column_pool, links, zones, dp_id, iter_num):
         link.reset_period_flow_vol()
 
     # reset the estimated attraction and production
-    for z in zones:
+    for k, z in zones.items():
         z.attr_est = 0
         z.prod_est = 0
 
     # update estimations and link volume
     # k = (at, dp, oz, dz)
     for k, cv in column_pool.items():
-        tau = k[1]
-
         for col in cv.get_columns():
             vol = col.get_volume()
+            if not vol:
+                continue
+
             zones[k[2]].prod_est += vol
             zones[k[3]].attr_est += vol
 
             for i in col.links:
                 # to be consistent with _update_link_and_column_volume()
                 # pce_ratio = 1 and vol * pce_ratio
-                links[i].increase_period_flow_vol(tau, vol)
+                links[i].increase_period_flow_vol(dp_id, vol)
 
     # ODME statistics
     total_abs_gap = 0
@@ -104,6 +107,9 @@ def _update_link_volume(column_pool, links, zones, dp_id, iter_num):
 
     # calculate estimation deviation for each link
     for link in links:
+        if not link.length:
+            break
+
         link.calculate_td_vdf()
 
         if link.obs < 1:
@@ -116,20 +122,20 @@ def _update_link_volume(column_pool, links, zones, dp_id, iter_num):
         total_link_gap += link.est_dev / link.obs
 
     # calculate estimation deviations for each zone
-    for zone in zones:
-        if zone.attr_obs >= 1:
-            dev = zone.attr_est - zone.attr_obs
-            zone.attr_est_dev = dev
+    for k, z in zones.items():
+        if z.attr_obs >= 1:
+            dev = z.attr_est - z.attr_obs
+            z.attr_est_dev = dev
 
             total_abs_gap += abs(dev)
-            total_attr_gap += dev / zone.attr_obs
+            total_attr_gap += dev / z.attr_obs
 
-        if zone.prod_obs >= 1:
-            dev = zone.prod_est - zone.prod_obs
-            zone.prod_est_dev = dev
+        if z.prod_obs >= 1:
+            dev = z.prod_est - z.prod_obs
+            z.prod_est_dev = dev
 
             total_abs_gap += abs(dev)
-            total_prod_gap += dev / zone.prod_obs
+            total_prod_gap += dev / z.prod_obs
 
     print(f'current iteration number in ODME: {iter_num}\n'
           f'total absolute estimation gap: {total_abs_gap:.2f}\n'
