@@ -138,7 +138,7 @@ def _update_link_volume(column_pool, links, zones, dp_id, iter_num):
             total_prod_gap += dev / z.prod_obs
 
     print(f'current iteration number in ODME: {iter_num}\n'
-          f'total absolute estimation gap: {total_abs_gap:.2f}\n'
-          f'total relative estimation gap (link): {total_link_gap:.4%}\n'
-          f'total relative estimation gap (zone attraction): {total_attr_gap:.4%}\n'
-          f'total relative estimation gap (zone production): {total_prod_gap:.4%}\n')
+          f'total absolute estimation gap: {total_abs_gap:,.2f}\n'
+          f'total relative estimation gap (link): {total_link_gap:.2%}\n'
+          f'total relative estimation gap (zone attraction): {total_attr_gap:.2%}\n'
+          f'total relative estimation gap (zone production): {total_prod_gap:.2%}\n')

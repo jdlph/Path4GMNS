@@ -673,7 +673,7 @@ def read_settings(input_dir, assignment):
         raise e
 
 
-def read_network(length_unit='mile', speed_unit='mph', load_demand=False, input_dir='.'):
+def read_network(length_unit='mile', speed_unit='mph', input_dir='.'):
     len_units = ['kilometer', 'km', 'meter', 'm', 'mile', 'mi']
     spd_units = ['kmh', 'kph', 'mph']
 
@@ -715,34 +715,10 @@ def read_network(length_unit='mile', speed_unit='mph', load_demand=False, input_
                speed_unit,
                load_demand)
 
-    if load_demand:
-        for d in assignm.get_demands():
-            at = assignm.get_agent_type_id(d.get_agent_type_str())
-            dp = assignm.get_demand_period_id(d.get_period())
-            _read_demand(input_dir,
-                         d.get_file_name(),
-                         at,
-                         dp,
-                         network.zones,
-                         assignm.column_pool)
-
     network.update()
     assignm.network = network
 
-    if load_demand:
-        # set up capacity ratio of affected links from special event
-        for dp in assignm.demand_periods:
-            se = dp.special_event
-            if se is None:
-                continue
-
-            # k is link id and v is capacity ratio
-            for k, v in se.get_affected_links():
-                assignm.set_capacity_ratio(dp.get_id(), k, v)
-
-    ui = UI(assignm)
-
-    return ui
+    return UI(assignm)
 
 
 def load_columns(ui, input_dir='.'):
@@ -1412,6 +1388,16 @@ def read_demand(ui, save_synthetic_data=True, work_dir='.'):
     """ a dedicated API to read demand and zone information """
     A = ui._base_assignment
 
+    # set up capacity ratio of affected links from special event
+    for dp in A.demand_periods:
+        se = dp.special_event
+        if se is None:
+            continue
+
+        # k is link id and v is capacity ratio
+        for k, v in se.get_affected_links():
+            A.set_capacity_ratio(dp.get_id(), k, v)
+
     print('Step 1: try to load the default demand files specified in settings.yml')
     demand_loaded = False
     for d in A.get_demands():
@@ -1456,7 +1442,6 @@ def read_demand(ui, save_synthetic_data=True, work_dir='.'):
 
     # synthesize zones and demand
     network_to_zones(ui)
-
     print('data synthesis is complete\n!')
 
     if save_synthetic_data:
