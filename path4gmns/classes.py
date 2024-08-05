@@ -415,6 +415,9 @@ class Network:
         self.link_size = len(self.links)
         self.agent_size = len(self.agents)
         self.last_thru_node = self.node_size
+        self.activity_node_num = sum(
+            z.get_activity_nodes_num() for z in self.zones.values()
+        )
 
     def allocate_for_CAPI(self):
         # execute only on the first call

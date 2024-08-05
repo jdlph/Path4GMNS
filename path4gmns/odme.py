@@ -79,7 +79,7 @@ def _update_link_volume(column_pool, links, zones, dp_id, iter_num):
         link.reset_period_flow_vol()
 
     # reset the estimated attraction and production
-    for k, z in zones.items():
+    for z in zones.values():
         z.attr_est = 0
         z.prod_est = 0
 
@@ -122,7 +122,7 @@ def _update_link_volume(column_pool, links, zones, dp_id, iter_num):
         total_link_gap += link.est_dev / link.obs
 
     # calculate estimation deviations for each zone
-    for k, z in zones.items():
+    for z in zones.values():
         if z.attr_obs >= 1:
             dev = z.attr_est - z.attr_obs
             z.attr_est_dev = dev

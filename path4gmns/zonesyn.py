@@ -160,7 +160,10 @@ def _synthesize_grid(ui, grid_dim, max_bin):
         zones[grids[(i, j)]].add_node(node.get_node_id())
         num += 1
 
-    network.activity_node_num = num
+    # update it only when the original network do not have activity nodes
+    if sample_rate:
+        network.activity_node_num = num
+    
     _synthesize_bin_index(max_bin, zones)
 
 

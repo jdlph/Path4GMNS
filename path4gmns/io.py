@@ -15,7 +15,6 @@ from .zonesyn import network_to_zones
 
 __all__ = [
     'read_network',
-    'read_zones',
     'read_demand',
     'read_measurements',
     'load_demand',
@@ -62,8 +61,8 @@ def read_nodes(input_dir,
             # activity node
             is_activity_node = False
             try:
-                b = _convert_str_to_int(line['is_boundary'])
-                if b > 0:
+                b = _convert_str_to_int(line['boundary'])
+                if b:
                     is_activity_node = True
             except (KeyError, InvalidRecord):
                 pass
