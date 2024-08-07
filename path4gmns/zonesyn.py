@@ -163,7 +163,7 @@ def _synthesize_grid(ui, grid_dim, max_bin):
     # update it only when the original network do not have activity nodes
     if sample_rate:
         network.activity_node_num = num
-    
+
     _synthesize_bin_index(max_bin, zones)
 
 
@@ -196,18 +196,11 @@ def _synthesize_demand(ui, total_demand, time_budget, mode):
         if v.get_production() == 0:
             continue
 
-        total_attr = 0
-        for z_, v_ in zones.items():
-            if z_ == z:
-                continue
-
-            if v_.get_production() == 0:
-                continue
-
-            if min_travel_times[(z, z_, at_str)][0] > time_budget:
-                continue
-
-            total_attr += v_.get_production()
+        total_attr = sum(
+            v_.get_production() for z_, v_ in zones.items() if (
+                z != z_ and min_travel_times[(z, z_, at_str)][0] <= time_budget
+            )
+        )
 
         if total_attr == 0:
             continue
@@ -219,6 +212,9 @@ def _synthesize_demand(ui, total_demand, time_budget, mode):
                 continue
 
             if v_.get_production() == 0:
+                continue
+
+            if min_travel_times[(z, z_, at_str)][0] > time_budget:
                 continue
 
             prod_ = v_.get_production()
@@ -236,7 +232,7 @@ def _synthesize_demand(ui, total_demand, time_budget, mode):
         )
 
 
-def network_to_zones(ui, grid_dimension=8, max_bin=5, total_demand=10000, time_budget=120, mode='auto'):
+def network_to_zones(ui, grid_dimension=8, max_bin=5, total_demand=100000, time_budget=120, mode='auto'):
     """ synthesize zones and OD demand given a network
 
     Parameters

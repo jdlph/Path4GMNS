@@ -134,8 +134,8 @@ def read_links(input_dir,
                 from_node_no = map_id_to_no[from_node_id]
             except KeyError:
                 print(
-                    f'EXCEPTION: Node ID {from_node_id}'
-                    ' NOT IN THE NETWORK!!'
+                    f'Exception: Node ID {from_node_id}'
+                    ' NOT in the network!!'
                 )
                 continue
 
@@ -143,8 +143,8 @@ def read_links(input_dir,
                 to_node_no = map_id_to_no[to_node_id]
             except KeyError:
                 print(
-                    f'EXCEPTION: Node ID {to_node_id}'
-                    ' NOT IN THE NETWORK!!'
+                    f'Exception: Node ID {to_node_id}'
+                    ' NOT in the network!!'
                 )
                 continue
 
@@ -376,7 +376,7 @@ def _read_demand(input_dir,
 
         print(
             f'the total valid demand is {valid_vol:,.3f}\n'
-            f'{invalid_od_num:,d} invalid OD pairs are found. Total discarded volume: {invalid_vol:,.2f}'
+            f'{invalid_od_num:,d} invalid OD pairs are found. Total discarded volume: {invalid_vol:,.2f}\n'
         )
 
         if valid_vol == 0:
@@ -654,19 +654,19 @@ def read_settings(input_dir, assignment):
 
     except ImportError:
         # just in case user does not have pyyaml installed
-        warnings.warn(
-            'Please install pyyaml next time!\n'
-            'Engine will set up one demand period and one agent type using '
-            'default values for you, which might NOT reflect your case!'
-        )
+        # warnings.warn(
+        #     'Please install pyyaml next time!\n'
+        #     'Engine will set up one demand period and one agent type using '
+        #     'default values for you, which might NOT reflect your case!'
+        # )
         _auto_setup(assignment)
     except FileNotFoundError:
         # just in case user does not provide settings.yml
-        warnings.warn(
-            'Please provide settings.yml next time!\n'
-            'Engine will set up one demand period and one agent type using '
-            'default values for you, which might NOT reflect your case!'
-        )
+        # warnings.warn(
+        #     'Please provide settings.yml next time!\n'
+        #     'Engine will set up one demand period and one agent type using '
+        #     'default values for you, which might NOT reflect your case!'
+        # )
         _auto_setup(assignment)
     except Exception as e:
         raise e
@@ -1153,11 +1153,11 @@ def output_synthetic_zones(ui, output_dir='.'):
             writer.writerow(line)
 
         if output_dir == '.':
-            print(f'\ncheck zone.csv in {os.getcwd()} for synthesized zones')
+            print(f'check zone.csv in {os.getcwd()} for synthetic zones')
         else:
             print(
-                f'\ncheck zone.csv in {os.path.join(os.getcwd(), output_dir)}'
-                ' for synthesized zones'
+                f'check zone.csv in {os.path.join(os.getcwd(), output_dir)}'
+                ' for synthetic zones'
             )
 
 
@@ -1175,11 +1175,11 @@ def output_synthetic_demand(ui, output_dir='.'):
             writer.writerow(line)
 
         if output_dir == '.':
-            print(f'\ncheck demand.csv in {os.getcwd()} for synthesized demand')
+            print(f'check demand.csv in {os.getcwd()} for synthetic demand\n')
         else:
             print(
-                f'\ncheck demand.csv in {os.path.join(os.getcwd(), output_dir)}'
-                ' for synthesized demand'
+                f'check demand.csv in {os.path.join(os.getcwd(), output_dir)}'
+                ' for synthetic demand\n'
             )
 
 
@@ -1329,8 +1329,8 @@ def read_measurements(ui, input_dir='.'):
                     from_node_no = map_id_to_no[from_node_id]
                 except KeyError:
                     print(
-                        f'EXCEPTION: Node ID {from_node_id}'
-                        ' NOT IN THE NETWORK!!'
+                        f'Exception: Node ID {from_node_id}'
+                        ' NOT in the network!!'
                     )
                     continue
 
@@ -1338,8 +1338,8 @@ def read_measurements(ui, input_dir='.'):
                     to_node_no = map_id_to_no[to_node_id]
                 except KeyError:
                     print(
-                        f'EXCEPTION: Node ID {to_node_id}'
-                        ' NOT IN THE NETWORK!!'
+                        f'Exception: Node ID {to_node_id}'
+                        ' NOT in the network!!'
                     )
                     continue
 
@@ -1397,7 +1397,8 @@ def read_demand(ui, save_synthetic_data=True, work_dir='.'):
         for k, v in se.get_affected_links():
             A.set_capacity_ratio(dp.get_id(), k, v)
 
-    print('Step 1: try to load the default demand files specified in settings.yml')
+    print('read demand')
+    print('Step 1: try to load the default demand file: demand.csv')
     demand_loaded = False
     for d in A.get_demands():
         try:
@@ -1418,10 +1419,10 @@ def read_demand(ui, save_synthetic_data=True, work_dir='.'):
     if demand_loaded:
         return
 
-    # try to load the synthesized demand
+    # try to load the synthetic demand
     filename = 'syn_demand.csv'
     print('the default demand files are NOT found!\n'
-          f'Step 2: try to load the synthetic demand file: {filename}')
+          f'Step 2: attempt to load the synthetic data: {filename} and syn_zone.csv')
 
     for d in A.get_demands():
         try:
@@ -1441,7 +1442,7 @@ def read_demand(ui, save_synthetic_data=True, work_dir='.'):
 
     # synthesize zones and demand
     network_to_zones(ui)
-    print('data synthesis is complete\n!')
+    print('data synthesis is complete!')
 
     if save_synthetic_data:
         output_synthetic_zones(ui, work_dir)
