@@ -187,7 +187,7 @@ def _synthesize_demand(ui, total_demand, time_budget, mode):
     # allocate trips proportionally to each zone
     trip_rate = total_demand / num
     for z in zones.values():
-        z.set_production(int(z.get_activity_nodes_num() * trip_rate))
+        z.set_production(round(z.get_activity_nodes_num() * trip_rate))
 
     dp_id = 0
     at_id = at.get_id()
@@ -223,7 +223,7 @@ def _synthesize_demand(ui, total_demand, time_budget, mode):
             # no need to check if (at_id, dp_id, z, z_) exits as the current
             # way of iterating zones ensures the uniqueness of (z, z_)
             column_pool[(at_id, dp_id, z, z_)] = ColumnVec()
-            column_pool[(at_id, dp_id, z, z_)].increase_volume(round(prod * portion, 2))
+            column_pool[(at_id, dp_id, z, z_)].increase_volume(round(prod * portion))
 
     if not column_pool:
         warnings.warn(

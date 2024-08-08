@@ -104,7 +104,7 @@ def read_nodes(input_dir,
             if zone_size == 0:
                 raise Exception('there are NO VALID zones from node.csv')
 
-            print(f'the number of zones is {zone_size:,d}')
+            print(f'the number of zones is {zone_size:,d}\n')
 
 
 def read_links(input_dir,
@@ -315,7 +315,7 @@ def read_links(input_dir,
 
             link_no += 1
 
-        print(f'the number of links is {link_no:,d}')
+        print(f'the number of links is {link_no:,d}\n')
 
 
 def _read_demand(input_dir,
@@ -1380,7 +1380,7 @@ def read_measurements(ui, input_dir='.'):
 
             record_no += 1
 
-        print(f'the number of valid measurements is {record_no}')
+        print(f'the number of valid measurements is {record_no}\n')
 
 
 def read_demand(ui, save_synthetic_data=True, work_dir='.'):
@@ -1397,7 +1397,7 @@ def read_demand(ui, save_synthetic_data=True, work_dir='.'):
         for k, v in se.get_affected_links():
             A.set_capacity_ratio(dp.get_id(), k, v)
 
-    print('read demand')
+    print('load demand')
     print('Step 1: try to load the default demand file: demand.csv')
     demand_loaded = False
     for d in A.get_demands():

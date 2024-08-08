@@ -314,6 +314,7 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
     ats = A.get_agent_types()
     column_pool = A.get_column_pool()
 
+    print('find user equilibrium (UE)')
     st = time()
 
     for i in range(column_gen_num):

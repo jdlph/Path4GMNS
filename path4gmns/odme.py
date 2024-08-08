@@ -2,6 +2,8 @@ __all__ = ['conduct_odme']
 
 
 def conduct_odme(ui, odme_update_num, dp_id=0):
+    print('conduct origin-destination demand matrix estimation (ODME)')
+    
     # base assignment
     A = ui._base_assignment
     # check whether dp_id (demand period id) exists or not

@@ -88,10 +88,10 @@ def _output_od_accessibility(min_travel_times, zones, mode, output_dir):
             writer.writerow(line)
 
         if output_dir == '.':
-            print(f'\ncheck od_accessibility.csv in {os.getcwd()} for OD accessibility')
+            print(f'check od_accessibility.csv in {os.getcwd()} for OD accessibility')
         else:
             print(
-                f'\ncheck od_accessibility.csv in {os.path.join(os.getcwd(), output_dir)}'
+                f'check od_accessibility.csv in {os.path.join(os.getcwd(), output_dir)}'
                 ' for OD accessibility'
             )
 
@@ -149,10 +149,10 @@ def _output_zone_accessibility(min_travel_times, interval_num,
                 writer.writerow(line)
 
         if output_dir == '.':
-            print(f'\ncheck zone_accessibility.csv in {os.getcwd()} for zone accessibility')
+            print(f'check zone_accessibility.csv in {os.getcwd()} for zone accessibility')
         else:
             print(
-                f'\ncheck zone_accessibility.csv in {os.path.join(os.getcwd(), output_dir)}'
+                f'check zone_accessibility.csv in {os.path.join(os.getcwd(), output_dir)}'
                 ' for zone accessibility'
             )
 

@@ -44,6 +44,8 @@ def perform_simple_simulation(ui, loading_profile='uniform'):
     A.initialize_simulation(loading_profile)
     if not A.get_agents():
         return
+    
+    print('conduct dynamic traffic assignment (DTA)')
 
     links = A.get_links()
     nodes = A.get_nodes()
