@@ -46,6 +46,7 @@ def read_nodes(input_dir,
             node_id = line['node_id']
             # node_id should be unique
             if node_id in map_id_to_no:
+                print(f'\tDuplicate node id found {node_id}. Record discarded!')
                 continue
 
             # set up zone_id
@@ -122,9 +123,15 @@ def read_links(input_dir,
 
         reader = csv.DictReader(fp)
         link_no = 0
+        # a temporary container (set) to validate the uniqueness of a link id
+        link_ids_ = set()
         for line in reader:
-            # it can be an empty string
+            # link id shall be unique
             link_id = line['link_id']
+            # binary search shall be fast enough
+            if link_id in link_ids_:
+                print(f'\tDuplicate link id found {link_id}. Record discarded!')
+                continue
 
             # validity check
             from_node_id = line['from_node_id']
@@ -314,6 +321,7 @@ def read_links(input_dir,
                 _update_dest_zone(dz_id)
 
             link_no += 1
+            link_ids_.add(link_id)
 
         print(f'the number of links is {link_no:,d}\n')
 
@@ -394,7 +402,7 @@ def load_demand(ui,
     """
     load demand for an agent type and a demand period
 
-    this is an user interface while read_demand() is intended for internal use.
+    this is an user interface while _read_demand() is intended for internal use.
     """
     A = ui._base_assignment
 
@@ -404,8 +412,8 @@ def load_demand(ui,
     _read_demand(input_dir, filename, at, dp, A.network.zones, A.column_pool, False)
 
 
-def read_zones(ui, input_dir='.', filename='syn_zone.csv'):
-    """ DEPRECATED! read zone.csv to set up zones """
+def _read_zones(ui, input_dir='.', filename='syn_zone.csv'):
+    """ read syn_zone.csv to set up (synthetic) zones """
     with open(input_dir+'/'+filename, 'r') as fp:
         print('read syn_zone.csv')
 
@@ -1428,7 +1436,7 @@ def read_demand(ui, save_synthetic_data=True, work_dir='.'):
         try:
             at = A.get_agent_type_id(d.get_agent_type_str())
             dp = A.get_demand_period_id(d.get_period())
-            read_zones(ui)
+            _read_zones(ui)
             _read_demand(
                 work_dir, filename, at, dp, A.network.zones, A.column_pool
             )
