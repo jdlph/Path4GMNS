@@ -53,9 +53,4 @@ As CMAKE_BUILD_TYPE will be IGNORED for IDE (Integrated Development Environment)
 .. code-block:: bash
 
     # from the root directory of PATH4GMNS
-    $ python setup.py sdist bdist_wheel
-    $ cd dist
-    $ python -m pip instal pypath4gmns-0.9.0-py3-none-any.whl
-    # or python -m pip install path4gmns-0.9.9.tar.gz
-
-Here, 0.9.9 is the version number. Replace it with the one specified in setup.py.
+    $ python -m pip install .

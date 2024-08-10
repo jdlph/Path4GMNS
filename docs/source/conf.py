@@ -12,6 +12,8 @@
 #
 import os
 import sys
+
+
 sys.path.insert(0, os.path.abspath('../../'))
 
 autodoc_mock_imports = [
@@ -22,7 +24,7 @@ autodoc_mock_imports = [
 # -- Project information -----------------------------------------------------
 
 project = 'Path4GMNS'
-copyright = '2021 - 2023, Dr. Peiheng Li and Dr. Xuesong (Simon) Zhou'
+copyright = '2021 - 2024, Dr. Peiheng Li and Dr. Xuesong (Simon) Zhou'
 author = 'Dr. Peiheng Li and Dr. Xuesong (Simon) Zhou'
 
 # The full version, including alpha/beta/rc tags
@@ -44,7 +46,7 @@ extensions = [
 ]
 
 source_suffix = [
-    '.rst', 
+    '.rst',
     '.md'
 ]
 

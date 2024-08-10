@@ -46,7 +46,7 @@ def read_nodes(input_dir,
             node_id = line['node_id']
             # node_id should be unique
             if node_id in map_id_to_no:
-                print(f'\tDuplicate node id found {node_id}. Record discarded!')
+                print(f'Duplicate node id found {node_id}. Record discarded!')
                 continue
 
             # set up zone_id
@@ -130,7 +130,7 @@ def read_links(input_dir,
             link_id = line['link_id']
             # binary search shall be fast enough
             if link_id in link_ids_:
-                print(f'\tDuplicate link id found {link_id}. Record discarded!')
+                print(f'Duplicate link id found {link_id}. Record discarded!')
                 continue
 
             # validity check
