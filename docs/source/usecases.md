@@ -16,7 +16,7 @@ Find the (static) shortest path (based on distance) and output it in the format 
 ```python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 # node path from node 1 to node 2
 print('\nshortest path (node id) from node 1 to node 2, '
@@ -31,7 +31,7 @@ You can specify the absolute path or the relative path from your cwd in read_net
 ```python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=False, input_dir='data/Chicago_Sketch')
+network = pg.read_network(input_dir='data/Chicago_Sketch')
 
 # node path from node 1 to node 2
 print('\nshortest path (node id) from node 1 to node 2, '
@@ -45,7 +45,7 @@ Retrieving the shortest path between any two (different) nodes under a specific 
 ```python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 # node path from node 1 to node 2 under mode w
 print('\nshortest path (node id) from node 1 to node 2, '
@@ -57,19 +57,20 @@ print('\nshortest path (link id) from node 1 to node 2, '
 
 The mode passed to find_shortest_path() must be defined in settings.yaml, which could be either the type or the name. Take the above sample code for example, the type 'w' and its name 'walk' are equivalent to each other. See **Perform Multimodal Accessibility Evaluation** for more information.
 
-## Perform Path-Based UE Traffic Assignment using the Python Column-Generation Module
+## Find Path-Based UE
 The Python column-generation module only implements path-based UE. If you need other assignment modes, e.g., link-based UE or DTA, please use perform_network_assignment_DTALite().
 
 ```python
 import path4gmns as pg
 
 network = pg.read_network()
+pg.read_demand(network)
 
+# path-based UE only
 column_gen_num = 20
 column_update_num = 10
 
-# path-based UE only
-pg.perform_column_generation(column_gen_num, column_update_num, network)
+pg.find_ue(network, column_gen_num, column_update_num)
 
 # if you do not want to include geometry info in the output file,
 # use pg.output_columns(network, False)
@@ -77,7 +78,7 @@ pg.output_columns(network)
 pg.output_link_performance(network)
 ```
 
-**NOTE THAT** you can still use the legacy _pg.perform_network_assignment(assignment_mode=1, column_gen_num, column_update_num, network)_ to perform the same functionality here. But it has been **deprecated**, and will be removed later.
+**NOTE THAT** you can still use the legacy _pg.perform_column_generation(column_gen_num, column_update_num, network)_ to perform the same functionality here. But it has been **deprecated**, and will be removed later.
 
 Starting from v0.7.0a1, Path4GMNS supports loading columns/paths from existing files (generated from either the Python module or DTALite) and continue the column-generation procedure from where you left. Please **skip the column generation stage** and go directly to column pool optimization by setting **column_gen_num = 0**.
 
@@ -85,7 +86,7 @@ Starting from v0.7.0a1, Path4GMNS supports loading columns/paths from existing f
 import path4gmns as pg
 
 # no need to load demand file as we will infer the demand from columns
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 # you can specify the input directory
 # e.g., pg.load_columns(network, 'data/Chicago_Sketch')
 pg.load_columns(network)
@@ -94,7 +95,7 @@ pg.load_columns(network)
 column_gen_num = 0
 column_update_num = 10
 
-pg.perform_column_generation(column_gen_num, column_update_num, network)
+pg.find_ue(network, column_gen_num, column_update_num)
 
 pg.output_columns(network)
 pg.output_link_performance(network)
@@ -215,7 +216,7 @@ If pyyaml is not installed or settings.yml is not provided, one demand period (A
 ```python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 print('\nstart accessibility evaluation\n')
 st = time()
@@ -231,7 +232,7 @@ Two formats of accessibility will be output: accessibility between each OD pair 
 ```python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 print('\nstart accessibility evaluation\n')
 st = time()
@@ -251,7 +252,7 @@ You can also get the accessible nodes and links within a time budget given a mod
 ```python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 # get accessible nodes and links starting from node 1 with a 5-minute
 # time window for the default mode auto (i.e., 'a')
@@ -275,7 +276,7 @@ Link travel time varies over time so does accessibility. When the time-dependent
 ```python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 print('\nstart accessibility evaluation\n')
 st = time()
@@ -301,7 +302,7 @@ Retrieve the time-dependent accessible nodes and links is similar to evaluate ti
 ```python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 # get accessible nodes and links starting from node 1 with a 5-minute
 # time window for the default mode auto (i.e., 'a') for demand period 0
@@ -330,7 +331,7 @@ They can be obtained via Path4GMNS of v0.8.3 or higher in a way very similar to 
 ```python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 print('\nstart equity evaluation\n')
 st = time()
@@ -389,11 +390,12 @@ perform_column_generation() shall be called in the first place to set up path fo
 import path4gmns as pg
 
 network = pg.read_network()
+pg.read_demand(network)
 
 # UE + DTA
 column_gen_num = 10
 column_update_num = 10
-pg.perform_column_generation(column_gen_num, column_update_num, network)
+pg.find_ue(network, column_gen_num, column_update_num)
 pg.perform_simple_simulation(network)
 print('complete dynamic simulation.\n')
 
@@ -407,10 +409,11 @@ If you have agent.csv (i.e.columns) from a previous run or DTALite, you can bypa
 import path4gmns as pg
 
 # no need to load demand file as we will infer the demand from columns
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 # load existing UE result
 pg.load_columns(network)
+
 # DTA
 pg.perform_simple_simulation(network)
 print('complete dynamic simulation.\n')
@@ -424,12 +427,13 @@ The original implementation introduced in v0.9.0 (that each agent follows the sh
 ```Python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
+pg.read_demand(network)
 
 # the following setting will set up the shortest path for each agent
 column_gen_num = 1
 column_update_num = 0
-pg.perform_column_generation(column_gen_num, column_update_num, network)
+pg.find_ue(network, column_gen_num, column_update_num)
 pg.perform_simple_simulation(network)
 print('complete dynamic simulation.\n')
 
@@ -438,8 +442,6 @@ pg.output_agent_trajectory(network)
 ```
 
 ## Synthesize Zones and OD Demand [Deprecated]
-
-This functionality has been deprecated since v0.9.9. Please use [grid2demand](https://pypi.org/project/grid2demand/) to prepare zone and demand files (i.e., node.csv and demand.csv).
 
 Zone information is crucial in conducting traffic assignment, evaluating accessibility and equity. When no zone information is provided along node.csv, Path4GMNS can automatically synthesize a total number of {math}`d * d` grids (rectangles) as zones given the dimension {math}`d`.
 
@@ -459,38 +461,36 @@ $$ vol_{ij} = prod_i \times \frac{attr_j }{\sum_{\substack{k\in D(i)}}attr_k}$$
 
 Note that we use this forgoing simple procedure to proportionally distribute demand for each OD pair rather than the gravity model and {math}`\sum_{\substack{i,j}} vol_{ij}` might be slightly different from {math}`demand` as a result of rounding errors in the distribution process.
 
-The following code snippet demonstrates how to synthesize zones and demand.
+The following code snippet demonstrates explicitly how to synthesize zones and demand.
 
 ```Python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=False)
+network = pg.read_network()
 
 print('\nstart zone synthesis')
 st = time()
-# by default, grid_dimension is 8, total_demand is 10,000,
+# by default, grid_dimension is 8, total_demand is 100,000,
 # time_budget is 120 min, mode is 'a'
 pg.network_to_zones(network)
-pg.output_zones(network)
-pg.output_synthesized_demand(network)
+pg.output_synthetic_zones(network)
+pg.output_synthetic_demand(network)
 
 print('complete zone and demand synthesis.\n')
 print(f'processing time of zone and demand synthesis: {time()-st:.2f} s')
 ```
-The synthesized zones and OD demand matrix will be output as zone.csv and demand.csv respectively. They can be loaded as offline files to perform some other functionalities from Path4GMNS (e.g., traffic assignment). The existing zone and demand information, if there is any, will be REWRITTEN upon the following reloading.
+The synthesized zones and OD demand matrix will be output as syn_zone.csv and syn_demand.csv respectively. They can be loaded as offline files to perform some other functionalities from Path4GMNS (e.g., traffic assignment). The existing zone information, if there is any (e.g., derived from node.csv), will be REWRITTEN upon the following reloading.
 
 ```Python
 import path4gmns as pg
 
-network = pg.read_network(load_demand=False)
-
-pg.read_zones(network)
-pg.load_demand(network)
+network = pg.read_network()
+pg.read_demand(network, load_synthetic_data=True)
 
 # perform some other functionalities from Path4GMNS, e.g., traffic assignment
 column_gen_num = 20
 column_update_num = 20
-pg.perform_column_generation(column_gen_num, column_update_num, network)
+pg.find_ue(network, column_gen_num, column_update_num)
 
 pg.output_columns(network)
 pg.output_link_performance(network)

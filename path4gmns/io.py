@@ -1391,46 +1391,51 @@ def read_measurements(ui, input_dir='.'):
         print(f'the number of valid measurements is {record_no}\n')
 
 
-def read_demand(ui, save_synthetic_data=True, work_dir='.'):
+def read_demand(ui, load_synthetic_data = False, save_synthetic_data=True, work_dir='.'):
     """ a dedicated API to read demand and zone information """
     A = ui._base_assignment
 
-    # set up capacity ratio of affected links from special event
-    for dp in A.demand_periods:
-        se = dp.special_event
-        if se is None:
-            continue
+    if not load_synthetic_data:
+        # set up capacity ratio of affected links from special event
+        for dp in A.demand_periods:
+            se = dp.special_event
+            if se is None:
+                continue
 
-        # k is link id and v is capacity ratio
-        for k, v in se.get_affected_links():
-            A.set_capacity_ratio(dp.get_id(), k, v)
+            # k is link id and v is capacity ratio
+            for k, v in se.get_affected_links():
+                A.set_capacity_ratio(dp.get_id(), k, v)
 
-    print('load demand')
-    print('Step 1: try to load the default demand file: demand.csv')
-    demand_loaded = False
-    for d in A.get_demands():
-        try:
-            at = A.get_agent_type_id(d.get_agent_type_str())
-            dp = A.get_demand_period_id(d.get_period())
-            _read_demand(work_dir,
-                         d.get_file_name(),
-                         at,
-                         dp,
-                         A.network.zones,
-                         A.column_pool)
+        print('load demand')
+        print('Step 1: try to load the default demand file: demand.csv')
+        demand_loaded = False
+        for d in A.get_demands():
+            try:
+                at = A.get_agent_type_id(d.get_agent_type_str())
+                dp = A.get_demand_period_id(d.get_period())
+                _read_demand(work_dir,
+                            d.get_file_name(),
+                            at,
+                            dp,
+                            A.network.zones,
+                            A.column_pool)
 
-            if not demand_loaded:
-                demand_loaded = True
-        except FileNotFoundError:
-            continue
+                if not demand_loaded:
+                    demand_loaded = True
+            except FileNotFoundError:
+                continue
 
-    if demand_loaded:
-        return
+        if demand_loaded:
+            return
+
+        print('the default demand files are NOT found!\n')
 
     # try to load the synthetic demand
     filename = 'syn_demand.csv'
-    print('the default demand files are NOT found!\n'
-          f'Step 2: attempt to load the synthetic data: {filename} and syn_zone.csv')
+    if load_synthetic_data:
+        print(f'attempt to load the synthetic data: {filename} and syn_zone.csv')
+    else:
+        print(f'Step 2: attempt to load the synthetic data: {filename} and syn_zone.csv')
 
     for d in A.get_demands():
         try:
@@ -1445,8 +1450,11 @@ def read_demand(ui, save_synthetic_data=True, work_dir='.'):
         except FileNotFoundError:
             break
 
-    print('the synthetic data is missing or incomplete!\n'
-          'Step 3: start to synthesize zones and demand!')
+    print('the synthetic data is missing or incomplete!\n')
+    if load_synthetic_data:
+        print('start to synthesize zones and demand!')
+    else:
+        print('Step 3: start to synthesize zones and demand!')
 
     # synthesize zones and demand
     network_to_zones(ui)

@@ -52,9 +52,11 @@
 50. Embed and support the latest [DTALite](https://github.com/asu-trans-ai-lab/DTALite) in addition to the existing [classic version](https://github.com/jdlph/DTALite) (v0.9.6)
 51. Complete update 47 introduced in v0.9.5 (v0.9.7)
 52. Introduce unit testing (v0.9.8)
-53. Support recurring calls of run_DTALite() in terminal and fixes issues regarding accessibility output (v0.9.8)
+53. Support recurring calls of run_DTALite() in terminal and fix issues regarding accessibility output (v0.9.8)
 54. Introduce ODME (v0.9.9)
-55. Reverse back to the original way of loading demand before v0.8.6 (v0.9.9)
-56. Deprecate zone and demand synthesis (v0.9.9)
+55. Fix bugs in loading synthetic zones and synthesizing demand (v0.9.9)
+56. Separate demand loading from read_network() (v0.9.9)
+57. Introduce a new public API read_demand() to unify demand and zone synthesis, and demand (and synthetic zone) loading (v0.9.9)
+58. Deprecate confusing perform_column_generation() and replace it with find_ue() (v0.9.9)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
