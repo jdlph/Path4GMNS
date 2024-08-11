@@ -1728,19 +1728,10 @@ class Assignment:
                 continue
 
             # link_capacity is for one hour, i.e., 3600 s
-            c1 = link.link_capacity / SECONDS_IN_HOUR * self.simu_rez
-            c2 = floor(c1)
-            residual = c1 - c2
-
-            r = uniform(0, 1)
-            if r >= residual:
-                residual = 1
-            else:
-                residual = 0
-
-            cap = c2 + residual
+            cap = ceil(link.link_capacity / SECONDS_IN_HOUR * self.simu_rez)
             n1 = self.get_total_simu_intervals()
             n2 = self.get_simu_duration()
+
             link.outflow_cap = [cap] * n1
             link.cum_arr = [0] * n1
             link.cum_dep = [0] * n1

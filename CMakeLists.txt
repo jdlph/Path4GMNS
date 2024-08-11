@@ -1,14 +1,13 @@
 cmake_minimum_required(VERSION 3.8)
-project(LocalPackageBuild)
+project(path4gmns)
 
-set(PACKAGE_NAME path4gmns)
 set(VER "" CACHE STRING "specific version number")
-set(INIT_FILE "${CMAKE_SOURCE_DIR}/${PACKAGE_NAME}/__init__.py")
+set(INIT_FILE "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/__init__.py")
 
 if (VER STREQUAL "")
-    set(PIP_INSTALL python -m pip install ${PACKAGE_NAME})
+    set(PIP_INSTALL python -m pip install ${PROJECT_NAME})
 else()
-    set(PIP_INSTALL python -m pip install ${PACKAGE_NAME}==${VER})
+    set(PIP_INSTALL python -m pip install ${PROJECT_NAME}==${VER})
 endif()
 
 function(get_version OUTPUT_VAR)
@@ -20,32 +19,32 @@ endfunction()
 get_version(LOCAL_VER)
 
 add_custom_target(build
-    COMMAND ${CMAKE_COMMAND} -E echo "-- building ${PACKAGE_NAME}-${LOCAL_VER}..."
+    COMMAND ${CMAKE_COMMAND} -E echo "-- building ${PROJECT_NAME}-${LOCAL_VER}..."
     COMMAND ${CMAKE_COMMAND} -E env python setup.py sdist bdist_wheel
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
 add_custom_target(dev_install ALL
-    COMMAND ${CMAKE_COMMAND} -E echo "-- development install: ${PACKAGE_NAME}-${LOCAL_VER}..."
+    COMMAND ${CMAKE_COMMAND} -E echo "-- development install: ${PROJECT_NAME}-${LOCAL_VER}..."
     COMMAND ${CMAKE_COMMAND} -E env python -m pip install -e ${CMAKE_SOURCE_DIR}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
 add_custom_target(pypi_install
-    COMMAND ${CMAKE_COMMAND} -E echo "-- PyPI install: ${PACKAGE_NAME}..."
+    COMMAND ${CMAKE_COMMAND} -E echo "-- PyPI install: ${PROJECT_NAME}..."
     COMMAND ${CMAKE_COMMAND} -E env ${PIP_INSTALL}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
 add_custom_target(regular_install
-    COMMAND ${CMAKE_COMMAND} -E echo "-- regular install: ${PACKAGE_NAME}-${LOCAL_VER}..."
+    COMMAND ${CMAKE_COMMAND} -E echo "-- regular install: ${PROJECT_NAME}-${LOCAL_VER}..."
     COMMAND ${CMAKE_COMMAND} -E env python -m pip install ${CMAKE_SOURCE_DIR}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
 add_custom_target(upgrade
-    COMMAND ${CMAKE_COMMAND} -E echo "-- upgrade ${PACKAGE_NAME} to the lastest from PyPI..."
-    COMMAND ${CMAKE_COMMAND} -E env python -m pip install --upgrade ${PACKAGE_NAME}
+    COMMAND ${CMAKE_COMMAND} -E echo "-- upgrade ${PROJECT_NAME} to the lastest from PyPI..."
+    COMMAND ${CMAKE_COMMAND} -E env python -m pip install --upgrade ${PROJECT_NAME}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
