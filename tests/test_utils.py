@@ -1,10 +1,7 @@
 from os import chdir, getcwd
 
-from path4gmns.utils import download_sample_data_sets, load_demand, \
-                            output_synthesized_demand, output_zones, \
-                            read_network, read_zones
-
-from path4gmns.zonesyn import network_to_zones
+from path4gmns.utils import download_sample_data_sets
+from path4gmns.io import read_demand, read_network
 
 
 def test_download_sample_data_sets(tmp_output_dir):
@@ -17,15 +14,8 @@ def test_download_sample_data_sets(tmp_output_dir):
 
 
 def test_data_synthesis(sample_data_dir, tmp_output_dir):
-    network = read_network(load_demand=False, input_dir=sample_data_dir)
-    network_to_zones(network)
+    network = read_network(input_dir=sample_data_dir)
 
-    output_zones(network, output_dir=tmp_output_dir)
-    output_synthesized_demand(network, output_dir=tmp_output_dir)
-
-
-def test_loading_synthesized_data(sample_data_dir, tmp_output_dir):
-    network = read_network(load_demand=False, input_dir=sample_data_dir)
-
-    read_zones(network, input_dir=tmp_output_dir)
-    load_demand(network, input_dir=tmp_output_dir, filename='demand.csv')
+    # try to load synthetic data if there is any. otherwise, synthesize demand
+    # and zones, and output them.
+    read_demand(network, load_synthetic_data = True, input_dir=tmp_output_dir)

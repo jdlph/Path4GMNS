@@ -1,16 +1,16 @@
 from os.path import isfile
 from random import randint
 
-from path4gmns.utils import output_agent_paths, read_network
+from path4gmns.io import output_agent_paths, read_network
 
 
 def test_routing_engine(sample_data_dir):
-    network = read_network(load_demand=False, input_dir=sample_data_dir)
+    network = read_network(input_dir=sample_data_dir)
     network.benchmark_apsp()
 
 
 def test_find_shortest_path(sample_data_dir):
-    network = read_network(load_demand=False, input_dir=sample_data_dir)
+    network = read_network(input_dir=sample_data_dir)
 
     # shortest path (node id) from node 1 to node 2
     network.find_shortest_path(1, 2)

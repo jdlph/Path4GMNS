@@ -58,5 +58,6 @@
 56. Separate demand loading from read_network() (v0.9.9)
 57. Introduce a new public API read_demand() to unify demand and zone synthesis, and demand (and synthetic zone) loading (v0.9.9)
 58. Deprecate confusing perform_column_generation() and replace it with find_ue() (v0.9.9)
+59. Add CMakeFiles.txt to better manage local builds and installs (v0.9.9)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
