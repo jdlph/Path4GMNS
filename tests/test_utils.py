@@ -18,4 +18,4 @@ def test_data_synthesis(sample_data_dir, tmp_output_dir):
 
     # try to load synthetic data if there is any. otherwise, synthesize demand
     # and zones, and output them.
-    read_demand(network, load_synthetic_data = True, input_dir=tmp_output_dir)
+    read_demand(network, use_synthetic_data = True, input_dir=tmp_output_dir)

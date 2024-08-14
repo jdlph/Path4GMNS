@@ -153,7 +153,7 @@ pg.perform_network_assignment_DTALite(mode, column_gen_num, column_update_num)
 # no need to call output_columns() and output_link_performance()
 # since outputs will be processed within DTALite
 
-print('\npath finding results can be found in agent.csv')
+print('\npath finding results can be found in route_assignment.csv')
 ```
 
 (target_to_paragraph)=
@@ -176,6 +176,48 @@ You will need to install libomp using [Homebrew](https://brew.sh/).
 
 ```
 $ brew install libomp
+```
+
+## Execute Origin-Destination Demand Matrix Estimation (ODME)
+
+ODME has been added to Path4GMNS since v0.9.9, which offers the same functionality as DTALite does. It intends to calibrate the UE result using observations (in terms of traffic counts) stated in measurement.csv. Therefore, UE is needed before running ODME.
+
+```python
+network = pg.read_network()
+
+pg.read_demand(network)
+
+# path-based UE
+column_gen_num = 20
+column_update_num = 20
+pg.find_ue(network, column_gen_num, column_update_num)
+
+# ODME
+pg.read_measurements(network)
+pg.conduct_odme(network, 20)
+
+# output column information to route_assignment.csv
+pg.output_columns(network)
+# output link performance to link_performance.csv
+pg.output_link_performance(network)
+```
+
+You can also load existing UE results and then run ODME.
+
+```python
+network = pg.read_network()
+
+# load existing UE result
+pg.load_columns(network)
+
+# ODME
+pg.conduct_odme(network, 20)
+pg.read_measurements(network)
+
+# output column information to route_assignment.csv
+pg.output_columns(network)
+# output link performance to link_performance.csv
+pg.output_link_performance(network)
 ```
 
 ## Evaluate Multimodal Accessibility
@@ -403,7 +445,7 @@ print('writing agent trajectories')
 pg.output_agent_trajectory(network)
 ```
 
-If you have agent.csv (i.e.columns) from a previous run or DTALite, you can bypass perform_column_generation() and directly load it to conduct simulation.
+If you have route_assignment.csv (i.e.columns) from a previous run or DTALite, you can bypass perform_column_generation() and directly load it to conduct simulation.
 
 ```python
 import path4gmns as pg
@@ -461,7 +503,7 @@ $$ vol_{ij} = prod_i \times \frac{attr_j }{\sum_{\substack{k\in D(i)}}attr_k}$$
 
 Note that we use this forgoing simple procedure to proportionally distribute demand for each OD pair rather than the gravity model and {math}`\sum_{\substack{i,j}} vol_{ij}` might be slightly different from {math}`demand` as a result of rounding errors in the distribution process.
 
-The following code snippet demonstrates explicitly how to synthesize zones and demand.
+The following code snippet demonstrates how to explicitly synthesize zones and demand.
 
 ```Python
 import path4gmns as pg
@@ -485,7 +527,7 @@ The synthesized zones and OD demand matrix will be output as syn_zone.csv and sy
 import path4gmns as pg
 
 network = pg.read_network()
-pg.read_demand(network, load_synthetic_data=True)
+pg.read_demand(network, use_synthetic_data=True)
 
 # perform some other functionalities from Path4GMNS, e.g., traffic assignment
 column_gen_num = 20

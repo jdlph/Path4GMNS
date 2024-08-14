@@ -1033,10 +1033,10 @@ def output_link_performance(ui, mode='ue', output_dir='.'):
                     writer.writerow(line)
 
         if output_dir == '.':
-            print(f'\ncheck link_performance.csv in {os.getcwd()} for link performance')
+            print(f'check link_performance.csv in {os.getcwd()} for link performance')
         else:
             print(
-                f'\ncheck link_performance.csv in {os.path.join(os.getcwd(), output_dir)}'
+                f'check link_performance.csv in {os.path.join(os.getcwd(), output_dir)}'
                 ' for link performance'
             )
 
@@ -1391,11 +1391,11 @@ def read_measurements(ui, input_dir='.'):
         print(f'the number of valid measurements is {record_no}\n')
 
 
-def read_demand(ui, load_synthetic_data = False, save_synthetic_data=True, work_dir='.'):
+def read_demand(ui, use_synthetic_data = False, save_synthetic_data=True, work_dir='.'):
     """ a dedicated API to read demand and zone information """
     A = ui._base_assignment
 
-    if not load_synthetic_data:
+    if not use_synthetic_data:
         # set up capacity ratio of affected links from special event
         for dp in A.demand_periods:
             se = dp.special_event
@@ -1432,7 +1432,7 @@ def read_demand(ui, load_synthetic_data = False, save_synthetic_data=True, work_
 
     # try to load the synthetic demand
     filename = 'syn_demand.csv'
-    if load_synthetic_data:
+    if use_synthetic_data:
         print(f'attempt to load the synthetic data: {filename} and syn_zone.csv')
     else:
         print(f'Step 2: attempt to load the synthetic data: {filename} and syn_zone.csv')
@@ -1451,7 +1451,7 @@ def read_demand(ui, load_synthetic_data = False, save_synthetic_data=True, work_
             break
 
     print('the synthetic data is missing or incomplete!\n')
-    if load_synthetic_data:
+    if use_synthetic_data:
         print('start to synthesize zones and demand!')
     else:
         print('Step 3: start to synthesize zones and demand!')

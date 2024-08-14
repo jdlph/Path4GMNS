@@ -243,7 +243,7 @@ def _update_column_attributes(column_pool, links, agent_types):
 
     rel_gap = total_gap / max(total_sys_travel_time, EPSILON)
     print('current iteration number in column update: postprocessing\n'
-          f'total gap: {total_gap:.4e}; relative gap: {rel_gap:.4%}')
+          f'total gap: {total_gap:.4e}; relative gap: {rel_gap:.4%}\n')
 
 
 def _generate(spn, column_pool, iter_num):
@@ -299,7 +299,7 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
     Note
     ----
     You will need to call output_columns() and output_link_performance() to
-    get the assignment results, i.e., paths/columns (in agent.csv) and
+    get the assignment results, i.e., paths/columns (in route_assignment.csv) and
     assigned volumes and other link attributes on each link (in l
     ink_performance.csv)
     """
