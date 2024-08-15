@@ -1290,6 +1290,7 @@ def output_agent_trajectory(ui, output_dir='.'):
 
 
 def read_measurements(ui, input_dir='.'):
+    """ load traffic observations specified in measurement.csv """
     with open(input_dir+'/measurement.csv') as fp:
         print('read measurement.csv')
 
