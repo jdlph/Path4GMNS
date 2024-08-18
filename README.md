@@ -9,40 +9,48 @@ Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path e
 2. performing path-based User-Equilibrium (UE) traffic assignment,
 3. conducting dynamic traffic assignment (DTA) after UE.
 4. evaluating multimodal accessibility and equity,
-5. synthesizing zones and Origin-Destination (OD) demand for a given network.
+5. making the Origin-Destination (OD) demand matrix estimation (ODME),
+6. synthesizing zones and Origin-Destination (OD) demand.
 
 Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jdlph/DTALite) to conduct various multimodal traffic assignments including,
    * Link-based UE,
    * Path-based UE,
    * UE + DTA,
-   * OD Matrix Estimation (ODME).
+   * ODME.
 
 ![Architecture](/docs/source/imgs/architecture.png)
 
 ## Quick Start
 
 1. **[Tutorial](https://github.com/jdlph/Path4GMNS/blob/master/tutorial/tutorial.ipynb)** written in Jupyter notebook with step-by-step demonstration.
-2. **[Documentation](https://path4gmns.readthedocs.io/en/latest/)** on Installation, Use Cases, Public API, and more.
+2. **[Documentation](https://path4gmns.readthedocs.io/en/stable/)** on Installation, Use Cases, Public API, and more.
 3. **[TransOMS](https://github.com/jdlph/TransOMS)** on the C++ equivalent.
 
-We highly recommend that you go through the above [Tutorial](https://github.com/jdlph/Path4GMNS/tree/dev/tutorial/tutorial.ipynb), no matter you are one of the existing users or new to Path4GMNS.
+We highly recommend that you go through the above [Tutorial](https://github.com/jdlph/Path4GMNS/blob/master/tutorial/tutorial.ipynb), no matter you are one of the existing users or new to Path4GMNS.
 
 ## Installation
-Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.9.8/), and can be installed using
+Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.9.9/), and can be installed using
 ```
 $ pip install path4gmns
 ```
 
-v0.9.8 fixes issues regarding accessibility output and run_DTALite(). Please **update to or install the latest version** and **discard all old versions**.
+> [!NOTE]
+> ODME is available with v0.9.9.
 
-> [!WARNING]
-> Any versions prior to v0.9.4 will generate INCORRECT simulation results.
+> [!IMPORTANT]
+v0.9.9 comes with bug fixes, new functionality, and performance improvement. Please **discard all old versions**.
 
-> [!WARNING]
+> [!CAUTION]
+> Any version prior to v0.9.4 will generate INCORRECT simulation results.
+
+> [!CAUTION]
 > Calling DTALite and synthesizing zones and OD demand are not functioning for [v0.9.5 and v0.9.6](https://github.com/jdlph/Path4GMNS/issues/41).
 
+> [!CAUTION]
+> Zone and demand synthesis is problematic for any version before v0.9.9.
+
 ### Dependency
-The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding **[Use Cases](https://path4gmns.readthedocs.io/en/latest/)**.
+The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding **[Use Cases](https://path4gmns.readthedocs.io/en/stable/)**.
 
 ## How to Cite
 

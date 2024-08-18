@@ -1,6 +1,6 @@
 import os
-import threading
 from datetime import timedelta
+from threading import Thread
 
 
 __all__ = ['download_sample_data_sets', 'download_sample_setting_file']
@@ -202,7 +202,7 @@ def download_sample_data_sets():
         # multi-threading
         threads = []
         for x in files:
-            t = threading.Thread(
+            t = Thread(
                 target=_download_url,
                 args=(web_dir+x, x, loc_sub_dir)
             )
@@ -218,7 +218,7 @@ def download_sample_data_sets():
 
 def download_sample_setting_file():
     """ download the sample settings.yml from the Github repo """
-    url = 'https://raw.githubusercontent.com/jdlph/Path4GMNS/dev/tests/settings.yml'
+    url = 'https://raw.githubusercontent.com/jdlph/Path4GMNS/master/data/Chicago_Sketch/settings.yml'
     filename = 'settings.yml'
     loc_dir = './'
 

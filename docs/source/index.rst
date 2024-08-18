@@ -18,8 +18,8 @@ Path4GMNS supports, in short,
 2. performing path-based User-Equilibrium (UE) traffic assignment,
 3. conducting dynamic traffic assignment (DTA) after UE.
 4. evaluating multimodal accessibility and equity,
-5. making the Origin-Destination (OD) demand matrix estimation (ODME) for a given network,
-6. [Deprecated] synthesizing zones and Origin-Destination (OD) demand for a given network.
+5. making the Origin-Destination (OD) demand matrix estimation (ODME),
+6. synthesizing zones and Origin-Destination (OD) demand.
 
 Path4GMNS also serves as an API to the C++-based
 `DTALite <https://github.com/jdlph/DTALite>`_ to conduct various multimodal
@@ -37,7 +37,7 @@ Quick Start
 -----------
 
 We highly recommend that you go through
-`this tutorial <https://github.com/jdlph/Path4GMNS/blob/dev/tutorial/tutorial.ipynb>`_
+`this tutorial <https://github.com/jdlph/Path4GMNS/blob/master/tutorial/tutorial.ipynb>`_
 written in Jupyter notebook with step-by-step demonstration using the latest
 version, no matter you are one of the existing users or new to Path4GMNS.
 

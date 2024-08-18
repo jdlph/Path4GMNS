@@ -4,6 +4,7 @@ from .dtaapi import *
 from .io import *
 from .odme import *
 from .simulation import *
+from .utils import *
 from .zonesyn import *
 
 
