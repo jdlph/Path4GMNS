@@ -15,7 +15,14 @@ agents:
     pce: 1
     free_speed: 10
     use_link_ffs: false
-  
+  - type: b
+    name: bike
+    vot: 10
+    flow_type: 0
+    pce: 1
+    free_speed: 20
+    use_link_ffs: false
+
 demand_periods:
   - period: AM
     time_period: 0700-0800

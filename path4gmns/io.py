@@ -347,12 +347,14 @@ def _read_demand(input_dir,
         for line in reader:
             oz_id = line['o_zone_id']
             # o_zone_id does not exist in node.csv, discard it
-            if oz_id not in zones:
+            # f'{oz_id}.0' not in zones is to accommodate GRID2DEMAND, where
+            # zone_id could be decimal.
+            if oz_id not in zones and f'{oz_id}.0' not in zones:
                 continue
 
             dz_id = line['d_zone_id']
             # d_zone_id does not exist in node.csv, discard it
-            if dz_id not in zones:
+            if dz_id not in zones and f'{dz_id}.0' not in zones:
                 continue
 
             try:
@@ -372,7 +374,8 @@ def _read_demand(input_dir,
                 continue
 
             # precheck on connectivity of each OD pair
-            if check_connectivity and not _are_od_connected(oz_id, dz_id):
+            if check_connectivity and not (_are_od_connected(oz_id, dz_id)
+                                           or _are_od_connected(f'{oz_id}.0', f'{dz_id}.0')):
                 continue
 
             # set up volume for ColumnVec
@@ -1415,11 +1418,11 @@ def read_demand(ui, use_synthetic_data = False, save_synthetic_data=True, work_d
                 at = A.get_agent_type_id(d.get_agent_type_str())
                 dp = A.get_demand_period_id(d.get_period())
                 _read_demand(work_dir,
-                            d.get_file_name(),
-                            at,
-                            dp,
-                            A.network.zones,
-                            A.column_pool)
+                             d.get_file_name(),
+                             at,
+                             dp,
+                             A.network.zones,
+                             A.column_pool)
 
                 if not demand_loaded:
                     demand_loaded = True
