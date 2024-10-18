@@ -34,11 +34,11 @@ Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.9.9/
 $ pip install path4gmns
 ```
 
-> [!NOTE]
-> ODME is available with v0.9.9.
-
 > [!IMPORTANT]
 v0.9.9 comes with bug fixes, new functionality, and performance improvement. Please **discard all old versions**.
+
+> [!NOTE]
+> ODME is now available with v0.9.9.
 
 > [!CAUTION]
 > Any version prior to v0.9.4 will generate INCORRECT simulation results.
@@ -47,14 +47,14 @@ v0.9.9 comes with bug fixes, new functionality, and performance improvement. Ple
 > Calling DTALite and synthesizing zones and OD demand are not functioning for [v0.9.5 and v0.9.6](https://github.com/jdlph/Path4GMNS/issues/41).
 
 > [!CAUTION]
-> Zone and demand synthesis is problematic for any version before v0.9.9.
+> Zone and demand synthesis is PROBLEMATIC for any version before v0.9.9.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding **[Use Cases](https://path4gmns.readthedocs.io/en/stable/)**.
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2023, December 17). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2024, October 17). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## Please Contribute
 

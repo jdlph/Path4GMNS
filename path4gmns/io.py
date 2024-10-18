@@ -22,7 +22,7 @@ __all__ = [
     'output_columns',
     'output_link_performance',
     'output_agent_paths',
-    'output_agent_trajectory,'
+    'output_agent_trajectory',
     'output_synthetic_zones',
     'output_synthetic_demand'
 ]
