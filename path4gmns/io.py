@@ -22,9 +22,9 @@ __all__ = [
     'output_columns',
     'output_link_performance',
     'output_agent_paths',
+    'output_agent_trajectory,'
     'output_synthetic_zones',
-    'output_synthetic_demand',
-    'output_agent_trajectory'
+    'output_synthetic_demand'
 ]
 
 
@@ -1395,7 +1395,7 @@ def read_measurements(ui, input_dir='.'):
         print(f'the number of valid measurements is {record_no}\n')
 
 
-def read_demand(ui, use_synthetic_data = False, save_synthetic_data=True, work_dir='.'):
+def read_demand(ui, use_synthetic_data = False, save_synthetic_data=True, input_dir='.'):
     """ a dedicated API to read demand and zone information """
     A = ui._base_assignment
 
@@ -1417,7 +1417,7 @@ def read_demand(ui, use_synthetic_data = False, save_synthetic_data=True, work_d
             try:
                 at = A.get_agent_type_id(d.get_agent_type_str())
                 dp = A.get_demand_period_id(d.get_period())
-                _read_demand(work_dir,
+                _read_demand(input_dir,
                              d.get_file_name(),
                              at,
                              dp,
@@ -1447,7 +1447,7 @@ def read_demand(ui, use_synthetic_data = False, save_synthetic_data=True, work_d
             dp = A.get_demand_period_id(d.get_period())
             _read_zones(ui)
             _read_demand(
-                work_dir, filename, at, dp, A.network.zones, A.column_pool
+                input_dir, filename, at, dp, A.network.zones, A.column_pool
             )
             # early termination to load only one synthetic demand file
             return
@@ -1465,5 +1465,5 @@ def read_demand(ui, use_synthetic_data = False, save_synthetic_data=True, work_d
     print('data synthesis is complete!')
 
     if save_synthetic_data:
-        output_synthetic_zones(ui, work_dir)
-        output_synthetic_demand(ui, work_dir)
+        output_synthetic_zones(ui, input_dir)
+        output_synthetic_demand(ui, input_dir)

@@ -16,9 +16,11 @@ def test_classic_dtalite(sample_data_dir, mode = 1):
     chdir(ORIG_DIR)
 
 
-def test_multimodal_dtalite(sample_data_dir):
-    chdir(sample_data_dir)
+# disable it from now on (10/16/24) as run_DTALite() requires a different
+# settings.yml
+# def test_multimodal_dtalite(sample_data_dir):
+#     chdir(sample_data_dir)
 
-    run_DTALite()
+#     run_DTALite()
 
-    chdir(ORIG_DIR)
+#     chdir(ORIG_DIR)

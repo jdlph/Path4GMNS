@@ -28,21 +28,23 @@ path4gmns.conduct_odme
 
 path4gmns.colgen
 ================
+.. autofunction:: path4gmns.colgen.find_ue
 .. autofunction:: path4gmns.colgen.perform_column_generation
 .. autofunction:: path4gmns.colgen.perform_network_assignment
   
 
 path4gmns.io
 ============
-.. autofunction:: path4gmns.utils.read_network
-.. autofunction:: path4gmns.utils.read_zones
-.. autofunction:: path4gmns.utils.load_demand
-.. autofunction:: path4gmns.utils.load_columns
-.. autofunction:: path4gmns.utils.output_link_performance
-.. autofunction:: path4gmns.utils.output_agent_paths
-.. autofunction:: path4gmns.utils.output_zones
-.. autofunction:: path4gmns.utils.output_synthetic_zones
-.. autofunction:: path4gmns.utils.output_synthetic_demand
+.. autofunction:: path4gmns.io.read_demand
+.. autofunction:: path4gmns.io.read_measurements
+.. autofunction:: path4gmns.io.read_network
+.. autofunction:: path4gmns.io.load_demand
+.. autofunction:: path4gmns.io.load_columns
+.. autofunction:: path4gmns.io.output_link_performance
+.. autofunction:: path4gmns.io.output_agent_paths
+.. autofunction:: path4gmns.io.output_agent_trajectory
+.. autofunction:: path4gmns.io.output_synthetic_zones
+.. autofunction:: path4gmns.io.output_synthetic_demand
 
 
 path4gmns.simulation

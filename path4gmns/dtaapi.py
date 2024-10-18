@@ -144,7 +144,7 @@ def run_DTALite():
     This version of DTALite includes all-new Logbook, enhanced scenario handling,
     improved I/O functionality, and so on.
 
-    Its source code can be found at https://github.com/asu-trans-ai-lab/DTALite.
+    Its source code can be found at https://github.com/asu-trans-ai-lab/DTALite/tree/feature/multimodal.
 
     Parameters
     ----------
@@ -156,11 +156,10 @@ def run_DTALite():
 
     Note
     ----
-    It is compatible with the classic DTALite and the corresponding data sets
-    from https://github.com/jdlph/Path4GMNS/tree/dev/data.
+    It is NOT compatible with the classic DTALite (i.e., perform_network_assignment_DTALite()).
 
-    Additional data set can be found at
-    https://github.com/asu-trans-ai-lab/DTALite/tree/main/data.
+    Only use the following data set from
+    https://github.com/asu-trans-ai-lab/DTALite/tree/feature/multimodal/data.
 
     Please run the script calling this API using system terminal rather than
     Python console for proper logging.

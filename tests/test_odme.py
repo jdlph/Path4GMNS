@@ -19,7 +19,7 @@ def test_odme(sample_data_dir, tmp_output_dir):
         column_update_num = 20
         find_ue(network, column_gen_num, column_update_num)
 
-    read_measurements(input_dir=sample_data_dir)
+    read_measurements(network, input_dir=sample_data_dir)
     # ODME
     odme_update_num = 20
     conduct_odme(network, odme_update_num)

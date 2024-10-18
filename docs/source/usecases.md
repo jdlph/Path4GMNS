@@ -363,10 +363,10 @@ network.get_accessible_links(1, 15, 'w', time_dependent=True, demand_period_id=1
 
 Transportation equity is accessibility with respect to different demographics. Path4GMNS provides the following simple info and statistics on equity given a time budget and a segmentation of zones (e.g., zones can be grouped into a set of bins according to income level and each zone will have a unique bin index). The current implementation takes bin index of each zone from node.csv under column "bin_index" (via node-to-zone mapping), which is error prone. As a zone might have more than one node, it may encounter inconsistent bin indices over a set of nodes corresponding to the same zone. In case of that, the first bin index encountered for each zone in loading node.csv is always used for evaluation. 0 is taken as default if column "bin_index" or the value of an entry is missing.
 
-1. accessible zones.
-2. min accessibility. Each zone has a list of accessible zones given a time budget and a transportation mode. This metric refers to the zone with the minimum number of accessible zones. This number and the zone ID will both be output. Note that there could be multiple zones with the same minimum number of accessible zones and only the first zone will be in the output.
-3. max accessibility.
-4. mean accessibility. The average number of accessible zones over a bin of zones (corresponding to a specific demographic) given a time budget and a transportation mode.
+1. **accessible zones**.
+2. **min accessibility**. Each zone has a list of accessible zones given a time budget and a transportation mode. This metric refers to the zone with the minimum number of accessible zones. This number and the zone ID will both be output. Note that there could be multiple zones with the same minimum number of accessible zones and only the first zone will be in the output.
+3. **max accessibility**.
+4. **mean accessibility**. The average number of accessible zones over a bin of zones (corresponding to a specific demographic) given a time budget and a transportation mode.
 
 They can be obtained via Path4GMNS of v0.8.3 or higher in a way very similar to the process of evaluating accessibility.
 
@@ -426,7 +426,7 @@ simulation:
   resolution: 6
 ```
 
-perform_column_generation() shall be called in the first place to set up path for each agent before simulation.
+find_ue() shall be called in the first place to set up path for each agent before simulation.
 
 ```Python
 import path4gmns as pg
@@ -445,7 +445,7 @@ print('writing agent trajectories')
 pg.output_agent_trajectory(network)
 ```
 
-If you have route_assignment.csv (i.e.columns) from a previous run or DTALite, you can bypass perform_column_generation() and directly load it to conduct simulation.
+If you have route_assignment.csv (i.e.columns) from a previous run or DTALite, you can bypass find_ue() and directly load it to conduct simulation.
 
 ```python
 import path4gmns as pg

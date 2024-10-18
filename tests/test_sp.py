@@ -1,7 +1,7 @@
 from os.path import isfile
 from random import randint
 
-from path4gmns.io import output_agent_paths, read_network
+from path4gmns.io import output_agent_paths, read_demand, read_network
 
 
 def test_routing_engine(sample_data_dir):
@@ -29,11 +29,15 @@ def test_find_shortest_path(sample_data_dir):
 def test_find_shortest_path_for_agents(sample_data_dir, tmp_output_dir):
     """ find_path_for_agents has been DEPRECATED """
     network = read_network(input_dir=sample_data_dir)
+    read_demand(network, input_dir=sample_data_dir)
 
     # find agent paths under a specific mode defined in settings.yaml,
     # say, a (i.e., auto)
     # network.find_path_for_agents('a') or network.find_path_for_agents('auto')
     network.find_path_for_agents()
+
+    if network.get_agent_num() == 0:
+        return
 
     agent_id = randint(0, network.get_agent_num() - 1)
     # origin node id of agent

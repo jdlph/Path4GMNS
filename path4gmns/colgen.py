@@ -300,8 +300,7 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
     ----
     You will need to call output_columns() and output_link_performance() to
     get the assignment results, i.e., paths/columns (in route_assignment.csv) and
-    assigned volumes and other link attributes on each link (in l
-    ink_performance.csv)
+    assigned volumes and other link attributes on each link (in link_performance.csv)
     """
     # make sure iteration numbers are both non-negative
     assert(column_gen_num>=0)
@@ -355,7 +354,7 @@ def update_links_using_columns(network):
 
 
 def perform_network_assignment(assignment_mode, column_gen_num, column_update_num, ui):
-    """DEPRECATED Column Generation API
+    """DEPRECATED Column Generation API. Use find_ue() instead!
 
     Keep it here as legacy support for existing users who already get used to it
     """
