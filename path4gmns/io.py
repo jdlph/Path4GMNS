@@ -347,14 +347,12 @@ def _read_demand(input_dir,
         for line in reader:
             oz_id = line['o_zone_id']
             # o_zone_id does not exist in node.csv, discard it
-            # f'{oz_id}.0' not in zones is to accommodate GRID2DEMAND, where
-            # zone_id could be decimal.
-            if oz_id not in zones and f'{oz_id}.0' not in zones:
+            if oz_id not in zones:
                 continue
 
             dz_id = line['d_zone_id']
             # d_zone_id does not exist in node.csv, discard it
-            if dz_id not in zones and f'{dz_id}.0' not in zones:
+            if dz_id not in zones:
                 continue
 
             try:
@@ -374,8 +372,7 @@ def _read_demand(input_dir,
                 continue
 
             # precheck on connectivity of each OD pair
-            if check_connectivity and not (_are_od_connected(oz_id, dz_id)
-                                           or _are_od_connected(f'{oz_id}.0', f'{dz_id}.0')):
+            if check_connectivity and not (_are_od_connected(oz_id, dz_id)):
                 continue
 
             # set up volume for ColumnVec
@@ -393,7 +390,9 @@ def _read_demand(input_dir,
         if valid_vol == 0:
             raise Exception(
                 'NO VALID OD VOLUME!! Double check your demand.csv and '
-                'make sure there is zone info in node.csv'
+                'make sure there is zone info in node.csv/n'
+                'hint: inconsistent zone id representations (integer vs. decimal) '
+                'in demand.csv and node.csv could lead to this exception'
             )
 
 
@@ -562,7 +561,7 @@ def read_settings(input_dir, assignment):
         import yaml as ym
 
         with open(input_dir+'/settings.yml') as file:
-            print('read settings.yml')
+            print('read settings.yml/n')
 
             settings = ym.full_load(file)
 
