@@ -384,16 +384,41 @@ def _read_demand(input_dir,
 
         print(
             f'the total valid demand is {valid_vol:,.3f}\n'
-            f'{invalid_od_num:,d} invalid OD pairs are found. Total discarded volume: {invalid_vol:,.2f}\n'
+            f'{invalid_od_num:,d} invalid OD pairs are found. '
+            f'Total discarded volume: {invalid_vol:,.2f}\n'
         )
 
         if valid_vol == 0:
-            raise Exception(
-                'NO VALID OD VOLUME!! Double check your demand.csv and '
-                'make sure there is zone info in node.csv/n'
-                'hint: inconsistent zone id representations (integer vs. decimal) '
-                'in demand.csv and node.csv could lead to this exception'
-            )
+            # there are four cases.
+            # Case I:   zones is empty
+            #           This shall be caught by read_node().
+            # Case II:  zones is not empty and invalid_od_num == 0
+            #           Every zone_id present in demand.csv is not found in
+            #           node.csv. This implies data inconsistency between these
+            #           two files on zone_id). Another possibility is that volume
+            #           is not numerical.
+            # Case III: zones is not empty, invalid_od_num > 0, and invalid_vol == 0
+            #           All OD pairs in demand.csv have invalid volume (i.e.,
+            #           volume is zero or less).
+            # Case IV:  zones is not empty, invalid_od_num > 0, and invalid_vol > 0
+            #           This implies either O and D are the same for every OD
+            #           pair or no OD pair is not connected.
+            if invalid_od_num == 0:
+                message = 'volume is not encoded as numerical or Every zone id ' \
+                          'present in demand.csv is not found in node.csv.\n\n' \
+                          'For the latter one, different zone id representations ' \
+                          'could be the reason. For example, zone id is encoded ' \
+                          'as integer in demand.csv but decimal in node.csv. ' \
+                          'Note that zone_id CANNOT be decimal per GMNS specification!\n'\
+                          'Hint: Use an advanced text editor (not Excel) to verify. '
+            elif invalid_od_num > 0 and invalid_vol == 0:
+                message = 'At lease one OD pair shall have positive volume!\n'
+            else:
+                message = 'No connected OD pairs are found (i.e., no valid paths ' \
+                          'between O and D for each OD pair) or Every OD pair ' \
+                          'have the same O and D!\n'
+
+            raise Exception(message)
 
 
 def load_demand(ui,
@@ -561,7 +586,7 @@ def read_settings(input_dir, assignment):
         import yaml as ym
 
         with open(input_dir+'/settings.yml') as file:
-            print('read settings.yml/n')
+            print('read settings.yml\n')
 
             settings = ym.full_load(file)
 
@@ -583,7 +608,7 @@ def read_settings(input_dir, assignment):
                 try:
                     agent_use_link_ffs = a['use_link_ffs']
                 except KeyError:
-                    agent_use_link_ffs= True
+                    agent_use_link_ffs = True
 
                 at = AgentType(i,
                                agent_type,

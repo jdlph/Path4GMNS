@@ -3,7 +3,7 @@ from collections import deque
 from copy import deepcopy
 from datetime import datetime
 from math import ceil, floor
-from random import choice, randint, uniform
+from random import choice, randint
 
 from .consts import EPSILON, MAX_LABEL_COST, SECONDS_IN_MINUTE, SECONDS_IN_HOUR
 from .path import find_path_for_agents, find_shortest_path, \
@@ -1072,36 +1072,18 @@ class SPNetwork(Network):
     """ attributes related to outputs from shortest path calculations """
     def __init__(self, base, at, dp):
         self.base = base
+        self.nodes = self.base.get_nodes()
+        self.links = self.base.get_links()
+        self.node_size = base.get_node_size()
+        self.link_size = base.get_link_size()
         # AgentType object
         self.agent_type = at
         # DemandPeriod object
         self.demand_period = dp
-
-        # this is necessary for each instance of SPNetwork
-        # to retrieve network topology
-        if not base.capi_allocated:
-            base.allocate_for_CAPI()
-
-        # set up attributes unique to each instance
-        node_preds = [-1] * base.node_size
-        link_preds = [-1] * base.node_size
-        node_labels = [MAX_LABEL_COST] * base.node_size
-        queue_next = [0] * base.node_size
-        link_cost_arr = [link.fftt for link in base.links]
-
-        int_arr_node = ctypes.c_int * base.node_size
-        double_arr_node = ctypes.c_double * base.node_size
-        double_arr_link = ctypes.c_double * base.link_size
-
-        self.node_preds = int_arr_node(*node_preds)
-        self.link_preds = int_arr_node(*link_preds)
-        self.node_label_cost = double_arr_node(*node_labels)
-        self.link_cost_array = double_arr_link(*link_cost_arr)
-        self.queue_next = int_arr_node(*queue_next)
-
         # zone sequence no
         self.orig_zones = []
-        self.capi_allocated = True
+        self.capi_allocated = False
+        super().allocate_for_CAPI()
 
     def allocate_for_CAPI(self):
         pass
@@ -1119,44 +1101,39 @@ class SPNetwork(Network):
     def get_demand_period(self):
         return self.demand_period
 
-    # the following ten are shared by all SPNetwork as network topology
     def get_node_size(self):
-        return self.base.get_node_size()
+        return super().get_node_size()
 
     def get_link_size(self):
-        return self.base.get_link_size()
+        return super().get_link_size()
 
     def get_nodes(self):
-        return self.base.get_nodes()
-
-    def get_link(self, seq_no):
-        self.base.get_link(seq_no)
+        return super().get_nodes()
 
     def get_links(self):
-        return self.base.get_links()
+        return super().get_links()
 
     def get_zones(self):
-        return self.base.get_zones()
+        return super().get_zones()
 
     def get_from_node_no_arr(self):
-        return self.base.get_from_node_no_arr()
+        return super().get_from_node_no_arr()
 
     def get_to_node_no_arr(self):
-        return self.base.get_to_node_no_arr()
+        return super().get_to_node_no_arr()
 
     def get_first_links(self):
-        return self.base.get_first_links()
+        return super().get_first_links()
 
     def get_last_links(self):
-        return self.base.get_last_links()
+        return super().get_last_links()
 
     def get_sorted_link_no_arr(self):
-        return self.base.get_sorted_link_no_arr()
+        return super().get_sorted_link_no_arr()
 
     def get_allowed_uses(self):
-        return self.base.get_allowed_uses()
+        return super().get_allowed_uses()
 
-    # the following five are unique to each SPNetwork
     def get_node_preds(self):
         return super().get_node_preds()
 
@@ -1172,6 +1149,8 @@ class SPNetwork(Network):
     def get_queue_next(self):
         return super().get_queue_next()
 
+    # the following three are shared by all SPNetworks as the underlying 
+    # network topology
     def get_last_thru_node(self):
         """ node no of the first potential centroid """
         return self.base.get_last_thru_node()
@@ -1193,8 +1172,8 @@ class AccessNetwork(Network):
         self.zones = self.base.zones
         self.map_id_to_no = self.base.map_id_to_no
         self.map_no_to_id = self.base.map_no_to_id
-        self.node_size = base.get_node_size()
-        self.link_size = base.get_link_size()
+        self.node_size = self.base.get_node_size()
+        self.link_size = self.base.get_link_size()
         self.centroids_added = self.base.centroids_added
         self.agent_type_name = 'all'
         self.pre_source_node_id = ''
@@ -1210,6 +1189,8 @@ class AccessNetwork(Network):
         # deep copy
         self.nodes = deepcopy(self.nodes)
         self.links = deepcopy(self.links)
+        self.map_id_to_no = deepcopy(self.map_id_to_no)
+        self.map_no_to_id = deepcopy(self.map_no_to_id)
 
         super().add_centroids_connectors()
 
@@ -1277,6 +1258,7 @@ class AccessNetwork(Network):
     def get_node_label_costs(self):
         return super().get_node_label_costs()
 
+    # this function does not exist in class Network
     def get_node_label_cost(self, node_no):
         return self.node_label_cost[node_no]
 

@@ -24,22 +24,22 @@ add_custom_target(build
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
-add_custom_target(dev_install ALL
+add_custom_target(dev-install ALL
     COMMAND ${CMAKE_COMMAND} -E echo "-- development install: ${PROJECT_NAME}-${LOCAL_VER}..."
     COMMAND ${CMAKE_COMMAND} -E env python -m pip install -e ${CMAKE_SOURCE_DIR}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
-add_custom_target(pypi_install
+add_custom_target(pypi-install
     COMMAND ${CMAKE_COMMAND} -E echo "-- PyPI install: ${PROJECT_NAME}..."
-    COMMAND ${CMAKE_COMMAND} -E env python -m pip uninstall ${PROJECT_NAME}
+    COMMAND ${CMAKE_COMMAND} -E env python -m pip uninstall -y ${PROJECT_NAME}
     COMMAND ${CMAKE_COMMAND} -E env ${PIP_INSTALL}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
-add_custom_target(regular_install
+add_custom_target(reg-install
     COMMAND ${CMAKE_COMMAND} -E echo "-- regular install: ${PROJECT_NAME}-${LOCAL_VER}..."
-    COMMAND ${CMAKE_COMMAND} -E env python -m pip uninstall ${PROJECT_NAME}
+    COMMAND ${CMAKE_COMMAND} -E env python -m pip uninstall -y ${PROJECT_NAME}
     COMMAND ${CMAKE_COMMAND} -E env python -m pip install ${CMAKE_SOURCE_DIR}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
@@ -50,7 +50,7 @@ add_custom_target(upgrade
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
-add_custom_target(clean_cache
+add_custom_target(clean-cache
     COMMAND ${CMAKE_COMMAND} -E echo "-- cleaning up CMake temporary dir and files..."
     COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_BINARY_DIR}/CMakeFiles"
     COMMAND ${CMAKE_COMMAND} -E remove "${CMAKE_BINARY_DIR}/CMakeCache.txt"
