@@ -59,5 +59,7 @@
 57. Introduce a new public API read_demand() to unify demand and zone synthesis, and demand (and synthetic zone) loading (v0.9.9)
 58. Deprecate confusing perform_column_generation() and replace it with find_ue() (v0.9.9)
 59. Add CMakeFiles.txt to better manage local builds and installs (v0.9.9)
+60. Reestablish cross-validation of zone id in node.csv and demand.csv (which was dropped in v0.9.9) (v0.9.9.post1)
+61. Fix potential inconsistency in essential arrays (between the underlying physical network and the shortest path network (i.e., SPNetwork)) for shortest path calculation, which would lead to [OSError](https://github.com/jdlph/Path4GMNS/issues/51) (v0.9.9.post1)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
