@@ -211,8 +211,8 @@ network = pg.read_network()
 pg.load_columns(network)
 
 # ODME
-pg.conduct_odme(network, 20)
 pg.read_measurements(network)
+pg.conduct_odme(network, 20)
 
 # output column information to route_assignment.csv
 pg.output_columns(network)
