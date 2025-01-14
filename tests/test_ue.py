@@ -26,15 +26,15 @@ def test_finding_ue_with_rel_gap_tolerance(sample_data_dir, tmp_output_dir):
     read_demand(network, input_dir=sample_data_dir)
 
     column_gen_num = 10
-    column_upd_num = 10
+    column_update_num = 10
     rel_gap_tolerance = 0.2
 
     _, rel_gap, i = find_ue(
-        network, column_gen_num, column_upd_num, rel_gap_tolerance=rel_gap_tolerance
+        network, column_gen_num, column_update_num, rel_gap_tolerance=rel_gap_tolerance
     )
 
     assert rel_gap <= rel_gap_tolerance
-    assert i <= column_upd_num
+    assert i <= column_update_num
 
 
 def test_loading_columns(sample_data_dir, tmp_output_dir):

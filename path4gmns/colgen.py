@@ -399,7 +399,7 @@ def perform_network_assignment(assignment_mode, column_gen_num, column_update_nu
     perform_column_generation(column_gen_num, column_update_num, ui)
 
 
-def find_ue(ui, column_gen_num, column_upd_num, rel_gap_tolerance=None):
+def find_ue(ui, column_gen_num, column_update_num, rel_gap_tolerance=None):
     """Find User Equilibrium (UE) using path/column-based assignment.
 
     This function implements path/column-based User Equilibrium (UE) in Python. For other assignment
@@ -436,6 +436,6 @@ def find_ue(ui, column_gen_num, column_upd_num, rel_gap_tolerance=None):
     >>> total_gap, rel_gap, iterations = find_ue(network_ui, 10, 5, 0.01)
     """
     total_gap, rel_gap, i = perform_column_generation(
-        column_gen_num, column_upd_num, rel_gap_tolerance, ui
+        column_gen_num, column_update_num, rel_gap_tolerance, ui
     )
     return total_gap, rel_gap, i
