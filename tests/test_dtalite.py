@@ -1,6 +1,6 @@
 from os import chdir, getcwd
 
-from path4gmns.dtaapi import perform_network_assignment_DTALite, run_DTALite
+from path4gmns.dtaapi import perform_network_assignment_DTALite
 
 
 ORIG_DIR = getcwd()

@@ -24,8 +24,9 @@ elif _os.startswith('Darwin'):
         _dtalite_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALite_arm.dylib')
         _dtalitemm_dll = os.path.join(os.path.dirname(__file__), 'bin/DTALiteMM_arm.dylib')
 else:
-    raise Exception('Please build the shared library compatible to your OS\
-                    using source files')
+    raise Exception(
+        'Please build the shared library compatible to your OS using source files'
+    )
 
 
 def _emit_log(log_file='log_main.txt'):

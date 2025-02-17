@@ -145,7 +145,7 @@ def _download_url(url, filename, loc_dir):
     try:
         import requests
     except ImportError:
-        print('please print requests to proceed downloading!!')
+        print('please install requests to proceed downloading!!')
 
     try:
         r = requests.get(url)

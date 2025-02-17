@@ -1529,12 +1529,16 @@ class Assignment:
         #                                    column_update_num)
         pass
 
-    def setup_spnetwork(self):
+    def setup_spnetwork(self, column_pool=None):
         if self.has_created_spnet:
             return
-
+        
         self.network.add_centroids_connectors()
+
         spvec = {}
+        partial_keys = {}
+        if column_pool is not None:
+            partial_keys = {k[:3]: None for k in column_pool}        
 
         # z is zone id
         for z in self.get_zones():
@@ -1544,7 +1548,12 @@ class Assignment:
             for d in self.demands:
                 at = self.get_agent_type(d.get_agent_type_str())
                 dp = self.get_demand_period(d.get_period())
-                k = (at.get_id(), dp.get_id())
+                pk = (at.get_id(), dp.get_id(), z)
+
+                if partial_keys and pk not in partial_keys:
+                    continue
+
+                k = pk[:2]
                 if k not in spvec:
                     sp = SPNetwork(self.network, at, dp)
                     spvec[k] = sp

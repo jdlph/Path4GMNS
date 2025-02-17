@@ -8,7 +8,7 @@ from .utils import *
 from .zonesyn import *
 
 
-__version__ = '0.9.9.post1'
+__version__ = '0.9.10'
 
 
 # print out the current version

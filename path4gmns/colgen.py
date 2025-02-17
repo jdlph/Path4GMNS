@@ -55,7 +55,8 @@ def _update_link_and_column_volume(column_pool, links, iter_num, reduce_path_vol
             # 06/11/24: if we check cv.is_route_fixed() here,
             # 1. shall we check it anywhere else??
             # 2. is it really necessary?
-            if reduce_path_vol and not cv.is_route_fixed():
+            # if reduce_path_vol and not cv.is_route_fixed():
+            if reduce_path_vol:
                 col.vol *= iter_num / (iter_num + 1)
 
 
@@ -86,7 +87,7 @@ def _update_column_gradient_cost_and_flow(column_pool, links, agent_types, iter_
                 least_gradient_cost_path_id = col.get_id()
 
         total_switched_out_path_vol = 0
-        if cv.get_column_num() >= 2:
+        if cv.get_column_num() > 1:
             for col in cv.get_columns():
                 if col.get_id() == least_gradient_cost_path_id:
                     continue
@@ -147,8 +148,9 @@ def _backtrace_shortest_path_tree(centroid,
             continue
 
         cv = column_pool[(at_id, dp_id, oz_id, dz_id)]
-        if cv.is_route_fixed():
-            continue
+        # disable it as it is always false
+        # if cv.is_route_fixed():
+        #     continue
 
         link_path = []
         dist = 0
@@ -311,9 +313,10 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
     # set up SPNetwork
     A.setup_spnetwork()
 
-    links = A.get_links()
     ats = A.get_agent_types()
     column_pool = A.get_column_pool()
+    links = A.get_links()
+    spns = A.get_spnetworks()
 
     print('find user equilibrium (UE)')
     st = time()
@@ -324,9 +327,9 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
         _update_link_and_column_volume(column_pool, links, i)
         _update_link_travel_time(links)
         # update generalized link cost before assignment
-        _update_link_cost_array(A.get_spnetworks())
+        _update_link_cost_array(spns)
         # loop through all centroids on the base network
-        _generate_column_pool(A.get_spnetworks(), column_pool, i)
+        _generate_column_pool(spns, column_pool, i)
 
     print(f'\nprocessing time of generating columns: {time()-st:.2f} s\n')
 
