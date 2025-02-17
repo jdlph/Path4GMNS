@@ -310,12 +310,11 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
     # base assignment
     A = ui._base_assignment
     # set up SPNetwork
-    A.setup_spnetwork()
+    A.setup_spnetwork(True)
 
     ats = A.get_agent_types()
     column_pool = A.get_column_pool()
     links = A.get_links()
-    spns = A.get_spnetworks()
 
     print('find user equilibrium (UE)')
     st = time()
@@ -326,9 +325,9 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
         _update_link_and_column_volume(column_pool, links, i)
         _update_link_travel_time(links)
         # update generalized link cost before assignment
-        _update_link_cost_array(spns)
+        _update_link_cost_array(A.get_spnetworks())
         # loop through all centroids on the base network
-        _generate_column_pool(spns, column_pool, i)
+        _generate_column_pool(A.get_spnetworks(), column_pool, i)
 
     print(f'\nprocessing time of generating columns: {time()-st:.2f} s\n')
 

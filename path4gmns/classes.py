@@ -713,7 +713,7 @@ class Network:
 
     def get_node_label_costs(self):
         return self.node_label_cost
-    
+
     def get_node_label_cost(self, node_no):
         return self.node_label_cost[node_no]
 
@@ -728,7 +728,7 @@ class Network:
 
     def get_link(self, seq_no):
         return self.links[seq_no]
-    
+
     def get_node(self, node_id):
         return self.nodes[self.get_node_no(node_id)]
 
@@ -1092,9 +1092,9 @@ class SPNetwork(Network):
 
     def get_demand_period(self):
         return self.demand_period
-    
+
     def get_node_no(self, node_id):
-        return super().get_node_no(node_id)
+        return self.base.get_node_no(node_id)
 
     def get_node_size(self):
         return super().get_node_size()
@@ -1144,7 +1144,7 @@ class SPNetwork(Network):
     def get_queue_next(self):
         return super().get_queue_next()
 
-    # the following three are shared by all SPNetworks as the underlying 
+    # the following three are shared by all SPNetworks as the underlying
     # network topology
     def get_last_thru_node(self):
         """ node no of the first potential centroid """
@@ -1217,7 +1217,7 @@ class AccessNetwork(Network):
 
     def get_centroids(self):
         return super().get_centroids()
-    
+
     def get_node(self, node_id):
         return super().get_node(node_id)
 
@@ -1524,16 +1524,16 @@ class Assignment:
         #                                    column_update_num)
         pass
 
-    def setup_spnetwork(self, column_pool=None):
+    def setup_spnetwork(self, demand_directive=False):
         if self.has_created_spnet:
             return
-        
+
         self.network.add_centroids_connectors()
 
         spvec = {}
         partial_keys = {}
-        if column_pool is not None:
-            partial_keys = {k[:3]: None for k in column_pool}        
+        if demand_directive:
+            partial_keys = {k[:3]: None for k in self.column_pool}
 
         # z is zone id
         for z in self.get_zones():
@@ -1545,7 +1545,7 @@ class Assignment:
                 dp = self.get_demand_period(d.get_period())
                 pk = (at.get_id(), dp.get_id(), z)
 
-                if partial_keys and pk not in partial_keys:
+                if demand_directive and pk not in partial_keys:
                     continue
 
                 k = pk[:2]
