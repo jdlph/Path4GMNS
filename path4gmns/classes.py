@@ -728,6 +728,9 @@ class Network:
 
     def get_link(self, seq_no):
         return self.links[seq_no]
+    
+    def get_node(self, node_id):
+        return self.nodes[self.get_node_no(node_id)]
 
     def get_agent_type_name(self):
         """ for allowed uses in single_source_shortest_path()"""
@@ -1080,9 +1083,6 @@ class SPNetwork(Network):
     def allocate_for_CAPI(self):
         pass
 
-    def get_node_no(self, node_id):
-        return self.base.get_node_no(node_id)
-
     def get_agent_type(self):
         return self.agent_type
 
@@ -1092,6 +1092,9 @@ class SPNetwork(Network):
 
     def get_demand_period(self):
         return self.demand_period
+    
+    def get_node_no(self, node_id):
+        return super().get_node_no(node_id)
 
     def get_node_size(self):
         return super().get_node_size()
@@ -1161,6 +1164,7 @@ class AccessNetwork(Network):
         self.base = base
         self.nodes = self.base.get_nodes()
         self.links = self.base.get_links()
+        # it will be used by add_centroids_connectors()
         self.zones = self.base.zones
         self.map_id_to_no = self.base.map_id_to_no
         self.map_no_to_id = self.base.map_no_to_id
@@ -1185,7 +1189,7 @@ class AccessNetwork(Network):
         super().add_centroids_connectors()
 
     def get_zones(self):
-        return self.base.get_zones()
+        return super().get_zones()
 
     def get_nodes_from_zone(self, zone_id):
         return self.base.get_nodes_from_zone(zone_id)
@@ -1193,8 +1197,7 @@ class AccessNetwork(Network):
     def _get_zone_coord(self, zone_id):
         """ coordinate of each zone is from its first node """
         node_id = self.get_nodes_from_zone(zone_id)[0]
-        node_no = self.base.get_node_no(node_id)
-        node = self.base.get_nodes()[node_no]
+        node = self.get_node(node_id)
         return node.coord_x, node.coord_y
 
     def set_target_mode(self, mode):
@@ -1213,10 +1216,13 @@ class AccessNetwork(Network):
         return self.agent_type_name
 
     def get_centroids(self):
-        return self.base.get_centroids()
+        return super().get_centroids()
+    
+    def get_node(self, node_id):
+        return super().get_node(node_id)
 
     def get_node_no(self, node_id):
-        return self.map_id_to_no[node_id]
+        return super().get_node_no(node_id)
 
     def get_node_size(self):
         return super().get_node_size()
