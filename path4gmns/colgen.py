@@ -250,8 +250,7 @@ def _update_column_attributes(column_pool, links, agent_types):
 
 def _generate(spn, column_pool, iter_num):
     for c in spn.get_orig_centroids():
-        node_id = c.get_node_id()
-        single_source_shortest_path(spn, node_id)
+        single_source_shortest_path(spn, c.get_node_id())
 
         _backtrace_shortest_path_tree(c,
                                       spn.get_centroids(),

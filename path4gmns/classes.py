@@ -388,9 +388,6 @@ class Network:
         self.nodes = []
         self.links = []
         self.agents = []
-        self.node_size = 0
-        self.link_size = 0
-        self.agent_size = 0
         # key: node id, value: node seq no
         self.map_id_to_no = {}
         # key: node seq no, value: node id
@@ -411,10 +408,7 @@ class Network:
         self.td_agents = {}
 
     def update(self):
-        self.node_size = len(self.nodes)
-        self.link_size = len(self.links)
-        self.agent_size = len(self.agents)
-        self.last_thru_node = self.node_size
+        self.last_thru_node = self.get_node_size()
         self.activity_node_num = sum(
             z.get_activity_nodes_num() for z in self.zones.values()
         )
@@ -424,8 +418,8 @@ class Network:
         if self.capi_allocated:
             return
 
-        node_size = self.node_size
-        link_size = self.link_size
+        node_size = self.get_node_size()
+        link_size = self.get_link_size()
 
         # initialization for predecessors and label costs
         node_preds = [-1] * node_size
@@ -484,8 +478,8 @@ class Network:
         if self.centroids_added:
             return
 
-        node_no = self.node_size
-        link_no = self.link_size
+        node_no = self.get_node_size()
+        link_no = self.get_link_size()
         # get zones
         for z in self.get_zones():
             if not z:
@@ -555,8 +549,6 @@ class Network:
 
             node_no += 1
 
-        self.node_size = len(self.nodes)
-        self.link_size = len(self.links)
         self.centroids_added = True
 
     def setup_agents(self, column_pool):
@@ -598,8 +590,7 @@ class Network:
 
                 self.agents.append(agent)
 
-        self.agent_size = len(self.agents)
-        print(f'the number of agents is {self.agent_size}')
+        print(f'the number of agents is {len(self.agents)}')
 
     def _get_agent(self, agent_no):
         """ retrieve agent using agent_no """
@@ -672,7 +663,7 @@ class Network:
         return agent.get_dest_node_id()
 
     def get_agent_count(self):
-        return self.agent_size
+        return len(self.agents)
 
     def get_nodes_from_zone(self, zone_id):
         return self.zones[zone_id].get_nodes()
@@ -681,10 +672,10 @@ class Network:
         return self.map_id_to_no[node_id]
 
     def get_node_size(self):
-        return self.node_size
+        return len(self.nodes)
 
     def get_link_size(self):
-        return self.link_size
+        return len(self.links)
 
     def get_nodes(self):
         return self.nodes
@@ -722,6 +713,9 @@ class Network:
 
     def get_node_label_costs(self):
         return self.node_label_cost
+    
+    def get_node_label_cost(self, node_no):
+        return self.node_label_cost[node_no]
 
     def get_link_costs(self):
         return self.link_cost_array
@@ -1074,8 +1068,6 @@ class SPNetwork(Network):
         self.base = base
         self.nodes = self.base.get_nodes()
         self.links = self.base.get_links()
-        self.node_size = base.get_node_size()
-        self.link_size = base.get_link_size()
         # AgentType object
         self.agent_type = at
         # DemandPeriod object
@@ -1172,8 +1164,6 @@ class AccessNetwork(Network):
         self.zones = self.base.zones
         self.map_id_to_no = self.base.map_id_to_no
         self.map_no_to_id = self.base.map_no_to_id
-        self.node_size = self.base.get_node_size()
-        self.link_size = self.base.get_link_size()
         self.centroids_added = self.base.centroids_added
         self.agent_type_name = 'all'
         self.pre_source_node_id = ''
@@ -1258,9 +1248,8 @@ class AccessNetwork(Network):
     def get_node_label_costs(self):
         return super().get_node_label_costs()
 
-    # this function does not exist in class Network
     def get_node_label_cost(self, node_no):
-        return self.node_label_cost[node_no]
+        return super().get_node_label_cost(node_no)
 
     def get_link_costs(self):
         return super().get_link_costs()
@@ -1273,7 +1262,7 @@ class AccessNetwork(Network):
 
     def get_last_thru_node(self):
         """ node no of the first centroid """
-        return self.base.get_node_size()
+        return self.base.get_last_thru_node()
 
     def get_pred_link_id(self, node_id):
         """ return id of the predecessor link to node_id """
@@ -1635,9 +1624,7 @@ class Assignment:
         nodes = self.get_accessible_nodes(source_node_id, time_budget,
                                           mode, time_dependent, tau)
         # convert to link id's
-        return [
-            self.accessnetwork.get_pred_link_id(x) for x in nodes
-        ]
+        return [self.accessnetwork.get_pred_link_id(x) for x in nodes]
 
     def get_total_simu_intervals(self):
         return ceil(self.simu_dur * 60 / self.simu_rez)
