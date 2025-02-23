@@ -133,9 +133,6 @@ def _backtrace_shortest_path_tree(centroid,
                                   column_pool,
                                   iter_num):
 
-    if not centroid.has_outgoing_links():
-        return
-
     oz_id = centroid.get_zone_id()
     k_path_prob = 1 / (iter_num + 1)
 
@@ -330,6 +327,7 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
         _generate_column_pool(A.get_spnetworks(), column_pool, i)
 
     print(f'\nprocessing time of generating columns: {time()-st:.2f} s\n')
+    st = time()
 
     for i in range(column_update_num):
         _update_link_and_column_volume(column_pool, links, i, False)
@@ -340,6 +338,8 @@ def perform_column_generation(column_gen_num, column_update_num, ui):
     _update_link_and_column_volume(column_pool, links, column_gen_num, False)
     _update_link_travel_time(links)
     _update_column_attributes(column_pool, links, ats)
+
+    print(f'processing time of updating columns and postprocessing: {time()-st:.2f} s\n')
 
 
 def update_links_using_columns(network):

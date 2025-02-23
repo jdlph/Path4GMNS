@@ -1524,6 +1524,9 @@ class Assignment:
         #                                    column_update_num)
         pass
 
+    def _has_outgoing_links(self, zone_id):
+        return self.network.zones[zone_id].get_centroid().has_outgoing_links()
+
     def setup_spnetwork(self, demand_directive=False):
         if self.has_created_spnet:
             return
@@ -1537,7 +1540,7 @@ class Assignment:
 
         # z is zone id
         for z in self.get_zones():
-            if not z:
+            if not z or not self._has_outgoing_links(z):
                 continue
 
             for d in self.demands:

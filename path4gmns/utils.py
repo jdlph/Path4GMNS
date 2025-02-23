@@ -141,17 +141,16 @@ def _get_time_stamp(minute):
     return str(timedelta(seconds=s))
 
 
-def _download_url(url, filename, loc_dir):
+def _download_url(url, filename, loc_dir):        
     try:
         import requests
-    except ImportError:
-        print('please install requests to proceed downloading!!')
 
-    try:
         r = requests.get(url)
         r.raise_for_status()
         with open(loc_dir+filename, 'wb') as f:
             f.write(r.content)
+    except ImportError:
+        print('please install requests to proceed downloading!!')
     except requests.HTTPError:
         print(f'file not existing: {url}')
     except requests.ConnectionError:
