@@ -58,7 +58,7 @@ print('\nshortest path (link id) from node 1 to node 2, '
 The mode passed to find_shortest_path() must be defined in settings.yaml, which could be either the type or the name. Take the above sample code for example, the type 'w' and its name 'walk' are equivalent to each other. See **Perform Multimodal Accessibility Evaluation** for more information.
 
 ## Find Path-Based UE
-The Python column-generation module only implements path-based UE. If you need other assignment modes, e.g., link-based UE or DTA, please use perform_network_assignment_DTALite().
+The Python column-generation module only implements path-based UE. If you need other assignment modes, e.g., link-based UE or DTA, please use perform_network_assignment_DTALite(). Note that **column_gen_num** below specifies the maximum number of paths / columns for each OD pair.
 
 ```python
 import path4gmns as pg
@@ -68,17 +68,15 @@ pg.read_demand(network)
 
 # path-based UE only
 column_gen_num = 20
-column_update_num = 10
+column_upd_num = 20
 
-pg.find_ue(network, column_gen_num, column_update_num)
+pg.find_ue(network, column_gen_num, column_upd_num)
 
 # if you do not want to include geometry info in the output file,
 # use pg.output_columns(network, False)
 pg.output_columns(network)
 pg.output_link_performance(network)
 ```
-
-**NOTE THAT** you can still use the legacy _pg.perform_column_generation(column_gen_num, column_update_num, network)_ to perform the same functionality here. But it has been **deprecated**, and will be removed later.
 
 Starting from v0.7.0a1, Path4GMNS supports loading columns/paths from existing files (generated from either the Python module or DTALite) and continue the column-generation procedure from where you left. Please **skip the column generation stage** and go directly to column pool optimization by setting **column_gen_num = 0**.
 
@@ -93,10 +91,31 @@ pg.load_columns(network)
 
 # we recommend NOT doing assignment again after loading columns
 column_gen_num = 0
-column_update_num = 10
+column_upd_num = 20
 
-pg.find_ue(network, column_gen_num, column_update_num)
+pg.find_ue(network, column_gen_num, column_upd_num)
 
+pg.output_columns(network)
+pg.output_link_performance(network)
+```
+
+v0.9.10 enables the return of the relative gap and provides users more flexibility to control UE convergency.
+```python
+import path4gmns as pg
+
+# path-based UE only
+column_gen_num = 20
+column_upd_num = 20
+
+rel_gap = pg.find_ue(network, column_gen_num, column_upd_num)
+rel_gap_tolerance = 0.00001
+
+column_upd_num = 10
+while rel_gap > rel_gap_tolerance:
+    rel_gap = pg.find_ue(network, 0, column_upd_num)
+
+# if you do not want to include geometry info in the output file,
+# use pg.output_columns(network, False)
 pg.output_columns(network)
 pg.output_link_performance(network)
 ```
@@ -145,10 +164,10 @@ import path4gmns as pg
 
 # path-based UE
 mode = 1
-column_gen_num = 10
-column_update_num = 10
+column_gen_num = 20
+column_upd_num = 20
 
-pg.perform_network_assignment_DTALite(mode, column_gen_num, column_update_num)
+pg.perform_network_assignment_DTALite(mode, column_gen_num, column_upd_num)
 
 # no need to call output_columns() and output_link_performance()
 # since outputs will be processed within DTALite
@@ -189,8 +208,8 @@ pg.read_demand(network)
 
 # path-based UE
 column_gen_num = 20
-column_update_num = 20
-pg.find_ue(network, column_gen_num, column_update_num)
+column_upd_num = 20
+pg.find_ue(network, column_gen_num, column_upd_num)
 
 # ODME
 pg.read_measurements(network)
@@ -211,8 +230,9 @@ network = pg.read_network()
 pg.load_columns(network)
 
 # ODME
+odme_upd_num = 20
 pg.read_measurements(network)
-pg.conduct_odme(network, 20)
+pg.conduct_odme(network, odme_upd_num)
 
 # output column information to route_assignment.csv
 pg.output_columns(network)
@@ -435,9 +455,9 @@ network = pg.read_network()
 pg.read_demand(network)
 
 # UE + DTA
-column_gen_num = 10
-column_update_num = 10
-pg.find_ue(network, column_gen_num, column_update_num)
+column_gen_num = 20
+column_upd_num = 20
+pg.find_ue(network, column_gen_num, column_upd_num)
 pg.perform_simple_simulation(network)
 print('complete dynamic simulation.\n')
 
@@ -464,7 +484,7 @@ print('writing agent trajectories')
 pg.output_agent_trajectory(network)
 ```
 
-The original implementation introduced in v0.9.0 (that each agent follows the shortest path from origin to destination) has been disabled. If you are still interested in traffic simulation using shortest paths, it can be achieved by setting column_gen_num as 1 and column_update_num as 0 illustrated below.
+The original implementation introduced in v0.9.0 (that each agent follows the shortest path from origin to destination) has been disabled. If you are still interested in traffic simulation using shortest paths, it can be achieved by setting column_gen_num as 1 and column_upd_num as 0 illustrated below.
 
 ```Python
 import path4gmns as pg
@@ -474,8 +494,8 @@ pg.read_demand(network)
 
 # the following setting will set up the shortest path for each agent
 column_gen_num = 1
-column_update_num = 0
-pg.find_ue(network, column_gen_num, column_update_num)
+column_upd_num = 0
+pg.find_ue(network, column_gen_num, column_upd_num)
 pg.perform_simple_simulation(network)
 print('complete dynamic simulation.\n')
 
@@ -531,8 +551,8 @@ pg.read_demand(network, use_synthetic_data=True)
 
 # perform some other functionalities from Path4GMNS, e.g., traffic assignment
 column_gen_num = 20
-column_update_num = 20
-pg.find_ue(network, column_gen_num, column_update_num)
+column_upd_num = 20
+pg.find_ue(network, column_gen_num, column_upd_num)
 
 pg.output_columns(network)
 pg.output_link_performance(network)

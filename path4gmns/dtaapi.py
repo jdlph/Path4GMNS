@@ -37,7 +37,7 @@ def _emit_log(log_file='log_main.txt'):
 
 def perform_network_assignment_DTALite(assignment_mode,
                                        column_gen_num,
-                                       column_update_num):
+                                       column_upd_num):
     """ DEPRECATED Python interface to call DTALite (precompiled as shared library)
 
     perform network assignment using the selected assignment mode
@@ -62,7 +62,7 @@ def perform_network_assignment_DTALite(assignment_mode,
     column_gen_num
         number of iterations to be performed before on generating column pool
 
-    column_update_iter
+    column_upd_num
         number of iterations to be performed on optimizing column pool
 
     Returns
@@ -88,7 +88,7 @@ def perform_network_assignment_DTALite(assignment_mode,
     assert(assignment_mode in [0, 1, 2, 3])
     # make sure iteration numbers are both non-negative
     assert(column_gen_num>=0)
-    assert(column_update_num>=0)
+    assert(column_upd_num>=0)
 
     _dtalite_engine = ctypes.cdll.LoadLibrary(_dtalite_dll)
     _dtalite_engine.network_assignment.argtypes = [ctypes.c_int,
@@ -102,7 +102,7 @@ def perform_network_assignment_DTALite(assignment_mode,
     if _os.startswith('Windows'):
         _dtalite_engine.network_assignment(assignment_mode,
                                            column_gen_num,
-                                           column_update_num)
+                                           column_upd_num)
 
         _emit_log()
 
@@ -117,7 +117,7 @@ def perform_network_assignment_DTALite(assignment_mode,
         # OSError: [WinError 87] The parameter is incorrect
         proc_dta = Process(
             target=_dtalite_engine.network_assignment,
-            args=(assignment_mode, column_gen_num, column_update_num,)
+            args=(assignment_mode, column_gen_num, column_upd_num,)
         )
 
         proc_print = Process(target=_emit_log)

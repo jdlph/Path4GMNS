@@ -202,7 +202,7 @@ def _update_column_attributes(column_pool, links, agent_types):
         i = 0
         for col in cv.get_columns():
             if not col.get_volume():
-                col.reset()
+                del col
                 continue
 
             # reset column id
@@ -243,6 +243,8 @@ def _update_column_attributes(column_pool, links, agent_types):
     rel_gap = total_gap / max(total_sys_travel_time, EPSILON)
     print('current iteration number in column update: postprocessing\n'
           f'total gap: {total_gap:.4e}; relative gap: {rel_gap:.4%}\n')
+
+    return rel_gap
 
 
 def _generate(spn, column_pool, iter_num):
@@ -303,7 +305,8 @@ def find_ue(ui, column_gen_num, column_upd_num):
 
     Returns
     -------
-    None
+    rel_gap
+        relative GAP to measure the UE convergency
 
     Note
     ----
@@ -348,6 +351,8 @@ def find_ue(ui, column_gen_num, column_upd_num):
     # postprocessing
     _update_link_and_column_volume(column_pool, links, column_gen_num, False)
     _update_link_travel_time(links)
-    _update_column_attributes(column_pool, links, ats)
+    rel_gap = _update_column_attributes(column_pool, links, ats)
 
     print(f'processing time of updating columns and postprocessing: {time()-st:.2f} s\n')
+
+    return rel_gap

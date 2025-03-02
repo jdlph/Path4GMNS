@@ -10,8 +10,8 @@ def test_classic_dtalite(sample_data_dir, mode = 1):
     chdir(sample_data_dir)
 
     column_gen_num = 20
-    column_update_num = 20
-    perform_network_assignment_DTALite(mode, column_gen_num, column_update_num)
+    column_upd_num = 20
+    perform_network_assignment_DTALite(mode, column_gen_num, column_upd_num)
 
     chdir(ORIG_DIR)
 

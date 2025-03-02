@@ -1512,16 +1512,16 @@ class Assignment:
         benchmark_apsp(self.network)
 
     def perform_network_assignment(self, assignment_mode,
-                                   iter_num, column_update_num):
-        # perform_network_assignment(assignment_mode, iter_num, column_update_num)
+                                   iter_num, column_upd_num):
+        # perform_network_assignment(assignment_mode, iter_num, column_upd_num)
         pass
 
     def perform_network_assignment_DTALite(self, assignment_mode,
-                                           iter_num, column_update_num):
+                                           iter_num, column_upd_num):
 
         # perform_network_assignment_DTALite(assignment_mode,
         #                                    iter_num,
-        #                                    column_update_num)
+        #                                    column_upd_num)
         pass
 
     def _has_outgoing_links(self, zone_id):

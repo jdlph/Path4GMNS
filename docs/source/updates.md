@@ -44,7 +44,7 @@
 42. Enhance DemandPeriod setup on time_period (v0.9.4)
 43. Fix multiple bugs related to simulation including calculation of agent arrival time and agent waiting time, link traverse time, and link outflow cap (v0.9.4)
 44. Remove memory_blocks and its implementations (which were intended for multiprocessing) (v0.9.4)
-45. Bring back the postprocessing after UE in case users do not do column updating (i.e., column_update_num = 0) (v0.9.4)
+45. Bring back the postprocessing after UE in case users do not do column updating (i.e., column_upd_num = 0) (v0.9.4)
 46. Drop the requirement that node id must be integer (v0.9.5)
 47. Drop the requirement that zone id must be integer (v0.9.5)
 48. Eliminate ultra-low-volume columns from assignment (v0.9.6)

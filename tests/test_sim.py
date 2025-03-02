@@ -16,8 +16,8 @@ def test_simulation(sample_data_dir, tmp_output_dir):
     else:
         read_demand(network, input_dir=sample_data_dir)
         column_gen_num = 20
-        column_update_num = 20
-        find_ue(network, column_gen_num, column_update_num)
+        column_upd_num = 20
+        find_ue(network, column_gen_num, column_upd_num)
 
     # simulation
     perform_simple_simulation(network, 'uniform')
