@@ -1543,19 +1543,6 @@ class Assignment:
     def benchmark_apsp(self):
         benchmark_apsp(self.network)
 
-    def perform_network_assignment(self, assignment_mode,
-                                   iter_num, column_upd_num):
-        # perform_network_assignment(assignment_mode, iter_num, column_upd_num)
-        pass
-
-    def perform_network_assignment_DTALite(self, assignment_mode,
-                                           iter_num, column_upd_num):
-
-        # perform_network_assignment_DTALite(assignment_mode,
-        #                                    iter_num,
-        #                                    column_upd_num)
-        pass
-
     def _has_outgoing_links(self, zone_id):
         return self.network.zones[zone_id].get_centroid().has_outgoing_links()
 

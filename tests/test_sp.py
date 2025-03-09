@@ -12,26 +12,26 @@ def test_routing_engine(sample_data_dir):
 def test_find_shortest_path(sample_data_dir):
     network = read_network(input_dir=sample_data_dir)
 
-    # shortest path (node id) from node 1 to node 2
+    # shortest path (node id) from node 1 to node 2 measured by time
     network.find_shortest_path(1, 2)
-    # shortest path (link id) from node 1 to node 2
+    # shortest path (link id) from node 1 to node 2 measured by time
     network.find_shortest_path(1, 2, seq_type='link')
 
-    # shortest path (node id) from node 1 to node 2
+    # shortest path (node id) from node 1 to node 2 measured by distance
     network.find_shortest_path(1, 2, cost_type='distance')
-    # shortest path (link id) from node 1 to node 2
+    # shortest path (link id) from node 1 to node 2 measured by distance
     network.find_shortest_path(1, 2, seq_type='link', cost_type='distance')
 
     # retrieve the shortest path under a specific mode (which must be defined
     # in settings.yaml)
     if isfile(sample_data_dir + '/settings.yml'):
-        # shortest path (node id) from node 1 to node 2
+        # shortest path (node id) from node 1 to node 2 measured by time
         network.find_shortest_path(1, 2, mode='a')
-        # shortest path (link id) from node 1 to node 2
+        # shortest path (link id) from node 1 to node 2 measured by time
         network.find_shortest_path(1, 2, mode='a', seq_type='link')
-        # shortest path (node id) from node 1 to node 2
+        # shortest path (node id) from node 1 to node 2 measured by distance
         network.find_shortest_path(1, 2, mode='a', cost_type='distance')
-        # shortest path (link id) from node 1 to node 2
+        # shortest path (link id) from node 1 to node 2 measured by distance
         network.find_shortest_path(1, 2, mode='a', seq_type='link', cost_type='distance')
 
 
@@ -80,6 +80,7 @@ def test_find_shortest_path_for_agents(sample_data_dir, tmp_output_dir):
 
 def test_get_shortest_path_tree(sample_data_dir):
     network = read_network(input_dir=sample_data_dir)
+    # shortest path tree from node 1 (cost is measured by time)
     network.get_shortest_path_tree(1)
-
+    # shortest path tree from node 1 (cost is measured by distance)
     network.get_shortest_path_tree(1, cost_type='distance')
