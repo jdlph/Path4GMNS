@@ -406,6 +406,8 @@ class Network:
         self.centroids_added = False
         # key: simulation interval, value: agent id
         self.td_agents = {}
+        self.convert_factor = 1
+        self.dist_unit = 'mi'
 
     def update(self):
         self.last_thru_node = self.get_node_size()
@@ -473,6 +475,15 @@ class Network:
         self.allowed_uses = char_arr_link(*allowed_uses)
 
         self.capi_allocated = True
+
+    def init_link_costs(self, cost_type='time'):
+        if cost_type == 'time':
+            link_costs = [link.fftt for link in self.links]
+        else:
+            link_costs = [link.length for link in self.links]
+
+        double_arr_link = ctypes.c_double * self.get_link_size()
+        self.link_cost_array = double_arr_link(*link_costs)
 
     def add_centroids_connectors(self):
         if self.centroids_added:
@@ -755,6 +766,16 @@ class Network:
                 continue
 
             yield v.get_centroid()
+
+    def get_distance_unit(self):
+        return self.dist_unit
+
+    def get_path_cost(self, to_node_id, cost_type='time'):
+        to_node_no = self.map_id_to_no[to_node_id]
+        if cost_type == 'time':
+            return self.node_label_cost[to_node_no]
+
+        return self.node_label_cost[to_node_no] * self.convert_factor
 
     def have_dep_agents(self, i):
         return i in self.td_agents
@@ -1484,15 +1505,15 @@ class Assignment:
 
         raise Exception(f'{mode} is not existing in settings.yml! Please provide a valid mode!')
 
-    def find_path_for_agents(self, mode):
+    def find_path_for_agents(self, mode, cost_type):
         """ find and set up shortest path for each agent """
         # reset agent type str or mode according to user's input
         at_name, _ = self._convert_mode(mode)
         self.network.set_agent_type_name(at_name)
 
-        find_path_for_agents(self.network, self.column_pool)
+        find_path_for_agents(self.network, self.column_pool, cost_type)
 
-    def find_shortest_path(self, from_node_id, to_node_id, mode, seq_type='node'):
+    def find_shortest_path(self, from_node_id, to_node_id, mode, seq_type, cost_type):
         """ call find_shortest_path() from path.py
 
         exceptions will be handled in find_shortest_path()
@@ -1506,7 +1527,7 @@ class Assignment:
         to_node_id = str(to_node_id)
 
         return find_shortest_path(self.network, from_node_id,
-                                  to_node_id, seq_type)
+                                  to_node_id, seq_type, cost_type)
 
     def benchmark_apsp(self):
         benchmark_apsp(self.network)
@@ -1794,15 +1815,32 @@ class UI:
     def get_agent_num(self):
         return self._base_assignment.network.get_agent_count()
 
-    def find_path_for_agents(self, mode='all'):
+    def find_path_for_agents(self, mode='all', cost_type='time'):
         """ DEPRECATED
 
         find and set up shortest path for each agent
+
+        Parameters
+        ----------
+        mode
+            the target transportation mode which is defined in settings.yml. It
+            can be either agent type or its name. For example, 'w' and 'walk'
+            are equivalent inputs.
+
+            The default is 'all', which means that links are open to all modes.
+
+        cost_type
+            'time' or 'distance'. find the shortest path according travel time
+            or travel distance.
+
+        Returns
+        -------
+        None
         """
-        return self._base_assignment.find_path_for_agents(mode)
+        return self._base_assignment.find_path_for_agents(mode, cost_type)
 
     def find_shortest_path(self, from_node_id, to_node_id,
-                           mode='all', seq_type='node'):
+                           mode='all', seq_type='node', cost_type='time'):
         """ return shortest path between from_node_id and to_node_id
 
         Parameters
@@ -1813,16 +1851,20 @@ class UI:
         to_node_id
             the ending node id, which shall be a string
 
-        seq_type
-            'node' or 'link'. You will get the shortest path in sequence of
-            either node IDs or link IDs. The default is 'node'.
-
         mode
             the target transportation mode which is defined in settings.yml. It
             can be either agent type or its name. For example, 'w' and 'walk'
             are equivalent inputs.
 
             The default is 'all', which means that links are open to all modes.
+
+        seq_type
+            'node' or 'link'. You will get the shortest path in sequence of
+            either node IDs or link IDs. The default is 'node'.
+
+        cost_type
+            'time' or 'distance'. find the shortest path according travel time
+            or travel distance.
 
         Returns
         -------
@@ -1838,7 +1880,8 @@ class UI:
             from_node_id,
             to_node_id,
             mode,
-            seq_type
+            seq_type,
+            cost_type
         )
 
     def get_accessible_nodes(self,

@@ -770,6 +770,15 @@ def read_network(length_unit='mile', speed_unit='mph', input_dir='.'):
     assignm = Assignment()
     network = Network()
 
+    cf = 1
+    if length_unit.startswith('meter') or length_unit == 'm':
+        cf = MILE_TO_METER
+    elif length_unit.startswith('kilometer') or length_unit.startswith('km'):
+        cf = MPH_TO_KPH
+
+    network.dist_unit = length_unit
+    network.convert_factor = cf
+
     read_settings(input_dir, assignm)
 
     read_nodes(input_dir,

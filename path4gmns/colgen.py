@@ -118,7 +118,6 @@ def _update_column_gradient_cost_and_flow(column_pool, links, agent_types, iter_
             col.increase_volume(total_switched_out_path_vol)
 
     rel_gap = total_gap / max(total_sys_travel_time, EPSILON)
-
     print(f'current iteration number in column update: {iter_num}\n'
           f'total gap: {total_gap:.4e}; relative gap: {rel_gap:.4%}')
 

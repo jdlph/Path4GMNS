@@ -17,6 +17,11 @@ def test_find_shortest_path(sample_data_dir):
     # shortest path (link id) from node 1 to node 2
     network.find_shortest_path(1, 2, seq_type='link')
 
+    # shortest path (node id) from node 1 to node 2
+    network.find_shortest_path(1, 2, cost_type='distance')
+    # shortest path (link id) from node 1 to node 2
+    network.find_shortest_path(1, 2, seq_type='link', cost_type='distance')
+
     # retrieve the shortest path under a specific mode (which must be defined
     # in settings.yaml)
     if isfile(sample_data_dir + '/settings.yml'):
@@ -24,6 +29,10 @@ def test_find_shortest_path(sample_data_dir):
         network.find_shortest_path(1, 2, mode='a')
         # shortest path (link id) from node 1 to node 2
         network.find_shortest_path(1, 2, mode='a', seq_type='link')
+        # shortest path (node id) from node 1 to node 2
+        network.find_shortest_path(1, 2, mode='a', cost_type='distance')
+        # shortest path (link id) from node 1 to node 2
+        network.find_shortest_path(1, 2, mode='a', seq_type='link', cost_type='distance')
 
 
 def test_find_shortest_path_for_agents(sample_data_dir, tmp_output_dir):
@@ -34,6 +43,7 @@ def test_find_shortest_path_for_agents(sample_data_dir, tmp_output_dir):
     # find agent paths under a specific mode defined in settings.yaml,
     # say, a (i.e., auto)
     # network.find_path_for_agents('a') or network.find_path_for_agents('auto')
+    # cost is measured in time
     network.find_path_for_agents()
 
     if network.get_agent_num() == 0:
@@ -53,3 +63,16 @@ def test_find_shortest_path_for_agents(sample_data_dir, tmp_output_dir):
     output_agent_paths(network, output_dir=tmp_output_dir)
     # exclude geometry info from the output file
     output_agent_paths(network, False, output_dir=tmp_output_dir)
+
+    # test find_path_for_agents() using distance
+    network.find_path_for_agents(cost_type='distance')
+
+    agent_id = randint(0, network.get_agent_num() - 1)
+    # origin node id of agent
+    network.get_agent_orig_node_id(agent_id)
+    # destination node id of agent
+    network.get_agent_dest_node_id(agent_id)
+    # shortest path (node id) of agent
+    network.get_agent_node_path(agent_id)
+    # shortest path (link id) of agent
+    network.get_agent_link_path(agent_id)

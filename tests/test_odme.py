@@ -21,7 +21,7 @@ def test_odme(sample_data_dir, tmp_output_dir):
 
     read_measurements(network, input_dir=sample_data_dir)
     # ODME
-    odme_update_num = 20
-    conduct_odme(network, odme_update_num)
+    odme_upd_num = 20
+    conduct_odme(network, odme_upd_num)
     # ODME output
     output_link_performance(network, mode='odme', output_dir=tmp_output_dir)

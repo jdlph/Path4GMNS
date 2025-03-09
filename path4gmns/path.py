@@ -1,9 +1,4 @@
-""" Find shortest path given a from node and a to node
-
-The underlying C++ engine is a special implementation of the deque 
-implementation in C++ and built into path_engine.dll.
-"""
-
+""" The Python interface connecting the C++ path engine and other Python APIs """
 
 import ctypes
 import platform
@@ -35,7 +30,7 @@ elif _os.startswith('Darwin'):
         _dll_file = path.join(path.dirname(__file__), 'bin/path_engine_arm.dylib')
 else:
     raise Exception('Please build the shared library compatible to your OS\
-                    using source files in engine_cpp!')
+                    using the source file in engine!')
 
 _cdll = ctypes.cdll.LoadLibrary(_dll_file)
 
@@ -59,6 +54,10 @@ _cdll.shortest_path_n.argtypes = [
     ctypes.c_int,
     ctypes.c_int
 ]
+
+
+# simple caching for _single_source_shortest_path_versatile()
+_prev_cost_type = 'time'
 
 
 def _optimal_label_correcting_CAPI(G, origin_node_no, departure_time=0):
@@ -86,10 +85,29 @@ def _optimal_label_correcting_CAPI(G, origin_node_no, departure_time=0):
                           departure_time)
 
 
-def single_source_shortest_path(G, origin_node_id):
-    origin_node_no = G.get_node_no(origin_node_id)
+def single_source_shortest_path(G, orig_node_id):
+    """ use this one with UE, accessibility, and equity """
     G.allocate_for_CAPI()
-    _optimal_label_correcting_CAPI(G, origin_node_no)
+
+    global _prev_cost_type
+    if _prev_cost_type != 'time':
+        G.init_link_costs()
+        _prev_cost_type = 'time'
+
+    orig_node_no = G.get_node_no(orig_node_id)
+    _optimal_label_correcting_CAPI(G, orig_node_no)
+
+
+def _single_source_shortest_path_versatile(G, orig_node_id, cost_type):
+    G.allocate_for_CAPI()
+
+    global _prev_cost_type
+    if cost_type != _prev_cost_type:
+        G.init_link_costs(cost_type)
+        _prev_cost_type = cost_type
+
+    orig_node_no = G.get_node_no(orig_node_id)
+    _optimal_label_correcting_CAPI(G, orig_node_no)
 
 
 def output_path_sequence(G, to_node_id, type='node'):
@@ -120,21 +138,15 @@ def output_path_sequence(G, to_node_id, type='node'):
             yield G.links[link_no].get_link_id()
 
 
-def _get_path_cost(G, to_node_id):
-    to_node_no = G.map_id_to_no[to_node_id]
-
-    return G.node_label_cost[to_node_no]
-
-
-def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
+def find_shortest_path(G, from_node_id, to_node_id, seq_type, cost_type):
     if from_node_id not in G.map_id_to_no:
         raise Exception(f'Node ID: {from_node_id} not in the network')
     if to_node_id not in G.map_id_to_no:
         raise Exception(f'Node ID: {to_node_id} not in the network')
 
-    single_source_shortest_path(G, from_node_id)
+    _single_source_shortest_path_versatile(G, from_node_id, cost_type)
 
-    path_cost = _get_path_cost(G, to_node_id)
+    path_cost = G.get_path_cost(to_node_id, cost_type)
     if path_cost >= MAX_LABEL_COST:
         return f'distance: infinity | path: '
 
@@ -142,13 +154,17 @@ def find_shortest_path(G, from_node_id, to_node_id, seq_type='node'):
         str(x) for x in output_path_sequence(G, to_node_id, seq_type)
     )
 
+    unit = 'minutes'
+    if cost_type.startswith('dis'):
+        unit = G.get_distance_unit() + 's'
+
     if seq_type.startswith('node'):
-        return f'distance: {path_cost:.2f} mi | node path: {path}'
+        return f'{cost_type}: {path_cost:.2f} {unit} | node path: {path}'
     else:
-        return f'distance: {path_cost:.2f} mi | link path: {path}'
+        return f'{cost_type}: {path_cost:.2f} {unit} | link path: {path}'
 
 
-def find_path_for_agents(G, column_pool):
+def find_path_for_agents(G, column_pool, cost_type):
     """ find and set up shortest path for each agent
 
     the internal node and links will be used to set up the node sequence and
@@ -181,7 +197,7 @@ def find_path_for_agents(G, column_pool):
         # then there is no need to redo shortest path calculation.
         if from_node_id != from_node_id_prev:
             from_node_id_prev = from_node_id
-            single_source_shortest_path(G, from_node_id)
+            _single_source_shortest_path_versatile(G, from_node_id, cost_type)
 
         node_path = []
         link_path = []
