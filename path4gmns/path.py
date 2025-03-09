@@ -13,6 +13,7 @@ __all__ = [
     'output_path_sequence',
     'find_shortest_path',
     'find_path_for_agents',
+    'get_shortest_path_tree',
     'benchmark_apsp'
 ]
 
@@ -150,18 +151,16 @@ def find_shortest_path(G, from_node_id, to_node_id, seq_type, cost_type):
     if path_cost >= MAX_LABEL_COST:
         return f'distance: infinity | path: '
 
-    path = ';'.join(
-        str(x) for x in output_path_sequence(G, to_node_id, seq_type)
-    )
+    path = _get_path_sequence(G, from_node_id, seq_type)
 
     unit = 'minutes'
     if cost_type.startswith('dis'):
-        unit = G.get_distance_unit() + 's'
+        unit = G.get_length_unit() + 's'
 
     if seq_type.startswith('node'):
-        return f'{cost_type}: {path_cost:.2f} {unit} | node path: {path}'
+        return f'path {cost_type}: {path_cost:.2f} {unit} | node path: {path}'
     else:
-        return f'{cost_type}: {path_cost:.2f} {unit} | link path: {path}'
+        return f'path {cost_type}: {path_cost:.2f} {unit} | link path: {path}'
 
 
 def find_path_for_agents(G, column_pool, cost_type):
@@ -220,6 +219,21 @@ def find_path_for_agents(G, column_pool, cost_type):
 
         agent.node_path = [x for x in node_path]
         agent.link_path = [x for x in link_path]
+
+
+def _get_path_sequence(G, to_node_id, seq_type):
+    return ';'.join(str(x) for x in output_path_sequence(G, to_node_id, seq_type))
+
+
+def get_shortest_path_tree(G, from_node_id, seq_type, cost_type):
+    if from_node_id not in G.map_id_to_no:
+        raise Exception(f'Node ID: {from_node_id} not in the network')
+
+    _single_source_shortest_path_versatile(G, from_node_id, cost_type)
+
+    return {to_node_id : [G.get_path_cost(to_node_id, cost_type),
+                          _get_path_sequence(G, to_node_id, seq_type)]
+                          for to_node_id in G.map_id_to_no.keys()}
 
 
 def benchmark_apsp(G):

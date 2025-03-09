@@ -6,8 +6,8 @@ from math import ceil, floor
 from random import choice, randint
 
 from .consts import EPSILON, MAX_LABEL_COST, SECONDS_IN_MINUTE, SECONDS_IN_HOUR
-from .path import find_path_for_agents, find_shortest_path, \
-                  single_source_shortest_path, benchmark_apsp
+from .path import benchmark_apsp, find_path_for_agents, find_shortest_path, \
+                  get_shortest_path_tree, single_source_shortest_path
 
 
 __all__ = ['UI']
@@ -406,8 +406,8 @@ class Network:
         self.centroids_added = False
         # key: simulation interval, value: agent id
         self.td_agents = {}
-        self.convert_factor = 1
-        self.dist_unit = 'mi'
+        self.len_unit_cf = 1
+        self.len_unit = 'mi'
 
     def update(self):
         self.last_thru_node = self.get_node_size()
@@ -767,15 +767,15 @@ class Network:
 
             yield v.get_centroid()
 
-    def get_distance_unit(self):
-        return self.dist_unit
+    def get_length_unit(self):
+        return self.len_unit
 
     def get_path_cost(self, to_node_id, cost_type='time'):
         to_node_no = self.map_id_to_no[to_node_id]
         if cost_type == 'time':
             return self.node_label_cost[to_node_no]
 
-        return self.node_label_cost[to_node_no] * self.convert_factor
+        return self.node_label_cost[to_node_no] * self.len_unit_cf
 
     def have_dep_agents(self, i):
         return i in self.td_agents
@@ -1529,6 +1529,17 @@ class Assignment:
         return find_shortest_path(self.network, from_node_id,
                                   to_node_id, seq_type, cost_type)
 
+    def get_shortest_path_tree(self, from_node_id, mode, seq_type, cost_type):
+        # reset agent type str or mode according to user's input
+        at_name, _ = self._convert_mode(mode)
+        self.network.set_agent_type_name(at_name)
+
+        # add backward compatibility in case the user still use integer node id's
+        from_node_id = str(from_node_id)
+
+        return get_shortest_path_tree(self.network, from_node_id,
+                                      seq_type, cost_type)
+
     def benchmark_apsp(self):
         benchmark_apsp(self.network)
 
@@ -1814,6 +1825,12 @@ class UI:
 
     def get_agent_num(self):
         return self._base_assignment.network.get_agent_count()
+
+    def get_shortest_path_tree(self, from_node_id,
+                               mode='all', seq_type='node', cost_type='time'):
+        return self._base_assignment.get_shortest_path_tree(
+            from_node_id, mode, seq_type, cost_type
+        )
 
     def find_path_for_agents(self, mode='all', cost_type='time'):
         """ DEPRECATED

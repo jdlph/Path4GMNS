@@ -76,3 +76,10 @@ def test_find_shortest_path_for_agents(sample_data_dir, tmp_output_dir):
     network.get_agent_node_path(agent_id)
     # shortest path (link id) of agent
     network.get_agent_link_path(agent_id)
+
+
+def test_get_shortest_path_tree(sample_data_dir):
+    network = read_network(input_dir=sample_data_dir)
+    network.get_shortest_path_tree(1)
+
+    network.get_shortest_path_tree(1, cost_type='distance')

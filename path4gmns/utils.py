@@ -2,6 +2,8 @@ import os
 from datetime import timedelta
 from threading import Thread
 
+from .consts import MILE_TO_METER, MPH_TO_KPH
+
 
 __all__ = ['download_sample_data_sets', 'download_sample_setting_file']
 
@@ -100,7 +102,7 @@ def _get_time_stamp(minute):
     return str(timedelta(seconds=s))
 
 
-def _download_url(url, filename, loc_dir):        
+def _download_url(url, filename, loc_dir):
     try:
         import requests
 
@@ -184,3 +186,41 @@ def download_sample_setting_file():
 
     print('downloading completes')
     print(f'check {os.getcwd()} for downloaded settings.yml')
+
+
+def get_len_unit_conversion_factor(unit):
+    len_units = ['kilometer', 'km', 'meter', 'm', 'mile', 'mi']
+
+    # length unit check
+    # linear search is OK for such small lists
+    if unit not in len_units:
+        units = ', '.join(len_units)
+        raise Exception(
+            f'Invalid length unit: {unit} !'
+            f' Please choose one available unit from {units}'
+        )
+
+    cf = 1
+    if unit.startswith('meter') or unit == 'm':
+        cf = MILE_TO_METER
+    elif unit.startswith('kilometer') or unit.startswith('km'):
+        cf = MPH_TO_KPH
+
+    return cf
+
+
+def get_spd_unit_conversion_factor(unit):
+    spd_units = ['kmh', 'kph', 'mph']
+
+    # speed unit check
+    if unit not in spd_units:
+        units = ', '.join(spd_units)
+        raise Exception(
+            f'Invalid speed unit: {unit} !'
+            f' Please choose one available unit from {units}'
+        )
+
+    if unit.startswith('kmh') or unit.startswith('kph'):
+        return MPH_TO_KPH
+
+    return 1

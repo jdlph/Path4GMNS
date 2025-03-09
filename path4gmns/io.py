@@ -6,9 +6,10 @@ from .classes import Node, Link, Zone, Network, Column, ColumnVec, VDFPeriod, \
                      AgentType, DemandPeriod, Demand, SpecialEvent, Assignment, UI
 
 from .colgen import update_links_using_columns
-from .consts import EPSILON, MILE_TO_METER, MPH_TO_KPH
+from .consts import EPSILON
 from .utils import InvalidRecord, _convert_boundaries, _convert_str_to_float, \
-                   _convert_str_to_int, _get_time_stamp
+                   _convert_str_to_int, _get_time_stamp, get_len_unit_conversion_factor, \
+                   get_spd_unit_conversion_factor
 from .zonesyn import network_to_zones
 
 
@@ -154,8 +155,8 @@ def read_links(input_dir,
                map_id_to_no,
                link_ids,
                demand_period_size,
-               length_unit,
-               speed_unit,
+               len_conversion_factor,
+               spd_conversion_factor,
                load_demand):
     """ step 2: read input_link """
     with open(input_dir+'/link.csv', 'r') as fp:
@@ -253,13 +254,8 @@ def read_links(input_dir,
             link_ids[link_id] = link_no
 
             # unit conversion
-            if length_unit.startswith('meter') or length_unit == 'm':
-                length = length / MILE_TO_METER
-            elif length_unit.startswith('kilometer') or length_unit.startswith('km'):
-                length = length / MPH_TO_KPH
-
-            if speed_unit.startswith('kmh') or speed_unit.startswith('kph'):
-                free_speed = free_speed / MPH_TO_KPH
+            length = length / len_conversion_factor
+            free_speed = free_speed / spd_conversion_factor
 
             # construct link object
             link = Link(link_id,
@@ -435,7 +431,7 @@ def _read_demand(input_dir,
             # Case II:  zones is not empty and invalid_od_num == 0
             #           Every zone_id present in demand.csv is not found in
             #           node.csv. This implies data inconsistency between these
-            #           two files on zone_id). Another possibility is that volume
+            #           two files on zone_id. Another possibility is that volume
             #           is not numerical.
             # Case III: zones is not empty, invalid_od_num > 0, and invalid_vol == 0
             #           All OD pairs in demand.csv have invalid volume (i.e.,
@@ -748,36 +744,15 @@ def read_settings(input_dir, assignment):
 
 
 def read_network(length_unit='mile', speed_unit='mph', input_dir='.'):
-    len_units = ['kilometer', 'km', 'meter', 'm', 'mile', 'mi']
-    spd_units = ['kmh', 'kph', 'mph']
-
-    # length and speed units check
-    # linear search is OK for such small lists
-    if length_unit not in len_units:
-        units = ', '.join(len_units)
-        raise Exception(
-            f'Invalid length unit: {length_unit} !'
-            f' Please choose one available unit from {units}'
-        )
-
-    if speed_unit not in spd_units:
-        units = ', '.join(spd_units)
-        raise Exception(
-            f'Invalid speed unit: {speed_unit} !'
-            f' Please choose one available unit from {units}'
-        )
+    # exception handlings on units are taken care by the following two functions
+    len_cf = get_len_unit_conversion_factor(length_unit)
+    spd_cf = get_spd_unit_conversion_factor(speed_unit)
 
     assignm = Assignment()
     network = Network()
 
-    cf = 1
-    if length_unit.startswith('meter') or length_unit == 'm':
-        cf = MILE_TO_METER
-    elif length_unit.startswith('kilometer') or length_unit.startswith('km'):
-        cf = MPH_TO_KPH
-
-    network.dist_unit = length_unit
-    network.convert_factor = cf
+    network.len_unit = length_unit
+    network.len_unit_cf = len_cf
 
     read_settings(input_dir, assignm)
 
@@ -794,8 +769,8 @@ def read_network(length_unit='mile', speed_unit='mph', input_dir='.'):
                network.map_id_to_no,
                network.link_ids,
                assignm.get_demand_period_count(),
-               length_unit,
-               speed_unit,
+               len_cf,
+               spd_cf,
                load_demand)
 
     network.update()
