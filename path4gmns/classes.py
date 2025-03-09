@@ -637,7 +637,7 @@ class Network:
             if cost_type.startswith('dis'):
                 unit = self.get_length_unit() + 's'
 
-            return f'path {cost_type}: {path_cost:.2f} {unit} | node path: {path}'
+            return f'path {cost_type}: {path_cost:.4f} {unit} | node path: {path}'
 
     def get_agent_link_path(self, agent_id, cost_type, path_only):
         """ return the sequence of link IDs along the agent path
@@ -665,7 +665,7 @@ class Network:
             if cost_type.startswith('dis'):
                 unit = self.get_length_unit() + 's'
 
-            return f'path {cost_type}: {path_cost:.2f} {unit} | link path: {path}'
+            return f'path {cost_type}: {path_cost:.4f} {unit} | link path: {path}'
 
     def get_agent_orig_node_id(self, agent_id):
         """ return the origin node id of agent """

@@ -8,6 +8,7 @@ from time import time
 from .consts import MAX_LABEL_COST
 
 
+# these should not be here, which suggests alternative ways to invoke?
 __all__ = [
     'single_source_shortest_path',
     'output_path_sequence',
@@ -85,24 +86,12 @@ def _optimal_label_correcting_CAPI(G, origin_node_no, departure_time=0):
                           departure_time)
 
 
-def single_source_shortest_path(G, orig_node_id):
+def single_source_shortest_path(G, orig_node_id, cost_type='time'):
     """ use this one with UE, accessibility, and equity """
     G.allocate_for_CAPI()
 
     global _prev_cost_type
-    if _prev_cost_type != 'time':
-        G.init_link_costs()
-        _prev_cost_type = 'time'
-
-    orig_node_no = G.get_node_no(orig_node_id)
-    _optimal_label_correcting_CAPI(G, orig_node_no)
-
-
-def _single_source_shortest_path_versatile(G, orig_node_id, cost_type):
-    G.allocate_for_CAPI()
-
-    global _prev_cost_type
-    if cost_type != _prev_cost_type:
+    if _prev_cost_type != cost_type:
         G.init_link_costs(cost_type)
         _prev_cost_type = cost_type
 
@@ -144,22 +133,22 @@ def find_shortest_path(G, from_node_id, to_node_id, seq_type, cost_type):
     if to_node_id not in G.map_id_to_no:
         raise Exception(f'Node ID: {to_node_id} not in the network')
 
-    _single_source_shortest_path_versatile(G, from_node_id, cost_type)
+    single_source_shortest_path(G, from_node_id, cost_type)
 
     path_cost = G.get_path_cost(to_node_id, cost_type)
     if path_cost >= MAX_LABEL_COST:
         return f'path {cost_type}: infinity | path: '
 
-    path = _get_path_sequence_str(G, from_node_id, seq_type)
+    path = _get_path_sequence_str(G, to_node_id, seq_type)
 
     unit = 'minutes'
     if cost_type.startswith('dis'):
         unit = G.get_length_unit() + 's'
 
     if seq_type.startswith('node'):
-        return f'path {cost_type}: {path_cost:.2f} {unit} | node path: {path}'
+        return f'path {cost_type}: {path_cost:.4f} {unit} | node path: {path}'
     else:
-        return f'path {cost_type}: {path_cost:.2f} {unit} | link path: {path}'
+        return f'path {cost_type}: {path_cost:.4f} {unit} | link path: {path}'
 
 
 def find_path_for_agents(G, column_pool, cost_type):
@@ -195,7 +184,7 @@ def find_path_for_agents(G, column_pool, cost_type):
         # then there is no need to redo shortest path calculation.
         if from_node_id != from_node_id_prev:
             from_node_id_prev = from_node_id
-            _single_source_shortest_path_versatile(G, from_node_id, cost_type)
+            single_source_shortest_path(G, from_node_id, cost_type)
 
         # set up the cost
         agent.path_cost = G.get_path_cost(to_node_id, cost_type)
@@ -228,11 +217,11 @@ def get_shortest_path_tree(G, from_node_id, seq_type, cost_type):
     if from_node_id not in G.map_id_to_no:
         raise Exception(f'Node ID: {from_node_id} not in the network')
 
-    _single_source_shortest_path_versatile(G, from_node_id, cost_type)
+    single_source_shortest_path(G, from_node_id, cost_type)
 
     return {to_node_id : [G.get_path_cost(to_node_id, cost_type),
                           _get_path_sequence_str(G, to_node_id, seq_type)]
-                          for to_node_id in G.map_id_to_no.keys()}
+                          for to_node_id in G.map_id_to_no.keys() if to_node_id != from_node_id}
 
 
 def benchmark_apsp(G):
