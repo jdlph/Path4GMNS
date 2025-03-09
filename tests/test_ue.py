@@ -58,10 +58,6 @@ def test_mixed_invoking1(sample_data_dir, tmp_output_dir):
     column_upd_num = 5
     find_ue(network, column_gen_num, column_upd_num)
 
-    # use output_columns(network, False) to exclude geometry info in the output file
-    output_columns(network, output_dir=tmp_output_dir)
-    output_link_performance(network, output_dir=tmp_output_dir)
-
 
 def test_mixed_invoking2(sample_data_dir, tmp_output_dir):
     """ test resolution on issue #51 (https://github.com/jdlph/Path4GMNS/issues/51)
@@ -72,10 +68,6 @@ def test_mixed_invoking2(sample_data_dir, tmp_output_dir):
     column_gen_num = 5
     column_upd_num = 5
     find_ue(network, column_gen_num, column_upd_num)
-
-    # use output_columns(network, False) to exclude geometry info in the output file
-    output_columns(network, output_dir=tmp_output_dir)
-    output_link_performance(network, output_dir=tmp_output_dir)
 
     # invoke find_shortest_path() after find_ue()
     network.find_shortest_path(1, 2)

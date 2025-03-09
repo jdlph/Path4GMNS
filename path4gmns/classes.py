@@ -611,7 +611,7 @@ class Network:
             agent_id = agent_no + 1
             print(f'Please provide a valid agent id. agent_id: {agent_id} does NOT EXIST!')
 
-    def get_agent_node_path(self, agent_id, path_only):
+    def get_agent_node_path(self, agent_id, cost_type, path_only):
         """ return the sequence of node IDs along the agent path
 
         developer's note: consider changing its name to
@@ -622,7 +622,7 @@ class Network:
 
         path_cost = agent.get_path_cost()
         if path_cost >= MAX_LABEL_COST:
-            return f'distance: infinity | path: '
+            return f'path {cost_type}: infinity | path: '
 
         path = ''
         if agent.node_path:
@@ -633,9 +633,13 @@ class Network:
         if path_only:
             return path
         else:
-            return f'distance: {path_cost:.2f} mi | node path: {path}'
+            unit = 'minutes'
+            if cost_type.startswith('dis'):
+                unit = self.get_length_unit() + 's'
 
-    def get_agent_link_path(self, agent_id, path_only):
+            return f'path {cost_type}: {path_cost:.2f} {unit} | node path: {path}'
+
+    def get_agent_link_path(self, agent_id, cost_type, path_only):
         """ return the sequence of link IDs along the agent path
 
         developer's note: consider changing its name to
@@ -646,7 +650,7 @@ class Network:
 
         path_cost = agent.get_path_cost()
         if path_cost >= MAX_LABEL_COST:
-            return f'distance: infinity | path: '
+            return f'path {cost_type}: infinity | path: '
 
         path = ''
         if agent.link_path:
@@ -657,7 +661,11 @@ class Network:
         if path_only:
             return path
         else:
-            return f'distance: {path_cost:.2f} mi | link path: {path}'
+            unit = 'minutes'
+            if cost_type.startswith('dis'):
+                unit = self.get_length_unit() + 's'
+
+            return f'path {cost_type}: {path_cost:.2f} {unit} | link path: {path}'
 
     def get_agent_orig_node_id(self, agent_id):
         """ return the origin node id of agent """
@@ -744,7 +752,7 @@ class Network:
         return self.nodes[self.get_node_no(node_id)]
 
     def get_agent_type_name(self):
-        """ for allowed uses in single_source_shortest_path()"""
+        """ for allowed uses in single_source_shortest_path() """
         return self.agent_type_name
 
     def get_link_no(self, id):
@@ -1353,7 +1361,10 @@ class Assignment:
         self.demands = []
         # 4-d array
         self.column_pool = {}
+        # base physical network
         self.network = None
+        # SPNetwork instance for computing shortest paths only
+        self.spnet = None
         self.spnetworks = []
         self.accessnetwork = None
         self.map_atstr_id = {}
@@ -1475,19 +1486,19 @@ class Assignment:
         """
         return self.network.get_agent_dest_node_id(agent_id)
 
-    def get_agent_node_path(self, agent_id, path_only=False):
+    def get_agent_node_path(self, agent_id, cost_type='time', path_only=True):
         """ return the sequence of node IDs along the agent path
 
         exception will be handled by  _get_agent() in class Network
         """
-        return self.network.get_agent_node_path(agent_id, path_only)
+        return self.network.get_agent_node_path(agent_id, cost_type, path_only)
 
-    def get_agent_link_path(self, agent_id, path_only=False):
+    def get_agent_link_path(self, agent_id, cost_type='time', path_only=True):
         """ return the sequence of link IDs along the agent path
 
         exception will be handled by  _get_agent() in class Network
         """
-        return self.network.get_agent_link_path(agent_id, path_only)
+        return self.network.get_agent_link_path(agent_id, cost_type, path_only)
 
     def _convert_mode(self, mode):
         """convert mode to the corresponding agent type name and string"""
@@ -1782,6 +1793,7 @@ class UI:
     """ an abstract class only with user interfaces """
     def __init__(self, assignment):
         self._base_assignment = assignment
+        self._agent_cost_type = 'time'
 
     def get_column_pool(self):
         return self._base_assignment.get_column_pool()
@@ -1804,11 +1816,11 @@ class UI:
 
     def get_agent_node_path(self, agent_id):
         """ return the sequence of node IDs along the agent path """
-        return self._base_assignment.get_agent_node_path(agent_id)
+        return self._base_assignment.get_agent_node_path(agent_id, self._agent_cost_type)
 
     def get_agent_link_path(self, agent_id):
         """ return the sequence of link IDs along the agent path """
-        return self._base_assignment.get_agent_link_path(agent_id)
+        return self._base_assignment.get_agent_link_path(agent_id, self._agent_cost_type)
 
     def get_agent_num(self):
         return self._base_assignment.network.get_agent_count()
@@ -1841,6 +1853,7 @@ class UI:
         -------
         None
         """
+        self._agent_cost_type = cost_type
         return self._base_assignment.find_path_for_agents(mode, cost_type)
 
     def find_shortest_path(self, from_node_id, to_node_id,

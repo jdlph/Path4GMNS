@@ -1309,7 +1309,7 @@ def output_agent_trajectory(ui, output_dir='.'):
             # to calculate trip time does not make sense
             tt = at_ - a.get_dep_time()
 
-            node_path_str = A.get_agent_node_path(a.get_id(), True)
+            node_path_str = A.get_agent_node_path(a.get_id())
             geometry = ', '.join(
                 nodes[x].get_coordinate() for x in reversed(a.get_node_path())
             )

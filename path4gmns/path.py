@@ -12,7 +12,6 @@ __all__ = [
     'single_source_shortest_path',
     'output_path_sequence',
     'find_shortest_path',
-    'find_path_for_agents',
     'get_shortest_path_tree',
     'benchmark_apsp'
 ]
@@ -149,9 +148,9 @@ def find_shortest_path(G, from_node_id, to_node_id, seq_type, cost_type):
 
     path_cost = G.get_path_cost(to_node_id, cost_type)
     if path_cost >= MAX_LABEL_COST:
-        return f'distance: infinity | path: '
+        return f'path {cost_type}: infinity | path: '
 
-    path = _get_path_sequence(G, from_node_id, seq_type)
+    path = _get_path_sequence_str(G, from_node_id, seq_type)
 
     unit = 'minutes'
     if cost_type.startswith('dis'):
@@ -198,13 +197,13 @@ def find_path_for_agents(G, column_pool, cost_type):
             from_node_id_prev = from_node_id
             _single_source_shortest_path_versatile(G, from_node_id, cost_type)
 
+        # set up the cost
+        agent.path_cost = G.get_path_cost(to_node_id, cost_type)
+
         node_path = []
         link_path = []
 
         curr_node_no = G.map_id_to_no[to_node_id]
-        # set up the cost
-        agent.path_cost = G.node_label_cost[curr_node_no]
-
         # retrieve the sequence backwards
         while curr_node_no >= 0:
             node_path.append(curr_node_no)
@@ -221,7 +220,7 @@ def find_path_for_agents(G, column_pool, cost_type):
         agent.link_path = [x for x in link_path]
 
 
-def _get_path_sequence(G, to_node_id, seq_type):
+def _get_path_sequence_str(G, to_node_id, seq_type):
     return ';'.join(str(x) for x in output_path_sequence(G, to_node_id, seq_type))
 
 
@@ -232,7 +231,7 @@ def get_shortest_path_tree(G, from_node_id, seq_type, cost_type):
     _single_source_shortest_path_versatile(G, from_node_id, cost_type)
 
     return {to_node_id : [G.get_path_cost(to_node_id, cost_type),
-                          _get_path_sequence(G, to_node_id, seq_type)]
+                          _get_path_sequence_str(G, to_node_id, seq_type)]
                           for to_node_id in G.map_id_to_no.keys()}
 
 
