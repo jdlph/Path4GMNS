@@ -8,7 +8,7 @@ from time import time
 from .consts import MAX_LABEL_COST
 
 
-# these should not be here, which suggests alternative ways to invoke?
+# these should not be here, which suggests alternative ways to invoke!
 __all__ = [
     'single_source_shortest_path',
     'output_path_sequence',
@@ -57,7 +57,7 @@ _cdll.shortest_path_n.argtypes = [
 ]
 
 
-# simple caching for _single_source_shortest_path_versatile()
+# simple caching for _single_source_shortest_path()
 _prev_cost_type = 'time'
 
 
@@ -65,7 +65,7 @@ def _optimal_label_correcting_CAPI(G, origin_node_no, departure_time=0):
     """ call the deque implementation of MLC written in cpp
 
     node_label_cost, node_predecessor, and link_predecessor are still
-    initialized in shortest_path() even the source node has no outgoing links.
+    initialized in shortest_path_n() even the source node has no outgoing links.
     """
     _cdll.shortest_path_n(origin_node_no,
                           G.get_node_size(),
@@ -87,7 +87,6 @@ def _optimal_label_correcting_CAPI(G, origin_node_no, departure_time=0):
 
 
 def single_source_shortest_path(G, orig_node_id, cost_type='time'):
-    """ use this one with UE, accessibility, and equity """
     G.allocate_for_CAPI()
 
     global _prev_cost_type

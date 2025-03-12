@@ -544,64 +544,6 @@ def _read_zones(ui, input_dir='.', filename='syn_zone.csv'):
         print(f'the number of zones is {len(zones):,d}')
 
 
-def read_demand_matrix(input_dir, agent_type_id, demand_period_id,
-                       zone_to_node_dict, column_pool):
-    """ read demand matrix from input_matrix
-
-    not in use
-    """
-    with open(input_dir+'/input_matrix.csv', 'r') as fp:
-        print('read input_matrix.csv')
-
-        at = agent_type_id
-        dp = demand_period_id
-
-        total_vol = 0
-        reader = csv.DictReader(fp)
-        for line in reader:
-            oz_id = line['od']
-            # o_zone_id does not exist in node.csv, discard it
-            if oz_id not in zone_to_node_dict:
-                continue
-
-            for dz_str, vol_str in line:
-                dz_id = _convert_str_to_int(dz_str)
-                if dz_id == oz_id:
-                    continue
-
-                # d_zone_id does not exist in node.csv, discard it
-                if dz_id not in zone_to_node_dict:
-                    continue
-
-                try:
-                    vol = _convert_str_to_float(vol_str)
-                except InvalidRecord:
-                    continue
-
-                if vol == 0:
-                    continue
-
-                if not _are_od_connected(oz_id, dz_id):
-                    continue
-
-                if (at, dp, oz_id, dz_id) not in column_pool:
-                    column_pool[(at, dp, oz_id, dz_id)] = ColumnVec()
-                    column_pool[(at, dp, oz_id, dz_id)].set_volume(vol)
-                else:
-                    raise Exception(
-                        f'DUPLICATE OD pair found between {oz_id} and {dz_id}'
-                    )
-
-                total_vol += vol
-
-            print(f'the number of agents is {total_vol}')
-
-            if total_vol == 0:
-                raise Exception(
-                    'NO VALID OD VOLUME!! DOUBLE CHECK YOUR input_matrix.csv'
-                )
-
-
 def _auto_setup(assignment):
     """ automatically set up one demand period and one agent type
 
