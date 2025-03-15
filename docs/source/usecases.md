@@ -99,7 +99,7 @@ pg.output_columns(network)
 pg.output_link_performance(network)
 ```
 
-v0.9.10 enables the return of the relative gap and provides users more flexibility to control UE convergency.
+v0.9.10 provides users more flexibility to control UE convergency by returning the relative gap and passing the relative gap tolerance (i.e., the target relative gap). find_ue() will terminate when either column_upd_num or rel_gap_tolerance is reached.
 ```python
 import path4gmns as pg
 
@@ -107,12 +107,9 @@ import path4gmns as pg
 column_gen_num = 20
 column_upd_num = 20
 
-rel_gap = pg.find_ue(network, column_gen_num, column_upd_num)
-rel_gap_tolerance = 0.00001
-
-column_upd_num = 10
-while rel_gap > rel_gap_tolerance:
-    rel_gap = pg.find_ue(network, 0, column_upd_num)
+# the default value of rel_gap_tolerance is 0.0001 if not specified
+rel_gap = pg.find_ue(network, column_gen_num, column_upd_num, rel_gap_tolerance = 0.001)
+print(f'the final relative UE gap is {rel_gap:.2%}')
 
 # if you do not want to include geometry info in the output file,
 # use pg.output_columns(network, False)

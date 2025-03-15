@@ -61,5 +61,14 @@
 59. Add CMakeFiles.txt to better manage local builds and installs (v0.9.9)
 60. Reestablish cross-validation of zone id in node.csv and demand.csv (which was dropped in v0.9.9) (v0.9.9.post1)
 61. Fix potential inconsistency in essential arrays (between the underlying physical network and the shortest path network (i.e., SPNetwork)) for shortest path calculation, which would lead to [OSError](https://github.com/jdlph/Path4GMNS/issues/51) (v0.9.9.post1)
+62. Reinstate warning for missing pyyaml (v0.9.10)
+63. Optimize the UE module by precluding zones with no valid demand and moving the check on each centroid into SPNetwork setup (v0.9.10)
+64. Optimize the UE module on computing the relative gap in the postprocessing (v0.9.10)
+65. Include rel_gap_tolerance as an additional argument to find_ue() and return the final relative gap (v0.9.10)
+66. Fix bug on path cost unit for find_shortest_path() reported in Issue #58 (v0.9.10)
+67. Display the path cost in either travel distance or travel time (v0.9.10)
+68. Adaptively display the path distance per the length unit passed to read_network() (v0.9.10)
+69. Introduce get_shortest_path_tree() to return the shortest path tree from a given source node (v0.9.10)
+70. Remove deprecated APIs including perform_column_generation(), perform_network_assignment(), perform_network_assignment(), and perform_network_assignment_DTALite() (v0.9.10)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).

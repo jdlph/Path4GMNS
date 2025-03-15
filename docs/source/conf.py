@@ -28,7 +28,7 @@ copyright = '2021 - 2024, Dr. Peiheng Li and Dr. Xuesong (Simon) Zhou'
 author = 'Dr. Peiheng Li and Dr. Xuesong (Simon) Zhou'
 
 # The full version, including alpha/beta/rc tags
-release = 'v0.9.9.post1'
+release = 'v0.9.10'
 
 
 # -- General configuration ---------------------------------------------------
