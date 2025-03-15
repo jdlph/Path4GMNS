@@ -213,6 +213,14 @@ def _get_path_sequence_str(G, to_node_id, seq_type):
 
 
 def get_shortest_path_tree(G, from_node_id, seq_type, cost_type):
+    """ compute the shortest path tree from the source node (from_node_id)
+
+    it returns a dictionary, where key is to_node_id and value is the
+    corresponding shortest path information (path cost and path details).
+
+    Note that it returns the shortest paths from the source node (from_node_id)
+    to any other nodes, where the source node itself is excluded.
+    """
     if from_node_id not in G.map_id_to_no:
         raise Exception(f'Node ID: {from_node_id} not in the network')
 

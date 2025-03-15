@@ -12,7 +12,10 @@ pg.download_sample_data_sets()
 Note that [requests](https://pypi.org/project/requests/) (2.21.1 or higher) is needed for you to proceed downloading.
 
 ## Get the Shortest Path between Two Nodes
-Find the (static) shortest path (based on distance) and output it in the format of a sequence of node/link IDs.
+Find the (static) shortest path per travel time or distance and output it in the format of a sequence of node/link IDs.
+
+### Shortest Path in terms of Travel Time
+By default, find_shortest_path() will return the shortest path according to the travel time.
 ```python
 import path4gmns as pg
 
@@ -33,10 +36,10 @@ import path4gmns as pg
 
 network = pg.read_network(input_dir='data/Chicago_Sketch')
 
-# node path from node 1 to node 2
+# node path from node 1 to node 2 measured by travel time
 print('\nshortest path (node id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2))
-# link path from node 1 to node 2
+# link path from node 1 to node 2 measured by travel time
 print('\nshortest path (link id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2, seq_type='link'))
 ```
@@ -47,15 +50,105 @@ import path4gmns as pg
 
 network = pg.read_network()
 
-# node path from node 1 to node 2 under mode w
+# node path from node 1 to node 2 under mode w measured by travel time
 print('\nshortest path (node id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2, mode='w'))
-# link path from node 1 to node 2 under mode w
+# link path from node 1 to node 2 under mode w measured by travel time
 print('\nshortest path (link id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2, mode='w', seq_type='link'))
 ```
 
 The mode passed to find_shortest_path() must be defined in settings.yaml, which could be either the type or the name. Take the above sample code for example, the type 'w' and its name 'walk' are equivalent to each other. See **Perform Multimodal Accessibility Evaluation** for more information.
+
+### Shortest Path in terms of Travel Distance
+Starting from v0.9.10, you can find the shortest path between any two different nodes in distance by specifying cost_type as 'distance'. The distance unit is the one passed to read_network(), which by default is mile.
+
+```python
+import path4gmns as pg
+
+network = pg.read_network()
+
+# node path from node 1 to node 2 measured by distance
+print('\nshortest path (node id) from node 1 to node 2, '
+      +network.find_shortest_path(1, 2, cost_type='distance'))
+# link path from node 1 to node 2 measured by distance
+print('\nshortest path (link id) from node 1 to node 2, '
+      +network.find_shortest_path(1, 2, seq_type='link', cost_type='distance'))
+
+# node path from node 1 to node 2 under mode w measured by distance
+print('\nshortest path (node id) from node 1 to node 2, '
+      +network.find_shortest_path(1, 2, mode='w', cost_type='distance'))
+# link path from node 1 to node 2 under mode w measured by distance
+print('\nshortest path (link id) from node 1 to node 2, '
+      +network.find_shortest_path(1, 2, mode='w', seq_type='link', cost_type='distance'))
+```
+
+## Retrieve the Shortest Path Tree
+If you need to find the shortest paths from a source node to any other nodes in the network. You can use get_shortest_path_tree() instead of repeatedly calling find_shortest_path(). Its usage is very similar to find_shortest_path(). You can get the shortest path tree in either node sequences or link sequences.
+
+```python
+import path4gmns as pg
+
+network = pg.read_network()
+
+# get shortest path tree (in node sequences) from node 1 (cost is measured by time)
+sp_tree_node = network.get_shortest_path_tree(1)
+# retrieve the shortest path from the source node (i.e., node 1) to node 2
+print(f'shortest path (node id) from node 1 to node 2 {sp_tree_node[2]}')
+# retrieve the shortest path from the source node (i.e., node 1) to node 3
+print(f'shortest path (node id) from node 1 to node 3 {sp_tree_node[3]}')
+
+# get shortest path tree (in link sequences) from node 1 (cost is measured by time)
+sp_tree_link = network.get_shortest_path_tree(1, seq_type='link')
+# retrieve the shortest path from the source node (i.e., node 1) to node 2
+print(f'shortest path (link id) from node 1 to node 2 {sp_tree_link[2]}')
+# retrieve the shortest path from the source node (i.e., node 1) to node 3
+print(f'shortest path (link id) from node 1 to node 3 {sp_tree_link[3]}')
+```
+
+Similarly, you can get the distance-based shortest path tree as well.
+
+```python
+import path4gmns as pg
+
+network = pg.read_network()
+
+# get shortest path tree (in node sequences) from node 1 (cost is measured by distance)
+sp_tree_node = network.get_shortest_path_tree(1, cost_type='distance')
+# retrieve the shortest path from the source node (i.e., node 1) to node 2
+print(f'shortest path (node id) from node 1 to node 2 {sp_tree_node[2]}')
+# retrieve the shortest path from the source node (i.e., node 1) to node 3
+print(f'shortest path (node id) from node 1 to node 3 {sp_tree_node[3]}')
+
+# get shortest path tree (in link sequences) from node 1 (cost is measured by distance)
+sp_tree_link = network.get_shortest_path_tree(1, seq_type='link', cost_type='distance')
+# retrieve the shortest path from the source node (i.e., node 1) to node 2
+print(f'shortest path (link id) from node 1 to node 2 {sp_tree_link[2]}')
+# retrieve the shortest path from the source node (i.e., node 1) to node 3
+print(f'shortest path (link id) from node 1 to node 3 {sp_tree_link[3]}')
+```
+
+You can also get a shortest path tree with respect to a specific mode, which is specified in settings.yml.
+
+```python
+import path4gmns as pg
+
+network = pg.read_network()
+
+# get shortest path tree (in node sequences) from node 1 (cost is measured by time) under mode 'w'
+sp_tree_node = network.get_shortest_path_tree(1, mode='w')
+# retrieve the shortest path from the source node (i.e., node 1) to node 2
+print(f'shortest path (node id) from node 1 to node 2 {sp_tree_node[2]}')
+# retrieve the shortest path from the source node (i.e., node 1) to node 3
+print(f'shortest path (node id) from node 1 to node 3 {sp_tree_node[3]}')
+
+# get shortest path tree (in link sequences) from node 1 (cost is measured by distance) under mode 'w'
+sp_tree_link = network.get_shortest_path_tree(1, mode='w', seq_type='link', cost_type='distance')
+# retrieve the shortest path from the source node (i.e., node 1) to node 2
+print(f'shortest path (link id) from node 1 to node 2 {sp_tree_link[2]}')
+# retrieve the shortest path from the source node (i.e., node 1) to node 3
+print(f'shortest path (link id) from node 1 to node 3 {sp_tree_link[3]}')
+```
 
 ## Find Path-Based UE
 The Python column-generation module only implements path-based UE. If you need other assignment modes, e.g., link-based UE or DTA, please use perform_network_assignment_DTALite(). Note that **column_gen_num** below specifies the maximum number of paths / columns for each OD pair.

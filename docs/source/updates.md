@@ -66,7 +66,7 @@
 64. Optimize the UE module on computing the relative gap in the postprocessing (v0.9.10)
 65. Include rel_gap_tolerance as an additional argument to find_ue() and return the final relative gap (v0.9.10)
 66. Fix bug on path cost unit for find_shortest_path() reported in Issue #58 (v0.9.10)
-67. Display the path cost in either travel distance or travel time (v0.9.10)
+67. Find the shortest path in either travel distance or travel time (v0.9.10)
 68. Adaptively display the path distance per the length unit passed to read_network() (v0.9.10)
 69. Introduce get_shortest_path_tree() to return the shortest path tree from a given source node (v0.9.10)
 70. Remove deprecated APIs including perform_column_generation(), perform_network_assignment(), perform_network_assignment(), and perform_network_assignment_DTALite() (v0.9.10)

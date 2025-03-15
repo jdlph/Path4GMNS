@@ -1827,6 +1827,41 @@ class UI:
 
     def get_shortest_path_tree(self, from_node_id,
                                mode='all', seq_type='node', cost_type='time'):
+        """ return the shorest path tree from the source node (from_node_id)
+
+        Parameters
+        ----------
+        from_node_id
+            the source (root) node id
+
+        mode
+            the target transportation mode which is defined in settings.yml. It
+            can be either agent type or its name. For example, 'w' and 'walk'
+            are equivalent inputs.
+
+            The default is 'all', which means that links are open to all modes.
+
+        seq_type
+            'node' or 'link'. You will get the shortest path in sequence of
+            either node IDs or link IDs. The default is 'node'.
+
+        cost_type
+            'time' or 'distance'. find the shortest path according travel time
+            or travel distance.
+
+        Returns
+        -------
+        dictionary
+            the shortest paths from the source node to any other nodes (the
+            source node itself is excluded).
+
+            key is to_node_id and value is the corresponding shortest path
+            information including path cost and path details.
+
+            path cost and path details are in line with the specified
+            cost_type and seq_type.
+        """
+
         return self._base_assignment.get_shortest_path_tree(
             from_node_id, mode, seq_type, cost_type
         )
@@ -1863,10 +1898,10 @@ class UI:
         Parameters
         ----------
         from_node_id
-            the starting node id, which shall be a string
+            the starting node id
 
         to_node_id
-            the ending node id, which shall be a string
+            the ending node id
 
         mode
             the target transportation mode which is defined in settings.yml. It
