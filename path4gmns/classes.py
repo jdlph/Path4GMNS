@@ -1545,11 +1545,13 @@ class Assignment:
         at_name, _ = self._convert_mode(mode)
         self.network.set_agent_type_name(at_name)
 
+        is_int = isinstance(from_node_id, int)
         # add backward compatibility in case the user still use integer node id's
-        from_node_id = str(from_node_id)
+        if is_int:
+            from_node_id = str(from_node_id)
 
         return get_shortest_path_tree(self.network, from_node_id,
-                                      seq_type, cost_type)
+                                      seq_type, cost_type, is_int)
 
     def benchmark_apsp(self):
         benchmark_apsp(self.network)

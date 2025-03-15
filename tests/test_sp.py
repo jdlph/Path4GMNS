@@ -82,6 +82,7 @@ def test_get_shortest_path_tree(sample_data_dir):
     network = read_network(input_dir=sample_data_dir)
     # shortest path tree from node 1 (cost is measured by time)
     sp_tree_time = network.get_shortest_path_tree(1)
+
     sp_tree_time[2]
     sp_tree_time[3]
     sp_tree_time[4]
@@ -89,6 +90,7 @@ def test_get_shortest_path_tree(sample_data_dir):
 
     # shortest path tree from node 1 (cost is measured by distance)
     sp_tree_dist = network.get_shortest_path_tree(1, cost_type='distance')
+
     sp_tree_dist[2]
     sp_tree_dist[3]
     sp_tree_dist[4]

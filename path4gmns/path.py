@@ -6,6 +6,7 @@ from os import path
 from time import time
 
 from .consts import MAX_LABEL_COST
+from .utils import _convert_str_to_int, InvalidRecord
 
 
 # these should not be here, which suggests alternative ways to invoke!
@@ -212,23 +213,44 @@ def _get_path_sequence_str(G, to_node_id, seq_type):
     return ';'.join(str(x) for x in output_path_sequence(G, to_node_id, seq_type))
 
 
-def get_shortest_path_tree(G, from_node_id, seq_type, cost_type):
+def get_shortest_path_tree(G, from_node_id, seq_type, cost_type, integer_node_id):
     """ compute the shortest path tree from the source node (from_node_id)
 
     it returns a dictionary, where key is to_node_id and value is the
     corresponding shortest path information (path cost and path details).
 
-    Note that it returns the shortest paths from the source node (from_node_id)
-    to any other nodes, where the source node itself is excluded.
+    Note that the source node itself is excluded from the dictionary keys.
     """
     if from_node_id not in G.map_id_to_no:
         raise Exception(f'Node ID: {from_node_id} not in the network')
 
     single_source_shortest_path(G, from_node_id, cost_type)
 
-    return {to_node_id : [G.get_path_cost(to_node_id, cost_type),
-                          _get_path_sequence_str(G, to_node_id, seq_type)]
-                          for to_node_id in G.map_id_to_no.keys() if to_node_id != from_node_id}
+    if integer_node_id:
+        sp_tree = {}
+        for to_node_id in G.map_id_to_no:
+            if to_node_id == from_node_id:
+                continue
+
+            try:
+                to_node_id_int = _convert_str_to_int(to_node_id)
+            except InvalidRecord:
+                to_node_id_int = to_node_id
+
+            sp_tree[to_node_id_int] = (
+                G.get_path_cost(to_node_id, cost_type),
+                _get_path_sequence_str(G, to_node_id, seq_type)
+            )
+
+        return sp_tree
+    else:
+        return {
+            to_node_id : [
+                G.get_path_cost(to_node_id, cost_type),
+                _get_path_sequence_str(G, to_node_id, seq_type)
+            ]
+            for to_node_id in G.map_id_to_no if to_node_id != from_node_id
+        }
 
 
 def benchmark_apsp(G):
