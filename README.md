@@ -38,7 +38,7 @@ $ pip install path4gmns
 > v0.9.10 comes with bug fix on [find_shortest_path()](https://github.com/jdlph/Path4GMNS/issues/58), new functionality on obtaining the shortest path tree, and performance improvement on the UE module. Please **discard all old versions**.
 
 > [!WARNING]
-> The path cost from find_shortest_path() is in travel time rather than distance for v0.9.9.post1 and any earlier versions. See [Issue #58](https://github.com/jdlph/Path4GMNS/issues/58) for details. v0.9.10 offers the correct implementation.
+> find_shortest_path() computes the shortest path per travel time rather than distance for v0.9.9.post1 and any earlier versions. See [Issue #58](https://github.com/jdlph/Path4GMNS/issues/58) for details. v0.9.10 offers the correct implementation with the flexibility to switch between time and distance.
 
 > [!WARNING]
 > Invoking find_shortest_path() and find_ue() in the same code snippet will lead to [OSError: exception: access violation reading ...](https://github.com/jdlph/Path4GMNS/issues/51#issue-2601430024) for v0.9.9 and any version before.

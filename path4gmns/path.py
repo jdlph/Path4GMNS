@@ -246,6 +246,10 @@ def benchmark_apsp(G):
     st = time()
 
     for k in G.map_id_to_no:
+        # do not include centroids
+        if G.map_id_to_no[k] >= G.get_last_thru_node():
+            break
+        
         single_source_shortest_path(G, k)
 
     print(f'processing time of finding all-pairs shortest paths: {time()-st:.4f} s')

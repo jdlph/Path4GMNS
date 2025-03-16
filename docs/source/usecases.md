@@ -44,7 +44,7 @@ print('\nshortest path (link id) from node 1 to node 2, '
       +network.find_shortest_path(1, 2, seq_type='link'))
 ```
 
-Retrieving the shortest path between any two (different) nodes under a specific mode is now available under v0.7.2 or higher.
+Retrieving the shortest path between any two (different) nodes under a specific mode is available under v0.7.2 or higher.
 ```python
 import path4gmns as pg
 
@@ -91,14 +91,16 @@ import path4gmns as pg
 
 network = pg.read_network()
 
-# get shortest path tree (in node sequences) from node 1 (cost is measured by time (in minutes))
+# get shortest path tree (in node sequences) from node 1
+# cost is measured by time (in minutes)
 sp_tree_node = network.get_shortest_path_tree(1)
 # retrieve the shortest path from the source node (i.e., node 1) to node 2
 print(f'shortest path (node id) from node 1 to node 2: {sp_tree_node[2]}')
 # retrieve the shortest path from the source node (i.e., node 1) to node 3
 print(f'shortest path (node id) from node 1 to node 3: {sp_tree_node[3]}')
 
-# get shortest path tree (in link sequences) from node 1 (cost is measured by time (in minutes))
+# get shortest path tree (in link sequences) from node 1
+# cost is measured by time (in minutes)
 sp_tree_link = network.get_shortest_path_tree(1, seq_type='link')
 # retrieve the shortest path from the source node (i.e., node 1) to node 2
 print(f'shortest path (link id) from node 1 to node 2: {sp_tree_link[2]}')
@@ -106,14 +108,15 @@ print(f'shortest path (link id) from node 1 to node 2: {sp_tree_link[2]}')
 print(f'shortest path (link id) from node 1 to node 3: {sp_tree_link[3]}')
 ```
 
-Similarly, you can get the distance-based shortest path tree as well. The distance unit is in line with the one passed to read_network(), which is miles by default.
+Similarly, you can get the distance-based shortest path tree as well. The distance unit is in line with the one passed to read_network().
 
 ```python
 import path4gmns as pg
 
 network = pg.read_network()
 
-# get shortest path tree (in node sequences) from node 1 (cost is measured by distance (in miles))
+# get shortest path tree (in node sequences) from node 1
+# cost is measured by distance (in miles)
 sp_tree_node = network.get_shortest_path_tree(1, cost_type='distance')
 # retrieve the shortest path from the source node (i.e., node 1) to node 2
 print(f'shortest path (node id) from node 1 to node 2: {sp_tree_node[2]}')
@@ -135,14 +138,16 @@ import path4gmns as pg
 
 network = pg.read_network()
 
-# get shortest path tree (in node sequences) from node 1 (cost is measured by time) under mode 'w'
+# get shortest path tree (in node sequences) from node 1 under mode 'w'
+# cost is measured by time (in minutes)
 sp_tree_node = network.get_shortest_path_tree(1, mode='w')
 # retrieve the shortest path from the source node (i.e., node 1) to node 2
 print(f'shortest path (node id) from node 1 to node 2: {sp_tree_node[2]}')
 # retrieve the shortest path from the source node (i.e., node 1) to node 3
 print(f'shortest path (node id) from node 1 to node 3: {sp_tree_node[3]}')
 
-# get shortest path tree (in link sequences) from node 1 (cost is measured by distance) under mode 'w'
+# get shortest path tree (in link sequences) from node 1 under mode 'w'
+# cost is measured by distance
 sp_tree_link = network.get_shortest_path_tree(1, mode='w', seq_type='link', cost_type='distance')
 # retrieve the shortest path from the source node (i.e., node 1) to node 2
 print(f'shortest path (link id) from node 1 to node 2: {sp_tree_link[2]}')
@@ -192,7 +197,7 @@ pg.output_columns(network)
 pg.output_link_performance(network)
 ```
 
-v0.9.10 provides users more flexibility to control UE convergency by returning the relative gap and passing the relative gap tolerance (i.e., the target relative gap). find_ue() will terminate when either column_upd_num or rel_gap_tolerance is reached.
+v0.9.10 provides users more flexibility to control UE convergency with the relative gap tolerance (i.e., the target relative gap). find_ue() will terminate when either column_upd_num or rel_gap_tolerance is reached and return the final relative gap.
 ```python
 import path4gmns as pg
 
@@ -215,7 +220,7 @@ pg.output_link_performance(network)
 
 ### In Case of Special Events
 
-A special event often comes with capacity reduction over affected links, which is now supported in v0.8.4 or higher. You can introduce one special event for each demand period in settings.yml as below.
+A special event often comes with capacity reduction over affected links, which is supported in v0.8.4 or higher. You can introduce one special event for each demand period in settings.yml as below.
 
 ```yaml
 demand_periods:
