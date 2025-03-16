@@ -1,5 +1,4 @@
 """ The Python interface connecting the C++ path engine and other Python APIs """
-
 import ctypes
 import platform
 from os import path
@@ -7,16 +6,6 @@ from time import time
 
 from .consts import MAX_LABEL_COST
 from .utils import _convert_str_to_int, InvalidRecord
-
-
-# these should not be here, which suggests alternative ways to invoke!
-__all__ = [
-    'single_source_shortest_path',
-    'output_path_sequence',
-    'find_shortest_path',
-    'get_shortest_path_tree',
-    'benchmark_apsp'
-]
 
 
 _os = platform.system()
@@ -99,7 +88,7 @@ def single_source_shortest_path(G, orig_node_id, cost_type='time'):
     _optimal_label_correcting_CAPI(G, orig_node_no)
 
 
-def output_path_sequence(G, to_node_id, type='node'):
+def output_path_sequence(G, to_node_id, seq_type='node'):
     """ output shortest path in terms of node sequence or link sequence
 
     Note that this function returns GENERATOR rather than list.
@@ -107,7 +96,7 @@ def output_path_sequence(G, to_node_id, type='node'):
     path = []
     curr_node_no = G.map_id_to_no[to_node_id]
 
-    if type.startswith('node'):
+    if seq_type.startswith('node'):
         # retrieve the sequence backwards
         while curr_node_no >= 0:
             path.append(curr_node_no)
