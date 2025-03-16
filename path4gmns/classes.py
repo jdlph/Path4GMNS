@@ -1547,8 +1547,7 @@ class Assignment:
 
         is_int = isinstance(from_node_id, int)
         # add backward compatibility in case the user still use integer node id's
-        if is_int:
-            from_node_id = str(from_node_id)
+        from_node_id = str(from_node_id)
 
         return get_shortest_path_tree(self.network, from_node_id,
                                       seq_type, cost_type, is_int)
@@ -1854,11 +1853,11 @@ class UI:
         Returns
         -------
         dictionary
-            the shortest paths from the source node to any other nodes (the
+            shortest paths from the source node to any other nodes (the
             source node itself is excluded).
 
             key is to_node_id and value is the corresponding shortest path
-            information including path cost and path details.
+            information including path cost and path details (as a tuple).
 
             path cost and path details are in line with the specified
             cost_type and seq_type.

@@ -95,3 +95,21 @@ def test_get_shortest_path_tree(sample_data_dir):
     sp_tree_dist[3]
     sp_tree_dist[4]
     sp_tree_dist[5]
+
+    sp_tree_time.clear()
+    sp_tree_dist.clear()
+
+    # use string node id as the key and check the consistency
+    sp_tree_time = network.get_shortest_path_tree('1')
+
+    sp_tree_time['2']
+    sp_tree_time['3']
+    sp_tree_time['4']
+    sp_tree_time['5']
+
+    sp_tree_dist = network.get_shortest_path_tree('1', cost_type='distance')
+
+    sp_tree_dist['2']
+    sp_tree_dist['3']
+    sp_tree_dist['4']
+    sp_tree_dist['5']

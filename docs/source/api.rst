@@ -29,8 +29,6 @@ path4gmns.conduct_odme
 path4gmns.colgen
 ================
 .. autofunction:: path4gmns.colgen.find_ue
-.. autofunction:: path4gmns.colgen.perform_column_generation
-.. autofunction:: path4gmns.colgen.perform_network_assignment
   
 
 path4gmns.io
@@ -40,6 +38,7 @@ path4gmns.io
 .. autofunction:: path4gmns.io.read_network
 .. autofunction:: path4gmns.io.load_demand
 .. autofunction:: path4gmns.io.load_columns
+.. autofunction:: path4gmns.io.output_columns
 .. autofunction:: path4gmns.io.output_link_performance
 .. autofunction:: path4gmns.io.output_agent_paths
 .. autofunction:: path4gmns.io.output_agent_trajectory

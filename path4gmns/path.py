@@ -245,10 +245,10 @@ def get_shortest_path_tree(G, from_node_id, seq_type, cost_type, integer_node_id
         return sp_tree
     else:
         return {
-            to_node_id : [
+            to_node_id : (
                 G.get_path_cost(to_node_id, cost_type),
                 _get_path_sequence_str(G, to_node_id, seq_type)
-            ]
+            )
             for to_node_id in G.map_id_to_no if to_node_id != from_node_id
         }
 
