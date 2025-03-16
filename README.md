@@ -35,13 +35,13 @@ $ pip install path4gmns
 ```
 
 > [!IMPORTANT]
-> v0.9.10 comes with bug fix on [find_shortest_path()](https://github.com/jdlph/Path4GMNS/issues/58), performance improvement on the UE module, and new functionality on obtaining the shortest path tree. Please **discard all old versions**.
+> v0.9.10 comes with bug fix on [find_shortest_path()](https://github.com/jdlph/Path4GMNS/issues/58), new functionality on obtaining the shortest path tree, and performance improvement on the UE module. Please **discard all old versions**.
 
 > [!WARNING]
-> The foregoing network inconsistency will lead to [OSError: exception: access violation reading ...](https://github.com/jdlph/Path4GMNS/issues/51#issue-2601430024) for v0.9.9 and any version before.
-
-> [!CAUTION]
 > The path cost from find_shortest_path() is in travel time rather than distance for v0.9.9.post1 and any earlier versions. See [Issue #58](https://github.com/jdlph/Path4GMNS/issues/58) for details. v0.9.10 offers the correct implementation.
+
+> [!WARNING]
+> Invoking find_shortest_path() and find_ue() in the same code snippet will lead to [OSError: exception: access violation reading ...](https://github.com/jdlph/Path4GMNS/issues/51#issue-2601430024) for v0.9.9 and any version before.
 
 > [!CAUTION]
 > Any version prior to v0.9.4 will generate INCORRECT simulation results.
@@ -53,17 +53,14 @@ $ pip install path4gmns
 > Zone and demand synthesis is PROBLEMATIC for any version before v0.9.9.
 
 > [!NOTE]
-> ODME is now available with v0.9.9 and v0.9.9.post1.
-
-> [!NOTE]
-> The next release will bring in the classic Frank-Wolfe algorithm with line search.
+> ODME is available with v0.9.9 and higher.
 
 ### Dependency
 The Python modules are written in **Python 3.x**, which is the minimum requirement to explore the most of Path4GMNS. Some of its functions require further run-time support, which we will go through along with the corresponding **[Use Cases](https://path4gmns.readthedocs.io/en/stable/)**.
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2025, March 15). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2025, March 16). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## Please Contribute
 

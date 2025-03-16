@@ -141,6 +141,7 @@ def download_sample_data_sets():
         "node.csv",
         "link.csv",
         "demand.csv",
+        "measurement.csv",
         "settings.csv",
         "settings.yml"
     ]
