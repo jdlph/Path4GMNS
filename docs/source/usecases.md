@@ -123,7 +123,8 @@ print(f'shortest path (node id) from node 1 to node 2: {sp_tree_node[2]}')
 # retrieve the shortest path from the source node (i.e., node 1) to node 3
 print(f'shortest path (node id) from node 1 to node 3: {sp_tree_node[3]}')
 
-# get shortest path tree (in link sequences) from node 1 (cost is measured by distance (in miles))
+# get shortest path tree (in link sequences) from node 1 
+# cost is measured by distance (in miles)
 sp_tree_link = network.get_shortest_path_tree(1, seq_type='link', cost_type='distance')
 # retrieve the shortest path from the source node (i.e., node 1) to node 2
 print(f'shortest path (link id) from node 1 to node 2: {sp_tree_link[2]}')

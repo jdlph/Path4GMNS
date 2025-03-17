@@ -115,28 +115,43 @@ def perform_network_assignment_DTALite(assignment_mode,
         # the following multiprocessing call does not work for Windows,
         # and there is no solution.
         # OSError: [WinError 87] The parameter is incorrect
-        proc_dta = Process(
-            target=_dtalite_engine.network_assignment,
-            args=(assignment_mode, column_gen_num, column_upd_num,)
-        )
 
-        proc_print = Process(target=_emit_log)
+        # multiprocessing will crush on macOS for Python 3.8 and higher
+        try:
+            proc_dta = Process(
+                target=_dtalite_engine.network_assignment,
+                args=(assignment_mode, column_gen_num, column_upd_num,)
+            )
 
-        proc_dta.start()
-        proc_dta.join()
+            proc_print = Process(target=_emit_log)
 
-        if proc_dta.exitcode is not None:
-            sleep(0.1)
-            proc_print.start()
-            proc_print.join()
-            if proc_dta.exitcode == 0:
-                print('DTALite run completes!\n')
-                print(
-                    f'check link_performance.csv in {os.getcwd()} for link performance\n'
-                    f'check route_assignment.csv in {os.getcwd()} for unique agent paths\n'
-                )
-            else:
-                print('DTALite run terminates!')
+            proc_dta.start()
+            proc_dta.join()
+
+            if proc_dta.exitcode is not None:
+                sleep(0.1)
+                proc_print.start()
+                proc_print.join()
+                if proc_dta.exitcode == 0:
+                    print('DTALite run completes!\n')
+                    print(
+                        f'check link_performance.csv in {os.getcwd()} for link performance\n'
+                        f'check route_assignment.csv in {os.getcwd()} for unique agent paths\n'
+                    )
+                else:
+                    print('DTALite run terminates!')
+        except ValueError:
+            _dtalite_engine.network_assignment(
+                assignment_mode, column_gen_num, column_upd_num
+            )
+
+            _emit_log()
+
+            print('\nDTALite run completes\n')
+            print(
+                f'check link_performance.csv in {os.getcwd()} for link performance\n'
+                f'check route_assignment.csv in {os.getcwd()} for unique agent paths\n'
+            )
 
 
 def run_DTALite():
@@ -168,17 +183,22 @@ def run_DTALite():
     _dtalitemm_engine = ctypes.cdll.LoadLibrary(_dtalitemm_dll)
     print('\nDTALite run starts\n')
 
-    proc_dta = Process(target=_dtalitemm_engine.DTALiteAPI())
-    proc_print = Process(target=_emit_log, args=('log_DTA.txt',))
+    try:
+        proc_dta = Process(target=_dtalitemm_engine.DTALiteAPI())
+        proc_print = Process(target=_emit_log, args=('log_DTA.txt',))
 
-    proc_dta.start()
-    proc_dta.join()
+        proc_dta.start()
+        proc_dta.join()
 
-    if proc_dta.exitcode is not None:
-        sleep(0.1)
-        proc_print.start()
-        proc_print.join()
-        if proc_dta.exitcode == 0:
-            print('DTALite run completes!')
-        else:
-            print('DTALite run terminates!')
+        if proc_dta.exitcode is not None:
+            sleep(0.1)
+            proc_print.start()
+            proc_print.join()
+            if proc_dta.exitcode == 0:
+                print('DTALite run completes!')
+            else:
+                print('DTALite run terminates!')
+    except ValueError:
+        _dtalitemm_engine.DTALiteAPI()
+        _emit_log()
+        print('DTALite run completes!')

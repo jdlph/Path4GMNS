@@ -24,7 +24,7 @@ autodoc_mock_imports = [
 # -- Project information -----------------------------------------------------
 
 project = 'Path4GMNS'
-copyright = '2021 - 2024, Dr. Peiheng Li and Dr. Xuesong (Simon) Zhou'
+copyright = '2021 - 2025, Dr. Peiheng Li and Dr. Xuesong (Simon) Zhou'
 author = 'Dr. Peiheng Li and Dr. Xuesong (Simon) Zhou'
 
 # The full version, including alpha/beta/rc tags
