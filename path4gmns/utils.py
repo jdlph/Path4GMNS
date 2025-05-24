@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+from sys import version_info
 from threading import Thread
 
 from .consts import MILE_TO_METER, MPH_TO_KPH
@@ -225,3 +226,7 @@ def get_spd_unit_conversion_factor(unit):
         return MPH_TO_KPH
 
     return 1
+
+
+def get_python_ver():
+    return version_info.major, version_info.minor

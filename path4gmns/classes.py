@@ -1,5 +1,5 @@
 import ctypes
-from collections import deque
+from collections import deque, OrderedDict
 from copy import deepcopy
 from datetime import datetime
 from math import ceil, floor
@@ -8,6 +8,7 @@ from random import choice, randint
 from .consts import EPSILON, MAX_LABEL_COST, SECONDS_IN_MINUTE, SECONDS_IN_HOUR
 from .path import benchmark_apsp, find_path_for_agents, find_shortest_path, \
                   get_shortest_path_tree, single_source_shortest_path
+from .utils import get_python_ver
 
 
 __all__ = ['UI']
@@ -1360,7 +1361,11 @@ class Assignment:
         self.demand_periods = []
         self.demands = []
         # 4-d array
-        self.column_pool = {}
+        # the insertion order is conserved starting from Python 3.6
+        if get_python_ver <= (3, 5):
+            self.column_pool = OrderedDict()
+        else:
+            self.column_pool = {}
         # base physical network
         self.network = None
         # SPNetwork instance for computing shortest paths only
