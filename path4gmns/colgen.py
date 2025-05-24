@@ -262,16 +262,17 @@ def _update_column_attributes(column_pool, links, agent_types, spnetworks):
 def _generate(spn, column_pool, iter_num):
     for c in spn.get_orig_centroids():
         single_source_shortest_path(spn, c.get_node_id())
-
-        _backtrace_shortest_path_tree(c,
-                                      spn.get_centroids(),
-                                      spn.get_links(),
-                                      spn.get_node_preds(),
-                                      spn.get_link_preds(),
-                                      spn.get_agent_type().get_id(),
-                                      spn.get_demand_period().get_id(),
-                                      column_pool,
-                                      iter_num)
+        _backtrace_shortest_path_tree(
+            c,
+            spn.get_centroids(),
+            spn.get_links(),
+            spn.get_node_preds(),
+            spn.get_link_preds(),
+            spn.get_agent_type().get_id(),
+            spn.get_demand_period().get_id(),
+            column_pool,
+            iter_num
+        )
 
 
 def _generate_column_pool(spnetworks, column_pool, iter_num):

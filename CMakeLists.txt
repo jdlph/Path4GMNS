@@ -30,13 +30,6 @@ add_custom_target(dev-install ALL
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
-add_custom_target(publish
-    COMMAND ${CMAKE_COMMAND} -E echo "-- publish the package on PyPI: ${PROJECT_NAME}-${LOCAL_VER}..."
-    COMMAND ${CMAKE_COMMAND} -E env python -m twine upload --repository pypi ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-${LOCAL_VER}*
-    DEPENDS build
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-)
-
 add_custom_target(pypi-install
     COMMAND ${CMAKE_COMMAND} -E echo "-- PyPI install: ${PROJECT_NAME}..."
     COMMAND ${CMAKE_COMMAND} -E env python -m pip uninstall -y ${PROJECT_NAME}

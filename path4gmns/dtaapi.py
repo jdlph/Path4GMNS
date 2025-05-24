@@ -99,18 +99,19 @@ def perform_network_assignment_DTALite(assignment_mode,
           'Please use run_DTALite() instead!')
     print('\nDTALite run starts\n')
 
-    if _os.startswith('Windows'):
-        _dtalite_engine.network_assignment(assignment_mode,
-                                           column_gen_num,
-                                           column_upd_num)
-
+    def _dtalite():
+        _dtalite_engine.network_assignment(
+            assignment_mode, column_gen_num, column_upd_num
+        )
         _emit_log()
-
         print('\nDTALite run completes\n')
         print(
             f'check link_performance.csv in {os.getcwd()} for link performance\n'
             f'check route_assignment.csv in {os.getcwd()} for unique agent paths\n'
         )
+
+    if _os.startswith('Windows'):
+        _dtalite()
     else:
         # the following multiprocessing call does not work for Windows,
         # and there is no solution.
@@ -141,17 +142,7 @@ def perform_network_assignment_DTALite(assignment_mode,
                 else:
                     print('DTALite run terminates!')
         except ValueError:
-            _dtalite_engine.network_assignment(
-                assignment_mode, column_gen_num, column_upd_num
-            )
-
-            _emit_log()
-
-            print('\nDTALite run completes\n')
-            print(
-                f'check link_performance.csv in {os.getcwd()} for link performance\n'
-                f'check route_assignment.csv in {os.getcwd()} for unique agent paths\n'
-            )
+            _dtalite()
 
 
 def run_DTALite():
