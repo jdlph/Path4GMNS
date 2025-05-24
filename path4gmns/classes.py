@@ -1,5 +1,5 @@
 import ctypes
-from collections import deque, OrderedDict
+from collections import deque
 from copy import deepcopy
 from datetime import datetime
 from math import ceil, floor
@@ -1362,10 +1362,7 @@ class Assignment:
         self.demands = []
         # 4-d array
         # the insertion order is conserved starting from Python 3.6
-        if get_python_ver <= (3, 5):
-            self.column_pool = OrderedDict()
-        else:
-            self.column_pool = {}
+        self.column_pool = {}
         # base physical network
         self.network = None
         # SPNetwork instance for computing shortest paths only
