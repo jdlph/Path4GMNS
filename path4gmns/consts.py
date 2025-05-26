@@ -14,3 +14,5 @@ MPH_TO_KPH = 1.60934
 # simulation
 SECONDS_IN_MINUTE = 60
 SECONDS_IN_HOUR = 3600
+# for downloading
+GITHUB_API_URL = "https://api.github.com/repos"

@@ -1,9 +1,10 @@
 import os
+import requests
 from datetime import timedelta
 from sys import version_info
 from threading import Thread
 
-from .consts import MILE_TO_METER, MPH_TO_KPH
+from .consts import GITHUB_API_URL, MILE_TO_METER, MPH_TO_KPH
 
 
 __all__ = ['download_sample_data_sets', 'download_sample_setting_file']
@@ -188,6 +189,57 @@ def download_sample_setting_file():
 
     print('downloading completes')
     print(f'check {os.getcwd()} for downloaded settings.yml')
+
+
+def _download_file(file_url, dest_path):
+    try:
+        r = requests.get(file_url)
+        r.raise_for_status()
+        with open(dest_path, 'wb') as f:
+            f.write(r.content)
+    except requests.HTTPError:
+        print(f'file not existing: {file_url}')
+    except requests.ConnectionError:
+        raise Exception('check your connection!!!')
+    except Exception as e:
+        raise e
+
+
+def _download_directory(repo_owner, repo_name, tgt_dir, loc_dir, branch_name="main"):
+    api_url = f"{GITHUB_API_URL}/{repo_owner}/{repo_name}/contents/{tgt_dir}?ref={branch_name}"
+    r = requests.get(api_url)
+    r.raise_for_status()
+    contents = r.json()
+
+    if not os.path.exists(loc_dir):
+        os.makedirs(loc_dir)
+
+    for item in contents:
+        if item['type'] == 'file':
+            file_url = item['download_url']
+            file_path = os.path.join(loc_dir, item['name'])
+            _download_file(file_url, file_path)
+        elif item['type'] == 'dir':
+            new_tgt_dir = os.path.join(tgt_dir, item['name'])
+            new_loc_dir = os.path.join(loc_dir, item['name'])
+            print(f"Downloading {item['name']} to {new_loc_dir}...")
+            _download_directory(repo_owner, repo_name, new_tgt_dir, new_loc_dir, branch_name)
+
+
+def download_sample_datasets(repo_name='Path4GMNS'):
+    if repo_name.startswith('Path4GMNS'):
+        repo_owner = 'jdlph'
+        branch_name = 'dev'
+    elif repo_name.startswith('DTALite'):
+        repo_owner = 'asu-trans-ai-lab'
+        branch_name = 'feature/multimodal'
+    else:
+        raise Exception('please choose repository from Path4GMNS or DTALite')
+
+    tgt_dir = 'data'
+    loc_dir = './'
+
+    _download_directory(repo_owner, repo_name, tgt_dir, loc_dir, branch_name)
 
 
 def get_len_unit_conversion_factor(unit):
