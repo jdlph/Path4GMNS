@@ -1,6 +1,6 @@
-from os import chdir, getcwd
+from os import chdir, getcwd, path
 
-from path4gmns.dtaapi import perform_network_assignment_DTALite
+from path4gmns.dtaapi import perform_network_assignment_DTALite, run_DTALite
 
 
 ORIG_DIR = getcwd()
@@ -16,11 +16,10 @@ def test_classic_dtalite(sample_data_dir, mode = 1):
     chdir(ORIG_DIR)
 
 
-# disable it from now on (10/16/24) as run_DTALite() requires a different
-# settings.yml
-# def test_multimodal_dtalite(sample_data_dir):
-#     chdir(sample_data_dir)
+def test_multimodal_dtalite(sample_dtalite_data_dir):
+    tgt_dir = path.join(sample_dtalite_data_dir, '03_Chicago_Sketch/minimum_input')
+    chdir(tgt_dir)
 
-#     run_DTALite()
+    run_DTALite()
 
-#     chdir(ORIG_DIR)
+    chdir(ORIG_DIR)
