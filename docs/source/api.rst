@@ -54,7 +54,9 @@ path4gmns.simulation
 path4gmns.utils
 ===============
 .. autofunction:: path4gmns.utils.download_sample_data_sets
+.. autofunction:: path4gmns.utils.download_sample_datasets
 .. autofunction:: path4gmns.utils.download_sample_setting_file
+.. autofunction:: path4gmns.utils.get_python_ver
 
 
 path4gmns.zonesyn

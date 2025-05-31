@@ -7,7 +7,11 @@ from threading import Thread
 from .consts import GITHUB_API_URL, MILE_TO_METER, MPH_TO_KPH
 
 
-__all__ = ['download_sample_data_sets', 'download_sample_setting_file']
+__all__ = [
+    'download_sample_data_sets',
+    'download_sample_datasets',
+    'download_sample_setting_file'
+]
 
 
 class InvalidRecord(Exception):
@@ -106,14 +110,10 @@ def _get_time_stamp(minute):
 
 def _download_url(url, filename, loc_dir):
     try:
-        import requests
-
         r = requests.get(url)
         r.raise_for_status()
         with open(loc_dir+filename, 'wb') as f:
             f.write(r.content)
-    except ImportError:
-        print('please install requests to proceed downloading!!')
     except requests.HTTPError:
         print(f'file not existing: {url}')
     except requests.ConnectionError:
@@ -182,10 +182,11 @@ def download_sample_data_sets():
 def download_sample_setting_file():
     """ download the sample settings.yml from the Github repo """
     url = 'https://raw.githubusercontent.com/jdlph/Path4GMNS/master/data/Chicago_Sketch/settings.yml'
+    loc_dir = '.'
     filename = 'settings.yml'
-    loc_dir = './'
+    dest_path = os.path.join(loc_dir, filename)
 
-    _download_url(url, filename, loc_dir)
+    _download_file(url, dest_path)
 
     print('downloading completes')
     print(f'check {os.getcwd()} for downloaded settings.yml')
@@ -227,6 +228,25 @@ def _download_directory(repo_owner, repo_name, branch_name, tgt_dir, loc_dir):
 
 
 def download_sample_datasets(repo_name='Path4GMNS'):
+    """ download sample datasets from the Github repository
+
+    The following six datasets will be downloaded: ASU, Braess Paradox,
+    Chicago Sketch, Lima Network, Sioux Falls, and Two Corridors.
+
+    Parameters
+    ----------
+    repo_name
+        the target repository name, which shall be either Path4GMNS or DTALite.
+        The default value is Path4GMNS.
+
+    Returns
+    -------
+    None
+
+    Note
+    ----
+    The sample dataset will be downloaded to the current working directory (CWD).
+    """
     if repo_name.startswith('Path4GMNS'):
         repo_owner = 'jdlph'
         branch_name = 'dev'
@@ -240,6 +260,9 @@ def download_sample_datasets(repo_name='Path4GMNS'):
     loc_dir = './'
 
     _download_directory(repo_owner, repo_name, branch_name, tgt_dir, loc_dir)
+
+    print('downloading completes')
+    print(f'check {os.path.join(os.getcwd(), loc_dir)} for downloaded datasets')
 
 
 def get_len_unit_conversion_factor(unit):

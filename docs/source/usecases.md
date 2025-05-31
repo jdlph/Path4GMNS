@@ -1,12 +1,12 @@
 # Use Cases
 
 ## Download the Test Data Set
-A sample data set with six different networks are provided. You can manually retrieve each individual test network from [here](https://github.com/jdlph/Path4GMNS/tree/master/data) or use the built-in helper function to automatically download the whole data set.
+A sample data set with six different networks are provided. You can manually retrieve each individual test network from [here](https://github.com/jdlph/Path4GMNS/tree/dev/data) or use the built-in helper function to automatically download the whole dataset.
 
 ```python
 import path4gmns as pg
 
-pg.download_sample_data_sets()
+pg.download_sample_datasets()
 ```
 
 Note that [requests](https://pypi.org/project/requests/) (2.21.1 or higher) is needed for you to proceed downloading.
