@@ -17,6 +17,8 @@ path4gmns.classes
 
 path4gmns.dtaapi
 ================
+.. autofunction:: path4gmns.dtaapi.DTALiteClassic
+.. autofunction:: path4gmns.dtaapi.DTALiteMultimodal
 .. autofunction:: path4gmns.dtaapi.perform_network_assignment_DTALite
 .. autofunction:: path4gmns.dtaapi.run_DTALite
 

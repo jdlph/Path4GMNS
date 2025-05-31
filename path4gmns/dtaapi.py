@@ -5,7 +5,12 @@ from multiprocessing import Process
 from time import sleep
 
 
-__all__ = ['perform_network_assignment_DTALite', 'run_DTALite']
+__all__ = [
+    'DTALiteClassic', 
+    'DTALiteMultimodal',
+    'perform_network_assignment_DTALite', 
+    'run_DTALite' 
+]
 
 
 _os = platform.system()
@@ -35,12 +40,10 @@ def _emit_log(log_file='log_main.txt'):
             print(line)
 
 
-def perform_network_assignment_DTALite(assignment_mode,
-                                       column_gen_num,
-                                       column_upd_num):
-    """ DEPRECATED Python interface to call DTALite (precompiled as shared library)
+def DTALiteClassic(assignment_mode, column_gen_num, column_upd_num):
+    """ Python interface to call the classic DTALite with the selected assignment mode
 
-    perform network assignment using the selected assignment mode
+    https://github.com/jdlph/DTALite
 
     WARNING
     -------
@@ -145,8 +148,8 @@ def perform_network_assignment_DTALite(assignment_mode,
             _dtalite()
 
 
-def run_DTALite():
-    """ Python interface to call the latest DTALite
+def DTALiteMultimodal():
+    """ Python interface to call the multimodal DTALite
 
     This version of DTALite includes all-new Logbook, enhanced scenario handling,
     improved I/O functionality, and so on.
@@ -163,7 +166,7 @@ def run_DTALite():
 
     Note
     ----
-    It is NOT compatible with the classic DTALite (i.e., perform_network_assignment_DTALite()).
+    It is NOT compatible with the classic DTALite (i.e., DTALiteClassic()).
 
     Only use the following data set from
     https://github.com/asu-trans-ai-lab/DTALite/tree/feature/multimodal/data.
@@ -193,3 +196,21 @@ def run_DTALite():
         _dtalitemm_engine.DTALiteAPI()
         _emit_log()
         print('DTALite run completes!')
+
+
+def perform_network_assignment_DTALite(assignment_mode,
+                                       column_gen_num,
+                                       column_upd_num):
+    """ DEPRECATED Python interface to call the classic DTALite 
+    
+    https://github.com/jdlph/DTALite
+    """
+    DTALiteClassic(assignment_mode, column_gen_num, column_upd_num)
+
+
+def run_DTALite():
+    """ DEPRECATED Python interface to call the multimodal DTALite 
+    
+    https://github.com/asu-trans-ai-lab/DTALite/tree/feature/multimodal
+    """
+    DTALiteMultimodal()

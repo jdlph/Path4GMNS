@@ -10,7 +10,8 @@ from .consts import GITHUB_API_URL, MILE_TO_METER, MPH_TO_KPH
 __all__ = [
     'download_sample_data_sets',
     'download_sample_datasets',
-    'download_sample_setting_file'
+    'download_sample_setting_file',
+    'get_python_ver'
 ]
 
 
@@ -109,6 +110,7 @@ def _get_time_stamp(minute):
 
 
 def _download_url(url, filename, loc_dir):
+    """ DEPRECATED in 0.10.0. use _download_file()"""
     try:
         r = requests.get(url)
         r.raise_for_status()
@@ -123,7 +125,9 @@ def _download_url(url, filename, loc_dir):
 
 
 def download_sample_data_sets():
-    """ download sample data sets from the Github repo
+    """ DEPRECATED in 0.10.0. Please use download_sample_datasets().
+
+    download sample data sets from the Github repo
 
     the following data sets will be downloaded: ASU, Braess Paradox, Chicago Sketch,
     Lima Network, Sioux Falls, and Two Corridors.

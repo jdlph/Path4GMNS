@@ -157,7 +157,7 @@ print(f'shortest path (link id) from node 1 to node 3: {sp_tree_link[3]}')
 ```
 
 ## Find Path-Based UE
-The Python column-generation module only implements path-based UE. If you need other assignment modes, e.g., link-based UE or DTA, please use perform_network_assignment_DTALite(). Note that **column_gen_num** below specifies the maximum number of paths / columns for each OD pair.
+The Python column-generation module only implements path-based UE. If you need other assignment modes, e.g., link-based UE or DTA, please use DTALiteClassic(). Note that **column_gen_num** below specifies the maximum number of paths / columns for each OD pair.
 
 ```python
 import path4gmns as pg
@@ -243,7 +243,7 @@ demand_periods:
 
 If the original capacity of an affected link i is **C**, its capacity then will be **r * C** with a reduction ratio of **r** when a special event is present. For an affected link, setting its capacity_ratio to 0 is equivalent to removing it from the entire demand period. You can turn on or off a special event by setting **enable** to true or false.
 
-Note that this functionality is **NOT** available with perform_network_assignment_DTALite(). You would have to manually update the capacity for each affected link in link.csv to replicate a special event if you plan to use the embedded DTALite to conduct traffic assignment (which is about to be introduced in the next section). The updated capacity for each link will be used by DTALite across all demand periods in settings.csv. In other words, capacity update for a specific demand period is not supported under the current implementation of DTALite.
+Note that this functionality is **NOT** available with DTALiteClassic(). You would have to manually update the capacity for each affected link in link.csv to replicate a special event if you plan to use the embedded DTALite to conduct traffic assignment (which is about to be introduced in the next section). The updated capacity for each link will be used by DTALite across all demand periods in settings.csv. In other words, capacity update for a specific demand period is not supported under the current implementation of DTALite.
 
 ## Conduct Traffic Assignment using DTALite
 DTALite has the following four assignment modes to choose.
@@ -266,7 +266,7 @@ mode = 1
 column_gen_num = 20
 column_upd_num = 20
 
-pg.perform_network_assignment_DTALite(mode, column_gen_num, column_upd_num)
+pg.DTALiteClassic(mode, column_gen_num, column_upd_num)
 
 # no need to call output_columns() and output_link_performance()
 # since outputs will be processed within DTALite

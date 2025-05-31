@@ -301,7 +301,7 @@ def find_ue(ui, column_gen_num, column_upd_num, rel_gap_tolerance=0.0001):
     -------
     Only Path/Column-based User Equilibrium (UE) is implemented in Python.
     If you need other assignment modes or dynamic traffic assignment (DTA),
-    please use perform_network_assignment_DTALite()
+    please use DTALiteClassic()
 
     Parameters
     ----------
