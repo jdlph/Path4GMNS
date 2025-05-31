@@ -205,7 +205,7 @@ def _download_file(file_url, dest_path):
         raise e
 
 
-def _download_directory(repo_owner, repo_name, tgt_dir, loc_dir, branch_name="main"):
+def _download_directory(repo_owner, repo_name, branch_name, tgt_dir, loc_dir):
     api_url = f"{GITHUB_API_URL}/{repo_owner}/{repo_name}/contents/{tgt_dir}?ref={branch_name}"
     r = requests.get(api_url)
     r.raise_for_status()
@@ -223,7 +223,7 @@ def _download_directory(repo_owner, repo_name, tgt_dir, loc_dir, branch_name="ma
             new_tgt_dir = os.path.join(tgt_dir, item['name'])
             new_loc_dir = os.path.join(loc_dir, item['name'])
             print(f"Downloading {item['name']} to {new_loc_dir}...")
-            _download_directory(repo_owner, repo_name, new_tgt_dir, new_loc_dir, branch_name)
+            _download_directory(repo_owner, repo_name, branch_name, new_tgt_dir, new_loc_dir)
 
 
 def download_sample_datasets(repo_name='Path4GMNS'):
@@ -239,7 +239,7 @@ def download_sample_datasets(repo_name='Path4GMNS'):
     tgt_dir = 'data'
     loc_dir = './'
 
-    _download_directory(repo_owner, repo_name, tgt_dir, loc_dir, branch_name)
+    _download_directory(repo_owner, repo_name, branch_name, tgt_dir, loc_dir)
 
 
 def get_len_unit_conversion_factor(unit):

@@ -1,16 +1,36 @@
-from os import chdir, getcwd
+from os import chdir, getcwd, path
+from shutil import rmtree
 
-from path4gmns.utils import download_sample_data_sets
+from path4gmns.utils import download_sample_data_sets, download_sample_datasets, \
+                            download_sample_setting_file, get_python_ver
 from path4gmns.io import read_demand, read_network
 
 
-def test_download_sample_data_sets(tmp_output_dir):
-    orig_dir = getcwd()
+_ORIG_DIR = getcwd()
 
+
+def test_download_sample_data_sets(tmp_output_dir):
     chdir(tmp_output_dir)
     download_sample_data_sets()
 
-    chdir(orig_dir)
+    download_dir = path.join(tmp_output_dir, 'data')
+
+    chdir(_ORIG_DIR)
+    rmtree(download_dir)
+
+
+def test_download_sample_datasets(tmp_output_dir):
+    chdir(tmp_output_dir)
+    download_sample_datasets()
+
+    chdir(_ORIG_DIR)
+
+
+def test_download_sample_setting_file(tmp_output_dir):
+    chdir(tmp_output_dir)
+    download_sample_setting_file()
+
+    chdir(_ORIG_DIR)
 
 
 def test_data_synthesis(sample_data_dir, tmp_output_dir):
@@ -19,3 +39,7 @@ def test_data_synthesis(sample_data_dir, tmp_output_dir):
     # try to load synthetic data if there is any. otherwise, synthesize demand
     # and zones, and output them.
     read_demand(network, use_synthetic_data = True, input_dir=tmp_output_dir)
+
+
+def test_get_python_ver():
+    assert(get_python_ver() >= (3, 6))
