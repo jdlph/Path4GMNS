@@ -30,7 +30,7 @@ def test_finding_ue_with_rel_gap_tolerance(sample_data_dir):
     while rel_gap > rel_gap_tolerance:
         rel_gap = find_ue(network, 0, column_upd_num)
 
-    assert(rel_gap <= rel_gap_tolerance)
+    assert rel_gap <= rel_gap_tolerance
 
 
 def test_loading_columns(sample_data_dir, tmp_output_dir):

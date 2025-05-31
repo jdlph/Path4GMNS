@@ -8,7 +8,6 @@ from random import choice, randint
 from .consts import EPSILON, MAX_LABEL_COST, SECONDS_IN_MINUTE, SECONDS_IN_HOUR
 from .path import benchmark_apsp, find_path_for_agents, find_shortest_path, \
                   get_shortest_path_tree, single_source_shortest_path
-from .utils import get_python_ver
 
 
 __all__ = ['UI']
@@ -1620,9 +1619,7 @@ class Assignment:
         if source_node_id not in self.network.map_id_to_no:
             raise Exception(f'Node ID: {source_node_id} not in the network')
 
-        assert(time_budget>=0)
-
-        if time_budget == 0:
+        if time_budget <= 0:
             return []
 
         if not self.accessnetwork:

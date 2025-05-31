@@ -332,8 +332,8 @@ def find_ue(ui, column_gen_num, column_upd_num, rel_gap_tolerance=0.0001):
     volumes and other link attributes on each link (in link_performance.csv).
     """
     # make sure iteration numbers are both non-negative
-    assert(column_gen_num>=0)
-    assert(column_upd_num>=0)
+    assert column_gen_num >= 0
+    assert column_upd_num >= 0
 
     # base assignment
     A = ui._base_assignment

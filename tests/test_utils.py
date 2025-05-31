@@ -42,4 +42,4 @@ def test_data_synthesis(sample_data_dir, tmp_output_dir):
 
 
 def test_get_python_ver():
-    assert(get_python_ver() >= (3, 6))
+    assert get_python_ver() >= (3, 6)

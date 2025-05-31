@@ -653,7 +653,7 @@ def read_settings(input_dir, assignment):
                 simulation = settings['simulation']
                 # simulation resolution
                 res = simulation['resolution']
-                assert(int(res)>1)
+                assert int(res) > 1
                 assignment.set_simu_resolution(int(res))
                 # simulation timings
                 dp_str = simulation['period']

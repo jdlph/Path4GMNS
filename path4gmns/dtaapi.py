@@ -88,10 +88,10 @@ def DTALiteClassic(assignment_mode, column_gen_num, column_upd_num):
     on each link
     """
     # make sure assignment_mode is right
-    assert(assignment_mode in [0, 1, 2, 3])
+    assert assignment_mode in [0, 1, 2, 3]
     # make sure iteration numbers are both non-negative
-    assert(column_gen_num>=0)
-    assert(column_upd_num>=0)
+    assert column_gen_num >= 0
+    assert column_upd_num >= 0
 
     _dtalite_engine = ctypes.cdll.LoadLibrary(_dtalite_dll)
     _dtalite_engine.network_assignment.argtypes = [ctypes.c_int,
