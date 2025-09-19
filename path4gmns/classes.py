@@ -106,6 +106,8 @@ class Link:
         self.travel_time_by_period = [0] * demand_period_size
         self.flow_vol_by_period = [0] * demand_period_size
         self.vdfperiods = []
+        # for Frank-Wolfe algorithm
+        self.directions = [0] * demand_period_size
         # for simulation
         self.cum_arr = None
         self.cum_dep = None
@@ -178,11 +180,29 @@ class Link:
     def increase_period_flow_vol(self, tau, fv):
         self.flow_vol_by_period[tau] += fv
 
-    def calculate_td_vdf(self):
+    def calculate_td_vdf(self, alpha=0):
         for tau in range(self.demand_period_size):
             self.travel_time_by_period[tau] = (
-                self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau])
+                self.vdfperiods[tau].run_bpr(
+                    self.flow_vol_by_period[tau] + alpha*self.directions[tau]
+                )
             )
+
+    def update_directions(self, tau, vol):
+        self.directions[tau] += vol
+
+    def update_period_flows(self, alpha=1):
+        for tau in range(self.demand_period_size):
+            self.flow_vol_by_period[tau] += alpha * self.directions[tau]
+            self.directions[tau] = - self.flow_vol_by_period[tau]
+
+    def get_derivative(self, tau, alpha=0):
+        value_of_time = 1
+        tt = self.vdfperiods[tau].run_bpr(
+                    self.flow_vol_by_period[tau] + alpha*self.directions[tau]
+            )
+        gc = tt + self.route_choice_cost + self.toll / max(EPSILON, value_of_time) * 60
+        return self.directions[tau] * gc
 
     def update_waiting_time(self, minute, wt):
         try:
