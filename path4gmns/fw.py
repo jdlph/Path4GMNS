@@ -1,4 +1,5 @@
 from .colgen import _update_link_cost_array
+from .consts import EPSILON
 from .path import single_source_shortest_path
 
 
@@ -127,6 +128,30 @@ def _line_search(tau, tolerance=1e-06):
     return alpha
 
 
+def _compute_relative_gap(A, iter_no):
+    """ compute the relative gap """
+    # TO DO: set up total_min_sys_travel_time
+    total_min_sys_travel_time = 0
+
+    total_sys_travel_time = 0
+    for sp in A.get_spnetworks():
+        tau = sp.get_demand_period().get_id()
+        vot = sp.get_agent_type().get_vot()
+
+        for link in sp.get_links():
+            if not link.length:
+                break
+
+            total_sys_travel_time += (
+                link.get_generalized_cost(tau, vot) * link.get_period_flow_vol(tau)
+            )
+
+    total_gap = total_sys_travel_time - total_min_sys_travel_time
+    rel_gap = total_gap / max(total_sys_travel_time, EPSILON)
+    print(f'current iteration number in Frank-Wolfe: {iter_no}\n'
+          f'total gap: {total_gap:.4e}; relative gap: {rel_gap:.4%}\n')
+
+
 def find_ue(ui, max_iter_num = 40, rel_gap_tolerance=0.0001):
     # base assignment
     A = ui._base_assignment
@@ -140,16 +165,15 @@ def find_ue(ui, max_iter_num = 40, rel_gap_tolerance=0.0001):
     i = 0
     _update_link_travel_time(links, 0)
     _update_link_cost_array(A.get_spnetworks())
-    _update_auxiliary_flows(A.get_spnetworks(), column_pool)
 
     while i < max_iter_num:
-        _update_link_travel_time(links, 0)
-        _update_link_cost_array(A.get_spnetworks())
         _update_auxiliary_flows(A.get_spnetworks(), links, column_pool)
+        # a little bit ugly to place it here
+        _compute_relative_gap(A, i)
 
         _update_link_flows(A.spnetworks)
+        _update_link_travel_time(links, 0)
         _update_link_cost_array(A.get_spnetworks())
-        # TO DO: compute the relative gap
 
         # useless
         i = i + 1
