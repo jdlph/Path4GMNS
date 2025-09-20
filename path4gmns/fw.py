@@ -24,7 +24,6 @@ def _backtrace_shortest_path_tree(centroid,
         cv = column_pool[(at_id, dp_id, oz_id, dz_id)]
 
         link_path = []
-        dist = 0
 
         curr_node_no = c.get_node_no()
         cost = node_costs[curr_node_no]
@@ -34,7 +33,6 @@ def _backtrace_shortest_path_tree(centroid,
             curr_link_no = link_preds[curr_node_no]
             if curr_link_no >= 0:
                 link_path.append(curr_link_no)
-                dist += links[curr_link_no].length
 
             curr_node_no = node_preds[curr_node_no]
 
@@ -44,8 +42,8 @@ def _backtrace_shortest_path_tree(centroid,
 
         vol = cv.get_od_volume()
         total_min_sys_tt += vol * cost
-        
-        [links[i].update_directions[dp_id, vol] for i in link_path[1:-1]]
+
+        [links[i].update_aux_flows[dp_id, vol] for i in link_path[1:-1]]
 
 
 def _update_link_travel_time(links, alpha):
@@ -67,15 +65,27 @@ def _get_derivative(links, tau, alpha):
     return d
 
 
-def _update_link_flows(links, alpha=1):
+def _update_link_flows(spnetworks):
+    for sp in spnetworks:
+        tau = sp.get_demand_period().get_id()
+        alpha = _line_search(tau)
+
+        for link in sp.get_links():
+            if not link.length:
+                break
+
+            link.update_period_flows(tau, alpha)
+            link.calculate_td_vdf()
+
+
+def _update_auxiliary_flows(spnetworks, links, column_pool):
+    # reset auxiliary flows for all links (except connectors)
     for link in links:
         if not link.length:
             break
 
-        link.update_period_flows(alpha)
+        link.reset_period_aux_flows()
 
-
-def _update_auxiliary_flows(spnetworks, column_pool):
     # find the new shortest paths
     for spn in spnetworks:
         for c in spn.get_orig_centroids():
@@ -89,6 +99,32 @@ def _update_auxiliary_flows(spnetworks, column_pool):
                                           spn.get_agent_type().get_id(),
                                           spn.get_demand_period().get_id(),
                                           column_pool)
+
+
+def _line_search(tau, tolerance=1e-06):
+    # line search, which shall be demand period specific
+    lb = 0
+    ub = 1
+
+    j = 0
+    while j < 20:
+        alpha = (lb + ub) / 2
+
+        derivative = _get_derivative(tau, alpha)
+        if abs(derivative) < 0.0001:
+            break
+
+        if derivative < 0:
+            lb = alpha
+        else:
+            ub = alpha
+
+        if abs(ub - lb) < tolerance:
+            break
+
+        j = j + 1
+
+    return alpha
 
 
 def find_ue(ui, max_iter_num = 40, rel_gap_tolerance=0.0001):
@@ -105,41 +141,15 @@ def find_ue(ui, max_iter_num = 40, rel_gap_tolerance=0.0001):
     _update_link_travel_time(links, 0)
     _update_link_cost_array(A.get_spnetworks())
     _update_auxiliary_flows(A.get_spnetworks(), column_pool)
-    _update_auxiliary_flows(links)
 
-    alpha = 0.5
-    lb = 0
-    ub = 1
     while i < max_iter_num:
         _update_link_travel_time(links, 0)
         _update_link_cost_array(A.get_spnetworks())
-        _update_auxiliary_flows(A.get_spnetworks(), column_pool)
-        
-        tau = 1
-        # line search, which shall be demand period specific
-        j = 0
-        while j < 20:
-            d = _get_derivative(tau, alpha)
-            if abs(d) < 0.0001:
-                break
+        _update_auxiliary_flows(A.get_spnetworks(), links, column_pool)
 
-            if d < 0:
-                lb = alpha
-            elif d > 0:
-                ub = alpha
+        _update_link_flows(A.spnetworks)
+        _update_link_cost_array(A.get_spnetworks())
+        # TO DO: compute the relative gap
 
-            alpha = (lb + ub) / 2
-
-        _update_link_flows(alpha)
-        # compute the relative gap
-        _update_link_travel_time(links, alpha)
-
-        tstt = 0
-        for link in links:
-            if not link.length:
-                break
-
-        tstt += link.get_derivative(tau, alpha)
-        gap = tstt - total_min_sys_tt
-        rel_gap = gap /tstt
-        
+        # useless
+        i = i + 1
