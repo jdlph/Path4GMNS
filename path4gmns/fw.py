@@ -1,3 +1,5 @@
+from time import time
+
 from .colgen import _update_link_cost_array, _update_link_travel_time
 from .consts import EPSILON, LINE_SEARCH_MAX_ITER
 from .path import single_source_shortest_path
@@ -29,10 +31,7 @@ def _aon_assignment(centroid,
         if (at_id, dp_id, oz_id, dz_id) not in column_pool:
             continue
 
-        cv = column_pool[(at_id, dp_id, oz_id, dz_id)]
-
         link_path = []
-
         curr_node_no = c.get_node_no()
         cost = node_costs[curr_node_no]
 
@@ -48,6 +47,7 @@ def _aon_assignment(centroid,
         if not link_path:
             continue
 
+        cv = column_pool[(at_id, dp_id, oz_id, dz_id)]
         vol = cv.get_od_volume()
         _total_min_sys_travel_time[dp_id] += vol * cost
 
@@ -55,20 +55,15 @@ def _aon_assignment(centroid,
 
 
 def _get_derivative(links, tau, alpha):
-    d = 0
-    for link in links:
-        if not link.length:
-            break
-
-        d += link.get_derivative(tau, alpha)
-
-    return d
+    return sum(
+        link.get_derivative(tau, alpha) for link in links if link.length
+    )
 
 
-def _update_link_flows(spnetworks, iter_no):
+def _update_link_flows(spnetworks, enables_line_search=True):
     for sp in spnetworks:
         tau = sp.get_demand_period().get_id()
-        if not iter_no:
+        if not enables_line_search:
             alpha = 1
         else:
             alpha = _line_search(sp.get_links(), tau)
@@ -130,8 +125,7 @@ def _line_search(links, tau, tolerance=1e-06):
 
         j = j + 1
 
-    print(f'derivative is {derivative:.4f}')
-    print(f'step size is {alpha:.4f}')
+    print(f'step size : {alpha:.4f}, derivative: {derivative:.4f}')
 
     return alpha
 
@@ -178,16 +172,22 @@ def find_ue_fw(ui, max_iter_num = 40, rel_gap_tolerance=0.0001):
     links = A.get_links()
     demand_period_count = A.get_demand_period_count()
 
-    _init_sys_tt(demand_period_count)
+    print('find user equilibrium (UE) using Frank-Wolfe Algorithm')
+    st = time()
 
+    # initialization
+    _init_sys_tt(demand_period_count)
     _update_link_travel_time(links)
     _update_link_cost_array(A.get_spnetworks())
+    _update_auxiliary_flows(A, links, column_pool)
+    _update_link_flows(A.get_spnetworks(), enables_line_search=False)
 
     for i in range(max_iter_num):
-        _update_auxiliary_flows(A, links, column_pool)
-        # a little bit ugly to place it here
-        _compute_relative_gap(A, i)
-
-        _update_link_flows(A.get_spnetworks(), iter_no=i)
         _update_link_travel_time(links)
         _update_link_cost_array(A.get_spnetworks())
+        _update_auxiliary_flows(A, links, column_pool)
+        _update_link_flows(A.get_spnetworks())
+
+        _compute_relative_gap(A, i)
+
+    print(f'processing time: {time()-st:.2f}s\n')
