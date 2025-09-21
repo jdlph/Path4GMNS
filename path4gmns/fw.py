@@ -1,5 +1,5 @@
-from .colgen import _update_link_cost_array
-from .consts import EPSILON
+from .colgen import _update_link_cost_array, _update_link_travel_time
+from .consts import EPSILON, LINE_SEARCH_MAX_ITER
 from .path import single_source_shortest_path
 
 
@@ -10,15 +10,15 @@ _total_sys_travel_time = dict()
 _total_min_sys_travel_time = dict()
 
 
-def _backtrace_shortest_path_tree(centroid,
-                                  centroids,
-                                  links,
-                                  node_preds,
-                                  link_preds,
-                                  node_costs,
-                                  at_id,
-                                  dp_id,
-                                  column_pool):
+def _aon_assignment(centroid,
+                    centroids,
+                    links,
+                    node_preds,
+                    link_preds,
+                    node_costs,
+                    at_id,
+                    dp_id,
+                    column_pool):
 
     oz_id = centroid.get_zone_id()
     for c in centroids:
@@ -52,14 +52,6 @@ def _backtrace_shortest_path_tree(centroid,
         _total_min_sys_travel_time[dp_id] += vol * cost
 
         [links[i].update_aux_flows(dp_id, vol) for i in link_path[1:-1]]
-
-
-def _update_link_travel_time(links):
-    for link in links:
-        if not link.length:
-            break
-
-        link.calculate_td_vdf()
 
 
 def _get_derivative(links, tau, alpha):
@@ -97,53 +89,59 @@ def _update_auxiliary_flows(A, links, column_pool):
 
         link.reset_period_aux_flows()
 
-    _init_sys_tt(A.get_spnetworks())
+    # reset the minimum total travel time for each demand period
+    for tau in _total_min_sys_travel_time:
+        _total_min_sys_travel_time[tau] = 0
+
     # find the new shortest paths
     for spn in A.get_spnetworks():
         for c in spn.get_orig_centroids():
             single_source_shortest_path(spn, c.get_node_id())
-            _backtrace_shortest_path_tree(c,
-                                          spn.get_centroids(),
-                                          spn.get_links(),
-                                          spn.get_node_preds(),
-                                          spn.get_link_preds(),
-                                          spn.get_node_label_costs(),
-                                          spn.get_agent_type().get_id(),
-                                          spn.get_demand_period().get_id(),
-                                          column_pool)
+            _aon_assignment(
+                c,
+                spn.get_centroids(),
+                spn.get_links(),
+                spn.get_node_preds(),
+                spn.get_link_preds(),
+                spn.get_node_label_costs(),
+                spn.get_agent_type().get_id(),
+                spn.get_demand_period().get_id(),
+                column_pool
+            )
 
 
 def _line_search(links, tau, tolerance=1e-06):
-    # line search, which shall be demand period specific
-    lb = 0
-    ub = 1
+    """ conduct demand period specific line search """
+    L = 0
+    R = 1
 
     j = 0
-    while j < 20:
-        alpha = (lb + ub) / 2
+    while j < LINE_SEARCH_MAX_ITER and tolerance <= abs(R - L):
+        alpha = (L + R) / 2
 
         derivative = _get_derivative(links, tau, alpha)
-        if abs(derivative) < 0.0001:
+        if abs(derivative) < tolerance:
             break
 
         if derivative < 0:
-            lb = alpha
+            L = alpha
         else:
-            ub = alpha
-
-        if abs(ub - lb) < tolerance:
-            break
+            R = alpha
 
         j = j + 1
 
-    print(f'derivative is {derivative}')
-    print(f'step size is {alpha}')
+    print(f'derivative is {derivative:.4f}')
+    print(f'step size is {alpha:.4f}')
 
     return alpha
 
 
 def _compute_relative_gap(A, iter_no):
     """ compute the relative gap """
+    # reset the total system travel time for each demand period
+    for tau in _total_sys_travel_time:
+        _total_sys_travel_time[tau] = 0
+
     for sp in A.get_spnetworks():
         tau = sp.get_demand_period().get_id()
         vot = sp.get_agent_type().get_vot()
@@ -160,14 +158,12 @@ def _compute_relative_gap(A, iter_no):
 
         total_gap = _total_sys_travel_time[tau] - _total_min_sys_travel_time[tau]
         rel_gap = total_gap / max(_total_sys_travel_time[tau], EPSILON)
-        print(f'current iteration number in Frank-Wolfe: {iter_no}\n'
+        print(f'current iteration number in Frank-Wolfe: {iter_no} for demand period {tau}\n'
               f'total gap: {total_gap:.4e}; relative gap: {rel_gap:.4%}\n')
 
 
-def _init_sys_tt(spnetworks):
-    for sp in spnetworks:
-        tau = sp.get_demand_period().get_id()
-
+def _init_sys_tt(demand_period_count):
+    for tau in range(demand_period_count):
         _total_sys_travel_time[tau] = 0
         _total_min_sys_travel_time[tau] = 0
 
@@ -180,12 +176,14 @@ def find_ue_fw(ui, max_iter_num = 40, rel_gap_tolerance=0.0001):
 
     column_pool = A.get_column_pool()
     links = A.get_links()
+    demand_period_count = A.get_demand_period_count()
 
-    i = 0
+    _init_sys_tt(demand_period_count)
+
     _update_link_travel_time(links)
     _update_link_cost_array(A.get_spnetworks())
 
-    while i < max_iter_num:
+    for i in range(max_iter_num):
         _update_auxiliary_flows(A, links, column_pool)
         # a little bit ugly to place it here
         _compute_relative_gap(A, i)
@@ -193,5 +191,3 @@ def find_ue_fw(ui, max_iter_num = 40, rel_gap_tolerance=0.0001):
         _update_link_flows(A.get_spnetworks(), iter_no=i)
         _update_link_travel_time(links)
         _update_link_cost_array(A.get_spnetworks())
-
-        i = i + 1
