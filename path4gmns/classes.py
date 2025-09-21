@@ -193,19 +193,18 @@ class Link:
         for tau in range(self.demand_period_size):
             self.period_aux_flows[tau] = 0
 
-    def update_period_flows(self, tau, alpha=1):
+    def update_period_flows(self, tau, alpha):
         self.flow_vol_by_period[tau] = (
-            (1-alpha) * self.flow_vol_by_period[tau]
+            (1 - alpha) * self.flow_vol_by_period[tau]
             + alpha * self.period_aux_flows[tau]
         )
 
-    def get_derivative(self, tau, alpha=0):
-        value_of_time = 1
+    def get_derivative(self, tau, vot, alpha):
         tt = self.vdfperiods[tau].run_bpr(
-                (1 - alpha) * self.flow_vol_by_period[tau] 
+                (1 - alpha) * self.flow_vol_by_period[tau]
                 + alpha * self.period_aux_flows[tau]
             )
-        gc = tt + self.route_choice_cost + self.toll / max(EPSILON, value_of_time) * 60
+        gc = tt + self.route_choice_cost + self.toll / max(EPSILON, vot) * 60
         return (self.period_aux_flows[tau] - self.flow_vol_by_period[tau]) * gc
 
     def update_waiting_time(self, minute, wt):

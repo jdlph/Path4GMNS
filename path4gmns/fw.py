@@ -54,19 +54,21 @@ def _aon_assignment(centroid,
         [links[i].update_aux_flows(dp_id, vol) for i in link_path[1:-1]]
 
 
-def _get_derivative(links, tau, alpha):
+def _get_derivative(links, tau, vot, alpha):
     return sum(
-        link.get_derivative(tau, alpha) for link in links if link.length
+        link.get_derivative(tau, vot, alpha) for link in links if link.length
     )
 
 
 def _update_link_flows(spnetworks, enables_line_search=True):
     for sp in spnetworks:
         tau = sp.get_demand_period().get_id()
+        vot = sp.get_agent_type().get_vot()
+
         if not enables_line_search:
             alpha = 1
         else:
-            alpha = _line_search(sp.get_links(), tau)
+            alpha = _line_search(sp.get_links(), tau, vot)
 
         for link in sp.get_links():
             if not link.length:
@@ -76,7 +78,7 @@ def _update_link_flows(spnetworks, enables_line_search=True):
             link.calculate_td_vdf()
 
 
-def _update_auxiliary_flows(A, links, column_pool):
+def _update_auxiliary_flows(spnetworks, links, column_pool):
     # reset auxiliary flows for all links (except connectors)
     for link in links:
         if not link.length:
@@ -89,7 +91,7 @@ def _update_auxiliary_flows(A, links, column_pool):
         _total_min_sys_travel_time[tau] = 0
 
     # find the new shortest paths
-    for spn in A.get_spnetworks():
+    for spn in spnetworks:
         for c in spn.get_orig_centroids():
             single_source_shortest_path(spn, c.get_node_id())
             _aon_assignment(
@@ -105,7 +107,7 @@ def _update_auxiliary_flows(A, links, column_pool):
             )
 
 
-def _line_search(links, tau, tolerance=1e-06):
+def _line_search(links, tau, vot, tolerance=1e-06):
     """ conduct demand period specific line search """
     L = 0
     R = 1
@@ -114,7 +116,7 @@ def _line_search(links, tau, tolerance=1e-06):
     while j < LINE_SEARCH_MAX_ITER and tolerance <= abs(R - L):
         alpha = (L + R) / 2
 
-        derivative = _get_derivative(links, tau, alpha)
+        derivative = _get_derivative(links, tau, vot, alpha)
         if abs(derivative) < tolerance:
             break
 
@@ -125,7 +127,7 @@ def _line_search(links, tau, tolerance=1e-06):
 
         j = j + 1
 
-    print(f'step size : {alpha:.4f}, derivative: {derivative:.4f}')
+    print(f'step size: {alpha:.4f}; derivative: {derivative:.4f}')
 
     return alpha
 
@@ -152,7 +154,7 @@ def _compute_relative_gap(A, iter_no):
 
         total_gap = _total_sys_travel_time[tau] - _total_min_sys_travel_time[tau]
         rel_gap = total_gap / max(_total_sys_travel_time[tau], EPSILON)
-        print(f'current iteration number in Frank-Wolfe: {iter_no} for demand period {tau}\n'
+        print(f'demand period | {tau}current iteration number in Frank-Wolfe: {iter_no}\n'
               f'total gap: {total_gap:.4e}; relative gap: {rel_gap:.4%}\n')
 
 
@@ -179,13 +181,13 @@ def find_ue_fw(ui, max_iter_num = 40, rel_gap_tolerance=0.0001):
     _init_sys_tt(demand_period_count)
     _update_link_travel_time(links)
     _update_link_cost_array(A.get_spnetworks())
-    _update_auxiliary_flows(A, links, column_pool)
+    _update_auxiliary_flows(A.get_spnetworks(), links, column_pool)
     _update_link_flows(A.get_spnetworks(), enables_line_search=False)
 
     for i in range(max_iter_num):
         _update_link_travel_time(links)
         _update_link_cost_array(A.get_spnetworks())
-        _update_auxiliary_flows(A, links, column_pool)
+        _update_auxiliary_flows(A.get_spnetworks(), links, column_pool)
         _update_link_flows(A.get_spnetworks())
 
         _compute_relative_gap(A, i)
