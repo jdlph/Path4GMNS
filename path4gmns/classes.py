@@ -180,13 +180,10 @@ class Link:
     def increase_period_flow_vol(self, tau, fv):
         self.flow_vol_by_period[tau] += fv
 
-    def calculate_td_vdf(self, alpha=0):
+    def calculate_td_vdf(self):
         for tau in range(self.demand_period_size):
             self.travel_time_by_period[tau] = (
-                self.vdfperiods[tau].run_bpr(
-                    (1 - alpha) * self.flow_vol_by_period[tau] 
-                    + alpha*self.period_aux_flows[tau]
-                )
+                self.vdfperiods[tau].run_bpr(self.flow_vol_by_period[tau])
             )
 
     def update_aux_flows(self, tau, vol):
@@ -197,13 +194,16 @@ class Link:
             self.period_aux_flows[tau] = 0
 
     def update_period_flows(self, tau, alpha=1):
-        self.flow_vol_by_period[tau] += alpha * self.period_aux_flows[tau]
-        self.period_aux_flows[tau] = - self.flow_vol_by_period[tau]
+        self.flow_vol_by_period[tau] = (
+            (1-alpha) * self.flow_vol_by_period[tau]
+            + alpha * self.period_aux_flows[tau]
+        )
 
     def get_derivative(self, tau, alpha=0):
         value_of_time = 1
         tt = self.vdfperiods[tau].run_bpr(
-                self.flow_vol_by_period[tau] + alpha*self.period_aux_flows[tau]
+                (1 - alpha) * self.flow_vol_by_period[tau] 
+                + alpha * self.period_aux_flows[tau]
             )
         gc = tt + self.route_choice_cost + self.toll / max(EPSILON, value_of_time) * 60
         return (self.period_aux_flows[tau] - self.flow_vol_by_period[tau]) * gc
