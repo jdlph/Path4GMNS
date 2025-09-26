@@ -15,6 +15,6 @@ MPH_TO_KPH = 1.60934
 SECONDS_IN_MINUTE = 60
 SECONDS_IN_HOUR = 3600
 # Frank-Wolfe Algorithm
-LINE_SEARCH_MAX_ITER = 100
+LINE_SEARCH_MAX_ITER = 20
 # for downloading
 GITHUB_API_URL = "https://api.github.com/repos"

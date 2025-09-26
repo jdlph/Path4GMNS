@@ -113,6 +113,7 @@ def _line_search(links, tau, vot, tolerance=1e-06):
     R = 1
 
     j = 0
+    # this two conditions somehow overlap with each other
     while j < LINE_SEARCH_MAX_ITER and tolerance <= abs(R - L):
         alpha = (L + R) / 2
 
@@ -138,6 +139,7 @@ def _compute_relative_gap(A, iter_no):
     for tau in _total_sys_travel_time:
         _total_sys_travel_time[tau] = 0
 
+    min_gaps = []
     for sp in A.get_spnetworks():
         tau = sp.get_demand_period().get_id()
         vot = sp.get_agent_type().get_vot()
@@ -154,8 +156,13 @@ def _compute_relative_gap(A, iter_no):
 
         total_gap = _total_sys_travel_time[tau] - _total_min_sys_travel_time[tau]
         rel_gap = total_gap / max(_total_sys_travel_time[tau], EPSILON)
-        print(f'demand period | {tau}current iteration number in Frank-Wolfe: {iter_no}\n'
+        min_gaps.append(rel_gap)
+
+        print(f'demand period {tau} | current iteration number in Frank-Wolfe: {iter_no}\n'
               f'total gap: {total_gap:.4e}; relative gap: {rel_gap:.4%}\n')
+
+    # return the maximum relative gap among all demand periods (i.e., max-min)
+    return max(min_gaps)
 
 
 def _init_sys_tt(demand_period_count):
@@ -174,7 +181,7 @@ def find_ue_fw(ui, max_iter_num = 40, rel_gap_tolerance=0.0001):
     links = A.get_links()
     demand_period_count = A.get_demand_period_count()
 
-    print('find user equilibrium (UE) using Frank-Wolfe Algorithm')
+    print('find user equilibrium (UE) using Frank-Wolfe Algorithm\n')
     st = time()
 
     # initialization
@@ -190,6 +197,10 @@ def find_ue_fw(ui, max_iter_num = 40, rel_gap_tolerance=0.0001):
         _update_auxiliary_flows(A.get_spnetworks(), links, column_pool)
         _update_link_flows(A.get_spnetworks())
 
-        _compute_relative_gap(A, i)
+        max_gap = _compute_relative_gap(A, i)
+        if max_gap <= rel_gap_tolerance:
+            print(f'converged at iteration {i} with relative gap {max_gap:.4%}.\n')
+            break
 
     print(f'processing time: {time()-st:.2f}s\n')
+    return max_gap

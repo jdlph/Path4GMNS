@@ -1,4 +1,5 @@
 from path4gmns.colgen import find_ue
+from path4gmns.fw import find_ue_fw
 from path4gmns.io import load_columns, output_columns,\
                          output_link_performance, read_demand, read_network
 
@@ -31,6 +32,17 @@ def test_finding_ue_with_rel_gap_tolerance(sample_data_dir):
         rel_gap = find_ue(network, 0, column_upd_num)
 
     assert rel_gap <= rel_gap_tolerance
+
+
+def test_finding_ue_fw(sample_data_dir, tmp_output_dir):
+    network = read_network(input_dir=sample_data_dir)
+    read_demand(network, input_dir=sample_data_dir)
+    
+    rel_gap_tolerance = 1e-4
+    rel_gap = find_ue_fw(network, max_iter_num=200, rel_gap_tolerance=rel_gap_tolerance)
+    assert rel_gap <= rel_gap_tolerance
+
+    output_link_performance(network, output_dir=tmp_output_dir)
 
 
 def test_loading_columns(sample_data_dir, tmp_output_dir):
