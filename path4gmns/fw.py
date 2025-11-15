@@ -115,7 +115,7 @@ def _line_search(links, tau, vot, tolerance=1e-06):
     j = 0
     # this two conditions somehow overlap with each other
     while j < LINE_SEARCH_MAX_ITER and tolerance <= abs(R - L):
-        alpha = (L + R) / 2
+        alpha = (L + R) * 0.5
 
         derivative = _get_derivative(links, tau, vot, alpha)
         if abs(derivative) < tolerance:
@@ -171,7 +171,7 @@ def _init_sys_tt(demand_period_count):
         _total_min_sys_travel_time[tau] = 0
 
 
-def find_ue_fw(ui, max_iter_num = 40, rel_gap_tolerance=0.0001):
+def find_ue_fw(ui, max_iter = 40, rel_gap_tolerance=1e-04):
     # base assignment
     A = ui._base_assignment
     # set up SPNetwork
@@ -191,7 +191,7 @@ def find_ue_fw(ui, max_iter_num = 40, rel_gap_tolerance=0.0001):
     _update_auxiliary_flows(A.get_spnetworks(), links, column_pool)
     _update_link_flows(A.get_spnetworks(), enables_line_search=False)
 
-    for i in range(max_iter_num):
+    for i in range(max_iter):
         _update_link_travel_time(links)
         _update_link_cost_array(A.get_spnetworks())
         _update_auxiliary_flows(A.get_spnetworks(), links, column_pool)

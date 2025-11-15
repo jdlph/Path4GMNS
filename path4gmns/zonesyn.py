@@ -69,7 +69,7 @@ def _find_resolution(nodes, grid_dim):
 
     # if grid_dim is d, we will create a total of d * d grids
     (U, D, L, R) = _get_boundaries(nodes)
-    res = ((R - L + U - D) / grid_dim) / 2
+    res = ((R - L + U - D) / grid_dim) * 0.5
     for r in resolutions:
         if res < r:
             res = r

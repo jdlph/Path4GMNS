@@ -37,9 +37,9 @@ def test_finding_ue_with_rel_gap_tolerance(sample_data_dir):
 def test_finding_ue_fw(sample_data_dir, tmp_output_dir):
     network = read_network(input_dir=sample_data_dir)
     read_demand(network, input_dir=sample_data_dir)
-    
+
     rel_gap_tolerance = 1e-4
-    rel_gap = find_ue_fw(network, max_iter_num=200, rel_gap_tolerance=rel_gap_tolerance)
+    rel_gap = find_ue_fw(network, max_iter=200, rel_gap_tolerance=rel_gap_tolerance)
     assert rel_gap <= rel_gap_tolerance
 
     output_link_performance(network, output_dir=tmp_output_dir)
@@ -57,7 +57,7 @@ def test_loading_columns(sample_data_dir, tmp_output_dir):
     output_link_performance(network, output_dir=tmp_output_dir)
 
 
-def test_mixed_invoking1(sample_data_dir, tmp_output_dir):
+def test_mixed_invoking1(sample_data_dir):
     """ test resolution on issue #51 (https://github.com/jdlph/Path4GMNS/issues/51)
     """
     network = read_network(input_dir=sample_data_dir)
@@ -71,7 +71,7 @@ def test_mixed_invoking1(sample_data_dir, tmp_output_dir):
     find_ue(network, column_gen_num, column_upd_num)
 
 
-def test_mixed_invoking2(sample_data_dir, tmp_output_dir):
+def test_mixed_invoking2(sample_data_dir):
     """ test resolution on issue #51 (https://github.com/jdlph/Path4GMNS/issues/51)
     """
     network = read_network(input_dir=sample_data_dir)
@@ -82,4 +82,28 @@ def test_mixed_invoking2(sample_data_dir, tmp_output_dir):
     find_ue(network, column_gen_num, column_upd_num)
 
     # invoke find_shortest_path() after find_ue()
+    network.find_shortest_path(1, 2)
+
+
+def test_mixed_invoking3(sample_data_dir):
+    """ test resolution on issue #51 (https://github.com/jdlph/Path4GMNS/issues/51)
+    """
+    network = read_network(input_dir=sample_data_dir)
+    read_demand(network, input_dir=sample_data_dir)
+
+    # invoke find_shortest_path() before find_ue_fw()
+    network.find_shortest_path(1, 2)
+
+    find_ue_fw(network, max_iter=5)
+
+
+def test_mixed_invoking4(sample_data_dir):
+    """ test resolution on issue #51 (https://github.com/jdlph/Path4GMNS/issues/51)
+    """
+    network = read_network(input_dir=sample_data_dir)
+    read_demand(network, input_dir=sample_data_dir)
+
+    find_ue_fw(network, max_iter=5)
+
+    # invoke find_shortest_path() after find_ue_fw()
     network.find_shortest_path(1, 2)
