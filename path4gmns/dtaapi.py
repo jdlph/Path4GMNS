@@ -178,7 +178,7 @@ def DTALiteMultimodal():
     print('\nDTALite run starts\n')
 
     try:
-        proc_dta = Process(target=_dtalitemm_engine.DTALiteAPI())
+        proc_dta = Process(target=_dtalitemm_engine.DTALiteAPI)
         proc_print = Process(target=_emit_log, args=('log_DTA.txt',))
 
         proc_dta.start()
