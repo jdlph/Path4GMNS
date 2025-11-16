@@ -25,6 +25,7 @@ jobs:
           pip install -e .
           pip install pytest
           pip install requests
+          pip install pyyaml
       - name: Run Pytest
         run: |
           pytest tests/

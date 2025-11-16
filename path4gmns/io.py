@@ -866,7 +866,7 @@ def load_columns(ui, input_dir='.'):
         update_links_using_columns(ui)
 
 
-def output_columns(ui, output_geometry=True, output_dir='.'):
+def output_columns(ui, output_geometry=False, output_dir='.'):
     with open(output_dir+'/route_assignment.csv', 'w',  newline='') as fp:
         base = ui._base_assignment
 

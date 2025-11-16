@@ -1,16 +1,16 @@
 # Path4GMNS
 [![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-red)
-[![Downloads](https://static.pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.9.10-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen) ![Read the Docs](https://img.shields.io/readthedocs/path4gmns)
+[![Downloads](https://static.pepy.tech/badge/path4gmns)](https://pepy.tech/project/path4gmns) [![GitHub release](https://img.shields.io/badge/release-v0.10.0-brightgreen)](https://img.shields.io/badge/release-v0.8.2-brightgreen) ![Read the Docs](https://img.shields.io/readthedocs/path4gmns)
 [![](https://dcbadge.limes.pink/api/server/https://discord.gg/JGFMta7kxZ?style=flat)](https://discord.gg/JGFMta7kxZ)
 
 Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding static shortest paths for simple analyses, its main functionality is to provide an efficient and flexible framework for column-based (path-based) modeling and applications in transportation (e.g., activity-based demand modeling). Path4GMNS supports, in short,
 
 1. finding (static) shortest path between two nodes,
-2. performing path-based User-Equilibrium (UE) traffic assignment,
+2. performing either path-based or link-based User-Equilibrium (UE) traffic assignment,
 3. conducting dynamic traffic assignment (DTA) after UE.
 4. evaluating multimodal accessibility and equity,
 5. making the Origin-Destination (OD) demand matrix estimation (ODME),
-6. synthesizing zones and Origin-Destination (OD) demand.
+6. synthesizing zones and OD demand.
 
 Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jdlph/DTALite) to conduct various multimodal traffic assignments including,
    * Link-based UE,
@@ -29,13 +29,13 @@ Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jd
 We highly recommend that you go through the above [Tutorial](https://github.com/jdlph/Path4GMNS/blob/master/tutorial/tutorial.ipynb), no matter you are one of the existing users or new to Path4GMNS.
 
 ## Installation
-Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.9.10/), and can be installed using
+Path4GMNS has been published on [PyPI](https://pypi.org/project/path4gmns/0.10.0/), and can be installed using
 ```
 $ pip install path4gmns
 ```
 
 > [!IMPORTANT]
-> v0.9.10 comes with bug fix on [find_shortest_path()](https://github.com/jdlph/Path4GMNS/issues/58), new functionality on obtaining the shortest path tree, and performance improvement on the UE module. Please **discard all old versions**.
+> v0.10.0 introduces the link-based UE that adopts the Frank-Wolfe algorithm with line search. As it does not preserve any paths, each iteration runs faster than the path-based procedure with less memory footprint. Please **discard all old versions**.
 
 > [!WARNING]
 > find_shortest_path() computes the shortest path per travel time rather than distance for v0.9.9.post1 and any earlier versions. See [Issue #58](https://github.com/jdlph/Path4GMNS/issues/58) for details. v0.9.10 offers the correct implementation with the flexibility to switch between time and distance.

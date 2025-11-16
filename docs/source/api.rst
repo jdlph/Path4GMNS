@@ -31,7 +31,12 @@ path4gmns.conduct_odme
 path4gmns.colgen
 ================
 .. autofunction:: path4gmns.colgen.find_ue
-  
+
+
+path4gmns.fw
+============
+.. autofunction:: path4gmns.fw.find_ue_fw
+
 
 path4gmns.io
 ============

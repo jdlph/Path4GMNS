@@ -2,17 +2,17 @@
 Installation
 ============
 
-Path4GMNS has been published on `PyPI <https://pypi.org/project/path4gmns/0.9.10/>`_, and can be installed using
+Path4GMNS has been published on `PyPI <https://pypi.org/project/path4gmns/0.10.0/>`_, and can be installed using
 
 .. code-block:: bash
 
     $ pip install path4gmns
 
-If you need a specific version of Path4GMNS, say, 0.9.10,
+If you need a specific version of Path4GMNS, say, 0.10.0,
 
 .. code-block:: bash
 
-    $ pip install path4gmns==0.9.10
+    $ pip install path4gmns==0.10.0
 
 
 Dependency

@@ -123,7 +123,7 @@ print(f'shortest path (node id) from node 1 to node 2: {sp_tree_node[2]}')
 # retrieve the shortest path from the source node (i.e., node 1) to node 3
 print(f'shortest path (node id) from node 1 to node 3: {sp_tree_node[3]}')
 
-# get shortest path tree (in link sequences) from node 1 
+# get shortest path tree (in link sequences) from node 1
 # cost is measured by distance (in miles)
 sp_tree_link = network.get_shortest_path_tree(1, seq_type='link', cost_type='distance')
 # retrieve the shortest path from the source node (i.e., node 1) to node 2
@@ -213,8 +213,8 @@ column_upd_num = 20
 rel_gap = pg.find_ue(network, column_gen_num, column_upd_num, rel_gap_tolerance = 0.001)
 print(f'the final relative UE gap is {rel_gap:.4%}')
 
-# if you do not want to include geometry info in the output file,
-# use pg.output_columns(network, False)
+# if you want to include path geometry info in the output file,
+# use pg.output_columns(network, True)
 pg.output_columns(network)
 pg.output_link_performance(network)
 ```
