@@ -199,7 +199,7 @@ def find_ue_fw(ui, max_iter=40, rel_gap_tolerance=1e-04):
 
     Note
     ----
-    You will need to call output_link_performance() toget the assignment
+    You will need to call output_link_performance() to get the assignment
     results, i.e., volumes and other link attributes on each link (in
     link_performance.csv).
     """

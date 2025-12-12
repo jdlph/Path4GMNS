@@ -35,7 +35,7 @@ $ pip install path4gmns
 ```
 
 > [!IMPORTANT]
-> v0.10.0 introduces the link-based UE that adopts the Frank-Wolfe algorithm with line search. As it does not preserve any paths, each iteration runs faster than the path-based procedure with less memory footprint. Please **discard all old versions**.
+> v0.10.0 introduces the link-based UE that adopts the Frank-Wolfe algorithm with line search. As it does not preserve any paths, each iteration runs faster than the path-based procedure with less memory footprint. Besides, it fixes potential issues on invoking DTALite. Please **discard all old versions**.
 
 > [!WARNING]
 > find_shortest_path() computes the shortest path per travel time rather than distance for v0.9.9.post1 and any earlier versions. See [Issue #58](https://github.com/jdlph/Path4GMNS/issues/58) for details. v0.9.10 offers the correct implementation with the flexibility to switch between time and distance.

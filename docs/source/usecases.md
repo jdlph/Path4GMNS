@@ -236,7 +236,7 @@ pg.output_link_performance(network)
 
 # NOTE that pg.output_columns(network) is NOT available under the link-based UE!
 ```
-find_ue_fw() will terminate when it reaches the maximum number of iterations (**max_iter_num**) or the target relative gap (**rel_gap_tolerance**), whichever comes first. The default values are **40** and **1e-04**, respectively. You can specify
+find_ue_fw() will terminate when it reaches the maximum number of iterations (**max_iter**) or the target relative gap (**rel_gap_tolerance**), whichever comes first. The default values are **40** and **1e-04**, respectively. You can specify
 their values toward your own need like below.
 
 ```python
@@ -245,7 +245,7 @@ import path4gmns as pg
 network = pg.read_network()
 pg.read_demand(network)
 
-pg.find_ue_fw(network, max_iter_num=100, rel_gap_tolerance=1e-6)
+pg.find_ue_fw(network, max_iter=100, rel_gap_tolerance=1e-6)
 pg.output_link_performance(network)
 
 # NOTE that pg.output_columns(network) is NOT available under the link-based UE!

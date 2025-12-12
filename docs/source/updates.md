@@ -70,5 +70,12 @@
 68. Adaptively display the path distance per the length unit passed to read_network() (v0.9.10)
 69. Introduce get_shortest_path_tree() to return the shortest path tree from a given source node (v0.9.10)
 70. Remove deprecated APIs including perform_column_generation(), perform_network_assignment(), perform_network_assignment(), and perform_network_assignment_DTALite() (v0.9.10)
+71. Introduce generic downloading functions to replace download_sample_data_sets() (v0.10.0)
+72. Introduce DTALiteClassic() and DTALiteMultimodal() to replace perform_network_assignment_DTALite() and
+  run_DTALite(), respectively (v0.10.0)
+73. Add multiprocessing exception handling to DTALiteClassic() (v0.10.0)
+74. Fix segmentation fault on DTALiteMultimodal() with Python 3.8 on Linux (v0.10.0)
+75. Introduce link-based UE with find_ue_fw() (v0.10.0)
+76. Optimize IO by precluding path geometry as default when outputting route_assignment.csv (v0.10.0)
 
 Detailed update information can be found in [Releases](https://github.com/jdlph/Path4GMNS/releases).
