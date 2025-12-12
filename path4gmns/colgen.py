@@ -294,7 +294,7 @@ def update_links_using_columns(network):
     _update_link_travel_time(links)
 
 
-def find_ue(ui, column_gen_num, column_upd_num, rel_gap_tolerance=0.0001):
+def find_ue(ui, column_gen_num, column_upd_num, rel_gap_tolerance=1e-04):
     """ find user equilibrium (UE)
 
     WARNING

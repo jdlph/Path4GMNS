@@ -171,7 +171,7 @@ def _init_sys_tt(demand_period_count):
         _total_min_sys_travel_time[tau] = 0
 
 
-def find_ue_fw(ui, max_iter = 40, rel_gap_tolerance=1e-04):
+def find_ue_fw(ui, max_iter=40, rel_gap_tolerance=1e-04):
     """ find user equilibrium (UE) with the Frank-Wolfe Algorithm
 
     WARNING

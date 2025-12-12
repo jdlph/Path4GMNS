@@ -60,7 +60,7 @@ The Python modules are written in **Python 3.x**, which is the minimum requireme
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2025, March 16). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2025, December 12). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## Please Contribute
 

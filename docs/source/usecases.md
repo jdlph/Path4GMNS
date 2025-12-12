@@ -156,8 +156,10 @@ print(f'shortest path (link id) from node 1 to node 2: {sp_tree_link[2]}')
 print(f'shortest path (link id) from node 1 to node 3: {sp_tree_link[3]}')
 ```
 
-## Find Path-Based UE
-The Python column-generation module only implements path-based UE. If you need other assignment modes, e.g., link-based UE or DTA, please use DTALiteClassic(). Note that **column_gen_num** below specifies the maximum number of paths / columns for each OD pair.
+## Find UE
+
+### Path-Based UE
+The column-generation module implements the path-based UE, where **column_gen_num** below specifies the maximum number of paths / columns for each OD pair.
 
 ```python
 import path4gmns as pg
@@ -217,6 +219,36 @@ print(f'the final relative UE gap is {rel_gap:.4%}')
 # use pg.output_columns(network, True)
 pg.output_columns(network)
 pg.output_link_performance(network)
+```
+
+### Link-Based UE
+
+v0.10.0 introduces the link-based UE that adopts the Frank-Wolfe algorithm with line search. Compared to the path-based UE, it does not preserve any paths / columns but only (unique) link flows. Therefore, each iteration runs faster than the path-based procedure with less memory footprint.
+
+```python
+import path4gmns as pg
+
+network = pg.read_network()
+pg.read_demand(network)
+
+pg.find_ue_fw(network)
+pg.output_link_performance(network)
+
+# NOTE that pg.output_columns(network) is NOT available under the link-based UE!
+```
+find_ue_fw() will terminate when it reaches the maximum number of iterations (**max_iter_num**) or the target relative gap (**rel_gap_tolerance**), whichever comes first. The default values are **40** and **1e-04**, respectively. You can specify
+their values toward your own need like below.
+
+```python
+import path4gmns as pg
+
+network = pg.read_network()
+pg.read_demand(network)
+
+pg.find_ue_fw(network, max_iter_num=100, rel_gap_tolerance=1e-6)
+pg.output_link_performance(network)
+
+# NOTE that pg.output_columns(network) is NOT available under the link-based UE!
 ```
 
 ### In Case of Special Events
