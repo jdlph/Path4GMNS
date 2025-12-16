@@ -57,6 +57,23 @@ def test_loading_columns(sample_data_dir, tmp_output_dir):
     output_link_performance(network, output_dir=tmp_output_dir)
 
 
+def test_loading_columns_fw(sample_data_dir, tmp_output_dir):
+    """ test loading columns to set up demand info for find_ue_fw()
+
+    WARNING
+    -------
+    This is just for testing purpose. It is NOT recommended to use!
+    """
+    network = read_network(input_dir=sample_data_dir)
+    load_columns(network, input_dir=tmp_output_dir)
+
+    rel_gap_tolerance = 1e-2
+    rel_gap = find_ue_fw(network, max_iter=20, rel_gap_tolerance=rel_gap_tolerance)
+    assert rel_gap <= rel_gap_tolerance
+
+    output_link_performance(network, output_dir=tmp_output_dir)
+
+
 def test_mixed_invoking1(sample_data_dir):
     """ test resolution on issue #51 (https://github.com/jdlph/Path4GMNS/issues/51)
     """

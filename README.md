@@ -5,7 +5,7 @@
 
 Path4GMNS is an open-source, cross-platform, lightweight, and fast Python path engine for networks encoded in [GMNS](https://github.com/zephyr-data-specs/GMNS). Besides finding static shortest paths for simple analyses, its main functionality is to provide an efficient and flexible framework for column-based (path-based) modeling and applications in transportation (e.g., activity-based demand modeling). Path4GMNS supports, in short,
 
-1. finding (static) shortest path between two nodes,
+1. finding (static) shortest paths,
 2. performing either path-based or link-based User-Equilibrium (UE) traffic assignment,
 3. conducting dynamic traffic assignment (DTA) after UE.
 4. evaluating multimodal accessibility and equity,
@@ -24,7 +24,7 @@ Path4GMNS also serves as an API to the C++-based [DTALite](https://github.com/jd
 
 1. **[Tutorial](https://github.com/jdlph/Path4GMNS/blob/master/tutorial/tutorial.ipynb)** written in Jupyter notebook with step-by-step demonstration.
 2. **[Documentation](https://path4gmns.readthedocs.io/en/stable/)** on Installation, Use Cases, Public API, and more.
-3. **[TransOMS](https://github.com/jdlph/TransOMS)** on the C++ equivalent.
+3. **[OpenDTA](https://github.com/jdlph/OpenDTA)** on the C++ equivalent.
 
 We highly recommend that you go through the above [Tutorial](https://github.com/jdlph/Path4GMNS/blob/master/tutorial/tutorial.ipynb), no matter you are one of the existing users or new to Path4GMNS.
 
@@ -35,7 +35,7 @@ $ pip install path4gmns
 ```
 
 > [!IMPORTANT]
-> v0.10.0 introduces the link-based UE that adopts the Frank-Wolfe algorithm with line search. As it does not preserve any paths, each iteration runs faster than the path-based procedure with less memory footprint. Besides, it fixes potential issues on invoking DTALite. Please **discard all old versions**.
+> v0.10.0 introduces the link-based UE that adopts the Frank-Wolfe algorithm with line search. As it does not preserve any paths, each iteration runs faster than the path-based procedure with less memory footprint. Besides, it fixes potential issues of invoking DTALite. Please **discard all old versions**.
 
 > [!WARNING]
 > find_shortest_path() computes the shortest path per travel time rather than distance for v0.9.9.post1 and any earlier versions. See [Issue #58](https://github.com/jdlph/Path4GMNS/issues/58) for details. v0.9.10 offers the correct implementation with the flexibility to switch between time and distance.
@@ -60,7 +60,7 @@ The Python modules are written in **Python 3.x**, which is the minimum requireme
 
 ## How to Cite
 
-Li, P. and Zhou, X. (2025, December 12). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
+Li, P. and Zhou, X. (2025, December 15). *Path4GMNS*. Retrieved from https://github.com/jdlph/Path4GMNS
 
 ## Please Contribute
 

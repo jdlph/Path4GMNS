@@ -14,7 +14,7 @@ efficient and flexible framework for column-based (path-based) modeling and
 applications in transportation (e.g., activity-based demand modeling).
 Path4GMNS supports, in short,
 
-1. finding (static) shortest path between two nodes,
+1. finding (static) shortest paths,
 2. performing either path-based or link-based User-Equilibrium (UE) traffic assignment,
 3. conducting dynamic traffic assignment (DTA) after UE.
 4. evaluating multimodal accessibility and equity,

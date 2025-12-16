@@ -173,8 +173,8 @@ column_upd_num = 20
 
 pg.find_ue(network, column_gen_num, column_upd_num)
 
-# if you do not want to include geometry info in the output file,
-# use pg.output_columns(network, False)
+# if you want to include path geometry info in the output file,
+# use pg.output_columns(network, True)
 pg.output_columns(network)
 pg.output_link_performance(network)
 ```
@@ -598,7 +598,7 @@ print('writing agent trajectories')
 pg.output_agent_trajectory(network)
 ```
 
-If you have route_assignment.csv (i.e.columns) from a previous run or DTALite, you can bypass find_ue() and directly load it to conduct simulation.
+If you have route_assignment.csv (i.e., columns) from a previous run or DTALite, you can bypass find_ue() and directly load it to conduct simulation.
 
 ```python
 import path4gmns as pg
